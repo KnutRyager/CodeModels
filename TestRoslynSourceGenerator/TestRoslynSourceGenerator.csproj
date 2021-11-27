@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+	<!-- Add this as a new ItemGroup, replacing paths and names appropriately -->
+	<ItemGroup>
+		<!-- Note that this is not a "normal" ProjectReference.
+         It needs the additional 'OutputItemType' and 'ReferenceOutputAssembly' attributes. -->
+		<ProjectReference Include="..\Generator\Generator.csproj"
+						  OutputItemType="Analyzer"
+						  ReferenceOutputAssembly="false" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\LibraryA\LibraryA.csproj" GeneratePathProperty="true" PrivateAssets="all"/>
+		<ProjectReference Include="..\LibraryB\LibraryB.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+
+	</ItemGroup>
+	
+</Project>
