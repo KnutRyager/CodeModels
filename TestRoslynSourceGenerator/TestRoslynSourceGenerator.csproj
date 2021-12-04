@@ -11,14 +11,14 @@
 	<ItemGroup>
 		<!-- Note that this is not a "normal" ProjectReference.
          It needs the additional 'OutputItemType' and 'ReferenceOutputAssembly' attributes. -->
-		<ProjectReference Include="..\Generator\Generator.csproj"
-						  OutputItemType="Analyzer"
-						  ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\Generator\Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+
 	</ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\LibraryA\LibraryA.csproj" GeneratePathProperty="true" PrivateAssets="all"/>
-		<ProjectReference Include="..\LibraryB\LibraryB.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
+		<ProjectReference Include="..\LibraryA\LibraryA.csproj" GeneratePathProperty="true" PrivateAssets="all" />
+		<ProjectReference Include="..\LibraryB\LibraryB.csproj" OutputItemType="Analyzer" />
 
 	</ItemGroup>
 	
