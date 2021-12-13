@@ -1,34 +1,31 @@
-﻿using CodeAnalyzation.Models;
+﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using CodeAnalyzation.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace CodeAnalyzation
 {
     public static class SyntaxNodeExtensions
     {
-        private static CSharpCompilation? _compilation;
-        public static CSharpCompilation Compilation => _compilation ?? throw new Exception("_compilation not initialized.");
-
-        private static SemanticModel? _semanticModel;
-        private static SemanticModel SemanticModel => _semanticModel ?? throw new Exception("_semanticModel not initialized.");
-
-        public static void SetCompilation(CSharpCompilation compilation, IEnumerable<SyntaxTree> trees)
+        private static IDictionary<string?, CompilationContext> contexts = new ConcurrentDictionary<string?, CompilationContext>();
+        private static IDictionary<SyntaxTree, CompilationContext> treeContexts = new ConcurrentDictionary<SyntaxTree, CompilationContext>();
+        private static string? lastKey;
+        public static void SetCompilation(CSharpCompilation compilation, IEnumerable<SyntaxTree> trees, string? key = null)
         {
-            _compilation = compilation;
-            _semanticModel = GetSemanticModel(trees.FirstOrDefault());
+            foreach (var tree in trees)
+            {
+                GetContext(tree).SetCompilation(compilation, trees);
+                GetContext(key).SetCompilation(compilation, trees);
+            }
+            GetContext(key).SetCompilation(compilation, trees);
         }
 
-        public static void SetSemanticModel(SyntaxTree tree)
-            => _semanticModel = GetSemanticModel(tree);
-
-        public static void SetSemanticModel(int treeIndex)
-            => _semanticModel = GetSemanticModel(Compilation.SyntaxTrees[treeIndex]);
-
-        public static SemanticModel GetSemanticModel(SyntaxTree? tree = null) => (tree == null)! ? SemanticModel : Compilation.GetSemanticModel(tree);
+        public static void SetSemanticModel(SyntaxTree tree, string? key = null) => GetContext(tree, key).SetSemanticModel(tree);
+        public static void SetSemanticModel(int treeIndex, string? key = null) => GetContext(key).SetSemanticModel(treeIndex);
+        public static SemanticModel GetSemanticModel(SyntaxTree? tree = null, string? key = null) => (tree != null ? GetContext(tree, key) : GetContext(key)).GetSemanticModel(tree);
 
         public static bool HasModifier(this MemberDeclarationSyntax root, SyntaxKind modifier) => root.Modifiers.Any(modifier);
         public static bool IsStatic(this MemberDeclarationSyntax root) => root.HasModifier(SyntaxKind.StaticKeyword);
@@ -80,8 +77,7 @@ namespace CodeAnalyzation
                 @class.GetMethods().Select(x => x.GetModel()));
 
         public static Method GetModel(this MethodDeclarationSyntax method)
-                   => new(method.GetName(), method.GetParameters().Select(x => x.GetParameter2()), method.ReturnType.GetType2(), System.Array.Empty<Dependency>());
-
+                => new(method.GetName(), method.GetParameters().Select(x => x.GetParameter2()), TType.Parse(method.ReturnType), System.Array.Empty<Dependency>());
 
         public static IEnumerable<PropertyDeclarationSyntax> GetProperties(this CSharpSyntaxNode node)
             => node.DescendantNodes().OfType<PropertyDeclarationSyntax>();
@@ -143,7 +139,7 @@ namespace CodeAnalyzation
         //    SemanticModel
         //}
 
-        public static ISymbol GetTType(this CSharpSyntaxNode node) => SemanticModel.GetSymbolInfo(node).Symbol!;
+        public static ISymbol GetTType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
 
 
         //public static Method Params(this MethodDeclarationSyntax method)
@@ -151,13 +147,28 @@ namespace CodeAnalyzation
         //public static Method Types(this ParameterListSyntax parameterList)
         //    => parameterList.Parameters
         public static Parameter GetParameter2(this ParameterSyntax parameter)
-           => new(parameter.Identifier.ValueText, parameter.Type!.GetType2());
+           => new(parameter.Identifier.ValueText, TType.Parse(parameter.Type!));
         ////public static Parameter GetPType(this ParameterSyntax parameter)
         ////   => SemanticModel.GetDeclaredSymbol(parameter);
 
         ////public static Namespace GetModel(this AttributeListSyntax attributeList)
         ////    => new Parameter(attributeList., attributeList.Type.GetModel());
 
-        public static TType GetType2(this TypeSyntax type) => new(type.ToString());
+        private static CompilationContext GetContext(SyntaxTree tree, string? key = null)
+        {
+            if (key != null) return GetContext(key);
+            var context = treeContexts.ContainsKey(tree) ? treeContexts[tree] : new CompilationContext();
+            treeContexts[tree] = context;
+            return context;
+        }
+
+        private static CompilationContext GetContext(string? key = null)
+        {
+            key = key ?? lastKey;
+            var context = contexts.ContainsKey(key) ? contexts[key] : new CompilationContext();
+            contexts[key] = context;
+            lastKey = key;
+            return context;
+        }
     }
 }

@@ -7,13 +7,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 public class ClassFilter
 {
-    public Type[] Attributes { get; set; }
-    private string[] AttributeNames { get; set; }
+    public Type[]? Attributes { get; set; }
+    private string[]? AttributeNames { get; set; }
 
-    public ClassFilter(Type[] attributes)
+    public ClassFilter(Type[]? attributes = null)
     {
         Attributes = attributes;
-        AttributeNames = attributes.Select(x => x.Name).ToArray();
+        AttributeNames = attributes?.Select(x => x.Name).ToArray();
     }
 
     public bool Check(ClassDeclarationSyntax node)
@@ -35,14 +35,14 @@ public class ClassVirtualizationVisitor : CSharpSyntaxRewriter
     private readonly List<ClassDeclarationSyntax> classes = new List<ClassDeclarationSyntax>();
     private readonly ClassFilter filter;
 
-    public ClassVirtualizationVisitor(ClassFilter filter = null)
+    public ClassVirtualizationVisitor(ClassFilter? filter = null)
     {
-        this.filter = filter;
+        this.filter = filter ?? new ClassFilter();
     }
 
     public override SyntaxNode VisitClassDeclaration(ClassDeclarationSyntax node)
     {
-        node = (ClassDeclarationSyntax)base.VisitClassDeclaration(node);
+        node = (ClassDeclarationSyntax)base.VisitClassDeclaration(node)!;
         if (filter == null || filter.Check(node))
             classes.Add(node);
 

@@ -9,7 +9,7 @@ namespace CodeAnalysisTests;
 public class CodeGenerationTests
 {
     [Fact]
-    public void POJO() => CodeEqual(
+    public void POJO() =>
 @"public class A
 {
     public int P1 { get; set; }
@@ -17,7 +17,7 @@ public class CodeGenerationTests
     public decimal? P2 { get; set; }
 
     public System.DateTime P3 { get; set; }
-}",
+}".CodeEqual(
     CodeGeneration.GeneratePOJO(new Clazz()
     {
         Name = "A",
@@ -28,13 +28,13 @@ public class CodeGenerationTests
 
 
     [Fact]
-    public void POJOWithForeignKey() => CodeEqual(
+    public void POJOWithForeignKey() =>
 @"public class A
 {
     public int? FK { get; set; }
 
     public B B_Prop { get; set; }
-}",
+}".CodeEqual(
     CodeGeneration.GeneratePOJO(new Clazz()
     {
         Name = "A",

@@ -6,7 +6,6 @@ using static CodeAnalyzation.SyntaxNodeExtensions;
 
 namespace CodeAnalysisTests;
 
-[Collection("Sequential")]
 public class SyntaxTreeTests
 {
     [Fact]
@@ -47,7 +46,7 @@ public class SyntaxTreeTests
     public void GetFieldType_Custom() => Assert.Equal("Test.MyNameSpace.TestType",
                        new[] { "using Test.MyNameSpace; using System; class Test2{public TestType variable { get; set; }}",
                     "using System; namespace Test.MyNameSpace { class TestType{}" }
-                       .Parse().First().GetProperties().First().DescendantNodes()
+                       .Parse("a").First().GetProperties().First().DescendantNodes()
                        .OfType<IdentifierNameSyntax>().First().GetTType().ToString());
 
     [Fact]
@@ -55,8 +54,8 @@ public class SyntaxTreeTests
     {
         var tree = new[] { "using System; namespace Test.MyNameSpace { class Test{public int variable { get; set; }}}",
                     "using Test.MyNameSpace; using System; class Test2{public DateTime variable { get; set; }}" }
-                       .Parse().Last();
-        SyntaxNodeExtensions.SetSemanticModel(1);
+                       .Parse(nameof(GetFieldType_File2)).Last();
+        SetSemanticModel(1, nameof(GetFieldType_File2));
         Assert.Equal("System.DateTime",
                        tree.GetProperties().First().DescendantNodes()
                        .OfType<IdentifierNameSyntax>().First().GetTType().ToString());

@@ -11,33 +11,37 @@ using static CodeAnalyzation.SyntaxNodeExtensions;
 
 public static class Util
 {
-    public static SyntaxTree ParseTree(this string str)
-        => CSharpSyntaxTree.ParseText(Mustache.RemoveMustache(str));
+    public static SyntaxTree SyntaxTree(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular) => str.Parse(key, kind).SyntaxTree;
+    public static ExpressionSyntax ExpressionTree(this string str, string? key = null) => SyntaxFactory.ParseExpression(str);
 
-    public static CompilationUnitSyntax Parse(this string str)
+    public static SyntaxTree[] SyntaxTrees(this string str, string? key = null) => new[] { str.Parse(key).SyntaxTree };
+
+    public static CSharpSyntaxTree ParseTree(this string str, SourceCodeKind kind = SourceCodeKind.Regular)
+        => (CSharpSyntaxTree.ParseText(Mustache.RemoveMustache(str), options: new CSharpParseOptions(kind: kind)) as CSharpSyntaxTree)!;
+
+    public static CompilationUnitSyntax Parse(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
     {
-        var tree = ParseTree(str);
-        SetSemanticModel(new[] { tree });
-        return (CompilationUnitSyntax)tree.GetRoot();
+        var tree = ParseTree(str, kind);
+        return StoreSyntaxTree(tree, key ?? str).GetCompilationUnitRoot();
     }
 
-    public static IEnumerable<CompilationUnitSyntax> Parse(this IEnumerable<string> strs)
+    public static IEnumerable<CompilationUnitSyntax> Parse(this IEnumerable<string> strs, string? key = null)
     {
-        var trees = strs.Select(ParseTree).ToArray();
-        SetSemanticModel(trees);
+        var trees = strs.Select(x => ParseTree(x)).ToArray();
+        SetSemanticModel(trees, key ?? string.Join(", ", strs));
         return trees.Select(tree => (CompilationUnitSyntax)tree.GetRoot());
     }
 
     public static IEnumerable<CompilationUnitSyntax> ParsePath(this string path) => FileUtil.ReadFilesToText(FileUtil.GetFiles(path)).Parse();
 
-    private static void SetSemanticModel(IEnumerable<SyntaxTree> trees)
+    private static void SetSemanticModel(IEnumerable<SyntaxTree> trees, string? key = null)
     {
         var Mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
         var compilationWithModel = CSharpCompilation.Create("MyCompilation",
             syntaxTrees: trees, references: new[] { Mscorlib });
         //Note that we must specify the tree for which we want the model.
         //Each tree has its own semantic model
-        SetCompilation(compilationWithModel, trees);
+        SetCompilation(compilationWithModel, trees, key);
     }
 
     public static CompilationUnitSyntax ParseFile(this string path)
@@ -61,4 +65,16 @@ public static class Util
 
     public static string JsonList(IEnumerable<string> jsonObjects)
         => $"[{string.Join(",", jsonObjects)}]";
+
+    private static T StoreSyntax<T>(T node, string? key = null) where T : CSharpSyntaxNode
+    {
+        StoreSyntaxTree((node.SyntaxTree as CSharpSyntaxTree)!, key);
+        return node;
+    }
+
+    private static CSharpSyntaxTree StoreSyntaxTree(CSharpSyntaxTree tree, string? key = null)
+    {
+        SetSemanticModel(new[] { tree }, key ?? tree.ToString());
+        return tree;
+    }
 }

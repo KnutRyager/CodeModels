@@ -32,15 +32,13 @@ namespace CodeAnalyzation.CodeGeneration
                 char n => LiteralExpression(SyntaxKind.CharacterLiteralExpression, Literal(n)),
                 string s => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(s)),
                 bool b => LiteralExpression(b ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
-                _ => throw new NotImplementedException(),
+                _ => throw new ArgumentException($"Unhandled literal expression: '{value}'."),
             };
-
 
         public static ObjectCreationExpressionSyntax ConstructorCall(string name, IEnumerable<SyntaxNode> arguments)
             => ObjectCreationExpression(Token(ParseTrailingTrivia(""),
                     SyntaxKind.NewKeyword, ParseTrailingTrivia(" ")),
                     IdentifierName(name), ArgumentList(SeparatedList(arguments)), null);
-
 
         public static InvocationExpressionSyntax InvocationExpressionCustom(string name, IEnumerable<ExpressionSyntax> arguments)
             => InvocationExpressionCustom(IdentifierName(name), arguments);
