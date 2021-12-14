@@ -42,9 +42,8 @@ public class PropertyVisiter : CSharpSyntaxRewriter
 
     public override SyntaxNode VisitPropertyDeclaration(PropertyDeclarationSyntax node)
     {
-        node = (PropertyDeclarationSyntax)base.VisitPropertyDeclaration(node);
-        if (filter == null || filter.Check(node))
-            properties.Add(node);
+        node = (base.VisitPropertyDeclaration(node) as PropertyDeclarationSyntax)!;
+        if (filter?.Check(node) == true) properties.Add(node);
 
         return node;
     }

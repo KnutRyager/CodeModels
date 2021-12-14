@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models
 {
@@ -10,5 +11,8 @@ namespace CodeAnalyzation.Models
         {
             Parts = parts;
         }
+
+        public Namespace(NamespaceDeclarationSyntax @namespace) : this(new[] { @namespace.Name.ToString() }) { }
+
     }
 }

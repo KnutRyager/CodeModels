@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-
+using System.Linq;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models
 {
@@ -14,5 +15,13 @@ namespace CodeAnalyzation.Models
             Methods = methods ?? new List<Method>();
             Constants = constants ?? new List<TType>();
         }
+
+        public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace) =>
+           (@class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
+               new Namespace(@namespace),
+               @class.GetMethods().Select(x => new Method(x)))
+           : new NonStaticClass(@class.Identifier.ValueText,
+               new Namespace(@namespace),
+               @class.GetMethods().Select(x => new Method(x))));
     }
 }

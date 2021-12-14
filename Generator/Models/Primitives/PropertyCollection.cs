@@ -18,6 +18,8 @@ public class PropertyCollection
     public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
     public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
     public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
+    public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
 
     public static PropertyCollection Parse(string code) => code.Parse().Members.FirstOrDefault() switch
     {

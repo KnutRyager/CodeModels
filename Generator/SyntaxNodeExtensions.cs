@@ -27,34 +27,34 @@ namespace CodeAnalyzation
         public static void SetSemanticModel(int treeIndex, string? key = null) => GetContext(key).SetSemanticModel(treeIndex);
         public static SemanticModel GetSemanticModel(SyntaxTree? tree = null, string? key = null) => (tree != null ? GetContext(tree, key) : GetContext(key)).GetSemanticModel(tree);
 
-        public static bool HasModifier(this MemberDeclarationSyntax root, SyntaxKind modifier) => root.Modifiers.Any(modifier);
-        public static bool IsStatic(this MemberDeclarationSyntax root) => root.HasModifier(SyntaxKind.StaticKeyword);
-        public static bool IsNonStatic(this MemberDeclarationSyntax root) => !root.IsStatic();
-        public static bool IsPublic(this MemberDeclarationSyntax root) => root is NamespaceDeclarationSyntax || root.HasModifier(SyntaxKind.PublicKeyword);
-        public static bool IsPrivate(this MemberDeclarationSyntax root) => root.HasModifier(SyntaxKind.PrivateKeyword);
-        public static bool IsProtected(this MemberDeclarationSyntax root) => root.HasModifier(SyntaxKind.ProtectedKeyword);
+        public static bool HasModifier(this MemberDeclarationSyntax node, SyntaxKind modifier) => node.Modifiers.Any(modifier);
+        public static bool IsStatic(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.StaticKeyword);
+        public static bool IsNonStatic(this MemberDeclarationSyntax node) => !node.IsStatic();
+        public static bool IsPublic(this MemberDeclarationSyntax node) => node is NamespaceDeclarationSyntax || node.HasModifier(SyntaxKind.PublicKeyword);
+        public static bool IsPrivate(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.PrivateKeyword);
+        public static bool IsProtected(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.ProtectedKeyword);
 
-        public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this CSharpSyntaxNode root)
-            => from @namespace in root.DescendantNodes().OfType<NamespaceDeclarationSyntax>() select @namespace;
+        public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this CSharpSyntaxNode node)
+            => from @namespace in node.DescendantNodes().OfType<NamespaceDeclarationSyntax>() select @namespace;
 
-        public static IEnumerable<ClassDeclarationSyntax> GetClasses(this CSharpSyntaxNode root)
-            => from classDeclaration in root.DescendantNodes().OfType<ClassDeclarationSyntax>() select classDeclaration;
+        public static IEnumerable<ClassDeclarationSyntax> GetClasses(this CSharpSyntaxNode node)
+            => from classDeclaration in node.DescendantNodes().OfType<ClassDeclarationSyntax>() select classDeclaration;
 
-        public static IEnumerable<ClassDeclarationSyntax> GetStaticClasses(this CSharpSyntaxNode root)
-            => root.GetClasses().Where(IsStatic);
+        public static IEnumerable<ClassDeclarationSyntax> GetStaticClasses(this CSharpSyntaxNode node)
+            => node.GetClasses().Where(IsStatic);
 
-        public static IEnumerable<ClassDeclarationSyntax> GetNonStaticClasses(this CSharpSyntaxNode root)
-            => root.GetClasses().Where(IsNonStatic);
+        public static IEnumerable<ClassDeclarationSyntax> GetNonStaticClasses(this CSharpSyntaxNode node)
+            => node.GetClasses().Where(IsNonStatic);
 
-        public static IEnumerable<MethodDeclarationSyntax> GetMethods(this CSharpSyntaxNode root)
-            => from methodDeclaration in root.DescendantNodes().OfType<MethodDeclarationSyntax>() select methodDeclaration;
+        public static IEnumerable<MethodDeclarationSyntax> GetMethods(this CSharpSyntaxNode node)
+            => from methodDeclaration in node.DescendantNodes().OfType<MethodDeclarationSyntax>() select methodDeclaration;
 
-        public static SyntaxNode GetVisit(this SyntaxNode root, CSharpSyntaxRewriter visitor) => visitor.Visit(root);
-        public static SyntaxNode GetVisit<T>(this SyntaxNode root) where T : CSharpSyntaxRewriter, new()
-            => root.GetVisit(new T());
+        public static SyntaxNode GetVisit(this SyntaxNode node, CSharpSyntaxRewriter visitor) => visitor.Visit(node);
+        public static SyntaxNode GetVisit<T>(this SyntaxNode node) where T : CSharpSyntaxRewriter, new()
+            => node.GetVisit(new T());
 
-        public static IEnumerable<MethodDeclarationSyntax> GetPublicMethods(this CSharpSyntaxNode root)
-            => root.GetMethods().Where(IsPublic);
+        public static IEnumerable<MethodDeclarationSyntax> GetPublicMethods(this CSharpSyntaxNode node)
+            => node.GetMethods().Where(IsPublic);
 
         public static string GetName(this MethodDeclarationSyntax method)
             => method.Identifier.ValueText;
@@ -65,19 +65,7 @@ namespace CodeAnalyzation
         public static TypeSyntax GetReturn(this MethodDeclarationSyntax method)
             => method.ReturnType;
 
-        public static Namespace GetModel(this NamespaceDeclarationSyntax @namespace)
-            => new(new[] { @namespace.Name.ToString() });
-
-        public static ClassModel GetModel(this ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace)
-            => @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
-                @namespace?.GetModel(),
-                @class.GetMethods().Select(x => x.GetModel()))
-            : new NonStaticClass(@class.Identifier.ValueText,
-                @namespace?.GetModel(),
-                @class.GetMethods().Select(x => x.GetModel()));
-
-        public static Method GetModel(this MethodDeclarationSyntax method)
-                => new(method.GetName(), method.GetParameters().Select(x => x.GetParameter2()), TType.Parse(method.ReturnType), System.Array.Empty<Dependency>());
+       
 
         public static IEnumerable<PropertyDeclarationSyntax> GetProperties(this CSharpSyntaxNode node)
             => node.DescendantNodes().OfType<PropertyDeclarationSyntax>();
@@ -133,26 +121,7 @@ namespace CodeAnalyzation
         public static IEnumerable<FieldDeclarationSyntax> GetPublicStaticFields(this CSharpSyntaxNode node)
         => node.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(IsPublic);
 
-        //public static IEnumerable<FieldDeclarationSyntax> GetType(this FieldDeclarationSyntax node)
-        //{
-        //    var x = node.DescendantNodes().OfType<IdentifierNameSyntax>().FirstOrDefault();
-        //    SemanticModel
-        //}
-
         public static ISymbol GetTType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
-
-
-        //public static Method Params(this MethodDeclarationSyntax method)
-        //    => method.ParameterList.
-        //public static Method Types(this ParameterListSyntax parameterList)
-        //    => parameterList.Parameters
-        public static Parameter GetParameter2(this ParameterSyntax parameter)
-           => new(parameter.Identifier.ValueText, TType.Parse(parameter.Type!));
-        ////public static Parameter GetPType(this ParameterSyntax parameter)
-        ////   => SemanticModel.GetDeclaredSymbol(parameter);
-
-        ////public static Namespace GetModel(this AttributeListSyntax attributeList)
-        ////    => new Parameter(attributeList., attributeList.Type.GetModel());
 
         private static CompilationContext GetContext(SyntaxTree tree, string? key = null)
         {

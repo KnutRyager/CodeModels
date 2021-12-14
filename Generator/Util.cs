@@ -8,6 +8,7 @@ using Common.Extensions;
 using Common.Files;
 
 using static CodeAnalyzation.SyntaxNodeExtensions;
+using CodeAnalyzation.Models;
 
 public static class Util
 {
@@ -57,14 +58,9 @@ public static class Util
         return JsonList(classes);
     }
 
-    public static string ParseToJson(this ClassDeclarationSyntax c, NamespaceDeclarationSyntax? @namespace)
-        => c.GetModel(@namespace).ToJson();
-
-    public static string ParseFileToJson(this string path)
-        => FileUtil.ReadFileToText(path).ParseToJson();
-
-    public static string JsonList(IEnumerable<string> jsonObjects)
-        => $"[{string.Join(",", jsonObjects)}]";
+    public static string ParseToJson(this ClassDeclarationSyntax c, NamespaceDeclarationSyntax? @namespace) => ClassModel.Parse(c, @namespace).ToJson();
+    public static string ParseFileToJson(this string path) => FileUtil.ReadFileToText(path).ParseToJson();
+    public static string JsonList(IEnumerable<string> jsonObjects) => $"[{string.Join(",", jsonObjects)}]";
 
     private static T StoreSyntax<T>(T node, string? key = null) where T : CSharpSyntaxNode
     {
