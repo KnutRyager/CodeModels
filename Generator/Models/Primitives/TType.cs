@@ -5,22 +5,34 @@ using Microsoft.CodeAnalysis.CSharp;
 using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
 using System.Collections.Generic;
 using System;
+using Common.Reflection;
 
 namespace CodeAnalyzation.Models
 {
 
     public class TType
     {
-        private IDictionary<string, SyntaxKind> _predefinedTypes = new Dictionary<string, SyntaxKind>()
+        private readonly IDictionary<string, SyntaxKind> _predefinedTypes = new Dictionary<string, SyntaxKind>()
         {
+            { SyntaxKind.ByteKeyword.ToString(), SyntaxKind.ByteKeyword },
+            { SyntaxKind.SByteKeyword.ToString(), SyntaxKind.SByteKeyword },
+            { SyntaxKind.ShortKeyword.ToString(), SyntaxKind.ShortKeyword },
+            { SyntaxKind.UShortKeyword.ToString(), SyntaxKind.UShortKeyword },
             { SyntaxKind.IntKeyword.ToString(), SyntaxKind.IntKeyword },
             { SyntaxKind.UIntKeyword.ToString(), SyntaxKind.UIntKeyword },
             { SyntaxKind.LongKeyword.ToString(), SyntaxKind.LongKeyword },
             { SyntaxKind.ULongKeyword.ToString(), SyntaxKind.ULongKeyword },
+            { SyntaxKind.FloatKeyword.ToString(), SyntaxKind.FloatKeyword },
+            { SyntaxKind.DoubleKeyword.ToString(), SyntaxKind.DoubleKeyword },
+            { SyntaxKind.DecimalKeyword.ToString(), SyntaxKind.DecimalKeyword },
+            { SyntaxKind.StringKeyword.ToString(), SyntaxKind.StringKeyword },
+            { SyntaxKind.BoolKeyword.ToString(), SyntaxKind.BoolKeyword },
+            { SyntaxKind.VoidKeyword.ToString(), SyntaxKind.VoidKeyword },
         };
 
         public string Identifier { get; set; }
-        public ISymbol Symbol { get; set; }
+        public ISymbol? Symbol { get; set; }
+        public Type? Type { get; set; }
         public bool Required { get; set; }
 
         public TType(string identifier, bool required = true)
@@ -33,6 +45,13 @@ namespace CodeAnalyzation.Models
         {
             Symbol = typeSymbol;
             Identifier = Symbol.Name;
+            Required = required;
+        }
+
+        public TType(Type type, bool required = true)
+        {
+            Type = type;
+            Identifier = type.Name;
             Required = required;
         }
 
@@ -56,5 +75,7 @@ namespace CodeAnalyzation.Models
             _ when _predefinedTypes.ContainsKey(Identifier) => PredefinedType(Token(_predefinedTypes[Identifier])),
             _ => IdentifierName(Identifier(Identifier))
         };
+
+        public Type? GetReflectedType() => Type ??= ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default;
     }
 }

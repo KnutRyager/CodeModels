@@ -42,9 +42,7 @@ public class PropertyCollection
         _ => throw new ArgumentException($"Can't parse {nameof(PropertyCollection)} from '{expression}'.")
     };
 
-    public static PropertyCollection Parse(IEnumerable<ArgumentSyntax> arguments)
-        => new PropertyCollection(arguments.Select(x => Property.Parse(x)));
-
+    public static PropertyCollection Parse(IEnumerable<ArgumentSyntax> arguments) => new(arguments.Select(x => Property.Parse(x)));
 
     public ClassDeclarationSyntax ToClass(string name) => ClassDeclaration(
             attributeLists: default,
