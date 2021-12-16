@@ -9,6 +9,7 @@ public class ClassSample
 {
     [Required()]
     public const int Const = 0;
+    public int ArrowProp => 0;
 
     public string StringProperty { get; set; }
     public int? OptionalProperty { get; set; }

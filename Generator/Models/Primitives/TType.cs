@@ -9,7 +9,6 @@ using Common.Reflection;
 
 namespace CodeAnalyzation.Models
 {
-
     public class TType
     {
         private readonly IDictionary<string, SyntaxKind> _predefinedTypes = new Dictionary<string, SyntaxKind>()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
+using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 
@@ -34,6 +35,9 @@ namespace CodeAnalyzation.Models
 
         public static Value FromValue(object literalValue) => new(new(literalValue.GetType()), literalValue);
 
+        public LiteralExpressionSyntax? LiteralExpression => LiteralValue != null ? LiteralExpressionCustom(LiteralValue) : default;
+        public ExpressionSyntax Expression => LiteralExpression ?? default;
+
         public EnumMemberDeclarationSyntax ToEnumValue() => EnumMemberDeclaration(
                 attributeLists: default,
                 identifier: Type switch
@@ -42,5 +46,10 @@ namespace CodeAnalyzation.Models
                     _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
                 },
                 equalsValue: default);
+
+        public ArgumentSyntax ToArgument() => ArgumentCustom(
+                nameColon: default,
+                refKindKeyword: default,
+                expression: Expression);
     }
 }

@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
@@ -16,7 +17,7 @@ namespace CodeAnalyzation.Models
             Values = values.ToList();
         }
 
-        public ValueCollection(string commaSeparatedValues) : this(commaSeparatedValues.Split(',').Select(x => Value.FromValue(x))) { }
+        public ValueCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => Value.FromValue(x))) { }
         public ValueCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new Value(x))) { }
 
         public EnumDeclarationSyntax ToEnum(string name) => EnumDeclaration(
@@ -26,6 +27,8 @@ namespace CodeAnalyzation.Models
                 baseList: default,
                 members: SeparatedList(Values.Select(x => x.ToEnumValue()))
             );
+
+        public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
     }
 }
 

@@ -18,10 +18,10 @@ namespace CodeAnalyzation.Models
 
         public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace) =>
            (@class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
-               new Namespace(@namespace),
+               @namespace == default ? default : new Namespace(@namespace),
                @class.GetMethods().Select(x => new Method(x)))
            : new NonStaticClass(@class.Identifier.ValueText,
-               new Namespace(@namespace),
+                 @namespace == default ? default : new Namespace(@namespace),
                @class.GetMethods().Select(x => new Method(x))));
     }
 }

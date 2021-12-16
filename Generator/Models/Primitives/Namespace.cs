@@ -12,7 +12,8 @@ namespace CodeAnalyzation.Models
             Parts = parts;
         }
 
-        public Namespace(NamespaceDeclarationSyntax @namespace) : this(new[] { @namespace.Name.ToString() }) { }
+        public Namespace(NamespaceDeclarationSyntax? @namespace) : this(string.IsNullOrWhiteSpace(@namespace?.Name?.ToString()) ? new string[] { } : new[] { @namespace.Name.ToString() }) { }
 
+        public override string ToString() => string.Join(".", Parts);
     }
 }
