@@ -9,6 +9,7 @@ using Common.Files;
 
 using static CodeAnalyzation.SyntaxNodeExtensions;
 using CodeAnalyzation.Models;
+using System;
 
 public static class Util
 {
@@ -26,6 +27,9 @@ public static class Util
         return StoreSyntaxTree(tree, key ?? str).GetCompilationUnitRoot();
     }
 
+    public static (CompilationUnitSyntax Compilation, SemanticModel Model) ParseKeepSemanticModel(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
+        => (Compilation: str.Parse(key, kind), GetSemanticModel(key: str));
+
     public static IEnumerable<CompilationUnitSyntax> Parse(this IEnumerable<string> strs, string? key = null)
     {
         var trees = strs.Select(x => ParseTree(x)).ToArray();
@@ -37,13 +41,18 @@ public static class Util
 
     private static void SetSemanticModel(IEnumerable<SyntaxTree> trees, string? key = null)
     {
-        var Mscorlib = MetadataReference.CreateFromFile(typeof(object).Assembly.Location);
+        var Mscorlib = GetReference<object>();
+        var linqLib = GetReference(typeof(Enumerable));
+        var collectionsLib = GetReference(typeof(List<>));
         var compilationWithModel = CSharpCompilation.Create("MyCompilation",
-            syntaxTrees: trees, references: new[] { Mscorlib });
+            syntaxTrees: trees, references: new[] { Mscorlib, linqLib, collectionsLib });
         //Note that we must specify the tree for which we want the model.
         //Each tree has its own semantic model
         SetCompilation(compilationWithModel, trees, key);
     }
+
+    private static PortableExecutableReference GetReference<T>() => GetReference(typeof(T));
+    private static PortableExecutableReference GetReference(Type type) => MetadataReference.CreateFromFile(type.Assembly.Location);
 
     public static CompilationUnitSyntax ParseFile(this string path)
         => FileUtil.ReadFileToText(path).Parse();
