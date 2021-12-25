@@ -1,7 +1,9 @@
-﻿using System.Collections.Concurrent;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using CodeAnalyzation.Models;
+using Common.DataStructures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,8 +12,8 @@ namespace CodeAnalyzation
 {
     public static class SyntaxNodeExtensions
     {
-        private static IDictionary<string?, CompilationContext> contexts = new ConcurrentDictionary<string?, CompilationContext>();
-        private static IDictionary<SyntaxTree, CompilationContext> treeContexts = new ConcurrentDictionary<SyntaxTree, CompilationContext>();
+        private static readonly IDictionary<string?, CompilationContext> contexts = new ConcurrentDictionary<string?, CompilationContext>();
+        private static readonly IDictionary<SyntaxTree, CompilationContext> treeContexts = new ConcurrentDictionary<SyntaxTree, CompilationContext>();
         private static string? lastKey;
         public static void SetCompilation(CSharpCompilation compilation, IEnumerable<SyntaxTree> trees, string? key = null)
         {
@@ -33,7 +35,7 @@ namespace CodeAnalyzation
         public static bool IsPublic(this MemberDeclarationSyntax node) => node is NamespaceDeclarationSyntax || node.HasModifier(SyntaxKind.PublicKeyword);
         public static bool IsPrivate(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.PrivateKeyword);
         public static bool IsProtected(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.ProtectedKeyword);
-
+        
         public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this CSharpSyntaxNode node)
             => from @namespace in node.DescendantNodes().OfType<NamespaceDeclarationSyntax>() select @namespace;
 
@@ -65,13 +67,20 @@ namespace CodeAnalyzation
         public static TypeSyntax GetReturn(this MethodDeclarationSyntax method)
             => method.ReturnType;
 
-       
-
         public static IEnumerable<PropertyDeclarationSyntax> GetProperties(this CSharpSyntaxNode node)
             => node.DescendantNodes().OfType<PropertyDeclarationSyntax>();
 
+        public static IEnumerable<FieldDeclarationSyntax> GetFields(this CSharpSyntaxNode node)
+            => node.DescendantNodes().OfType<FieldDeclarationSyntax>();
+
+        public static IEnumerable<MemberDeclarationSyntax> GetMembers(this CSharpSyntaxNode node)
+            => node.DescendantNodes().OfType<MemberDeclarationSyntax>();
+
         public static IEnumerable<VariableDeclarationSyntax> GetVariables(this CSharpSyntaxNode node)
             => node.DescendantNodes().OfType<VariableDeclarationSyntax>();
+
+        public static List<ISymbol> GetMemberSymbols(this CSharpSyntaxNode node, SemanticModel model)
+            => node.GetMembers().ToList<SyntaxNode>().Concat(node.GetFields().SelectMany(y => y.Declaration.Variables)).Select(x => model.GetDeclaredSymbol(x)).Where(x => x is not null).ToList()!;
 
         // public static IEnumerable<ClassDeclarationSyntax> GetDerivedClasses(this ClassDeclarationSyntax node)
         // {
@@ -123,6 +132,16 @@ namespace CodeAnalyzation
 
         public static ISymbol GetTType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
 
+        public static SyntaxNode GetContentRoot(this SyntaxNode node) => node switch
+        {
+            PropertyDeclarationSyntax property => property.ExpressionBody ?? (SyntaxNode?)property.AccessorList!,
+            FieldDeclarationSyntax field => field.Declaration,
+            MethodDeclarationSyntax method => method.Body ?? (SyntaxNode?)method.ExpressionBody!,
+            ArrowExpressionClauseSyntax arrowClause => arrowClause.Expression!,
+            VariableDeclaratorSyntax variable => variable.Initializer!,
+            _ => throw new ArgumentException($"Can't find content root of node '{node}'")
+        };
+
         private static CompilationContext GetContext(SyntaxTree tree, string? key = null)
         {
             if (key != null) return GetContext(key);
@@ -133,7 +152,7 @@ namespace CodeAnalyzation
 
         private static CompilationContext GetContext(string? key = null)
         {
-            key = key ?? lastKey;
+            key ??= lastKey;
             var context = contexts.ContainsKey(key) ? contexts[key] : new CompilationContext();
             contexts[key] = context;
             lastKey = key;
