@@ -19,6 +19,7 @@ namespace Common.DataStructures
         }
 
         public Tree(params Tree<T>[] valueAndChldren) : this(valueAndChldren[0], valueAndChldren.Skip(1)) { }
+        public Tree(IEnumerable<T> valueAndChildren) : this(valueAndChildren.First(), valueAndChildren.Skip(1).Select(x => new Tree<T>(x))) { }
         public Tree(T data) : this(data, Array.Empty<Tree<T>>()) { }
 
         public Tree<T> this[int i] => _children[i];
@@ -29,11 +30,18 @@ namespace Common.DataStructures
             foreach (var child in node._children) Traverse(child, visitor);
         }
 
-        public Tree<T> AddChild(T dada)
+        public void Traverse(Action<T> visitor) => Traverse(this, visitor);
+
+        public Tree<T> Add(T data)
         {
-            var node = new Tree<T>(dada);
+            var node = new Tree<T>(data);
             _children.Add(node);
             return node;
+        }
+
+        public void AddRange(IEnumerable<T> data)
+        {
+            foreach (var item in data) Add(item);
         }
 
         public Tree<T2> Transform<T2>(Func<T, T2> transformer) => new(transformer(Data), _children.Select(x => x.Transform(transformer)));
@@ -52,7 +60,7 @@ namespace Common.DataStructures
             foreach (var child in _children)
             {
                 var result = transformer(child, this);
-                child.TransformByParentCollect(tree.AddChild(result), transformer);
+                child.TransformByParentCollect(tree.Add(result), transformer);
             }
         }
 
@@ -69,7 +77,7 @@ namespace Common.DataStructures
             foreach (var child in _children)
             {
                 var result = transformer(child, tree);
-                child.TransformByTransformedParentCollect(tree.AddChild(result), transformer);
+                child.TransformByTransformedParentCollect(tree.Add(result), transformer);
             }
         }
 
