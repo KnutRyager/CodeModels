@@ -21,6 +21,11 @@ namespace Common.DataStructures
         public Tree(params Tree<T>[] valueAndChldren) : this(valueAndChldren[0], valueAndChldren.Skip(1)) { }
         public Tree(IEnumerable<T> valueAndChildren) : this(valueAndChildren.First(), valueAndChildren.Skip(1).Select(x => new Tree<T>(x))) { }
         public Tree(T data) : this(data, Array.Empty<Tree<T>>()) { }
+        public Tree(Tree<T> tree)
+        {
+            Data = tree.Data;
+            _children = tree._children.Select(x => new Tree<T>(x)).ToList();
+        }
 
         public Tree<T> this[int i] => _children[i];
 
