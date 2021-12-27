@@ -10,12 +10,14 @@ namespace Common.DataStructures
     public class Tree<T> : ITraversableTree<T, Tree<T>>
     {
         public T Data { get; }
+        public Tree<T>? Parent { get; private set; }
         private readonly List<Tree<T>> _children;
 
         public Tree(T data, IEnumerable<Tree<T>> children)
         {
             Data = data;
             _children = new(children ?? Enumerable.Empty<Tree<T>>());
+            foreach (var child in _children) child.Parent = this;
         }
 
         public Tree(params Tree<T>[] valueAndChldren) : this(valueAndChldren[0], valueAndChldren.Skip(1)) { }
@@ -25,6 +27,7 @@ namespace Common.DataStructures
         {
             Data = tree.Data;
             _children = tree._children.Select(x => new Tree<T>(x)).ToList();
+            foreach (var child in _children) child.Parent = this;
         }
 
         public Tree<T> this[int i] => _children[i];
@@ -37,6 +40,14 @@ namespace Common.DataStructures
 
         public void Traverse(Action<T> visitor) => Traverse(this, visitor);
 
+        public void TraverseNodes(Tree<T> node, Action<Tree<T>> visitor)
+        {
+            visitor(node);
+            foreach (var child in node._children) TraverseNodes(child, visitor);
+        }
+
+        public void TraverseNodes(Action<Tree<T>> visitor) => TraverseNodes(this, visitor);
+
         public Tree<T> Add(T data)
         {
             var node = new Tree<T>(data);
@@ -45,6 +56,17 @@ namespace Common.DataStructures
         }
 
         public void AddRange(IEnumerable<T> data)
+        {
+            foreach (var item in data) Add(item);
+        }
+
+        public Tree<T> Add(Tree<T> node)
+        {
+            _children.Add(node);
+            return node;
+        }
+
+        public void AddRange(IEnumerable<Tree<T>> data)
         {
             foreach (var item in data) Add(item);
         }
