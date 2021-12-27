@@ -13,7 +13,7 @@ namespace Generator.Test;
 public class MemberDependenciesTests
 {
     [Fact]
-    public void FindDirectPropertyDependencies()
+    public void FindDirectDependencies()
     {
         var code = @"
 using System;
@@ -25,7 +25,7 @@ public class ClassA {
     public int C => A + B;
     public int D => A * A + B + B + C + C;
     public ClassB E => new ClassB();
-    public int F => E.B_A;
+    public int F => E?.B_A;
     public ClassA G => E.C.E.C;
     private ClassA H { get => G; set { } }
     private List<ClassA> I { get; set; }
@@ -57,8 +57,8 @@ public class ClassC
 public static class Extensions
 {
     public static int Select2(this List<ClassA> a, Func<ClassA, int> selector) => 1;
-}".ParseKeepSemanticModel();
-        var dependencies = code.Compilation.GetClasses().GetDependencies(code.Model).SelectMany(x => x.Value.Select(x => x.Dependencies.SelectMany(y => y.Transform(z => z.Name)
+}".ParseAndKeepSemanticModel();
+        var dependencies = code.Compilation.GetClasses().GetDirectDependencies(code.Model).SelectMany(x => x.Value.Select(x => x.Dependencies.SelectMany(y => y.Transform(z => z.Name)
             .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())).ToList();
         dependencies[00].Should().BeEquivalentTo();
         dependencies[01].Should().BeEquivalentTo("A");
@@ -76,6 +76,50 @@ public static class Extensions
         dependencies[13].Should().BeEquivalentTo("A", "M");
         dependencies[14].Should().BeEquivalentTo();
         dependencies[15].Should().BeEquivalentTo("O");
+    }
+    [Fact]
+    public void FindFullDependencies()
+    {
+        var code = @"
+using System;
+using System.Collections.Generic;
+
+public class ClassA {
+    public int A => 1;
+    public int B => A;
+    public int C => A + B;
+    public ClassB E => new ClassB();
+    public int F => E.B_A;
+    public int G => E.B_B;
+    public int H => E.B_C;
+    public int I => E.D.C_B;
+}
+
+public class ClassB
+{
+    public int B_A => 1;
+    public int B_B => B_A;
+    public int B_C => B_A + B_B;
+    public ClassC D => B_C > 0 ? new() : null;
+}
+
+public class ClassC
+{
+    public int C_A => 1;
+    public int C_B => C_A;
+    public ClassA C_C => new();
+    public ClassB C_D => new();
+}".ParseAndKeepSemanticModel();
+        var dependencies = code.Compilation.GetClasses().GetFullDependencies(code.Model).SelectMany(x => x.Value.Select(x => x.Dependencies.SelectMany(y => y.Transform(z => z.Name)
+            .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())).ToList();
+        dependencies[00].Should().BeEquivalentTo();
+        dependencies[01].Should().BeEquivalentTo("A");
+        dependencies[02].Should().BeEquivalentTo("A", "B");
+        dependencies[03].Should().BeEquivalentTo();
+        dependencies[04].Should().BeEquivalentTo("E", "E.B_A");
+        dependencies[05].Should().BeEquivalentTo("E", "E.B_A", "E.B_B");
+        dependencies[06].Should().BeEquivalentTo("E", "E.B_A", "E.B_B", "E.B_C");
+        dependencies[07].Should().BeEquivalentTo("E", "E.D", "E.B_A", "E.B_B", "E.B_C", "E.D.C_A", "E.D.C_B");
     }
 
     [Fact]

@@ -27,7 +27,7 @@ public static class Util
         return StoreSyntaxTree(tree, key ?? str).GetCompilationUnitRoot();
     }
 
-    public static (CompilationUnitSyntax Compilation, SemanticModel Model) ParseKeepSemanticModel(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
+    public static (CompilationUnitSyntax Compilation, SemanticModel Model) ParseAndKeepSemanticModel(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
         => (Compilation: str.Parse(key, kind), GetSemanticModel(key: str));
 
     public static IEnumerable<CompilationUnitSyntax> Parse(this IEnumerable<string> strs, string? key = null)

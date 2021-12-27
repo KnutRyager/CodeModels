@@ -11,7 +11,7 @@ namespace CodeAnalyzation
 {
     public static class SemanticExtensions
     {
-        public static IDictionary<ISymbol, List<SymbolDependencies>> GetDependencies(this IEnumerable<ClassDeclarationSyntax> classes, SemanticModel model)
+        public static IDictionary<ISymbol, List<MemberDependencies>> GetDirectDependencies(this IEnumerable<ClassDeclarationSyntax> classes, SemanticModel model)
         {
             var modelSymbols = classes.Select(x => (model.GetDeclaredSymbol(x)!)).ToList();
             return classes.ToDictionary(x => model.GetDeclaredSymbol(x) ?? throw new ArgumentException($"No declared symbol for '{x}'."),
@@ -19,10 +19,72 @@ namespace CodeAnalyzation
                 SymbolEqualityComparer.Default)!;
         }
 
-        public static List<SymbolDependencies> GetDependencies(ClassDeclarationSyntax @class, IEnumerable<ISymbol> modelSymbols, SemanticModel model)
+        public static IDictionary<ISymbol, List<MemberDependencies>> GetFullDependencies(this IEnumerable<ClassDeclarationSyntax> classes, SemanticModel model)
+        {
+            var directDependencies = classes.GetDirectDependencies(model);
+            var allMemberDirectDependencies = directDependencies.SelectMany(x => x.Value)
+                .ToDictionary(x => x.Member, x => x.Dependencies, SymbolEqualityComparer.Default);
+            var allMembers = allMemberDirectDependencies.Keys;
+            var analysisStates = allMembers.ToDictionary(x => x, x => DependencyAnalysisState.INACTIVE, SymbolEqualityComparer.Default);
+            var fullDependencies = new Dictionary<ISymbol, List<Tree<MemberDependency>>>(SymbolEqualityComparer.Default);
+            foreach (var member in allMembers)
+                GetFullDependencies(member, fullDependencies, allMemberDirectDependencies, model, analysisStates);
+
+            return fullDependencies
+                .GroupBy(x => x.Key.ContainingType, x => new MemberDependencies(x.Key, x.Value), SymbolEqualityComparer.Default)
+                .ToDictionary(x => x.Key!, x => x.ToList(), SymbolEqualityComparer.Default);
+        }
+
+        public static void GetFullDependencies(ISymbol symbol,
+            IDictionary<ISymbol, List<Tree<MemberDependency>>> fullDependencies,
+            IDictionary<ISymbol, List<Tree<MemberDependency>>> allDirectDependencies,
+            SemanticModel model,
+            IDictionary<ISymbol, DependencyAnalysisState> states)
+        {
+            if (states[symbol] is not DependencyAnalysisState.INACTIVE) return;
+            states[symbol] = DependencyAnalysisState.ACTIVE;
+            var directDependenciesList = allDirectDependencies[symbol];
+            foreach (var dependency in directDependenciesList)
+            {
+                foreach (var path in dependency.ToList())
+                {
+                    GetFullDependencies(path.Property, fullDependencies, allDirectDependencies, model, states);
+                }
+            }
+
+            var fullDependency = directDependenciesList.Select(x => new Tree<MemberDependency>(x)).ToList();
+            var additoalTopDependencies = new List<Tree<MemberDependency>>();
+            foreach (var dependency in fullDependency)
+            {
+                var additionalDependencies = new List<(Tree<MemberDependency> Tree, List<Tree<MemberDependency>> Entries)>();
+                dependency.TraverseNodes(x =>
+                {
+                    var propDependencies = fullDependencies[x.Data.Property];
+                    var pathToConnectTo = x.Data.Property.ContainingType;
+                    if (x.Parent is null)
+                    {
+                        additoalTopDependencies.AddRange(propDependencies);
+                    }
+                    else
+                    {
+                        additionalDependencies.Add((x, propDependencies));
+                    }
+                });
+                foreach (var entry in additionalDependencies)
+                {
+                    entry.Tree.Parent!.AddRange(entry.Entries);
+                }
+            }
+            fullDependency.AddRange(additoalTopDependencies);
+            fullDependencies[symbol] = fullDependency;
+
+            states[symbol] = DependencyAnalysisState.COMPLETE;
+        }
+
+        public static List<MemberDependencies> GetDependencies(ClassDeclarationSyntax @class, IEnumerable<ISymbol> modelSymbols, SemanticModel model)
             => @class.GetMemberSymbols(model).Select(x => x.GetDependencies(modelSymbols)).ToList();
 
-        public static SymbolDependencies GetDependencies(this ISymbol symbol, IEnumerable<ISymbol> modelSymbols)
+        public static MemberDependencies GetDependencies(this ISymbol symbol, IEnumerable<ISymbol> modelSymbols)
         {
             var member = symbol.DeclaringSyntaxReferences.First().GetSyntax();
             var semanticModel = GetSemanticModel(tree: member.SyntaxTree);
@@ -35,11 +97,11 @@ namespace CodeAnalyzation
             return new(memberSymbol, ffixed);
         }
 
-        public static List<Tree<PathPiece>> GetPathPieces(List<SyntaxNodeDependencies> dependencies, ISymbol startClass)
+        public static List<Tree<MemberDependency>> GetPathPieces(List<SyntaxNodeDependencies> dependencies, ISymbol startClass)
         {
-            var pathPieces = dependencies.Select(x => new PathPiece(x.ContainingClass, x.Type, x.Symbol, x.Name)).Distinct().ToList();
+            var pathPieces = dependencies.Select(x => new MemberDependency(x.ContainingClass, x.Type, x.Symbol, x.Name)).Distinct().ToList();
             var rootPieces = pathPieces.Where(x => SymbolEqualityComparer.Default.Equals(x.From, startClass)).ToList();
-            var trees = rootPieces.Select(x => new Tree<PathPiece>(x)).ToList();
+            var trees = rootPieces.Select(x => new Tree<MemberDependency>(x)).ToList();
 
             foreach (var tree in trees)
             {
@@ -70,7 +132,7 @@ namespace CodeAnalyzation
             return dependencies;
         }
 
-        private static void CollectPathPieces(IEnumerable<PathPiece> allPieces, Tree<PathPiece> tree, HashSet<ISymbol> visitedClasses)
+        private static void CollectPathPieces(IEnumerable<MemberDependency> allPieces, Tree<MemberDependency> tree, HashSet<ISymbol> visitedClasses)
         {
             var startClass = tree.Data.To;
             if (visitedClasses.Contains(startClass)) return;
@@ -85,7 +147,12 @@ namespace CodeAnalyzation
         }
 
         public record SyntaxNodeDependencies(SyntaxNode Node, ISymbol Symbol, ISymbol ContainingClass, ITypeSymbol Type, string Name);
-        public record SymbolDependencies(ISymbol Symbol, List<Tree<PathPiece>> Dependencies);
-        public record PathPiece(ISymbol From, ISymbol To, ISymbol? Property, string Name);
+        public record MemberDependencies(ISymbol Member, List<Tree<MemberDependency>> Dependencies);
+        public record MemberDependency(ISymbol From, ISymbol To, ISymbol Property, string Name);
+
+        public enum DependencyAnalysisState
+        {
+            INACTIVE, ACTIVE, COMPLETE, FAILED
+        }
     }
 }
