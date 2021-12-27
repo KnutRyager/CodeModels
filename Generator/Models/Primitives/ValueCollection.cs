@@ -29,6 +29,9 @@ namespace CodeAnalyzation.Models
             );
 
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
+        public TypeSyntax BaseType() => Values.Select(x => x.Type).Distinct().Count() is 1 ? Values.First().Type.TypeSyntax() : new TType(typeof(object)).TypeSyntax();
+        public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseType(), Values.Select(x => x.Expression));
+        public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Expression));
     }
 }
 

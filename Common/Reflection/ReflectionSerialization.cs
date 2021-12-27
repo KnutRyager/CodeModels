@@ -16,6 +16,8 @@ namespace Common.Reflection
         private static readonly Assembly SystemAssembly = typeof(int).Assembly;
         private static readonly Dictionary<string, string> _typeShorthands = new()
         {
+            { "object", "System.Object" },
+            { "Object", "System.Object" },
             { "byte", "System.Byte" },
             { "Byte", "System.Byte" },
             { "short", "System.Int16" },
@@ -41,6 +43,22 @@ namespace Common.Reflection
             { "boolean", "System.Boolean" },
             { "Boolean", "System.Boolean" },
             { "DateTime", "System.DateTime" },
+        };
+        private static readonly Dictionary<string, string> _toTypeShorthands = new()
+        {
+            { "System.Object", "object" },
+            { "System.Byte", "byte" },
+            { "System.Int16", "short" },
+            { "System.UInt16", "ushort" },
+            { "System.Int32", "int" },
+            { "System.UInt32", "uint" },
+            { "System.Int64", "long" },
+            { "System.UInt64", "ulong" },
+            { "System.Single", "float" },
+            { "System.Double", "double" },
+            { "System.Decimal", "decimal" },
+            { "System.String", "string" },
+            { "System.Boolean", "boolean" },
         };
         private const string PARAMETER_SEPARATOR = "_;_";
 
@@ -233,13 +251,14 @@ namespace Common.Reflection
                 throw;
             }
 
-            _deserializeTypeCache[valueType] = type;
+            _deserializeTypeCache[valueType] = type!;
             return type!;
         }
 
         public static Type DeserializeTypeLookAtShortNames(string type) => DeserializeType(GetShortHandName(type));
         public static bool IsShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName);
         public static string GetShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
+        public static string GetToShortHandName(string typeName) => _toTypeShorthands.ContainsKey(GetShortHandName(typeName)) ? _toTypeShorthands[GetShortHandName(typeName)] : typeName;
 
         private static IDictionary<string, Assembly> _typeToAssemblyCache = new Dictionary<string, Assembly>();
         public static Assembly DeserializeAssembly(string name)

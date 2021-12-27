@@ -43,14 +43,14 @@ namespace CodeAnalyzation.Models
         public TType(ISymbol typeSymbol, bool required = true)
         {
             Symbol = typeSymbol;
-            Identifier = Symbol.Name;
+            Identifier = ReflectionSerialization.GetToShortHandName(Symbol.Name);
             Required = required;
         }
 
         public TType(Type type, bool required = true)
         {
             Type = type;
-            Identifier = type.Name;
+            Identifier = ReflectionSerialization.GetToShortHandName(type.Name);
             Required = required;
         }
 
@@ -76,5 +76,28 @@ namespace CodeAnalyzation.Models
         };
 
         public Type? GetReflectedType() => Type ??= ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default;
+
+        public override bool Equals(object obj)
+        {
+            var item = obj as TType;
+            return item is not null 
+                && Identifier.Equals(item.Identifier)
+                && (Symbol?.Equals(item.Symbol, SymbolEqualityComparer.Default) ?? item.Symbol is null)
+                && (Type?.Equals(item.Type) ?? item.Type is null)
+                && Required.Equals(item.Required);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                int hash = 17;
+                hash = hash * 23 + Identifier.GetHashCode();
+                hash = hash * 23 + Symbol?.GetHashCode() ?? 0;
+                hash = hash * 23 + Type?.GetHashCode() ?? 0;
+                hash = hash * 23 + Required.GetHashCode();
+                return hash;
+            }
+        }
     }
 }

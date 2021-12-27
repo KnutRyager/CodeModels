@@ -11,30 +11,29 @@ namespace CodeAnalyzation.CodeGeneration
 {
     public static class SyntaxFactoryCustom
     {
-        public static LiteralExpressionSyntax LiteralExpressionCustom(object value) =>
-            value switch
-            {
-                short n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
-                ushort n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
-                int n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
-                uint n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "U", n)),
-                long n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "L", n)),
-                ulong n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "UL", n)),
-                float n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        ((float)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "F", (float)n)),
-                double n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        ((double)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "D", (double)n)),
-                decimal n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                        n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "M", n)),
-                byte n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
-                char n => LiteralExpression(SyntaxKind.CharacterLiteralExpression, Literal(n)),
-                string s => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(s)),
-                bool b => LiteralExpression(b ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
-                _ => throw new ArgumentException($"Unhandled literal expression: '{value}'."),
-            };
+        public static LiteralExpressionSyntax LiteralExpressionCustom(object value) => value switch
+        {
+            short n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
+            ushort n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
+            int n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
+            uint n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "U", n)),
+            long n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "L", n)),
+            ulong n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "UL", n)),
+            float n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    ((float)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "F", (float)n)),
+            double n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    ((double)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "D", (double)n)),
+            decimal n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
+                    n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "M", n)),
+            byte n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
+            char n => LiteralExpression(SyntaxKind.CharacterLiteralExpression, Literal(n)),
+            string s => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(s)),
+            bool b => LiteralExpression(b ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
+            _ => throw new ArgumentException($"Unhandled literal expression: '{value}'."),
+        };
 
         public static ObjectCreationExpressionSyntax ConstructorCall(string name, IEnumerable<SyntaxNode> arguments)
             => ObjectCreationExpression(Token(ParseTrailingTrivia(""),
@@ -110,8 +109,6 @@ namespace CodeAnalyzation.CodeGeneration
             openBraceToken: Token(SyntaxKind.OpenBraceToken),
             closeBraceToken: Token(SyntaxKind.CloseBraceToken),
             semicolonToken: default);
-
-        private static bool RecordHasContent(SyntaxList<MemberDeclarationSyntax>? members) => members?.Any() ?? false;
 
         public static MethodDeclarationSyntax MethodDeclarationCustom(SyntaxList<AttributeListSyntax> attributeLists,
             SyntaxTokenList modifiers,
@@ -222,6 +219,54 @@ namespace CodeAnalyzation.CodeGeneration
                 modifiers: modifiers,
                 declaration: VariableDeclarationCustom(type, new[] { VariableDeclaratorCustom(identifier, default, initializer) }));
 
+        public static IDictionary<string, string[]> Dependencies = new Dictionary<string, string[]>()
+        {
+            {"a", new string[]{ "b","c" } }
+        };
+
+        public static ObjectCreationExpressionSyntax ObjectCreationExpressionCustom(TypeSyntax type,
+            ArgumentListSyntax? argumentList,
+            InitializerExpressionSyntax? initializer) => ObjectCreationExpression(
+                type: type,
+                argumentList: argumentList,
+                initializer: initializer);
+
+        public static ObjectCreationExpressionSyntax DictionaryCreationExpressionCustom(TypeSyntax keyType,
+            TypeSyntax valueType,
+            ArgumentListSyntax? argumentList,
+            InitializerExpressionSyntax? initializer) => ObjectCreationExpression(
+                type: GenericName(Identifier("Dictionary"), TypeArgumentListCustom(keyType, valueType)),
+                argumentList: argumentList ?? ArgumentList(),
+                initializer: initializer);
+
+        public static ObjectCreationExpressionSyntax ListInitializationCustom(TypeSyntax type,
+            IEnumerable<ExpressionSyntax>? expressions = null) => ObjectCreationExpressionCustom(
+                type: GenericName(Identifier("List"), TypeArgumentListCustom(type)),
+                argumentList: default,
+                initializer: expressions is null || !expressions.Any() ? default : CollectionInitializerExpressionCustom(expressions));
+
+        public static ArrayCreationExpressionSyntax ArrayInitializationCustom(TypeSyntax type,
+            IEnumerable<ExpressionSyntax>? expressions = null) => ArrayCreationExpressionCustom(ArrayType(type, rankSpecifiers: List(new[] { ArrayRankSpecifierCustom() })),
+            initializer: expressions is null || !expressions.Any() ? default : CollectionInitializerExpressionCustom(expressions));
+
+        public static ArrayRankSpecifierSyntax ArrayRankSpecifierCustom(IEnumerable<ExpressionSyntax>? sizes = default)
+            => ArrayRankSpecifier(sizes: sizes is null ? SeparatedList(new ExpressionSyntax[] { OmittedArraySizeExpression() }) : SeparatedList(sizes));
+
+        public static TypeArgumentListSyntax TypeArgumentListCustom(params TypeSyntax[] arguments) => TypeArgumentList(arguments: SeparatedList(arguments));
+        public static TypeArgumentListSyntax TypeArgumentListCustom(IEnumerable<TypeSyntax> arguments) => TypeArgumentList(arguments: SeparatedList(arguments));
+
+        public static InitializerExpressionSyntax CollectionInitializerExpressionCustom(IEnumerable<ExpressionSyntax> expressions) => InitializerExpression(
+                SyntaxKind.CollectionInitializerExpression,
+                expressions: SeparatedList(expressions));
+
+        public static InitializerExpressionSyntax ComplexElemementExpressionCustom(IEnumerable<ExpressionSyntax> expressions) => InitializerExpression(
+                SyntaxKind.ComplexElementInitializerExpression,
+                expressions: SeparatedList(expressions));
+
+        public static ArrayCreationExpressionSyntax ArrayCreationExpressionCustom(ArrayTypeSyntax type, InitializerExpressionSyntax? initializer) => ArrayCreationExpression(
+                type: type,
+                initializer: initializer);
+
         public static FieldDeclarationSyntax FieldDeclarationCustom(SyntaxList<AttributeListSyntax> attributeLists,
             SyntaxTokenList modifiers,
             VariableDeclarationSyntax declaration) => FieldDeclaration(
@@ -248,8 +293,6 @@ namespace CodeAnalyzation.CodeGeneration
                 _ => accessors
             }));
 
-        private static bool IsGetOnly(AccessorListSyntax accessorList) => accessorList.Accessors.Count == 1 && accessorList.Accessors[0].Keyword.IsKind(SyntaxKind.GetKeyword);
-
         public static AccessorDeclarationSyntax AccessorDeclarationGetCustom(SyntaxList<AttributeListSyntax> attributeLists,
             SyntaxTokenList modifiers,
              BlockSyntax? body,
@@ -271,6 +314,9 @@ namespace CodeAnalyzation.CodeGeneration
                 body: body,
                 expressionBody: expressionBody,
                 semicolonToken: SemicolonIfNone(expressionBody));
+
+        private static bool RecordHasContent(SyntaxList<MemberDeclarationSyntax>? members) => members?.Any() ?? false;
+        private static bool IsGetOnly(AccessorListSyntax accessorList) => accessorList.Accessors.Count == 1 && accessorList.Accessors[0].Keyword.IsKind(SyntaxKind.GetKeyword);
 
         private static SyntaxToken SemicolonIfNone(params object?[]? potentialContent) => potentialContent?.Any(x => x != default) == true ? default : Token(SyntaxKind.SemicolonToken);
     }

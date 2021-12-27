@@ -15,6 +15,7 @@ public static class Util
 {
     public static SyntaxTree SyntaxTree(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular) => str.Parse(key, kind).SyntaxTree;
     public static ExpressionSyntax ExpressionTree(this string str, string? key = null) => SyntaxFactory.ParseExpression(str);
+    public static BracketedParameterListSyntax BracketedParameterList(this string str, string? key = null) => SyntaxFactory.ParseBracketedParameterList(str);
 
     public static SyntaxTree[] SyntaxTrees(this string str, string? key = null) => new[] { str.Parse(key).SyntaxTree };
 
