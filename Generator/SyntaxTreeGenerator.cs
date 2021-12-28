@@ -16,7 +16,7 @@ public class SyntaxTreeGenerator : ISourceGenerator
     public void Execute(GeneratorExecutionContext context)
     {
         // begin creating the source we'll inject into the users compilation
-        StringBuilder sourceBuilder = new StringBuilder(@"
+        StringBuilder sourceBuilder = new(@"
 using System;
 namespace HelloWorldGenerated
 {
@@ -31,8 +31,8 @@ namespace HelloWorldGenerated
         // using the context, get a list of syntax trees in the users compilation
         var syntaxTrees = context.Compilation.SyntaxTrees;
 
-        var classVisitor = new ClassVirtualizationVisitor(new ClassFilter(attributes: new Type[] { typeof(ModelAttribute) }));
-        var classes = classVisitor.GetClasses(syntaxTrees);
+        var classVisitor = new ClassVisiter(new ClassFilter(attributes: new Type[] { typeof(ModelAttribute) }));
+        var classes = classVisitor.GetEntries(syntaxTrees);
 
         var firstClass = classes.First();
         var semanticModel = context.Compilation.GetSemanticModel(firstClass.SyntaxTree, true);

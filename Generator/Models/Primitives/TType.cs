@@ -61,6 +61,8 @@ namespace CodeAnalyzation.Models
             PredefinedTypeSyntax t => new TType(t, required),
             NullableTypeSyntax t => Parse(t.ElementType, false),
             IdentifierNameSyntax t => new TType(t.Identifier.ToString()),
+            ArrayTypeSyntax t => new TType(t.ElementType.ToString()),
+            GenericNameSyntax t => new TType(t.Identifier.ToString()),
             _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
         };
 

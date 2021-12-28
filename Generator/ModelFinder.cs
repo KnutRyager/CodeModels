@@ -24,7 +24,7 @@ public static class ModelFinder
     public static ITypeSymbol Type(this ClassDeclarationSyntax @class, GeneratorExecutionContext context)
         => @class.Model(context).GetDeclaredSymbol(@class) as ITypeSymbol ?? throw new ArgumentException($"No type Symbol found for class '{@class}'");
     public static List<ClassDeclarationSyntax> Classes(this IEnumerable<SyntaxTree> trees, ClassFilter? filter = null)
-        => new ClassVirtualizationVisitor(filter).GetClasses(trees);
+        => new ClassVisiter(filter).GetEntries(trees);
     public static List<ClassDeclarationSyntax> Classes(this GeneratorExecutionContext context, ClassFilter? filter = null)
         => context.Trees().Classes(filter);
     public static List<ClassDeclarationSyntax> GetModelClasses(this GeneratorExecutionContext context)

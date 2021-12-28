@@ -10,7 +10,7 @@ namespace CodeAnalysisTests;
 public static class TestUtil
 {
     public static void CodeEqual<T1, T2>(this T1 node1, T2 node2, bool ignoreWhitespace = false) where T1 : SyntaxNode where T2 : SyntaxNode
-        => CodeEqual(formatSyntaxNode(node1, ignoreWhitespace), formatSyntaxNode(node2, ignoreWhitespace));
+        => CodeEqual(FormatSyntaxNode(node1, ignoreWhitespace), FormatSyntaxNode(node2, ignoreWhitespace));
     public static void CodeEqual<T>(this string str, T node, bool isExpression = false, bool ignoreWhitespace = false) where T : SyntaxNode
         => CodeEqual(isExpression ? str.ExpressionTree() : (SyntaxNode)str.Parse(), node, ignoreWhitespace);
     public static void CodeEqual<T>(this string str, IEnumerable<T> nodes) where T : SyntaxNode
@@ -23,9 +23,9 @@ public static class TestUtil
     public static void CodeEqual(this string str, ISymbol node) => CodeEqual(str, node?.ToString() ?? "");
     public static void CodeEqual(this string a, string b) => a.Should().Be(b);
 
-    private static string formatSyntaxNode(SyntaxNode node, bool ignoreWhitespace = false) => fixWhiteSpace(node.NormalizeWhitespace().ToString(), ignoreWhitespace);
+    private static string FormatSyntaxNode(SyntaxNode node, bool ignoreWhitespace = false) => FixWhiteSpace(node.NormalizeWhitespace().ToString(), ignoreWhitespace);
 
-    private static string fixWhiteSpace(string str, bool ignoreWhitespace = false)
+    private static string FixWhiteSpace(string str, bool ignoreWhitespace = false)
     {
         var firstNonWhitespace = IndexOfFirstNonWhitespace(str);
         if (firstNonWhitespace == -1) return "";
