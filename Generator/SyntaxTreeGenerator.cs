@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.Text;
 using Models;
 using System;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Common.Util;
 
 [Generator]
 public class SyntaxTreeGenerator : ISourceGenerator
@@ -41,7 +42,7 @@ namespace HelloWorldGenerated
         // add the filepath of each tree to the class we're building
         foreach (var model in classes)
         {
-            sourceBuilder.AppendLine($@"Console.WriteLine(@""{CleanString(model.ToString())}"");");
+            sourceBuilder.AppendLine($@"Console.WriteLine(@""{StringUtil.CleanCodeString(model.ToString())}"");");
         }
 
         // finish creating the source to inject
@@ -60,8 +61,4 @@ namespace HelloWorldGenerated
         var name = property.Identifier.ToString();
         var type = property.Type;
     }
-
-    public string CleanString(string s) => s
-        .Replace("\\", "\\\\")
-        .Replace("\"", "\"\"");
 }

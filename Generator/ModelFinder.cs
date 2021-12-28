@@ -39,8 +39,4 @@ public static class ModelFinder
         var name = property.Identifier.ToString();
         var type = property.Type;
     }
-
-    public static string CleanString(string s) => s
-        .Replace("\\", "\\\\")
-        .Replace("\"", "\"\"");
 }

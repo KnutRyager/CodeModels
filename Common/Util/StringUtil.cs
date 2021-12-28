@@ -26,6 +26,10 @@ namespace Common.Util
             _ => throw new ArgumentException($"Unhandled property type: '{typeof(T).Name}'")
         };
 
+        public static string CleanCodeString(string s) => s
+            .Replace("\\", "\\\\")
+            .Replace("\"", "\"\"");
+
         public static string FilterJoin(string? str1, string? str2, string separator = ".") => $"{str1}{((string.IsNullOrWhiteSpace(str1)|| string.IsNullOrWhiteSpace(str2)) ? string.Empty : separator)}{str2}";
     }
 }
