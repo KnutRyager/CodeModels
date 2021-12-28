@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models
@@ -7,6 +8,7 @@ namespace CodeAnalyzation.Models
     {
         public IEnumerable<string> Parts { get; set; }
 
+        public Namespace(params string[] parts) : this(parts.ToList()) { }
         public Namespace(IEnumerable<string> parts)
         {
             Parts = parts;

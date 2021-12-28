@@ -1,11 +1,11 @@
-﻿using System.Text;
+﻿using System;
 using System.Linq;
+using System.Text;
+using Common.Util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 using Models;
-using System;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Common.Util;
 
 [Generator]
 public class SyntaxTreeGenerator : ISourceGenerator

@@ -4,23 +4,24 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models
 {
-    public class ClassModel : Model
+    public class ClassModel : MethodHolder
     {
-        public IEnumerable<Method> Methods { get; }
         public IEnumerable<TType> Constants { get; }
 
-        public ClassModel(string identifier, Namespace? @namespace, IEnumerable<Method>? methods = null, IEnumerable<TType>? constants = null)
-        : base(identifier, @namespace)
+        public ClassModel(string identifier, PropertyCollection? properties = null, IEnumerable<Method>? methods = null, IEnumerable<TType>? constants = null,
+            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
+        : base(identifier, properties: properties, methods: methods, @namespace: @namespace, topLevelModifier: topLevelModifier, memberModifier: memberModifier)
         {
-            Methods = methods ?? new List<Method>();
             Constants = constants ?? new List<TType>();
         }
 
         public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace) =>
            (@class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
-               @namespace == default ? default : new Namespace(@namespace),
-               @class.GetMethods().Select(x => new Method(x)))
+               null,
+               @class.GetMethods().Select(x => new Method(x)),
+               @namespace: @namespace == default ? default : new Namespace(@namespace))
            : new NonStaticClass(@class.Identifier.ValueText,
+               null,
                  @namespace == default ? default : new Namespace(@namespace),
                @class.GetMethods().Select(x => new Method(x))));
     }

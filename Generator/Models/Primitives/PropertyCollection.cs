@@ -14,9 +14,9 @@ namespace CodeAnalyzation.Models
         public List<Property> Properties { get; set; }
         public string? Name { get; set; }
 
-        public PropertyCollection(IEnumerable<Property> properties, string? name = null)
+        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null)
         {
-            Properties = properties.ToList();
+            Properties = properties?.ToList() ?? new List<Property>();
             Name = name;
         }
 
@@ -71,7 +71,7 @@ namespace CodeAnalyzation.Models
 
         public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
         public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
-        public SyntaxList<MemberDeclarationSyntax> ToMembers() => List<MemberDeclarationSyntax>(Properties.OrderBy(x => x, new PropertyComparer()).Select(x => x.ToProperty()));
+        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Properties.OrderBy(x => x, new PropertyComparer()).Select(x => x.ToProperty(modifier)));
         public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
         public ValueCollection ToValueCollection() => new(FilterValues().Select(x => x.Value?.Value ?? throw new Exception($"Property '{x}' contains no value.")));
 

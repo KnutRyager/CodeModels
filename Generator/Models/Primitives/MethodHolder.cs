@@ -1,14 +1,10 @@
-﻿using System.Text;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using Models;
-using System;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
-using Microsoft.CodeAnalysis.CSharp;
-using System.Collections.Generic;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
@@ -18,12 +14,19 @@ namespace CodeAnalyzation.Models
         public List<Property> ValueProperties => Properties.FilterValues();
         public List<Method> Methods { get; set; }
         public string Name { get; set; }
+        public Namespace? Namespace { get; set; }
+        public Modifier TopLevelModifier { get; set; }
+        public Modifier MemberModifier { get; set; }
 
-        public MethodHolder(PropertyCollection properties, string name, IEnumerable<Method>? methods = null)
+        public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<Method>? methods = null,
+            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
         {
-            Properties = properties;
             Name = name;
+            Properties = properties ?? new PropertyCollection(name: name);
+            Namespace = @namespace;
             Methods = methods?.ToList() ?? new List<Method>();
+            TopLevelModifier = topLevelModifier;
+            MemberModifier = memberModifier;
         }
 
         public MethodHolder AddProperty(TType type, string name)
@@ -35,13 +38,13 @@ namespace CodeAnalyzation.Models
         public MethodHolder AddProperty(Type type, string name) => AddProperty(new TType(type), name);
         public MethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TType(type), name);
 
-        public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.PropertyType.IsWritable()).ToList();
+        public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> GetMethods() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));
-        public SyntaxList<MemberDeclarationSyntax> Members() => List(Properties.ToMembers().Concat(GetMethods()));
+        public SyntaxList<MemberDeclarationSyntax> Members() => List(Properties.ToMembers(MemberModifier).Concat(GetMethods()));
 
         public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
                 attributeLists: default,
-                modifiers: MethodHolderType.PublicRecord.Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 parameterList: Properties.ToParameters(),
@@ -51,7 +54,7 @@ namespace CodeAnalyzation.Models
 
         public ClassDeclarationSyntax ToClass() => ClassDeclarationCustom(
                 attributeLists: default,
-                modifiers: MethodHolderType.PublicClass.Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 baseList: default,
@@ -60,7 +63,7 @@ namespace CodeAnalyzation.Models
 
         public StructDeclarationSyntax ToStruct() => StructDeclarationCustom(
                 attributeLists: default,
-                modifiers: MethodHolderType.PublicStruct.Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 baseList: default,

@@ -164,7 +164,7 @@ namespace CodeAnalyzation.CodeGeneration
                 refKindKeyword: refKindKeyword,
                 expression: expression);
 
-        public static MemberDeclarationSyntax PropertyOrFieldDeclarationCustom(PropertyType propertyType,
+        public static MemberDeclarationSyntax PropertyOrFieldDeclarationCustom(Modifier propertyType,
             SyntaxList<AttributeListSyntax> attributeLists,
             SyntaxTokenList modifiers,
             TypeSyntax type,

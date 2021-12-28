@@ -14,14 +14,14 @@ namespace CodeAnalyzation.Models
         public string? Name { get; set; }
         public TType Type { get; set; }
         public Expression? Value { get; set; }
-        public PropertyType PropertyType { get; set; } = PropertyType.PublicReadWrite;
+        public Modifier Modifier { get; set; } = Modifier.Public;
 
-        public Property(TType type, string? name, Expression? expression = null, PropertyType? propertyType = null)
+        public Property(TType type, string? name, Expression? expression = null, Modifier? modifier = null)
         {
             Type = type;
             Name = name;
             Value = expression;
-            PropertyType = propertyType ?? PropertyType;
+            Modifier = modifier ?? Modifier;
         }
 
         public Property(PropertyDeclarationSyntax property) : this(TType.Parse(property.Type), property.Identifier.ToString(), new Expression(property.Initializer?.Value)) { }
@@ -30,9 +30,9 @@ namespace CodeAnalyzation.Models
         public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null) : this(new TType(typeSymbol), name, new Expression(expression)) { }
         public Property(ITypeSymbol typeSymbol, string name, string? value = null) : this(new TType(typeSymbol), name, Expression.FromValue(value)) { }
 
-        public static Property FromValue(TType type, string? name, Value? value = null, PropertyType? propertyType = null) => new(type, name, value == null ? null : new Expression(value), propertyType);
-        public static Property FromExpression(TType type, string? name, ExpressionSyntax expression, PropertyType? propertyType = null) => new(type, name, new Expression(expression), propertyType);
-        public static Property FromQualifiedName(TType type, string? name, string qualifiedName, PropertyType? propertyType = null) => new(type, name, Expression.FromQualifiedName(qualifiedName), propertyType);
+        public static Property FromValue(TType type, string? name, Value? value = null, Modifier? modifier = null) => new(type, name, value == null ? null : new Expression(value), modifier);
+        public static Property FromExpression(TType type, string? name, ExpressionSyntax expression, Modifier? modifier = null) => new(type, name, new Expression(expression), modifier);
+        public static Property FromQualifiedName(TType type, string? name, string qualifiedName, Modifier? modifier = null) => new(type, name, Expression.FromQualifiedName(qualifiedName), modifier);
 
         public static Property Parse(ArgumentSyntax argument) => argument.Expression switch
         {
@@ -55,19 +55,19 @@ namespace CodeAnalyzation.Models
                 identifier: Identifier(Name!),
                 @default: Initializer());
 
-        public MemberDeclarationSyntax ToProperty(PropertyType? type = null) => PropertyOrFieldDeclarationCustom(
-                propertyType: PropertyType,
+        public MemberDeclarationSyntax ToProperty(Modifier modifiers = Modifier.None) => PropertyOrFieldDeclarationCustom(
+                propertyType: Modifier.SetModifiers(modifiers),
                 attributeLists: default,
-                modifiers: (type ?? PropertyType).Modifiers(),
+                modifiers: Modifier.SetModifiers(modifiers).Modifiers(),
                 type: TypeSyntax(),
                 explicitInterfaceSpecifier: default,
                 identifier: Identifier(Name!),
                 accessorList: AccessorListCustom(new AccessorDeclarationSyntax[] { }).
-                    AddAccessors(!(type ?? PropertyType).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
+                    AddAccessors(!(Modifier.SetModifiers(modifiers)).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
                         modifiers: default,
                         body: default,
                         expressionBody: default) } : new AccessorDeclarationSyntax[] { })
-                    .AddAccessors((type ?? PropertyType).IsWritable() ? new[] {AccessorDeclarationSetCustom(attributeLists: default,
+                    .AddAccessors(Modifier.SetModifiers(modifiers).IsWritable() ? new[] {AccessorDeclarationSetCustom(attributeLists: default,
                         modifiers: default,
                         body: default,
                         expressionBody: default) } : new AccessorDeclarationSyntax[] { }),
