@@ -7,22 +7,14 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class Expression : IExpression
+    public record Expression(TType Type, ISymbol? Symbol = null) : IExpression
     {
         public static readonly Expression NullValue = new LiteralExpression(TType.NullType);
-        public TType Type { get; set; }
-        public ISymbol? Symbol { get; set; }
 
-        public Expression(TType type)
-        {
-            Type = type;
-        }
+        public Expression(TType type) : this(type, null) { }
 
-        public Expression(ISymbol symbol)
-        {
-            Symbol = symbol;
-            Type = new(Symbol);   // TODO: Containing type for prop
-        }
+        // TODO: Containing type for prop
+        public Expression(ISymbol symbol) : this(new(symbol), symbol) { }
 
         public static Expression FromSyntax(ExpressionSyntax? syntax) => syntax is null ? NullValue : new ExpressionFromSyntax(syntax);
 
