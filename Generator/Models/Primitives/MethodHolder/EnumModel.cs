@@ -2,25 +2,15 @@
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-
 namespace CodeAnalyzation.Models
 {
-    public class EnumModel : MethodHolder
+    public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
+        : MethodHolder(Identifier, new PropertyCollection(Values.Values.Select(x => Property.FromName((x.LiteralValue as string)!))), new(), Namespace, IsStatic: true)
     {
-        public ExpressionCollection Values { get; set; }
-        public bool IsFlags { get; set; }
-        public bool HasNoneValue { get; set; }
         public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 
         public EnumModel(string identifier, IEnumerable<string>? values = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
-            : base(identifier, properties:new PropertyCollection(values.Select(x =>  Property.FromName(x))), @namespace: @namespace)
-        {
-            HasNoneValue = hasNoneValue;
-            IsFlags = isFlags;
-            if (HasNoneValue) values = new string[] { "None" }.Concat(values);
-            Values = new ExpressionCollection(values.Select(x => new LiteralExpression(x)));
-            IsStatic = true;
-        }
+            : this(identifier, new ExpressionCollection(AddNoneValue(values ?? new List<string>(), hasNoneValue).Select(x => new LiteralExpression(x))), @namespace, isFlags, hasNoneValue) { }
 
         public EnumModel(string identifier, IEnumerable<IEnumerable<string>>? valueCategories = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
             : this(identifier, valueCategories.SelectMany(x => x), @namespace, isFlags, hasNoneValue)
@@ -29,5 +19,11 @@ namespace CodeAnalyzation.Models
         }
 
         public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
+
+        private static List<string> AddNoneValue(IEnumerable<string> values, bool hasNoneValue)
+        {
+            if (hasNoneValue && !values.Contains("None")) values = new string[] { "None" }.Concat(values);
+            return values.ToList();
+        }
     }
 }

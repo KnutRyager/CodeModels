@@ -20,7 +20,7 @@ namespace CodeAnalyzation.Models
 
         public LiteralExpression(EnumMemberDeclarationSyntax value) : this(new TypeFromReflection(typeof(string)), value.Identifier) { }
         public override LiteralExpressionSyntax? LiteralSyntax => Value != null ? LiteralExpressionCustom(Value) : base.LiteralSyntax;
-        public override object? LiterallyValue => Value;
+        public override object? LiteralValue => Value;
 
     }
 }

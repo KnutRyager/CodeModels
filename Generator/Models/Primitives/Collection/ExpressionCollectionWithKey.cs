@@ -1,26 +1,23 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class ExpressionCollectionWithKey : ExpressionCollection
+    public record ExpressionCollectionWithKey(Expression Key, List<Expression> Values, bool MultiValues = false, IType? ValueType = null) : ExpressionCollection(Values)
     {
-        public Expression Key { get; set; }
-        public bool MultiValues { get; set; }
-        private readonly AbstractType? _valueType;
+        private readonly IType? _valueType;
 
-        public ExpressionCollectionWithKey(Expression key, IEnumerable<Expression> values, bool multiValues = false, AbstractType? valueType = null) : base(values)
+        public ExpressionCollectionWithKey(Expression key, IEnumerable<Expression> values, bool multiValues = false, IType? valueType = null)
+            : this(key, values.ToList(), multiValues || (values.Count() is not 1))
         {
-            Key = key;
-            MultiValues = (values.Count() is not 1) || multiValues;
             _valueType = valueType;
         }
-        public ExpressionCollectionWithKey(Expression key, Expression value, bool multiValues = false, AbstractType? valueType = null) : this(key, new[] { value }, multiValues, valueType) { }
+
+        public ExpressionCollectionWithKey(Expression key, Expression value, bool multiValues = false, AbstractType? valueType = null) 
+            : this(key, new[] { value }, multiValues, valueType) { }
 
         public ExpressionCollectionWithKey(Expression key, string commaSeparatedValues) : this(key, commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
         public ExpressionCollectionWithKey(Expression key, EnumDeclarationSyntax declaration) : this(key, declaration.Members.Select(x => new LiteralExpression(x))) { }

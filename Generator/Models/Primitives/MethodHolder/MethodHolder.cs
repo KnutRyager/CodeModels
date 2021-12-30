@@ -8,27 +8,14 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class MethodHolder : IMethodHolder
+    public record MethodHolder(string Name, PropertyCollection Properties, List<Method> Methods,
+            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None, Modifier MemberModifier = Modifier.None, bool IsStatic = false) : IMethodHolder
     {
-        public PropertyCollection Properties { get; set; }
-        public List<Property> ValueProperties => Properties.FilterValues();
-        public List<Method> Methods { get; set; }
-        public string Name { get; set; }
-        public Namespace? Namespace { get; set; }
-        public Modifier TopLevelModifier { get; set; }
-        public Modifier MemberModifier { get; set; }
-        public bool IsStatic { get; protected set; }
-
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<Method>? methods = null,
             Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
+            : this(name, properties ?? new PropertyCollection(name: name), methods?.ToList() ?? new(), @namespace, topLevelModifier, memberModifier)
         {
-            Name = name;
-            Properties = properties ?? new PropertyCollection(name: name);
             foreach (var property in Properties.Properties) property.Owner = this;
-            Namespace = @namespace;
-            Methods = methods?.ToList() ?? new List<Method>();
-            TopLevelModifier = topLevelModifier;
-            MemberModifier = memberModifier;
         }
 
         public MethodHolder AddProperty(Property property)

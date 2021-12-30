@@ -25,8 +25,8 @@ namespace CodeAnalyzation.Models
                 attributeLists: default,
                 identifier: Type switch
                 {
-                    _ when Type.GetReflectedType() == typeof(string) && LiterallyValue is string name => Identifier(name),
-                    _ => throw new ArgumentException($"Unhandled enum name: '{LiterallyValue}' of type '{Type}'.")
+                    _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => Identifier(name),
+                    _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
                 },
                 equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
 
@@ -36,7 +36,7 @@ namespace CodeAnalyzation.Models
                 expression: Syntax);
 
 
-        public virtual object? LiterallyValue => null;
+        public virtual object? LiteralValue => null;
         public bool IsLiteralExpression => LiteralSyntax is not null;
     }
 }

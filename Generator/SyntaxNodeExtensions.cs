@@ -130,7 +130,7 @@ namespace CodeAnalyzation
         public static IEnumerable<FieldDeclarationSyntax> GetPublicStaticFields(this CSharpSyntaxNode node)
         => node.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(IsPublic);
 
-        public static ISymbol GetTType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
+        public static ISymbol GetType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
 
         public static SyntaxNode GetContentRoot(this SyntaxNode node) => node switch
         {

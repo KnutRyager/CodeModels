@@ -9,16 +9,9 @@ using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
 
 namespace CodeAnalyzation.Models
 {
-    public class PropertyCollection
+    public record PropertyCollection(List<Property> Properties, string? Name = null)
     {
-        public List<Property> Properties { get; set; }
-        public string? Name { get; set; }
-
-        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null)
-        {
-            Properties = properties?.ToList() ?? new List<Property>();
-            Name = name;
-        }
+        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(properties?.ToList() ?? new(), name) { }
 
         public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
         public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }

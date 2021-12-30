@@ -8,7 +8,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class ExpressionDictionary
+    public record ExpressionDictionary
     {
         public List<ExpressionCollectionWithKey> KeyVaulePairs { get; set; }
         public ExpressionCollection Keys { get; set; }

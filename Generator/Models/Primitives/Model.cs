@@ -1,18 +1,9 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models
 {
-    public class Model
+    public interface ICodeModel
     {
-        [JsonProperty(Order = -10)]
-        public string Identifier { get; set; }
-        [JsonProperty(Order = -10)]
-        public Namespace? Namespace { get; set; }
-
-        public Model(string identifier, Namespace? @namespace)
-        {
-            Identifier = identifier;
-            Namespace = @namespace;
-        }
+        TypeSyntax TypeSyntax();
     }
 }

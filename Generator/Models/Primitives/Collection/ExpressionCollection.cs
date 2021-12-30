@@ -9,7 +9,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class ExpressionCollection
+    public record ExpressionCollection
     {
         public List<Expression> Values { get; set; }
 

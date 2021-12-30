@@ -3,26 +3,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Linq;
 
 namespace CodeAnalyzation.Models
 {
-    public class Method : IMember
+    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, List<Dependency> Dependencies) : IMember
     {
-        public string Name { get; set; }
-        public PropertyCollection Parameters { get; set; }
-        public IType ReturnType { get; set; }
-        public IEnumerable<Dependency> Dependencies { get; set; }
+        public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency>? dependencies = null)
+            : this(name, parameters, returnType, dependencies?.ToList() ?? new List<Dependency>()) { }
 
-        public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency> dependencies)
-        {
-            Name = name;
-            Parameters = parameters;
-            ReturnType = returnType;
-            Dependencies = dependencies;
-        }
-
-        public Method(MethodDeclarationSyntax method)
-            : this(method.GetName(), new PropertyCollection(method), AbstractType.Parse(method.ReturnType), System.Array.Empty<Dependency>()) { }
+        public Method(MethodDeclarationSyntax method) : this(method.GetName(), new PropertyCollection(method), AbstractType.Parse(method.ReturnType)) { }
 
         public MethodDeclarationSyntax ToMethod() => MethodDeclarationCustom(
             attributeLists: default,

@@ -8,23 +8,14 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class Property : IMember
+    public record Property(IType Type, string Name, Expression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel
     {
-        public string Name { get; set; }
-        public IType Type { get; set; }
-        public Expression? Value { get; set; }
-        public Modifier Modifier { get; set; } = Modifier.Public;
         public MethodHolder? Owner { get; set; }
-        private readonly bool _isRandomlyGeneratedName;
 
-        public Property(IType type, string? name, Expression? expression = null, Modifier? modifier = null, MethodHolder? owner = null)
+        public Property(IType type, string? name, Expression? expression = null, Modifier? modifier = Modifier.Public, MethodHolder? owner = null)
+                : this(type, name ?? Guid.NewGuid().ToString(), expression, modifier ?? Modifier.Public, name is null)
         {
-            Type = type;
-            Name = name ?? Guid.NewGuid().ToString();
-            Value = expression;
-            Modifier = modifier ?? Modifier;
             Owner = owner;
-            _isRandomlyGeneratedName = name is null;
         }
 
         public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(AbstractType.Parse(property.Type), property.Identifier.ToString(), Expression.FromSyntax(property.Initializer?.Value), modifier) { }
@@ -79,7 +70,7 @@ namespace CodeAnalyzation.Models
                 expressionBody: default,
                 initializer: Initializer());
 
-        public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(_isRandomlyGeneratedName ? null : Name));
+        public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(IsRandomlyGeneratedName ? null : Name));
 
         public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
         public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
@@ -105,7 +96,5 @@ namespace CodeAnalyzation.Models
         public PropertyExpression GetAccess(IExpression? instance) => new(this, instance);
 
         private SyntaxToken TupleNameIdentifier(string? name) => name == default || new Regex("Item+[1-9]+[0-9]*").IsMatch(name) ? default : Identifier(name);
-
-        public override string ToString() => $"Property: '{Name}', Value: '{Value}'";
     }
 }
