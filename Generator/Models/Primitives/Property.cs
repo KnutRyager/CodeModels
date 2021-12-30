@@ -77,7 +77,7 @@ namespace CodeAnalyzation.Models
 
         public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(Name));
 
-        public NameSyntax? NameSyntax => IdentifierName(Name);
+        public NameSyntax? NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
         public ExpressionSyntax? ExpressionSyntax => Value?.ExpressionSyntax;
         public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax ?? Value switch
         {

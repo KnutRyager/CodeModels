@@ -11,6 +11,7 @@ namespace CodeAnalyzation.Models
 {
     public class TType
     {
+        public static readonly TType NullType = new("null", syntax: IdentifierName("object"));
         private readonly IDictionary<string, SyntaxKind> _predefinedTypes = new Dictionary<string, SyntaxKind>()
         {
             { SyntaxKind.ByteKeyword.ToString(), SyntaxKind.ByteKeyword },
@@ -75,13 +76,14 @@ namespace CodeAnalyzation.Models
         public static TType Parse(string code) => Parse(ParseTypeName(code));
 
         // TODO
-        public static TType Parse(TypeSyntax type, bool required = true, TypeSyntax? fullType = null) => type switch
+        public static TType Parse(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
         {
             PredefinedTypeSyntax t => new TType(t, required, fullType: fullType ?? t),
             NullableTypeSyntax t => Parse(t.ElementType, false, fullType: fullType ?? t),
             IdentifierNameSyntax t => new TType(t.Identifier.ToString(), syntax: fullType ?? t),
             ArrayTypeSyntax t => new TType(t.ElementType.ToString(), isMulti: true, syntax: fullType ?? t),
             GenericNameSyntax t => new TType(t.Identifier.ToString(), syntax: fullType ?? t),
+            null => NullType,
             _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
         };
 
@@ -131,7 +133,9 @@ namespace CodeAnalyzation.Models
             {
                 int hash = 17;
                 hash = hash * 23 + Identifier.GetHashCode();
+#pragma warning disable RS1024 // Symbols should be compared for equality
                 hash = hash * 23 + Symbol?.GetHashCode() ?? 0;
+#pragma warning restore RS1024 // Symbols should be compared for equality
                 hash = hash * 23 + Type?.GetHashCode() ?? 0;
                 hash = hash * 23 + Required.GetHashCode();
                 return hash;

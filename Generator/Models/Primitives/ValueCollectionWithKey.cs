@@ -12,7 +12,7 @@ namespace CodeAnalyzation.Models
     {
         public Value Key { get; set; }
         public bool MultiValues { get; set; }
-        private TType? _valueType { get; set; }
+        private readonly TType? _valueType;
 
         public ValueCollectionWithKey(Value key, IEnumerable<Value> values, bool multiValues = false, TType? valueType = null) : base(values)
         {

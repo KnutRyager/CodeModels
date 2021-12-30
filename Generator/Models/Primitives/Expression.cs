@@ -15,17 +15,17 @@ namespace CodeAnalyzation.Models
         public ExpressionSyntax? ExpressionSyntax { get; set; }
         public ExpressionSyntax ExpressionNode => ExpressionSyntax ?? Value?.Expression ?? throw new Exception("Expression has no syntax node or value.");
 
-        public Expression(Value value)
+        public Expression(Value? value)
         {
             Value = value;
         }
 
-        public Expression(ExpressionSyntax expression)
+        public Expression(ExpressionSyntax? expression)
         {
             ExpressionSyntax = expression;
         }
 
-        public static Expression FromValue(object literalValue) => new (Value.FromValue(literalValue));
+        public static Expression FromValue(object? literalValue) => new (Value.FromValue(literalValue));
         public static Expression FromQualifiedName(string name) => new(ParseExpression(name));
 
         public bool IsLiteralExpression => LiteralExpression != null;

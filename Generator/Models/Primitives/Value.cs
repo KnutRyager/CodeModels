@@ -12,6 +12,7 @@ namespace CodeAnalyzation.Models
 {
     public class Value
     {
+        public static readonly Value NullValue = new(TType.NullType, null);
         public TType Type { get; set; }
         public ISymbol? Symbol { get; set; }
         public object? LiteralValue { get; set; }
@@ -48,10 +49,10 @@ namespace CodeAnalyzation.Models
 
         public Value(EnumMemberDeclarationSyntax value) : this(new TType(typeof(string)), value.Identifier) { }
 
-        public static Value FromValue(object literalValue) => new(new(literalValue.GetType()), literalValue);
+        public static Value FromValue(object? literalValue) => literalValue is null ? NullValue : new(new(literalValue.GetType()), literalValue);
 
         public LiteralExpressionSyntax? LiteralExpression => LiteralValue != null ? LiteralExpressionCustom(LiteralValue) : default;
-        public ExpressionSyntax Expression => (ExpressionSyntax)LiteralExpression ?? Property?.NameSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : default);
+        public ExpressionSyntax Expression => (ExpressionSyntax?)LiteralExpression ?? Property?.NameSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : default)!;
 
         public EnumMemberDeclarationSyntax ToEnumValue() => EnumMemberDeclaration(
                 attributeLists: default,
@@ -60,7 +61,7 @@ namespace CodeAnalyzation.Models
                     _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => Identifier(name),
                     _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
                 },
-                equalsValue: default);
+                equalsValue: default!);
 
         public ArgumentSyntax ToArgument() => ArgumentCustom(
                 nameColon: default,
