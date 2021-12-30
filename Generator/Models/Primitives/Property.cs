@@ -11,13 +11,13 @@ namespace CodeAnalyzation.Models
     public class Property : IMember
     {
         public string Name { get; set; }
-        public TType Type { get; set; }
+        public IType Type { get; set; }
         public Expression? Value { get; set; }
         public Modifier Modifier { get; set; } = Modifier.Public;
         public MethodHolder? Owner { get; set; }
         private readonly bool _isRandomlyGeneratedName;
 
-        public Property(TType type, string? name, Expression? expression = null, Modifier? modifier = null, MethodHolder? owner = null)
+        public Property(IType type, string? name, Expression? expression = null, Modifier? modifier = null, MethodHolder? owner = null)
         {
             Type = type;
             Name = name ?? Guid.NewGuid().ToString();
@@ -27,26 +27,26 @@ namespace CodeAnalyzation.Models
             _isRandomlyGeneratedName = name is null;
         }
 
-        public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(TType.Parse(property.Type), property.Identifier.ToString(), Expression.FromSyntax(property.Initializer?.Value), modifier) { }
-        public Property(TupleElementSyntax element, Modifier? modifier = null) : this(TType.Parse(element.Type), element.Identifier.ToString(), modifier: modifier) { }
-        public Property(ParameterSyntax parameter, Modifier? modifier = null) : this(TType.Parse(parameter.Type), parameter.Identifier.ToString(), Expression.FromSyntax(parameter.Default?.Value), modifier) { }
-        public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(new TType(typeSymbol), name, Expression.FromSyntax(expression), modifier) { }
-        public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(TType.Parse(type), name, Expression.FromSyntax(expression), modifier) { }
-        public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null) : this(new TType(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier) { }
+        public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(AbstractType.Parse(property.Type), property.Identifier.ToString(), Expression.FromSyntax(property.Initializer?.Value), modifier) { }
+        public Property(TupleElementSyntax element, Modifier? modifier = null) : this(AbstractType.Parse(element.Type), element.Identifier.ToString(), modifier: modifier) { }
+        public Property(ParameterSyntax parameter, Modifier? modifier = null) : this(AbstractType.Parse(parameter.Type), parameter.Identifier.ToString(), Expression.FromSyntax(parameter.Default?.Value), modifier) { }
+        public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, Expression.FromSyntax(expression), modifier) { }
+        public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(AbstractType.Parse(type), name, Expression.FromSyntax(expression), modifier) { }
+        public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier) { }
 
-        public static Property FromValue(TType type, string name, Expression? value = null, Modifier? modifier = null) => new(type, name, value, modifier);
-        public static Property FromExpression(TType type, string name, ExpressionSyntax expression, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(expression), modifier);
-        public static Property FromQualifiedName(TType type, string name, string qualifiedName, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(qualifiedName), modifier);
-        public static Property FromName(string name) => new(TType.NullType, name);
+        public static Property FromValue(AbstractType type, string name, Expression? value = null, Modifier? modifier = null) => new(type, name, value, modifier);
+        public static Property FromExpression(AbstractType type, string name, ExpressionSyntax expression, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(expression), modifier);
+        public static Property FromQualifiedName(AbstractType type, string name, string qualifiedName, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(qualifiedName), modifier);
+        public static Property FromName(string name) => new(TypeShorthands.NullType, name);
 
         public static Property Parse(ArgumentSyntax argument) => argument.Expression switch
         {
-            TypeSyntax type => new(TType.Parse(type), argument.NameColon?.Name.ToString()),
+            TypeSyntax type => new(AbstractType.Parse(type), argument.NameColon?.Name.ToString()),
             DeclarationExpressionSyntax declaration => Parse(declaration),
             _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{argument}'.")
         };
 
-        public static Property Parse(DeclarationExpressionSyntax declaration) => new(TType.Parse(declaration.Type), declaration.Designation switch
+        public static Property Parse(DeclarationExpressionSyntax declaration) => new(AbstractType.Parse(declaration.Type), declaration.Designation switch
         {
             null => default,
             SingleVariableDesignationSyntax designation => designation.Identifier.ToString(),

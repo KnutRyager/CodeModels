@@ -14,9 +14,9 @@ namespace CodeAnalyzation.Models
         public ExpressionCollection Keys { get; set; }
         public ExpressionCollection Values { get; set; }
         public string? Name { get; set; }
-        private readonly TType? _valueType;
+        private readonly AbstractType? _valueType;
 
-        public ExpressionDictionary(IEnumerable<ExpressionCollectionWithKey> values, string? name = null, TType? valueType = null)
+        public ExpressionDictionary(IEnumerable<ExpressionCollectionWithKey> values, string? name = null, AbstractType? valueType = null)
         {
             KeyVaulePairs = values.ToList();
             Keys = new ExpressionCollection(values.Select(x => x.Key));
@@ -38,7 +38,7 @@ namespace CodeAnalyzation.Models
         public TypeSyntax BaseKeyType() => Keys.BaseType();
         public TypeSyntax BaseValueType() => (_valueType ?? FindCommonType(KeyVaulePairs.Select(x => x.BaseTType()))).TypeSyntax();
 
-        public static TType FindCommonType(IEnumerable<TType> types)
+        public static IType FindCommonType(IEnumerable<IType> types)
         {
             var isMulti = types.Any(x => x.IsMulti);
             var disinctTypes = types.Select(x => x.Identifier).Distinct();
@@ -48,7 +48,7 @@ namespace CodeAnalyzation.Models
                 : types.Any(x => x.GetMostSpecificType() is "string") ? "string"
                 : "int";
             var optional = types.Any(x => !x.Required);
-            return new TType(specificType, !optional, isMulti);
+            return new QuickType(specificType, !optional, isMulti);
         }
 
     }

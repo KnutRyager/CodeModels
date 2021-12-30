@@ -12,22 +12,22 @@ namespace CodeAnalyzation.Models
     {
         public Expression Key { get; set; }
         public bool MultiValues { get; set; }
-        private readonly TType? _valueType;
+        private readonly AbstractType? _valueType;
 
-        public ExpressionCollectionWithKey(Expression key, IEnumerable<Expression> values, bool multiValues = false, TType? valueType = null) : base(values)
+        public ExpressionCollectionWithKey(Expression key, IEnumerable<Expression> values, bool multiValues = false, AbstractType? valueType = null) : base(values)
         {
             Key = key;
             MultiValues = (values.Count() is not 1) || multiValues;
             _valueType = valueType;
         }
-        public ExpressionCollectionWithKey(Expression key, Expression value, bool multiValues = false, TType? valueType = null) : this(key, new[] { value }, multiValues, valueType) { }
+        public ExpressionCollectionWithKey(Expression key, Expression value, bool multiValues = false, AbstractType? valueType = null) : this(key, new[] { value }, multiValues, valueType) { }
 
         public ExpressionCollectionWithKey(Expression key, string commaSeparatedValues) : this(key, commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
         public ExpressionCollectionWithKey(Expression key, EnumDeclarationSyntax declaration) : this(key, declaration.Members.Select(x => new LiteralExpression(x))) { }
         public InitializerExpressionSyntax ToKeyValueInitialization() => ComplexElemementExpressionCustom(
             new ExpressionSyntax[] { Key.Syntax, MultiValues ? ToArrayInitialization() : Values.First().Syntax });
 
-        public override TType BaseTType() => _valueType ?? (MultiValues ? TType.MultiType(base.BaseTType()) : base.BaseTType());
+        public override IType BaseTType() => _valueType ?? (MultiValues ? base.BaseTType().ToMultiType() : base.BaseTType());
     }
 }
 

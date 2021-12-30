@@ -10,10 +10,10 @@ namespace CodeAnalyzation.Models
     {
         public string Name { get; set; }
         public PropertyCollection Parameters { get; set; }
-        public TType ReturnType { get; set; }
+        public IType ReturnType { get; set; }
         public IEnumerable<Dependency> Dependencies { get; set; }
 
-        public Method(string name, PropertyCollection parameters, TType returnType, IEnumerable<Dependency> dependencies)
+        public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency> dependencies)
         {
             Name = name;
             Parameters = parameters;
@@ -22,7 +22,7 @@ namespace CodeAnalyzation.Models
         }
 
         public Method(MethodDeclarationSyntax method)
-            : this(method.GetName(), new PropertyCollection(method), TType.Parse(method.ReturnType), System.Array.Empty<Dependency>()) { }
+            : this(method.GetName(), new PropertyCollection(method), AbstractType.Parse(method.ReturnType), System.Array.Empty<Dependency>()) { }
 
         public MethodDeclarationSyntax ToMethod() => MethodDeclarationCustom(
             attributeLists: default,

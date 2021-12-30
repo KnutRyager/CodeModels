@@ -19,7 +19,7 @@ namespace CodeAnalyzation.Generation
             var staticClass = new StaticClass("ModelDependencies", @namespace: new("Dependencies"));
             var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionDictionary(x.Properties.Select(
                 y => new ExpressionCollectionWithKey(new LiteralExpression(y.Member.Name),
-                y.Dependencies.Select(z => new LiteralExpression(z)), valueType: new TType("string", isMulti: true), multiValues: true)), x.Class.Name));
+                y.Dependencies.Select(z => new LiteralExpression(z)), valueType: new QuickType("string", IsMulti: true), multiValues: true)), x.Class.Name));
             foreach (var dict in dependencyDictionaries)
             {
                 staticClass.AddProperty(dict.ToProperty());

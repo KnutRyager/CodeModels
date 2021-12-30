@@ -39,9 +39,9 @@ namespace CodeAnalyzation.Models
             return this;
         }
 
-        public MethodHolder AddProperty(Type type, string name) => AddProperty(new TType(type), name);
-        public MethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TType(type), name);
-        public MethodHolder AddProperty(TType type, string name) => AddProperty(new(type, name));
+        public MethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
+        public MethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
+        public MethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> GetMethods() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));

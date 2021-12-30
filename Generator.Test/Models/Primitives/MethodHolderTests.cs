@@ -8,14 +8,14 @@ public class MethodHolderTests
 {
     [Fact]
     public void PropertiesAndFieldsWithOrdering() => new MethodHolder("ClassA", new PropertyCollection(new Property[] {
-            Property.FromValue(new TType("string"),"myPrivateField",new LiteralExpression("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
-            Property.FromValue(new TType("string"),"myPrivateReadonlyField",new LiteralExpression("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
-            Property.FromValue(new TType("string"),"myPrivateProperty",new LiteralExpression("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
-            new(new TType("int"),"p1"),
-            new(new TType("string", false),"p2"),
-            Property.FromValue(new TType("double"),"PI",new LiteralExpression(3.14), modifier: PropertyAndFieldTypes.PublicConst),
-            Property.FromQualifiedName(new TType("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
-            Property.FromValue(new TType("string"),"ThePublicStaticReadonlyField",new LiteralExpression("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
+            Property.FromValue(new QuickType("string"),"myPrivateField",new LiteralExpression("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
+            Property.FromValue(new QuickType("string"),"myPrivateReadonlyField",new LiteralExpression("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
+            Property.FromValue(new QuickType("string"),"myPrivateProperty",new LiteralExpression("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
+            new(new QuickType("int"),"p1"),
+            new(new QuickType("string", false),"p2"),
+            Property.FromValue(new QuickType("double"),"PI",new LiteralExpression(3.14), modifier: PropertyAndFieldTypes.PublicConst),
+            Property.FromQualifiedName(new QuickType("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
+            Property.FromValue(new QuickType("string"),"ThePublicStaticReadonlyField",new LiteralExpression("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
         })).ToClass().CodeEqual(@"
 public class ClassA {
     public const double PI = 3.14D;
