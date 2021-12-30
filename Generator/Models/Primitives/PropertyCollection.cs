@@ -73,10 +73,11 @@ namespace CodeAnalyzation.Models
         public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
         public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Properties.OrderBy(x => x, new PropertyComparer()).Select(x => x.ToProperty(modifier)));
         public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
-        public ValueCollection ToValueCollection() => new(FilterValues().Select(x => x.Value?.Value ?? throw new Exception($"Property '{x}' contains no value.")));
+        public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")));
 
         public SyntaxToken Identifier => Identifier(Name ?? throw new ArgumentException("No identifier"));
-
+        public Property this[string name] => Properties.First(x => x.Name == name);
+        public Property? TryFindProperty(string name) => Properties.FirstOrDefault(x => x.Name == name);
     }
 }
 

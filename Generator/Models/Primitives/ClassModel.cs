@@ -20,7 +20,7 @@ namespace CodeAnalyzation.Models
                null,
                @class.GetMethods().Select(x => new Method(x)),
                @namespace: @namespace == default ? default : new Namespace(@namespace))
-           : new NonStaticClass(@class.Identifier.ValueText,
+           : new InstanceClass(@class.Identifier.ValueText,
                null,
                  @namespace == default ? default : new Namespace(@namespace),
                @class.GetMethods().Select(x => new Method(x))));

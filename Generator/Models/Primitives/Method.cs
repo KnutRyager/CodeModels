@@ -6,16 +6,16 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeAnalyzation.Models
 {
-    public class Method
+    public class Method : IMember
     {
-        public string Identifier { get; set; }
+        public string Name { get; set; }
         public PropertyCollection Parameters { get; set; }
         public TType ReturnType { get; set; }
         public IEnumerable<Dependency> Dependencies { get; set; }
 
-        public Method(string identifier, PropertyCollection parameters, TType returnType, IEnumerable<Dependency> dependencies)
+        public Method(string name, PropertyCollection parameters, TType returnType, IEnumerable<Dependency> dependencies)
         {
-            Identifier = identifier;
+            Name = name;
             Parameters = parameters;
             ReturnType = returnType;
             Dependencies = dependencies;
@@ -29,7 +29,7 @@ namespace CodeAnalyzation.Models
             modifiers: TokenList(Token(SyntaxKind.PublicKeyword)),
             returnType: ReturnType.TypeSyntax(),
             explicitInterfaceSpecifier: default,
-            identifier: Identifier(Identifier),
+            identifier: Identifier(Name),
             typeParameterList: default,
             parameterList: Parameters.ToParameters(),
             constraintClauses: default,

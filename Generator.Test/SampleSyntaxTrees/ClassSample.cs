@@ -12,6 +12,7 @@ public class ClassSample
     public int ArrowProp => 0;
 
     public string StringProperty { get; set; }
+    public string DependantProperty => this.StringProperty;
     public int? OptionalProperty { get; set; }
     public Dictionary<int, bool> DictionaryProperty { get; set; }
     public Func<float, int> FuncPropery { get; set; }

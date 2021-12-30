@@ -9,17 +9,17 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class ValueCollection
+    public class ExpressionCollection
     {
-        public List<Value> Values { get; set; }
+        public List<Expression> Values { get; set; }
 
-        public ValueCollection(IEnumerable<Value> values)
+        public ExpressionCollection(IEnumerable<Expression> values)
         {
             Values = values.ToList();
         }
 
-        public ValueCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => Value.FromValue(x))) { }
-        public ValueCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new Value(x))) { }
+        public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
+        public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new LiteralExpression(x))) { }
 
         public EnumDeclarationSyntax ToEnum(string name, bool isFlags = false, bool hasNoneValue = false) => EnumDeclaration(
                 attributeLists: default,
@@ -32,8 +32,8 @@ namespace CodeAnalyzation.Models
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
         public TypeSyntax BaseType() => BaseTType().TypeSyntax();
         public virtual TType BaseTType() => Values.Select(x => x.Type).Distinct().Count() is 1 ? Values.First().Type : new TType(typeof(object));
-        public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Expression));
-        public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Expression));
+        public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax));
+        public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax));
     }
 }
 

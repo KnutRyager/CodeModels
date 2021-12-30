@@ -8,19 +8,19 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class ValueDictionary
+    public class ExpressionDictionary
     {
-        public List<ValueCollectionWithKey> KeyVaulePairs { get; set; }
-        public ValueCollection Keys { get; set; }
-        public ValueCollection Values { get; set; }
+        public List<ExpressionCollectionWithKey> KeyVaulePairs { get; set; }
+        public ExpressionCollection Keys { get; set; }
+        public ExpressionCollection Values { get; set; }
         public string? Name { get; set; }
         private readonly TType? _valueType;
 
-        public ValueDictionary(IEnumerable<ValueCollectionWithKey> values, string? name = null, TType? valueType = null)
+        public ExpressionDictionary(IEnumerable<ExpressionCollectionWithKey> values, string? name = null, TType? valueType = null)
         {
             KeyVaulePairs = values.ToList();
-            Keys = new ValueCollection(values.Select(x => x.Key));
-            Values = new ValueCollection(values.SelectMany(x => x.Values));
+            Keys = new ExpressionCollection(values.Select(x => x.Key));
+            Values = new ExpressionCollection(values.SelectMany(x => x.Values));
             Name = name;
             _valueType = valueType;
         }

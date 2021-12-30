@@ -1,4 +1,5 @@
 using CodeAnalyzation.Models;
+using FluentAssertions;
 using Xunit;
 
 namespace Generator.Test.Models.Primitives;
@@ -28,5 +29,14 @@ public enum MyEnum {
 public enum MyEnum {
     None=0, A=1, B=2, C=4, D=8, E=16
 }");
+
+    [Fact]
+    public void GetPropertyAccessSyntax() => new EnumModel("MyEnum", new[] { "A", "B", "C", "D", "E" }, isFlags: true, hasNoneValue: true)
+        .GetProperty("A").AccessSyntax().Should().Equals("MyEnum.A");
+
+    [Fact]
+    public void GetPropertyAccessValue() => new EnumModel("MyEnum", new[] { "A", "B", "C", "D", "E" }, isFlags: true, hasNoneValue: true)
+        .GetProperty("B").AccessValue().Syntax.ToString().Should().Equals("MyEnum.B");
+
 
 }

@@ -173,8 +173,8 @@ public static class ModelDependencies
 
         public static readonly IDictionary<string, IDictionary<string,string[]>> Deps = new Dictionary<string, IDictionary<string,string[]>>()
         {
-            {  ""ClassA"", ClassA },
-            {  ""ClassB"", ClassB }
+            {  ""ClassA"", ModelDependencies.ClassA },
+            {  ""ClassB"", ModelDependencies.ClassB }
         };
 }", ignoreWhitespace: true);
     }

@@ -17,16 +17,16 @@ namespace CodeAnalyzation.Generation
                 .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())))).ToList();
 
             var staticClass = new StaticClass("ModelDependencies", @namespace: new("Dependencies"));
-            var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ValueDictionary(x.Properties.Select(
-                y => new ValueCollectionWithKey(Value.FromValue(y.Member.Name),
-                y.Dependencies.Select(z => Value.FromValue(z)), valueType: new TType("string", isMulti: true), multiValues: true)), x.Class.Name));
+            var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionDictionary(x.Properties.Select(
+                y => new ExpressionCollectionWithKey(new LiteralExpression(y.Member.Name),
+                y.Dependencies.Select(z => new LiteralExpression(z)), valueType: new TType("string", isMulti: true), multiValues: true)), x.Class.Name));
             foreach (var dict in dependencyDictionaries)
             {
                 staticClass.AddProperty(dict.ToProperty());
             }
-            var masterDependencyDictionary = new ValueDictionary(dependenciesWithFullPaths.Select(
-                x => new ValueCollectionWithKey(Value.FromValue(x.Class.Name),
-                new Value(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
+            var masterDependencyDictionary = new ExpressionDictionary(dependenciesWithFullPaths.Select(
+                x => new ExpressionCollectionWithKey(new LiteralExpression(x.Class.Name),
+                new PropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
             staticClass.AddProperty(masterDependencyDictionary.ToProperty());
 
             return staticClass.ToClass();

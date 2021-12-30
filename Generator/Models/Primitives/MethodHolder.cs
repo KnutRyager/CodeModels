@@ -8,7 +8,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public class MethodHolder
+    public class MethodHolder : IMethodHolder
     {
         public PropertyCollection Properties { get; set; }
         public List<Property> ValueProperties => Properties.FilterValues();
@@ -17,12 +17,14 @@ namespace CodeAnalyzation.Models
         public Namespace? Namespace { get; set; }
         public Modifier TopLevelModifier { get; set; }
         public Modifier MemberModifier { get; set; }
+        public bool IsStatic { get; protected set; }
 
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<Method>? methods = null,
             Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
         {
             Name = name;
             Properties = properties ?? new PropertyCollection(name: name);
+            foreach (var property in Properties.Properties) property.Owner = this;
             Namespace = @namespace;
             Methods = methods?.ToList() ?? new List<Method>();
             TopLevelModifier = topLevelModifier;
@@ -32,6 +34,8 @@ namespace CodeAnalyzation.Models
         public MethodHolder AddProperty(Property property)
         {
             Properties.Properties.Add(property);
+            if (property.Owner is not null) throw new ArgumentException($"Adding already owned property '{property}' to '{Name}'.");
+            property.Owner = this;
             return this;
         }
 
@@ -70,5 +74,9 @@ namespace CodeAnalyzation.Models
                 baseList: default,
                 constraintClauses: default,
                 members: Members());
+
+        public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
+        public Property GetProperty(string name) => Properties[name];
+        public Method GetMethod(string name) => Methods.First(x => x.Name == name);
     }
 }
