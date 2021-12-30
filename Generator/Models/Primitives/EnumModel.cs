@@ -10,6 +10,7 @@ namespace CodeAnalyzation.Models
         public ValueCollection Values { get; set; }
         public bool IsFlags { get; set; }
         public bool HasNoneValue { get; set; }
+        public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 
         public EnumModel(string identifier, IEnumerable<string>? values = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
             : base(identifier, @namespace: @namespace)
@@ -18,6 +19,12 @@ namespace CodeAnalyzation.Models
             IsFlags = isFlags;
             if (HasNoneValue) values = new string[] { "None" }.Concat(values);
             Values = new ValueCollection(values.Select(x => Value.FromValue(x)));
+        }
+
+        public EnumModel(string identifier, IEnumerable<IEnumerable<string>>? valueCategories = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
+            : this(identifier, valueCategories.SelectMany(x => x), @namespace, isFlags, hasNoneValue)
+        {
+            ValueCategories = valueCategories;
         }
 
         public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
