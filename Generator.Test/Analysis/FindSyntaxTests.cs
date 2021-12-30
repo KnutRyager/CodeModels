@@ -57,7 +57,7 @@ public class FindSyntaxTests
         SyntaxNodeExtensions.SetSemanticModel(1, nameof(GetFieldType_File2));
         Assert.Equal("System.DateTime",
                        tree.GetProperties().First().DescendantNodes()
-                       .OfType<IdentifierNameSyntax>().First().GetTType().ToString());
+                       .OfType<IdentifierNameSyntax>().First().GetTType(nameof(GetFieldType_File2)).ToString());
     }
 
     [Fact]
