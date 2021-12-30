@@ -54,14 +54,14 @@ namespace CodeAnalyzation.Models
         public LiteralExpressionSyntax? LiteralExpression => LiteralValue != null ? LiteralExpressionCustom(LiteralValue) : default;
         public ExpressionSyntax Expression => (ExpressionSyntax?)LiteralExpression ?? Property?.NameSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : default)!;
 
-        public EnumMemberDeclarationSyntax ToEnumValue() => EnumMemberDeclaration(
+        public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => EnumMemberDeclaration(
                 attributeLists: default,
                 identifier: Type switch
                 {
                     _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => Identifier(name),
                     _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
                 },
-                equalsValue: default!);
+                equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
 
         public ArgumentSyntax ToArgument() => ArgumentCustom(
                 nameColon: default,

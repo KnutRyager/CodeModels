@@ -1,23 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
 namespace CodeAnalyzation.Models
 {
-    public class EnumModel
+    public class EnumModel : MethodHolder
     {
-        [JsonProperty(Order = -10)]
-        public string Identifier { get; set; }
-        [JsonProperty(Order = -10)]
-        public Namespace Namespace { get; set; }
-        public string[] Values { get; set; }
+        public ValueCollection Values { get; set; }
+        public bool IsFlags { get; set; }
+        public bool HasNoneValue { get; set; }
 
-        public EnumModel(string identifier, Namespace @namespace, IEnumerable<string> values)
+        public EnumModel(string identifier, IEnumerable<string>? values = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
+            : base(identifier, @namespace: @namespace)
         {
-            Identifier = identifier;
-            Namespace = @namespace;
-            Values = values?.ToArray() ?? System.Array.Empty<string>();
+            HasNoneValue = hasNoneValue;
+            IsFlags = isFlags;
+            if (HasNoneValue) values = new string[] { "None" }.Concat(values);
+            Values = new ValueCollection(values.Select(x => Value.FromValue(x)));
         }
+
+        public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
     }
 }

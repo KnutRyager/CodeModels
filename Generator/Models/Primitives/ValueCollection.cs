@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -20,12 +21,12 @@ namespace CodeAnalyzation.Models
         public ValueCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => Value.FromValue(x))) { }
         public ValueCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new Value(x))) { }
 
-        public EnumDeclarationSyntax ToEnum(string name) => EnumDeclaration(
+        public EnumDeclarationSyntax ToEnum(string name, bool isFlags = false, bool hasNoneValue = false) => EnumDeclaration(
                 attributeLists: default,
                 modifiers: TokenList(Token(SyntaxKind.PublicKeyword)),
                 identifier: Identifier(name),
                 baseList: default,
-                members: SeparatedList(Values.Select(x => x.ToEnumValue()))
+                members: SeparatedList(Values.Select((x, index) => x.ToEnumValue(isFlags ? hasNoneValue && index == 0 ? 0 : (int)Math.Pow(2, index - (hasNoneValue ? 1 : 0)) : null)))
             );
 
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
