@@ -1,8 +1,7 @@
-using static CodeAnalysisTests.TestUtil;
-using Xunit;
+using System;
 using CodeAnalyzation.CodeGeneration;
 using TheEverythingAPI.Modelling;
-using System;
+using Xunit;
 
 namespace CodeAnalysisTests;
 

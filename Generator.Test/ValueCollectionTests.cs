@@ -30,7 +30,7 @@ public enum MyEnum {
     public void GenerateDictionaryInitialization() => new ValueDictionary(new ValueCollectionWithKey[]{
         new (Value.FromValue(1), "Abc,Def,Ghi"),
         new (Value.FromValue(2), "Jkl,Mno,Pqr")})
-        .ToDictionary().CodeEqual(@"new Dictionary<int, string>(){ 
+        .ToDictionary().CodeEqual(@"new Dictionary<int, string[]>(){ 
     {1, new string[]{""Abc"",""Def"",""Ghi""} },
     {2, new string[]{""Jkl"",""Mno"",""Pqr""} }
 }", ignoreWhitespace: true);

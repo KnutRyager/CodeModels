@@ -1,5 +1,6 @@
 using System.Linq;
 using CodeAnalyzation;
+using CodeAnalyzation.Generation;
 using Common.DataStructures;
 using Common.Util;
 using FluentAssertions;
@@ -7,6 +8,11 @@ using Microsoft.CodeAnalysis;
 using Xunit;
 using static CodeAnalyzation.SemanticExtensions;
 using static CodeAnalyzation.SyntaxNodeExtensions;
+using CodeAnalyzation.Models;
+using FluentAssertions;
+using Xunit;
+using CodeAnalysisTests;
+using Models;
 
 namespace Generator.Test;
 
@@ -77,6 +83,7 @@ public static class Extensions
         dependencies[14].Should().BeEquivalentTo();
         dependencies[15].Should().BeEquivalentTo("O");
     }
+
     [Fact]
     public void FindFullDependencies()
     {
@@ -120,6 +127,61 @@ public class ClassC
         dependencies[05].Should().BeEquivalentTo("E", "E.B_A", "E.B_B");
         dependencies[06].Should().BeEquivalentTo("E", "E.B_A", "E.B_B", "E.B_C");
         dependencies[07].Should().BeEquivalentTo("E", "E.D", "E.B_A", "E.B_B", "E.B_C", "E.D.C_A", "E.D.C_B");
+    }
+
+    [Fact]
+    public void CreateDependenciesDictionary()
+    {
+        var code = @"
+using System;
+using System.Collections.Generic;
+
+[Model]
+public class ClassA {
+    public int A => 1;
+    public int B => A;
+    public int C => A + B;
+    public ClassB E => new ClassB();
+    public int F => E.B_A;
+    public int G => E.B_B;
+    public int H => E.B_C;
+}
+
+[Model]
+public class ClassB
+{
+    public int B_A => 1;
+    public int B_B => B_A;
+    public int B_C => B_A + B_B;
+}".ParseAndKeepSemanticModel();
+        var d = DependencyGeneration.GenerateDependencies(new[] { code.Compilation.SyntaxTree }, code.Model);
+        d.CodeEqual(@"
+public static class ModelDependencies
+    {
+        public static readonly IDictionary<string, string[]> ClassA = new Dictionary<string, string[]>()
+        {
+            { ""A"", new string[]{ } },
+            { ""B"", new string[]{ ""A"" } },
+            { ""C"", new string[]{ ""A"", ""B"" } },
+            { ""E"", new string[]{ } },
+            { ""F"", new string[]{ ""E"", ""E.B_A"" } },
+            { ""G"", new string[]{ ""E"", ""E.B_B"", ""E.B_A"" } },
+            { ""H"", new string[]{ ""E"", ""E.B_C"", ""E.B_A"", ""E.B_B"" } }
+        };
+
+        public static readonly IDictionary<string, string[]> ClassB = new Dictionary<string, string[]>()
+        {
+            { ""B_A"", new string[]{ } },
+            { ""B_B"", new string[]{ ""B_A"" } },
+            { ""B_C"", new string[]{ ""B_A"", ""B_B"" } }
+        };
+
+        public static readonly IDictionary<string, IDictionary<string,string[]>> Deps = new Dictionary<string, IDictionary<string,string[]>>()
+        {
+            {  ""ClassA"", ClassA },
+            {  ""ClassB"", ClassB }
+        };
+}", ignoreWhitespace: true);
     }
 
     [Fact]

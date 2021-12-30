@@ -29,14 +29,15 @@ namespace CodeAnalyzation.Models
             MemberModifier = memberModifier;
         }
 
-        public MethodHolder AddProperty(TType type, string name)
+        public MethodHolder AddProperty(Property property)
         {
-            Properties.Properties.Add(new(type, name));
+            Properties.Properties.Add(property);
             return this;
         }
 
         public MethodHolder AddProperty(Type type, string name) => AddProperty(new TType(type), name);
         public MethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TType(type), name);
+        public MethodHolder AddProperty(TType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> GetMethods() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));

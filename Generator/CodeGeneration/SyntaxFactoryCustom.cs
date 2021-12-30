@@ -247,7 +247,7 @@ namespace CodeAnalyzation.CodeGeneration
 
         public static ArrayCreationExpressionSyntax ArrayInitializationCustom(TypeSyntax type,
             IEnumerable<ExpressionSyntax>? expressions = null) => ArrayCreationExpressionCustom(ArrayType(type, rankSpecifiers: List(new[] { ArrayRankSpecifierCustom() })),
-            initializer: expressions is null || !expressions.Any() ? default : CollectionInitializerExpressionCustom(expressions));
+            initializer: expressions is null ? default : CollectionInitializerExpressionCustom(expressions));
 
         public static ArrayRankSpecifierSyntax ArrayRankSpecifierCustom(IEnumerable<ExpressionSyntax>? sizes = default)
             => ArrayRankSpecifier(sizes: sizes is null ? SeparatedList(new ExpressionSyntax[] { OmittedArraySizeExpression() }) : SeparatedList(sizes));
