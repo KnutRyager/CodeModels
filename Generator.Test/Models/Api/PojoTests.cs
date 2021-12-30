@@ -3,9 +3,9 @@ using CodeAnalyzation.CodeGeneration;
 using TheEverythingAPI.Modelling;
 using Xunit;
 
-namespace CodeAnalysisTests;
+namespace Generator.Test.Models.Api;
 
-public class CodeGenerationTests
+public class PojoTests
 {
     [Fact]
     public void POJO() =>

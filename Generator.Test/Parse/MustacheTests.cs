@@ -1,7 +1,7 @@
 using System;
 using CodeAnalyzation;
 using Xunit;
-namespace CodeAnalysisTests;
+namespace Generator.Test.Parse;
 
 public class MustacheTests
 {

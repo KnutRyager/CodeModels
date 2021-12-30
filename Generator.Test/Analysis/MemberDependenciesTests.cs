@@ -8,13 +8,8 @@ using Microsoft.CodeAnalysis;
 using Xunit;
 using static CodeAnalyzation.SemanticExtensions;
 using static CodeAnalyzation.SyntaxNodeExtensions;
-using CodeAnalyzation.Models;
-using FluentAssertions;
-using Xunit;
-using CodeAnalysisTests;
-using Models;
 
-namespace Generator.Test;
+namespace Generator.Test.Analysis;
 
 public class MemberDependenciesTests
 {

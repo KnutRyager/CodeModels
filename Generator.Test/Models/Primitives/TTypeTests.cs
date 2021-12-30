@@ -1,8 +1,8 @@
 using CodeAnalyzation.Models;
 using Xunit;
-using static CodeAnalysisTests.TestUtil;
+using static Generator.Test.TestUtil;
 
-namespace Generator.Test;
+namespace Generator.Test.Models.Primitives;
 
 public class TTypeTests
 {

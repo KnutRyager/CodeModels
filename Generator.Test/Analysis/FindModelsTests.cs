@@ -1,10 +1,10 @@
 using CodeAnalyzation.Generation;
 using Xunit;
-using static CodeAnalysisTests.TestUtil;
+using static Generator.Test.TestUtil;
 
-namespace Generator.Test;
+namespace Generator.Test.Analysis;
 
-public class GeneratorTests
+public class FindModelsTests
 {
     [Fact]
     public void FindModels()

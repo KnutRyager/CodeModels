@@ -1,6 +1,7 @@
 #pragma warning disable CS0219 // Variable is assigned but its value is never used
 
-namespace CodeAnalysisTests;
+namespace Generator.Test.Analysis;
+
 public class ExperimentationTests
 {
     public class A { };
@@ -19,7 +20,6 @@ namespace Microsoft.CodeAnalysis.CSharp.Syntax
     }
 }
 ";
-
 
     //[Fact]
     //public void TestGetClasses()

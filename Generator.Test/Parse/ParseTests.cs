@@ -1,5 +1,6 @@
 using Xunit;
-namespace CodeAnalysisTests;
+
+namespace Generator.Test.Parse;
 
 [Collection("Sequential")]
 public class ParseTests

@@ -1,11 +1,10 @@
 using CodeAnalyzation;
 using CodeAnalyzation.SyntaxConstruction;
-using static CodeAnalysisTests.TestUtil;
 using Xunit;
 
-namespace CodeAnalysisTests;
+namespace Generator.Test.SyntaxConstruction;
 
-public class SyntaxConstructionTests
+public class RewriterTests
 {
     public class A { };
     public class B : A { };

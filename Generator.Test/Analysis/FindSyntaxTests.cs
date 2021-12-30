@@ -2,11 +2,10 @@ using System.Linq;
 using CodeAnalyzation;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
-using static CodeAnalyzation.SyntaxNodeExtensions;
 
-namespace CodeAnalysisTests;
+namespace Generator.Test.Analysis;
 
-public class SyntaxTreeTests
+public class FindSyntaxTests
 {
     [Fact]
     public void GetPublicStaticFields()
@@ -32,14 +31,14 @@ public class SyntaxTreeTests
     public void GetFieldType_System()
         => Assert.Equal("System.DateTime",
             "using System; class Test{public DateTime variable { get; set; }}"
-            .Parse().GetProperties().First().DescendantNodes()
+            .Parse(nameof(GetFieldType_System)).GetProperties().First().DescendantNodes()
             .OfType<IdentifierNameSyntax>().First().GetTType().ToString());
 
     [Fact]
     public void GetFieldType_System_List()
         => Assert.Equal("System.Collections.Generic.List<int>",
             "using System; using System.Collections.Generic; class Test{public List<int> variable { get; set; }}"
-            .Parse().GetProperties().First().DescendantNodes()
+            .Parse(nameof(GetFieldType_System_List)).GetProperties().First().DescendantNodes()
             .OfType<GenericNameSyntax>().First().GetTType().ToString());
 
     [Fact]
@@ -55,7 +54,7 @@ public class SyntaxTreeTests
         var tree = new[] { "using System; namespace Test.MyNameSpace { class Test{public int variable { get; set; }}}",
                     "using Test.MyNameSpace; using System; class Test2{public DateTime variable { get; set; }}" }
                        .Parse(nameof(GetFieldType_File2)).Last();
-        SetSemanticModel(1, nameof(GetFieldType_File2));
+        SyntaxNodeExtensions.SetSemanticModel(1, nameof(GetFieldType_File2));
         Assert.Equal("System.DateTime",
                        tree.GetProperties().First().DescendantNodes()
                        .OfType<IdentifierNameSyntax>().First().GetTType().ToString());
@@ -64,6 +63,6 @@ public class SyntaxTreeTests
     [Fact]
     public void GetProperties_Type()
         => Assert.Equal("public DateTime variable { get; set; }",
-            "using System; class Test{public DateTime variable { get; set; }".Parse().GetProperties().First().GetText().ToString());
+            "using System; class Test{public DateTime variable { get; set; }".Parse(nameof(GetProperties_Type)).GetProperties().First().GetText().ToString());
 
 }

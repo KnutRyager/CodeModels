@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalysisTests;
+namespace Generator.Test;
 
 public static class TestUtil
 {
