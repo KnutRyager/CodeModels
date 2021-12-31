@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
+using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
 

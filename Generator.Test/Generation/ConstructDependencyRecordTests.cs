@@ -1,9 +1,7 @@
 using CodeAnalyzation.Models;
-using FluentAssertions;
 using Xunit;
-using static Generator.Test.TestUtil;
 
-namespace Generator.Test;
+namespace CodeAnalyzation.Generation.Test;
 
 public class ConstructDependencyRecordTests
 {

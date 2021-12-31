@@ -1,8 +1,8 @@
 using CodeAnalyzation.Generation;
+using CodeAnalyzation.Parsing;
+using CodeAnalyzation.Test;
 using Xunit;
-using static Generator.Test.TestUtil;
-
-namespace Generator.Test.Analysis;
+namespace CodeAnalyzation.Analysis.Test;
 
 public class FindModelsTests
 {

@@ -1,9 +1,9 @@
 using System.Linq;
-using CodeAnalyzation;
+using CodeAnalyzation.Parsing;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 
-namespace Generator.Test.Analysis;
+namespace CodeAnalyzation.Analysis.Test;
 
 public class FindSyntaxTests
 {

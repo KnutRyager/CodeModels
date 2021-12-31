@@ -1,9 +1,8 @@
-using CodeAnalyzation.Models;
 using FluentAssertions;
 using Xunit;
-using static Generator.Test.TestUtil;
+using static CodeAnalyzation.Test.TestUtil;
 
-namespace Generator.Test.Models.Primitives;
+namespace CodeAnalyzation.Models.Primitives.Test;
 
 public class ValueCollectionTests
 {

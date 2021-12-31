@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CodeAnalyzation.Parsing;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 
-namespace Generator.Test;
+namespace CodeAnalyzation.Test;
 
 public static class TestUtil
 {

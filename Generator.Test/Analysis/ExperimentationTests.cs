@@ -1,6 +1,6 @@
 #pragma warning disable CS0219 // Variable is assigned but its value is never used
 
-namespace Generator.Test.Analysis;
+namespace CodeAnalyzation.Analysis.Test;
 
 public class ExperimentationTests
 {

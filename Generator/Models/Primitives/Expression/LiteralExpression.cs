@@ -1,6 +1,6 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
-using static CodeAnalyzation.CodeGeneration.SyntaxFactoryCustom;
+using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 
 
 namespace CodeAnalyzation.Models

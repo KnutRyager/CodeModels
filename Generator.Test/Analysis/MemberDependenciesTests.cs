@@ -1,15 +1,14 @@
 using System.Linq;
-using CodeAnalyzation;
 using CodeAnalyzation.Generation;
+using CodeAnalyzation.Parsing;
+using CodeAnalyzation.Test;
 using Common.DataStructures;
 using Common.Util;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Xunit;
-using static CodeAnalyzation.SemanticExtensions;
-using static CodeAnalyzation.SyntaxNodeExtensions;
 
-namespace Generator.Test.Analysis;
+namespace CodeAnalyzation.Analysis.Test;
 
 public class MemberDependenciesTests
 {

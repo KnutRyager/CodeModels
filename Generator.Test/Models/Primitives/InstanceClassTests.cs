@@ -1,8 +1,7 @@
-using CodeAnalyzation.Models;
 using FluentAssertions;
 using Xunit;
 
-namespace Generator.Test.Models.Primitives;
+namespace CodeAnalyzation.Models.Primitives.Test;
 
 public class InstanceClassTests
 {
