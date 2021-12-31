@@ -64,8 +64,28 @@ namespace CodeAnalyzation.Generation
                 typeParameterList: typeParameterList,
                 baseList: baseList,
                 constraintClauses: constraintClauses,
-                members: members,
                 openBraceToken: Token(SyntaxKind.OpenBraceToken),
+                members: members,
+                closeBraceToken: Token(SyntaxKind.CloseBraceToken),
+                semicolonToken: default
+            );
+
+        public static InterfaceDeclarationSyntax InterfaceDeclarationCustom(SyntaxList<AttributeListSyntax> attributeLists,
+            SyntaxTokenList modifiers,
+            SyntaxToken identifier,
+            TypeParameterListSyntax? typeParameterList,
+            BaseListSyntax? baseList,
+            SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses,
+            SyntaxList<MemberDeclarationSyntax> members) => InterfaceDeclaration(
+                attributeLists: attributeLists,
+                modifiers: modifiers,
+                keyword: Token(SyntaxKind.InterfaceKeyword),
+                identifier: identifier,
+                typeParameterList: typeParameterList,
+                baseList: baseList,
+                constraintClauses: constraintClauses,
+                openBraceToken: Token(SyntaxKind.OpenBraceToken),
+                members: members,
                 closeBraceToken: Token(SyntaxKind.CloseBraceToken),
                 semicolonToken: default
             );
@@ -105,8 +125,8 @@ namespace CodeAnalyzation.Generation
             typeParameterList: typeParameterList,
             baseList: baseList,
             constraintClauses: constraintClauses,
-            members: members,
             openBraceToken: Token(SyntaxKind.OpenBraceToken),
+            members: members,
             closeBraceToken: Token(SyntaxKind.CloseBraceToken),
             semicolonToken: default);
 

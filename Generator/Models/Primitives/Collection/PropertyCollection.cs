@@ -66,7 +66,8 @@ namespace CodeAnalyzation.Models
 
         public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
         public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
-        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Properties.OrderBy(x => x, new PropertyComparer()).Select(x => x.ToProperty(modifier)));
+        public List<Property> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new PropertyComparer()).ToList();
+        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Ordered().Select(x => x.ToMemberSyntax(modifier)));
         public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
         public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")));
 

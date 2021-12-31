@@ -2,7 +2,7 @@
 
 namespace CodeAnalyzation.Models
 {
-    public interface ICodeModel
+    public interface ITypeModel
     {
         TypeSyntax TypeSyntax();
     }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text.RegularExpressions;
+using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,7 +9,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Property(IType Type, string Name, Expression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel
+    public record Property(IType Type, string Name, Expression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel, ITypeModel
     {
         public MethodHolder? Owner { get; set; }
 
@@ -51,10 +52,10 @@ namespace CodeAnalyzation.Models
                 identifier: Identifier(Name!),
                 @default: Initializer());
 
-        public MemberDeclarationSyntax ToProperty(Modifier modifiers = Modifier.None) => PropertyOrFieldDeclarationCustom(
+        public MemberDeclarationSyntax ToMemberSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
                 propertyType: Modifier.SetModifiers(modifiers),
                 attributeLists: default,
-                modifiers: Modifier.SetModifiers(modifiers).Modifiers(),
+                modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Modifiers(),
                 type: TypeSyntax(),
                 explicitInterfaceSpecifier: default,
                 identifier: Identifier(Name!),
@@ -86,6 +87,7 @@ namespace CodeAnalyzation.Models
         };
 
         public TypeSyntax TypeSyntax() => Type.TypeSyntax();
+        public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
 
         public EqualsValueClauseSyntax? Initializer() => DefaultValueSyntax() switch
         {

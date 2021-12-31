@@ -31,8 +31,9 @@ namespace CodeAnalyzation.Models
         public MethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
-        public SyntaxList<MemberDeclarationSyntax> GetMethods() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));
-        public SyntaxList<MemberDeclarationSyntax> Members() => List(Properties.ToMembers(MemberModifier).Concat(GetMethods()));
+        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));
+        public List<IMember> Members() => Properties.Ordered().Concat<IMember>(Methods).ToList(); // TODO: MemberModifier
+        public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
 
         public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
                 attributeLists: default,
@@ -42,7 +43,7 @@ namespace CodeAnalyzation.Models
                 parameterList: Properties.ToParameters(),
                 baseList: default,
                 constraintClauses: default,
-                members: GetMethods());
+                members: MethodsSyntax());
 
         public ClassDeclarationSyntax ToClass() => ClassDeclarationCustom(
                 attributeLists: default,
@@ -51,7 +52,7 @@ namespace CodeAnalyzation.Models
                 typeParameterList: default,
                 baseList: default,
                 constraintClauses: default,
-                members: Members());
+                members: MembersSyntax());
 
         public StructDeclarationSyntax ToStruct() => StructDeclarationCustom(
                 attributeLists: default,
@@ -60,7 +61,16 @@ namespace CodeAnalyzation.Models
                 typeParameterList: default,
                 baseList: default,
                 constraintClauses: default,
-                members: Members());
+                members: MembersSyntax());
+
+        public InterfaceDeclarationSyntax ToInterface() => InterfaceDeclarationCustom(
+                attributeLists: default,
+                modifiers: TopLevelModifier.Modifiers(),
+                identifier: Identifier(Name),
+                typeParameterList: default,
+                baseList: default,
+                constraintClauses: default,
+                members: List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.ToMemberSyntax(removeModifier: Modifier.Public))));
 
         public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
         public Property GetProperty(string name) => Properties[name];

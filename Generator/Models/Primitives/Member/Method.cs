@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using Microsoft.CodeAnalysis.CSharp;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, List<Dependency> Dependencies) : IMember
+    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, List<Dependency> Dependencies, Modifier Modifier = Modifier.Public) : IMember, ICodeModel
     {
         public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency>? dependencies = null)
             : this(name, parameters, returnType, dependencies?.ToList() ?? new List<Dependency>()) { }
@@ -16,7 +16,7 @@ namespace CodeAnalyzation.Models
 
         public MethodDeclarationSyntax ToMethod() => MethodDeclarationCustom(
             attributeLists: default,
-            modifiers: TokenList(Token(SyntaxKind.PublicKeyword)),
+            modifiers: Modifier.Modifiers(),
             returnType: ReturnType.TypeSyntax(),
             explicitInterfaceSpecifier: default,
             identifier: Identifier(Name),
@@ -25,5 +25,8 @@ namespace CodeAnalyzation.Models
             constraintClauses: default,
             body: default,
             expressionBody: default);
+
+        public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToMethod();
+        public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
     }
 }
