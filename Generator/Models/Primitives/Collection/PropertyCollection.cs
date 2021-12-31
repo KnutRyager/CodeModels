@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using CodeAnalyzation.Collectors;
 using CodeAnalyzation.Parsing;
 using Microsoft.CodeAnalysis;
@@ -20,6 +21,7 @@ namespace CodeAnalyzation.Models
         public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
         public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
         public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
+        public PropertyCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
         public static PropertyCollection Parse(string code) => code.Parse().Members.FirstOrDefault() switch
         {

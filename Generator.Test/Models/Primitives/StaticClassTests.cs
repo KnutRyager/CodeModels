@@ -1,3 +1,4 @@
+using System.Linq;
 using CodeAnalyzation.Test;
 using Xunit;
 
@@ -26,4 +27,19 @@ public static class ClassA {
     public static string? p2 { get; set; }
     private static string myPrivateProperty { get; set; } = ""myPrivatePropertyValue"";
 }");
+
+    [Fact]
+    public void StaticMethodsFromReflection() => new StaticClass("Math",
+        properties: new PropertyCollection(typeof(System.Math).GetFields().Select(x => new PropertyFromField(x))),
+        methods: typeof(System.Math).GetMethods().Where(x => x.Name.StartsWith("B")).Select(x => new MethodFromReflection(x))).ToClass().CodeEqual(@"
+public static class Math {
+    public const double E = 2.718281828459045D;
+    public const double PI = 3.141592653589793D;
+    public const double Tau = 6.283185307179586D;
+    public static long BigMul(int a, int b);
+    public static ulong BigMul(ulong a, ulong b, UInt64& low);
+    public static long BigMul(long a, long b, Int64& low);
+    public static double BitDecrement(double x);
+    public static double BitIncrement(double x);
+}", ignoreWhitespace: true);
 }

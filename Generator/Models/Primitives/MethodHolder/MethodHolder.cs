@@ -31,7 +31,7 @@ namespace CodeAnalyzation.Models
         public MethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
-        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod()));
+        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod(MemberModifier)));
         public List<IMember> Members() => Properties.Ordered().Concat<IMember>(Methods).ToList(); // TODO: MemberModifier
         public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
 
