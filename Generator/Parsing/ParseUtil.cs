@@ -10,8 +10,9 @@ using Common.Files;
 using static CodeAnalyzation.SyntaxNodeExtensions;
 using CodeAnalyzation.Models;
 using System;
+using CodeAnalyzation.Compilation;
 
-public static class Util
+public static class ParseUtil
 {
     public static SyntaxTree SyntaxTree(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular) => str.Parse(key, kind).SyntaxTree;
     public static ExpressionSyntax ExpressionTree(this string str, string? key = null) => SyntaxFactory.ParseExpression(str);
@@ -25,7 +26,7 @@ public static class Util
     public static CompilationUnitSyntax Parse(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
     {
         var tree = ParseTree(str, kind);
-        return StoreSyntaxTree(tree, key ?? str).GetCompilationUnitRoot();
+        return CompilationHandling.StoreSyntaxTree(tree, key ?? str).GetCompilationUnitRoot();
     }
 
     public static (CompilationUnitSyntax Compilation, SemanticModel Model) ParseAndKeepSemanticModel(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
@@ -71,16 +72,4 @@ public static class Util
     public static string ParseToJson(this ClassDeclarationSyntax c, NamespaceDeclarationSyntax? @namespace) => ClassModel.Parse(c, @namespace).ToJson();
     public static string ParseFileToJson(this string path) => FileUtil.ReadFileToText(path).ParseToJson();
     public static string JsonList(IEnumerable<string> jsonObjects) => $"[{string.Join(",", jsonObjects)}]";
-
-    private static T StoreSyntax<T>(T node, string? key = null) where T : CSharpSyntaxNode
-    {
-        StoreSyntaxTree((node.SyntaxTree as CSharpSyntaxTree)!, key);
-        return node;
-    }
-
-    private static CSharpSyntaxTree StoreSyntaxTree(CSharpSyntaxTree tree, string? key = null)
-    {
-        SetSemanticModel(new[] { tree }, key ?? tree.ToString());
-        return tree;
-    }
 }

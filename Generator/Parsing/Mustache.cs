@@ -39,7 +39,7 @@ namespace CodeAnalyzation
                         }
                 }
                 var textAfter = splitted[1];
-                if (textAfter.Length > 0 && textAfter[0] == '}') textAfter = textAfter.Substring(1);
+                if (textAfter.Length > 0 && textAfter[0] == '}') textAfter = textAfter[1..];
                 results.Append(textAfter);
             }
 

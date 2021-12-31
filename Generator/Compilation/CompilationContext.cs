@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation
+namespace CodeAnalyzation.Compilation
 {
     public class CompilationContext
     {

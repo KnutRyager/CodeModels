@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using CodeAnalyzation.Compilation;
 using CodeAnalyzation.Models;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
