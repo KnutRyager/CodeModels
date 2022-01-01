@@ -445,5 +445,6 @@ namespace Common.Reflection
 
         public static bool IsContainerOfPrimitiveType(Type type) => IsContainerOf(type, IsPrimitiveType);
         public static bool IsContainerOf(Type type, Func<Type, bool> predicate) => typeof(System.Collections.IEnumerable).IsAssignableFrom(type) && type.GetGenericArguments().Any(predicate);
+        public static bool IsStatic(Type type) => type.IsAbstract && type.IsSealed && !type.GetConstructors().Any();
     }
 }

@@ -23,10 +23,10 @@ public enum MyEnum {
     public void GenerateListInitialization() => new ExpressionCollection("Abc,Def,Ghi").ToListInitialization().CodeEqual(@"new List<string>{""Abc"",""Def"",""Ghi""}");
 
     [Fact]
-    public void GenerateKeyValueInitialization() => new ExpressionCollectionWithKey(new LiteralExpression(1), "Abc,Def,Ghi").ToKeyValueInitialization().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
+    public void GenerateKeyValueInitialization() => new ExpressionsMap(new LiteralExpression(1), "Abc,Def,Ghi").ToKeyValueInitialization().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
 
     [Fact]
-    public void GenerateDictionaryInitialization() => new ExpressionDictionary(new ExpressionCollectionWithKey[]{
+    public void GenerateDictionaryInitialization() => new ExpressionMap(new ExpressionsMap[]{
         new (new LiteralExpression(1), "Abc,Def,Ghi"),
         new (new LiteralExpression(2), "Jkl,Mno,Pqr")})
         .ToDictionary().CodeEqual(@"new Dictionary<int, string[]>(){ 

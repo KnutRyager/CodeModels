@@ -2,18 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record MethodHolder(string Name, PropertyCollection Properties, List<Method> Methods,
-            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None, Modifier MemberModifier = Modifier.None, bool IsStatic = false) : IMethodHolder
+    public abstract record MethodHolder(string Name, PropertyCollection Properties, List<IMethod> Methods,
+            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None,
+            Modifier MemberModifier = Modifier.None, bool IsStatic = false, Type? Type = null) : IMethodHolder
     {
-        public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<Method>? methods = null,
-            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
-            : this(name, properties ?? new PropertyCollection(name: name), methods?.ToList() ?? new(), @namespace, topLevelModifier, memberModifier)
+        public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
+            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None,
+            Modifier memberModifier = Modifier.None, Type? type = null)
+            : this(name, properties ?? new PropertyCollection(name: name), methods?.ToList() ?? new(), @namespace, topLevelModifier, memberModifier, Type: type)
         {
             foreach (var property in Properties.Properties) property.Owner = this;
         }
@@ -31,7 +34,7 @@ namespace CodeAnalyzation.Models
         public MethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
-        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethod(MemberModifier)));
+        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
         public List<IMember> Members() => Properties.Ordered().Concat<IMember>(Methods).ToList(); // TODO: MemberModifier
         public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
 
@@ -74,6 +77,8 @@ namespace CodeAnalyzation.Models
 
         public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
         public Property GetProperty(string name) => Properties[name];
-        public Method GetMethod(string name) => Methods.First(x => x.Name == name);
+        public IMethod GetMethod(string name) => Methods.First(x => x.Name == name);
+
+        public abstract CSharpSyntaxNode SyntaxNode();
     }
 }

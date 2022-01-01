@@ -26,25 +26,6 @@ namespace CodeAnalyzation.Models
         public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(AbstractType.Parse(type), name, Expression.FromSyntax(expression), modifier) { }
         public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier) { }
 
-        public static Property FromValue(AbstractType type, string name, Expression? value = null, Modifier? modifier = null) => new(type, name, value, modifier);
-        public static Property FromExpression(AbstractType type, string name, ExpressionSyntax expression, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(expression), modifier);
-        public static Property FromQualifiedName(AbstractType type, string name, string qualifiedName, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(qualifiedName), modifier);
-        public static Property FromName(string name) => new(TypeShorthands.NullType, name);
-
-        public static Property Parse(ArgumentSyntax argument) => argument.Expression switch
-        {
-            TypeSyntax type => new(AbstractType.Parse(type), argument.NameColon?.Name.ToString()),
-            DeclarationExpressionSyntax declaration => Parse(declaration),
-            _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{argument}'.")
-        };
-
-        public static Property Parse(DeclarationExpressionSyntax declaration) => new(AbstractType.Parse(declaration.Type), declaration.Designation switch
-        {
-            null => default,
-            SingleVariableDesignationSyntax designation => designation.Identifier.ToString(),
-            _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{declaration}'.")
-        });
-
         public ParameterSyntax ToParameter() => Parameter(
                 attributeLists: default,
                 modifiers: default,

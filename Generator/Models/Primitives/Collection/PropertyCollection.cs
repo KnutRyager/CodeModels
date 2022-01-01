@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CodeAnalyzation.Collectors;
-using CodeAnalyzation.Parsing;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,36 +14,17 @@ namespace CodeAnalyzation.Models
     public record PropertyCollection(List<Property> Properties, string? Name = null)
     {
         public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(properties?.ToList() ?? new(), name) { }
-
+        public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
+        public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
+        public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
+        public PropertyCollection(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
+            : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
         public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
         public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
         public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
         public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
         public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
         public PropertyCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
-
-        public static PropertyCollection Parse(string code) => code.Parse().Members.FirstOrDefault() switch
-        {
-            ClassDeclarationSyntax declaration => new PropertyCollection(declaration),
-            RecordDeclarationSyntax declaration => new PropertyCollection(declaration),
-            GlobalStatementSyntax statement => Parse(statement),
-            _ => throw new ArgumentException($"Can't parse {nameof(PropertyCollection)} from '{code}'.")
-        };
-
-        public static PropertyCollection Parse(GlobalStatementSyntax statement) => statement.Statement switch
-        {
-            ExpressionStatementSyntax expression => Parse(expression.Expression),
-            _ => throw new ArgumentException($"Can't parse {nameof(PropertyCollection)} from '{statement}'.")
-        };
-
-        public static PropertyCollection Parse(ExpressionSyntax expression) => expression switch
-        {
-            TupleExpressionSyntax declaration => Parse(declaration.Arguments),
-            TupleTypeSyntax declaration => new PropertyCollection(declaration),
-            _ => throw new ArgumentException($"Can't parse {nameof(PropertyCollection)} from '{expression}'.")
-        };
-
-        public static PropertyCollection Parse(IEnumerable<ArgumentSyntax> arguments) => new(arguments.Select(x => Property.Parse(x)));
 
         public ClassDeclarationSyntax ToClass(string? name = null) => ClassDeclarationCustom(
                 attributeLists: default,

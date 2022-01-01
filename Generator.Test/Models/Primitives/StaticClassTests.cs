@@ -1,5 +1,6 @@
 using System.Linq;
 using CodeAnalyzation.Test;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using Xunit;
 
 namespace CodeAnalyzation.Models.Primitives.Test;
@@ -8,14 +9,14 @@ public class StaticClassTests
 {
     [Fact]
     public void GenerateStaticClass() => new StaticClass("ClassA", new PropertyCollection(new Property[] {
-            Property.FromValue(new QuickType("string"),"myPrivateField",new LiteralExpression("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
-            Property.FromValue(new QuickType("string"),"myPrivateReadonlyField",new LiteralExpression("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
-            Property.FromValue(new QuickType("string"),"myPrivateProperty",new LiteralExpression("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
-            new(new QuickType("int"),"p1"),
-            new(new QuickType("string", false),"p2"),
-            Property.FromValue(new QuickType("double"),"PI",new LiteralExpression(3.14), modifier: PropertyAndFieldTypes.PublicConst),
-            Property.FromQualifiedName(new QuickType("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
-            Property.FromValue(new QuickType("string"),"ThePublicStaticReadonlyField",new LiteralExpression("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
+            Property(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
+            Property(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
+            Property(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
+            Property(Type("int"),"p1"),
+            Property(Type("string", false),"p2"),
+            Property(Type("double"),"PI",Literal(3.14), modifier: PropertyAndFieldTypes.PublicConst),
+            Property(Type("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
+            Property(Type("string"),"ThePublicStaticReadonlyField",Literal("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
         })).ToClass().CodeEqual(@"
 public static class ClassA {
     public const double PI = 3.14D;

@@ -8,15 +8,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record ExpressionDictionary
+    public record ExpressionMap
     {
-        public List<ExpressionCollectionWithKey> KeyVaulePairs { get; set; }
+        public List<ExpressionsMap> KeyVaulePairs { get; set; }
         public ExpressionCollection Keys { get; set; }
         public ExpressionCollection Values { get; set; }
         public string? Name { get; set; }
         private readonly AbstractType? _valueType;
 
-        public ExpressionDictionary(IEnumerable<ExpressionCollectionWithKey> values, string? name = null, AbstractType? valueType = null)
+        public ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
         {
             KeyVaulePairs = values.ToList();
             Keys = new ExpressionCollection(values.Select(x => x.Key));

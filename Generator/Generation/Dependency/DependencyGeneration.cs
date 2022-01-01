@@ -4,6 +4,7 @@ using CodeAnalyzation.Models;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Generation
 {
@@ -16,16 +17,16 @@ namespace CodeAnalyzation.Generation
             var dependenciesWithFullPaths = dependencies.Select(x => (Class: x.Key, Properties: x.Value.Select(x => (x.Member, Dependencies: x.Dependencies.SelectMany(y => y.Transform(z => z.Name)
                 .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())))).ToList();
 
-            var staticClass = new StaticClass("ModelDependencies", @namespace: new("Dependencies"));
-            var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionDictionary(x.Properties.Select(
-                y => new ExpressionCollectionWithKey(new LiteralExpression(y.Member.Name),
-                y.Dependencies.Select(z => new LiteralExpression(z)), valueType: new QuickType("string", IsMulti: true), multiValues: true)), x.Class.Name));
+            var staticClass = new StaticClass("ModelDependencies", @namespace: Namespace("Dependencies"));
+            var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionMap(x.Properties.Select(
+                y => new ExpressionsMap(Literal(y.Member.Name),
+                Literals(y.Dependencies), valueType: Type("string", isMulti: true), multiValues: true)), x.Class.Name));
             foreach (var dict in dependencyDictionaries)
             {
                 staticClass.AddProperty(dict.ToProperty());
             }
-            var masterDependencyDictionary = new ExpressionDictionary(dependenciesWithFullPaths.Select(
-                x => new ExpressionCollectionWithKey(new LiteralExpression(x.Class.Name),
+            var masterDependencyDictionary = new ExpressionMap(dependenciesWithFullPaths.Select(
+                x => new ExpressionsMap(Literal(x.Class.Name),
                 new PropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
             staticClass.AddProperty(masterDependencyDictionary.ToProperty());
 

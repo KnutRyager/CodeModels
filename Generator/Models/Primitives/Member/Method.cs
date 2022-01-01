@@ -9,14 +9,14 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models
 {
     public record Method(string Name, PropertyCollection Parameters, IType ReturnType, List<Dependency> Dependencies, Modifier Modifier = Modifier.Public)
-        : IMember, ICodeModel
+        : IMethod
     {
         public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency>? dependencies = null)
             : this(name, parameters, returnType, dependencies?.ToList() ?? new List<Dependency>()) { }
 
         public Method(MethodDeclarationSyntax method) : this(method.GetName(), new PropertyCollection(method), AbstractType.Parse(method.ReturnType)) { }
 
-        public MethodDeclarationSyntax ToMethod(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
+        public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: default,
             modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Modifiers(),
             returnType: ReturnType.TypeSyntax(),
@@ -28,7 +28,7 @@ namespace CodeAnalyzation.Models
             body: default,
             expressionBody: default);
 
-        public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToMethod(modifier, removeModifier);
+        public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToMethodSyntax(modifier, removeModifier);
         public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
     }
 }
