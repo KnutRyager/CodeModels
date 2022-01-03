@@ -5,9 +5,9 @@ namespace CodeAnalyzation.Parsing.Test;
 [Collection("Sequential")]
 public class ParseTests
 {
-    [Fact]
-    public void EmptyNamespace()
-        => Assert.Equal("[]", "namespace T{}".ParseToJson().SingleQuote());
+    //[Fact]
+    //public void EmptyNamespace()
+    //    => Assert.Equal("[]", "namespace T{}".ParseToJson().SingleQuote());
 
     //[Fact]
     //public void SimpleClass()

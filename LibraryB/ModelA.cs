@@ -3,6 +3,6 @@
     [Model]
     public class ModelA
     {
-        public string StringProp { get; set; }
+        public string StringProp { get; set; } = default!;
     }
 }
