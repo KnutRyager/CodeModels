@@ -16,7 +16,7 @@ public class InterfaceTests
             Property(new QuickType("double"),"PI",new LiteralExpression(3.14), modifier: PropertyAndFieldTypes.PublicConst),
             Property(new QuickType("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
             Property(new QuickType("string"),"ThePublicStaticReadonlyField",new LiteralExpression("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
-        })).SyntaxNode().CodeEqual(@"
+        })).Syntax().CodeEqual(@"
 public interface InterfaceA {
     const double PI = 3.14D;
     static readonly string ThePublicStaticReadonlyField = ""abc"";

@@ -2,14 +2,18 @@
 
 namespace CodeAnalyzation.Models
 {
-    public interface IStatement
+    public interface IStatement : ICodeModel
     {
-        StatementSyntax To();
+        new StatementSyntax Syntax();
     }
 
-    public interface IStatement<T> : IStatement where T : StatementSyntax
+    public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSyntax
     {
-        new T To();
+        new T Syntax();
     }
 
+    public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> where T : StatementSyntax
+    {
+        StatementSyntax IStatement.Syntax() => Syntax();
+    }
 }

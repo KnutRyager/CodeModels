@@ -5,25 +5,26 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Property(IType Type, string Name, Expression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel, ITypeModel
+    public record Property(IType Type, string Name, IExpression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel, ITypeModel
     {
-        public MethodHolder? Owner { get; set; }
+        public IMethodHolder? Owner { get; set; }
 
-        public Property(IType type, string? name, Expression? expression = null, Modifier? modifier = Modifier.Public, MethodHolder? owner = null)
+        public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IMethodHolder? owner = null)
                 : this(type, name ?? Guid.NewGuid().ToString(), expression, modifier ?? Modifier.Public, name is null)
         {
             Owner = owner;
         }
 
-        public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(AbstractType.Parse(property.Type), property.Identifier.ToString(), Expression.FromSyntax(property.Initializer?.Value), modifier) { }
-        public Property(TupleElementSyntax element, Modifier? modifier = null) : this(AbstractType.Parse(element.Type), element.Identifier.ToString(), modifier: modifier) { }
-        public Property(ParameterSyntax parameter, Modifier? modifier = null) : this(AbstractType.Parse(parameter.Type), parameter.Identifier.ToString(), Expression.FromSyntax(parameter.Default?.Value), modifier) { }
-        public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, Expression.FromSyntax(expression), modifier) { }
-        public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(AbstractType.Parse(type), name, Expression.FromSyntax(expression), modifier) { }
+        public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value), modifier) { }
+        public Property(TupleElementSyntax element, Modifier? modifier = null) : this(Type(element.Type), element.Identifier.ToString(), modifier: modifier) { }
+        public Property(ParameterSyntax parameter, Modifier? modifier = null) : this(Type(parameter.Type), parameter.Identifier.ToString(), Expression(parameter.Default?.Value), modifier) { }
+        public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, Expression(expression), modifier) { }
+        public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(Type(type), name, Expression(expression), modifier) { }
         public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier) { }
 
         public ParameterSyntax ToParameter() => Parameter(
@@ -58,9 +59,9 @@ namespace CodeAnalyzation.Models
         public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
         public PropertyExpression AccessValue(string identifier) => AccessValue(new LiteralExpression(identifier));
         public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null ? NameSyntax
-            : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner.Name) : IdentifierName(instance.Syntax.ToString()), Token(SyntaxKind.DotToken), NameSyntax);
+            : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
 
-        public ExpressionSyntax? ExpressionSyntax => Value?.Syntax;
+        public ExpressionSyntax? ExpressionSyntax => Value?.Syntax();
         public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax ?? Value switch
         {
             _ when Value?.IsLiteralExpression == true => Value.LiteralSyntax,
@@ -68,7 +69,7 @@ namespace CodeAnalyzation.Models
         };
 
         public TypeSyntax TypeSyntax() => Type.TypeSyntax();
-        public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
+        public CSharpSyntaxNode Syntax() => ToMemberSyntax();
 
         public EqualsValueClauseSyntax? Initializer() => DefaultValueSyntax() switch
         {

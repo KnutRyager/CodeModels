@@ -7,7 +7,7 @@ namespace CodeAnalyzation.Models
 {
     public abstract record ClassModel(string Identifier, PropertyCollection Properties, List<IMethod> Methods,
          Namespace? Namespace = null, bool IsStatic = false)
-        : MethodHolder(Identifier, Properties, Methods, Namespace,
+        : MethodHolder<ClassDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
             IsStatic ? Modifier.Static : Modifier.None, IsStatic ? Modifier.Static : Modifier.None, IsStatic)
     {
         public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace) =>
@@ -20,6 +20,6 @@ namespace CodeAnalyzation.Models
                @class.GetMethods().Select(x => new Method(x)),
                @namespace: @namespace == default ? default : new(@namespace));
 
-        public override CSharpSyntaxNode SyntaxNode() => ToClass();
+        public override ClassDeclarationSyntax Syntax() => ToClass();
     }
 }

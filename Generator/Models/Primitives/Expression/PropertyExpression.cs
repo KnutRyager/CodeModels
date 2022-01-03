@@ -3,8 +3,8 @@
 
 namespace CodeAnalyzation.Models
 {
-    public record PropertyExpression(Property Property, IExpression? Instance = null) : Expression(Property.Type)
+    public record PropertyExpression(Property Property, IExpression? Instance = null) : Expression<ExpressionSyntax>(Property.Type)
     {
-        public override ExpressionSyntax Syntax => Property?.AccessSyntax(Instance) ?? base.Syntax;
+        public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
     }
 }

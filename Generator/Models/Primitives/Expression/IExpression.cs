@@ -2,11 +2,20 @@
 
 namespace CodeAnalyzation.Models
 {
-    public interface IExpression
+    public interface IExpression : ICodeModel
     {
+        IType Type { get; }
         bool IsLiteralExpression { get; }
         LiteralExpressionSyntax? LiteralSyntax { get; }
         ArgumentSyntax ToArgument();
-        ExpressionSyntax Syntax { get; }
+        object? LiteralValue { get; }
+        EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
+
+        new ExpressionSyntax Syntax();
+    }
+
+    public interface IExpression<T> : IExpression, ICodeModel<T> where T : ExpressionSyntax
+    {
+        new T Syntax();
     }
 }

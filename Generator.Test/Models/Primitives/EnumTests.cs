@@ -36,7 +36,7 @@ public enum MyEnum {
 
     [Fact]
     public void GetPropertyAccessValue() => new EnumModel("MyEnum", new[] { "A", "B", "C", "D", "E" }, isFlags: true, hasNoneValue: true)
-        .GetProperty("B").AccessValue().Syntax.ToString().Should().Equals("MyEnum.B");
+        .GetProperty("B").AccessValue().Syntax().ToString().Should().Equals("MyEnum.B");
 
 
 }

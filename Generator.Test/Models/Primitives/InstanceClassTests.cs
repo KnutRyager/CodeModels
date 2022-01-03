@@ -8,7 +8,7 @@ public class InstanceClassTests
 {
     [Fact]
     public void GetPropertyAccessValue() => new InstanceClass("ClassA", new PropertyCollection(new Property[] {
-            Property(new QuickType("string"),"A",new LiteralExpression("B"), modifier: PropertyAndFieldTypes.PublicField),
-            new(new QuickType("int"),"B"),
-        })).GetProperty("A").AccessValue("abc").Syntax.ToString().Should().Equals("abc.A");
+            Property(Type("string"),"A", Literal("B"), modifier: PropertyAndFieldTypes.PublicField),
+            Property(Type("int"),"B"),
+        })).GetProperty("A").AccessValue("abc").Syntax().ToString().Should().Equals("abc.A");
 }

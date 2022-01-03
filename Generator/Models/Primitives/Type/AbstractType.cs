@@ -10,20 +10,6 @@ namespace CodeAnalyzation.Models
     {
         private Type? _cachedType;
 
-        public static IType Parse(string code) => Parse(ParseTypeName(code));
-
-        // TODO
-        public static IType Parse(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
-        {
-            PredefinedTypeSyntax t => new QuickType(t.Keyword.ToString(), required, Syntax: fullType ?? t),
-            NullableTypeSyntax t => Parse(t.ElementType, false, fullType: fullType ?? t),
-            IdentifierNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
-            ArrayTypeSyntax t => new QuickType(t.ElementType.ToString(), IsMulti: true, Syntax: fullType ?? t),
-            GenericNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
-            null => TypeShorthands.NullType,
-            _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
-        };
-
         public IType ToMultiType() => this with { IsMulti = true };
 
         public TypeSyntax TypeSyntax() => Syntax ?? TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));

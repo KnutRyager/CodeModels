@@ -9,9 +9,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public abstract record MethodHolder(string Name, PropertyCollection Properties, List<IMethod> Methods,
+    public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
             Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None,
-            Modifier MemberModifier = Modifier.None, bool IsStatic = false, Type? Type = null) : IMethodHolder
+            Modifier MemberModifier = Modifier.None, bool IsStatic = false, Type? Type = null) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
     {
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
             Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None,
@@ -21,7 +21,7 @@ namespace CodeAnalyzation.Models
             foreach (var property in Properties.Properties) property.Owner = this;
         }
 
-        public MethodHolder AddProperty(Property property)
+        public IMethodHolder AddProperty(Property property)
         {
             Properties.Properties.Add(property);
             if (property.Owner is not null) throw new ArgumentException($"Adding already owned property '{property}' to '{Name}'.");
@@ -29,9 +29,9 @@ namespace CodeAnalyzation.Models
             return this;
         }
 
-        public MethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
-        public MethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
-        public MethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
+        public IMethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
+        public IMethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
+        public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
@@ -79,6 +79,6 @@ namespace CodeAnalyzation.Models
         public Property GetProperty(string name) => Properties[name];
         public IMethod GetMethod(string name) => Methods.First(x => x.Name == name);
 
-        public abstract CSharpSyntaxNode SyntaxNode();
+        BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
     }
 }

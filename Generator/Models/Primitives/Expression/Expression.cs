@@ -7,19 +7,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public abstract record Expression(IType Type, ISymbol? Symbol = null) : IExpression
+    public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeModel<T>, IExpression<T> where T : ExpressionSyntax
     {
-        public static readonly Expression NullValue = new LiteralExpression(TypeShorthands.NullType);
-
         public Expression(IType type) : this(type, null) { }
 
         // TODO: Containing type for prop
         public Expression(ISymbol symbol) : this(new TypeFromSymbol(symbol), symbol) { }
-
-        public static Expression FromSyntax(ExpressionSyntax? syntax) => syntax is null ? NullValue : new ExpressionFromSyntax(syntax);
-
-        public virtual LiteralExpressionSyntax? LiteralSyntax => default;
-        public virtual ExpressionSyntax Syntax => (ExpressionSyntax?)LiteralSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : this == NullValue ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
 
         public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => EnumMemberDeclaration(
                 attributeLists: default,
@@ -33,10 +26,16 @@ namespace CodeAnalyzation.Models
         public ArgumentSyntax ToArgument() => ArgumentCustom(
                 nameColon: default,
                 refKindKeyword: default,
-                expression: Syntax);
+                expression: Syntax());
 
 
         public virtual object? LiteralValue => null;
         public bool IsLiteralExpression => LiteralSyntax is not null;
+        public virtual LiteralExpressionSyntax? LiteralSyntax => default;
+        //public virtual ExpressionSyntax Syntax => 
+
+        //public override T Syntax() => 
+        ExpressionSyntax IExpression.Syntax() => Syntax();
+        protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
     }
 }

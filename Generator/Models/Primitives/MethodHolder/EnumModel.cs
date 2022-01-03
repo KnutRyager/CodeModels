@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models
 {
     public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
-        : MethodHolder(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), new(), Namespace, IsStatic: true)
+        : MethodHolder<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), new(), Namespace, IsStatic: true)
     {
         public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 
@@ -22,7 +21,7 @@ namespace CodeAnalyzation.Models
         }
 
         public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
-        public override CSharpSyntaxNode SyntaxNode() => ToEnum();
+        public override EnumDeclarationSyntax Syntax() => ToEnum();
 
         private static List<string> AddNoneValue(IEnumerable<string> values, bool hasNoneValue)
         {

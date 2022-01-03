@@ -10,37 +10,38 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeAnalyzation.Models
 {
-    public abstract record Statement(StatementSyntax Syntax) : IStatement<StatementSyntax>
-    {
-        public abstract StatementSyntax To();
-    }
 
-    public record VariableDeclaration(IType Type, string Name, Expression Value) : IStatement<VariableDeclarationSyntax>
-    {
-        public VariableDeclarationSyntax To() => VariableDeclarationCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name)));
-        public CSharpSyntaxNode SyntaxNode() => To();
-    }
+    //public record VariableDeclaration(IType Type, string Name, Expression Value) : Statement<VariableDeclarationSyntax>
+    //{
+    //    public override VariableDeclarationSyntax Statement<VariableDeclarationSyntax>.SyntaxNode() => VariableDeclarationCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name)));
+    //}
 
-    public record LocalDeclarationStatement(IType Type, string Name, Expression Value) : IStatement<LocalDeclarationStatementSyntax>
-    {
-        public LocalDeclarationStatementSyntax To() => LocalDeclarationStatementCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name)));
-        public LocalDeclarationStatementSyntax SyntaxNode() => To();
-    }
+    //public record LocalDeclarationStatement(IType Type, string Name, IExpression Value) : AbstractStatement<LocalDeclarationStatementSyntax>
+    //{
+    //    public override LocalDeclarationStatementSyntax SyntaxNode() => LocalDeclarationStatementCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name)));
+    //}
 
-    public record Block(List<IStatement> Statements) 
+    public record Block(List<IStatement> Statements) : AbstractStatement<BlockSyntax>
     {
         public Block(IEnumerable<IStatement>? statements) : this(List(statements)) { }
-        public BlockSyntax To() => Block(Statements.Select(x => x.To()));
-        public CSharpSyntaxNode SyntaxNode() => To();
+        public override BlockSyntax Syntax() => Block(Statements.Select(x => x.Syntax()));
     }
 
-    public record ForStatement(Expression Expression) : IStatement<ForStatementSyntax>
-    {
-        public ForStatement(ForStatementSyntax Syntax);
-        public ForStatementSyntax To() => ForStatementCustom();
-        public CSharpSyntaxNode SyntaxNode() => Statement();
+    //public record ForStatement(Block Block, IExpression Condition, IExpression Initializer) : AbstractStatement<ForStatementSyntax>
+    //{
+    //    public ForStatement(ForStatementSyntax Syntax) { }
+    //    public override ForStatementSyntax SyntaxNode() => ForStatementCustom(Declaration,
+    //        List(Initializer), 
+    //        Condition.SyntaxNode(),
+    //        incrementors, 
+    //        Block.SyntaxNode());
 
-    }
-
+    //}
+    //public static ForStatementSyntax ForStatementCustom(
+    //        VariableDeclarationSyntax? declaration,
+    //        IEnumerable<ExpressionSyntax> initializers,
+    //        ExpressionSyntax? condition,
+    //        IEnumerable<ExpressionSyntax> incrementors,
+    //        StatementSyntax statement)
 
 }

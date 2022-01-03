@@ -4,9 +4,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record ExpressionFromSyntax(ExpressionSyntax ExpressionSyntax) : Expression(TypeShorthands.NullType)
+    public record ExpressionFromSyntax(ExpressionSyntax ExpressionSyntax) : Expression<ExpressionSyntax>(TypeShorthands.NullType)
     {
         public ExpressionFromSyntax(string qualifiedName) : this(ParseExpression(qualifiedName)) { }
-        public override ExpressionSyntax Syntax => ExpressionSyntax ?? base.Syntax;
+        public override ExpressionSyntax Syntax() => ExpressionSyntax ?? ((IExpression)this).Syntax();
     }
 }

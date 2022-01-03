@@ -11,9 +11,9 @@ namespace CodeAnalyzation.Models
 {
     public record ExpressionCollection
     {
-        public List<Expression> Values { get; set; }
+        public List<IExpression> Values { get; set; }
 
-        public ExpressionCollection(IEnumerable<Expression> values)
+        public ExpressionCollection(IEnumerable<IExpression> values)
         {
             Values = values.ToList();
         }
@@ -32,8 +32,8 @@ namespace CodeAnalyzation.Models
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
         public TypeSyntax BaseType() => BaseTType().TypeSyntax();
         public virtual IType BaseTType() => Values.Select(x => x.Type).Distinct().Count() is 1 ? Values.First().Type : new TypeFromReflection(typeof(object));
-        public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax));
-        public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax));
+        public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
+        public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax()));
     }
 }
 

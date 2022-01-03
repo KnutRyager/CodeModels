@@ -4,6 +4,7 @@ using Common.Util;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
@@ -14,7 +15,7 @@ namespace CodeAnalyzation.Models
         public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency>? dependencies = null)
             : this(name, parameters, returnType, dependencies?.ToList() ?? new List<Dependency>()) { }
 
-        public Method(MethodDeclarationSyntax method) : this(method.GetName(), new PropertyCollection(method), AbstractType.Parse(method.ReturnType)) { }
+        public Method(MethodDeclarationSyntax method) : this(method.GetName(), new PropertyCollection(method),Type(method.ReturnType)) { }
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: default,
