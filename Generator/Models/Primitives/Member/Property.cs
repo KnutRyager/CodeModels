@@ -37,7 +37,7 @@ namespace CodeAnalyzation.Models
         public MemberDeclarationSyntax ToMemberSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
                 propertyType: Modifier.SetModifiers(modifiers),
                 attributeLists: default,
-                modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Modifiers(),
+                modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
                 type: TypeSyntax(),
                 explicitInterfaceSpecifier: default,
                 identifier: Identifier(Name!),

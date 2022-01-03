@@ -40,7 +40,7 @@ namespace CodeAnalyzation.Models
 
         public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
                 attributeLists: default,
-                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 parameterList: Properties.ToParameters(),
@@ -50,7 +50,7 @@ namespace CodeAnalyzation.Models
 
         public ClassDeclarationSyntax ToClass() => ClassDeclarationCustom(
                 attributeLists: default,
-                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 baseList: default,
@@ -59,7 +59,7 @@ namespace CodeAnalyzation.Models
 
         public StructDeclarationSyntax ToStruct() => StructDeclarationCustom(
                 attributeLists: default,
-                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Modifiers(),
+                modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 baseList: default,
@@ -68,7 +68,7 @@ namespace CodeAnalyzation.Models
 
         public InterfaceDeclarationSyntax ToInterface() => InterfaceDeclarationCustom(
                 attributeLists: default,
-                modifiers: TopLevelModifier.Modifiers(),
+                modifiers: TopLevelModifier.Syntax(),
                 identifier: Identifier(Name),
                 typeParameterList: default,
                 baseList: default,

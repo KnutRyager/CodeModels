@@ -30,11 +30,17 @@ namespace CodeAnalyzation.Models
         Abstract = 2048,
         Virtual = 4096,
         Override = 8192,
+        New = 16384,
         // Record
-        Record = 16384,
+        Record = 32768,
         // Property type
-        Field = 32768,
-        Property = 65536,
+        Field = 65536,
+        Property = 131072,
+        // Async
+        Async = 262144,
+        Await = 524288,
+        // Using
+        Using = 1048576,
     }
 
     public enum ModifierType
@@ -47,6 +53,8 @@ namespace CodeAnalyzation.Models
         Abstract,
         Record,
         Field,
+        Using,
+        Async,
     }
 
     public static class ModifierTypes
@@ -65,6 +73,10 @@ namespace CodeAnalyzation.Models
         public const Modifier NonRecord = ((Modifier)int.MaxValue) ^ Record;
         public const Modifier Field = Modifier.Field | Modifier.Property;
         public const Modifier NonField = ((Modifier)int.MaxValue) ^ Field;
+        public const Modifier Async = Modifier.Async | Modifier.Await;
+        public const Modifier NonAsync = ((Modifier)int.MaxValue) ^ Async;
+        public const Modifier Using = Modifier.Using;
+        public const Modifier NonUsing = ((Modifier)int.MaxValue) ^ Using;
     }
 
     public static class MethodHolderTypes
@@ -147,6 +159,7 @@ namespace CodeAnalyzation.Models
             _ when modifier.HasFlag(Modifier.Abstract) => Modifier.Abstract,
             _ when modifier.HasFlag(Modifier.Virtual) => Modifier.Virtual,
             _ when modifier.HasFlag(Modifier.Override) => Modifier.Override,
+            _ when modifier.HasFlag(Modifier.New) => Modifier.New,
             _ => Modifier.None
         };
 
@@ -155,6 +168,7 @@ namespace CodeAnalyzation.Models
             _ when modifier.HasFlag(Modifier.Abstract) => Token(SyntaxKind.AbstractKeyword),
             _ when modifier.HasFlag(Modifier.Virtual) => Token(SyntaxKind.VirtualKeyword),
             _ when modifier.HasFlag(Modifier.Override) => Token(SyntaxKind.OverrideKeyword),
+            _ when modifier.HasFlag(Modifier.New) => Token(SyntaxKind.NewKeyword),
             _ => Token(SyntaxKind.None)
         };
 
@@ -166,7 +180,7 @@ namespace CodeAnalyzation.Models
 
         public static SyntaxToken RecordModifierToken(this Modifier modifier) => modifier switch
         {
-            _ when modifier.HasFlag(Modifier.Record) => Token(SyntaxKind.RecordDeclaration),
+            _ when modifier.HasFlag(Modifier.Record) => Token(SyntaxKind.RecordKeyword),
             _ => Token(SyntaxKind.None)
         };
 
@@ -195,6 +209,32 @@ namespace CodeAnalyzation.Models
             _ => Token(SyntaxKind.None)
         };
 
+        public static Modifier UsingModifier(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Using) => Modifier.Using,
+            _ => Modifier.None
+        };
+
+        public static SyntaxToken UsingModifierToken(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Using) => Token(SyntaxKind.UsingKeyword),
+            _ => Token(SyntaxKind.None)
+        };
+
+        public static Modifier AsyncModifier(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Async) => Modifier.Async,
+            _ when modifier.HasFlag(Modifier.Await) => Modifier.Await,
+            _ => Modifier.None
+        };
+
+        public static SyntaxToken AsyncModifierToken(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Async) => Token(SyntaxKind.AsyncKeyword),
+            _ when modifier.HasFlag(Modifier.Await) => Token(SyntaxKind.AwaitKeyword),
+            _ => Token(SyntaxKind.None)
+        };
+
         public static ModifierType GetModifierType(this Modifier modifier) => modifier switch
         {
             (<= Modifier.None) => ModifierType.None,
@@ -205,6 +245,8 @@ namespace CodeAnalyzation.Models
             (<= Modifier.Abstract) => ModifierType.Abstract,
             (<= Modifier.Record) => ModifierType.Record,
             (<= Modifier.Field) => ModifierType.Field,
+            (<= Modifier.Async) => ModifierType.Async,
+            (<= Modifier.Using) => ModifierType.Using,
             _ => ModifierType.None
         };
 
@@ -218,6 +260,8 @@ namespace CodeAnalyzation.Models
             (<= Modifier.Abstract) => ModifierTypes.NonAbstract,
             (<= Modifier.Record) => ModifierTypes.NonRecord,
             (<= Modifier.Field) => ModifierTypes.NonField,
+            (<= Modifier.Async) => ModifierTypes.NonAsync,
+            (<= Modifier.Using) => ModifierTypes.NonUsing,
             _ => Modifier.None
         };
 
@@ -242,12 +286,12 @@ namespace CodeAnalyzation.Models
             return modifier;
         }
 
-        public static SyntaxTokenList Modifiers(this Modifier modifier)
+        public static SyntaxTokenList Syntax(this Modifier modifier)
         {
             modifier = modifier.Validate();
             return TokenList(new SyntaxToken[] {
-                AccessModifierToken (modifier), StaticModifierToken(modifier),AbstractModifierToken(modifier),
-                ConstModifierToken(modifier), RecordModifierToken(modifier), MemberTypeModifierToken(modifier)
+                UsingModifierToken (modifier), AccessModifierToken (modifier), StaticModifierToken(modifier),AbstractModifierToken(modifier),
+                AsyncModifierToken(modifier), ConstModifierToken(modifier), RecordModifierToken(modifier), MemberTypeModifierToken(modifier)
             }.Where(x => x.Kind() is not SyntaxKind.None).ToArray());
         }
 

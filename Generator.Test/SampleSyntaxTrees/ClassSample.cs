@@ -42,6 +42,22 @@ public class ClassSample
         x++;
     }
 
+    public bool Ifs()
+    {
+        if (1 + 1 > 2)
+        {
+            return true;
+        }
+        else if (2 + 1 > 3)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
+
     public void RecordWith()
     {
         var a = new RecordSample(1, "hi");

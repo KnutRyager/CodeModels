@@ -19,7 +19,7 @@ namespace CodeAnalyzation.Models
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: default,
-            modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Modifiers(),
+            modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
             returnType: ReturnType.TypeSyntax(),
             explicitInterfaceSpecifier: default,
             identifier: Identifier(Name),
