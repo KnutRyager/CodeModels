@@ -300,9 +300,20 @@ namespace CodeAnalyzation.Generation
                 type: type,
                 variables: SeparatedList(variables));
 
+        public static VariableDeclarationSyntax VariableDeclarationCustom(TypeSyntax type,
+            VariableDeclaratorSyntax variable) => VariableDeclaration(
+                type: type,
+                variables: SeparatedList(new[] { variable }));
+
+        public static LocalDeclarationStatementSyntax LocalDeclarationStatementCustom(SyntaxTokenList modifiers,
+            VariableDeclarationSyntax declaration) => LocalDeclarationStatement(
+                modifiers: modifiers,
+                declaration: declaration,
+                semicolonToken: Token(SyntaxKind.SemicolonToken));
+
         public static VariableDeclaratorSyntax VariableDeclaratorCustom(SyntaxToken identifier,
-             BracketedArgumentListSyntax? argumentList,
-             EqualsValueClauseSyntax? initializer) => VariableDeclarator(
+             BracketedArgumentListSyntax? argumentList = default,
+             EqualsValueClauseSyntax? initializer = default) => VariableDeclarator(
                 identifier: identifier,
                 argumentList: argumentList,
                 initializer: initializer);
@@ -334,6 +345,29 @@ namespace CodeAnalyzation.Generation
                 body: body,
                 expressionBody: expressionBody,
                 semicolonToken: SemicolonIfNone(expressionBody));
+
+        public static ForStatementSyntax ForStatementCustom(
+            VariableDeclarationSyntax? declaration,
+            IEnumerable<ExpressionSyntax> initializers,
+            ExpressionSyntax? condition,
+            IEnumerable<ExpressionSyntax> incrementors,
+            StatementSyntax statement) => ForStatement(declaration: declaration,
+                initializers: SeparatedList(initializers),
+                condition: condition,
+                incrementors: SeparatedList(incrementors),
+                statement: statement);
+
+        public static IfStatementSyntax IfStatementCustom(IEnumerable<AttributeListSyntax> attributeLists,
+            ExpressionSyntax condition,
+            StatementSyntax statement,
+            ElseClauseSyntax? @else) => IfStatement(attributeLists: List(attributeLists),
+                condition: condition,
+                statement: statement,
+                @else: @else);
+
+        public static ElseClauseSyntax ElseClauseCustom(StatementSyntax statement) => ElseClause(statement: statement);
+
+
 
         private static bool RecordHasContent(SyntaxList<MemberDeclarationSyntax>? members) => members?.Any() ?? false;
         private static bool IsGetOnly(AccessorListSyntax accessorList) => accessorList.Accessors.Count == 1 && accessorList.Accessors[0].Keyword.IsKind(SyntaxKind.GetKeyword);
