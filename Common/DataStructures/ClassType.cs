@@ -49,7 +49,7 @@ namespace Common.DataStructures
 #pragma warning restore CS8619
 
 #pragma warning disable CA1000
-        public static T? FromString(string? name) => string.IsNullOrEmpty(name) ? null : AllTypes().TryGetValue(name, out var value) ? value : null;
+        public static T? FromString(string? name) => string.IsNullOrEmpty(name) ? null : AllTypes().TryGetValue(name!, out var value) ? value : null;
         public bool Equals(T? other) => other != null && (ReferenceEquals(this, other) || other.Equals(Name));
         public new bool Equals(object other) => other != null && (ReferenceEquals(this, other) || other.Equals(Name));
         public bool Equals(string name) => name != null && Name.Equals(name, StringComparison.OrdinalIgnoreCase);

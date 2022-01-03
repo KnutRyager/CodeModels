@@ -27,7 +27,7 @@ namespace Common.Files
             return src.CopyToAsync(file);
         }
 
-        public Task Copy(string srcPath, string destinationPath)
+        public new Task Copy(string srcPath, string destinationPath)
         {
             File.Copy(Pathify(srcPath), Pathify(destinationPath));
             return Task.FromResult(0);
