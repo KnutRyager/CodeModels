@@ -51,4 +51,31 @@ for(int i = 0; i < 10; i++) {
 for(int i = 0; i < 10; i++) {
     int b = 1337;
 }");
+
+    [Fact]
+    public void ForEachLoop() => ForEach(
+         "i", Identifier("collection"), LocalDeclaration(Declaration(Type("int"), "b", Literal(1337))))
+        .CodeModelEqual(@"
+foreach(var i in collection) {
+    int b = 1337;
+}");
+
+    [Fact]
+    public void WhileLoop() => While(Literal(true), LocalDeclaration(Declaration(Type("int"), "b", Literal(1337))))
+        .CodeModelEqual(@"
+while(true) {
+    int b = 1337;
+}");
+
+    [Fact]
+    public void DoWhileLoop() => Do(LocalDeclaration(Declaration(Type("int"), "b", Literal(1337))), Literal(true))
+        .CodeModelEqual(@"
+do {
+    int b = 1337;
+} while (true);");
+
+    [Fact]
+    public void ReturnStatement() => Return(Literal(true))
+        .CodeModelEqual(@"
+return true;");
 }

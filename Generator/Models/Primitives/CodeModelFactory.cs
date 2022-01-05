@@ -4,9 +4,7 @@ using System.Linq;
 using CodeAnalyzation.Parsing;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
@@ -100,15 +98,29 @@ namespace CodeAnalyzation.Models
 
         public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
         public static Block Block(params IStatement[] statements) => new(List(statements));
-        public static Block Block(IStatement statement) => statement is Block ? (statement as Block)! : new(List(statement));
+        public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
+
         public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
         public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);
-        public static ForStatement For(VariableDeclaration declaration, IExpression condition, IExpression initializer, IExpression incrementors, IStatement statement)
+
+        public static ForStatement For(VariableDeclaration declaration, IExpression? initializer, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
             => new(declaration, initializer, condition, incrementors, statement);
-        public static ForStatement For(VariableDeclaration declaration, IExpression condition, IExpression incrementors, IStatement statement)
-            => new(declaration, null, condition, incrementors, statement);
-        public static SimpleForStatement For(string Variable, IExpression Limit, IStatement Statement)
-            => new(Variable, Limit, Block(Statement));
+        public static ForStatement For(VariableDeclaration declaration, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
+            => For(declaration, null, condition, incrementors, statement, blockify);
+        public static SimpleForStatement For(string variable, IExpression limit, IStatement statement, bool blockify = true)
+            => new(variable, limit, Block(statement, blockify));
+
+        public static ForEachStatement ForEach(IType? type, string identifier, IExpression expression, IStatement statement, bool blockify = true)
+            => new(type, identifier, expression, Block(statement, blockify));
+        public static ForEachStatement ForEach(string identifier, IExpression expression, IStatement statement, bool blockify = true)
+            => new(identifier, expression, Block(statement, blockify));
+
+        public static WhileStatement While(IExpression condition, IStatement statement, bool blockify = true) => new(condition, Block(statement, blockify));
+
+        public static DoStatement Do(IStatement statement, IExpression condition, bool blockify = true) => new(Block(statement, blockify), condition);
+
+        public static ReturnStatement Return(IExpression expression) => new(expression);
+
         public static VariableDeclaration Declaration(IType type, string name, IExpression value) => new(type, name, value);
         public static LocalDeclarationStatement LocalDeclaration(VariableDeclaration declaration, Modifier modifiers = Modifier.None) => new(declaration, modifiers);
 

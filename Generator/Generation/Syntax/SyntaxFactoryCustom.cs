@@ -371,6 +371,20 @@ namespace CodeAnalyzation.Generation
                 incrementors: SeparatedList(incrementors),
                 statement: statement);
 
+        public static ForEachStatementSyntax ForEachStatementCustom(
+           TypeSyntax type,
+           SyntaxToken identifier,
+           ExpressionSyntax expression,
+           StatementSyntax statement) => ForEachStatement(type, identifier, expression, statement);
+
+        public static WhileStatementSyntax WhileStatementCustom(ExpressionSyntax condition, StatementSyntax statement)
+            => WhileStatement(condition, statement);
+
+        public static DoStatementSyntax DoStatementCustom(StatementSyntax statement, ExpressionSyntax condition)
+            => DoStatement(statement, condition);
+
+        public static ReturnStatementSyntax ReturnCustom(ExpressionSyntax expression) => ReturnStatement(expression);
+
         public static IfStatementSyntax IfStatementCustom(
             ExpressionSyntax condition,
             StatementSyntax statement,

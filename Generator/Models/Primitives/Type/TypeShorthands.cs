@@ -7,6 +7,7 @@ namespace CodeAnalyzation.Models
     public static class TypeShorthands
     {
         public static readonly IType NullType = new QuickType("null", Syntax: IdentifierName("object"));
+        public static readonly IType VarType = new QuickType("var", Syntax: IdentifierName("var"));
 
         public static readonly IDictionary<string, SyntaxKind> PredefinedTypes = new Dictionary<string, SyntaxKind>()
         {
