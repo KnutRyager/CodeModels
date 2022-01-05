@@ -1,25 +1,31 @@
 using System;
+using Microsoft.CodeAnalysis.CSharp;
+using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace CodeAnalyzation.Models
 {
     public static class OperationTypeExtensions
     {
-        public static bool IsLanguageOperator(this OperationType operationType)
-            => operationType.IsUnaryOperator() || operationType.IsBinaryOperator() || operationType.IsTernaryOperator() || operationType.IsAnyArgOperator();
+        public static bool IsLanguageOperator(this OperationType operation)
+            => operation.IsUnaryOperator() || operation.IsBinaryOperator() || operation.IsTernaryOperator() || operation.IsAnyArgOperator();
 
-        public static bool IsUnaryOperator(this OperationType operationType)
-            => operationType >= OperationType.Not && operationType <= OperationType.UnarySubtractAfter;
+        public static bool IsUnaryOperator(this OperationType operation)
+            => operation >= OperationType.Not && operation <= OperationType.UnarySubtractAfter;
 
-        public static bool IsBinaryOperator(this OperationType operationType)
-            => operationType >= OperationType.Plus && operationType <= OperationType.Coalesce;
+        public static bool IsBinaryOperator(this OperationType operation)
+            => operation >= OperationType.Plus && operation <= OperationType.Coalesce;
 
-        public static bool IsTernaryOperator(this OperationType operationType)
-            => operationType >= OperationType.Ternary && operationType <= OperationType.Ternary;
+        public static bool IsTernaryOperator(this OperationType operation)
+            => operation >= OperationType.Ternary && operation <= OperationType.Ternary;
 
-        public static bool IsAnyArgOperator(this OperationType operationType)
-            => operationType >= OperationType.Bracket && operationType <= OperationType.With;
+        public static bool IsAnyArgOperator(this OperationType operation)
+            => operation >= OperationType.Bracket && operation <= OperationType.With;
 
-        public static string UnaryOperatorName(this OperationType operationType) => operationType switch
+        public static string UnaryOperatorName(this OperationType operation) => operation switch
         {
             OperationType.Not => "!",
             OperationType.Complement => "~",
@@ -32,7 +38,7 @@ namespace CodeAnalyzation.Models
             _ => throw new NotImplementedException()
         };
 
-        public static string BinaryOperatorName(this OperationType operationType) => operationType switch
+        public static string BinaryOperatorName(this OperationType operation) => operation switch
         {
             OperationType.Plus => "+",
             OperationType.Subtract => "-",
@@ -58,20 +64,115 @@ namespace CodeAnalyzation.Models
             _ => throw new NotImplementedException()
         };
 
-        public static string TernaryOperatorName(this OperationType operationType) => operationType switch
+        public static string TernaryOperatorName(this OperationType operation) => operation switch
         {
             OperationType.Ternary => "?:",
             _ => throw new NotImplementedException()
         };
 
-        public static string AnyArgOperatorName(this OperationType operationType) => operationType switch
+        public static string AnyArgOperatorName(this OperationType operation) => operation switch
         {
             OperationType.Bracket => "[]",
             OperationType.With => "with",
             _ => throw new NotImplementedException()
         };
 
-        public static object? ApplyUnaryOperator(this OperationType operationType, params object?[] args) => operationType switch
+        public static ExpressionSyntax Syntax(this OperationType opType, IEnumerable<IExpression> inputs, IType operation, IOperationPipeline? pipeline = null) => pipeline != null ? Apply(pipeline!.OutputNode, inputs) :
+          opType switch
+           {
+               OperationType.None => throw new NotImplementedException(),
+               OperationType.Method => operation.IsStatic ? InvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()) : DottedInvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()),
+               OperationType.Property => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inputs.First().Syntax(), IdentifierName(operation.Name)),
+               OperationType.Field => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inputs.First().Syntax(), IdentifierName(operation.Name)),
+               OperationType.Constructor => ConstructorCall(operation.Name, inputs.Select(x => x.Syntax()).ToArray()),
+               OperationType.Cast => CastExpression(ParseTypeName(operation.Name), inputs.First().Syntax()),
+               OperationType.Inheritance => inputs.First().Syntax(),
+               OperationType.Identity => inputs.First().Syntax(),
+               OperationType.Parenthesis => ParenthesizedExpression(inputs.First().Syntax()),
+               OperationType type when type.IsUnaryOperator() => type.IsUnaryPrefix() ? PrefixUnaryExpression(type.UnarySyntaxKind(), inputs.First().Syntax()) : PostfixUnaryExpression(type.UnarySyntaxKind(), inputs.First().Syntax()),
+               OperationType type when type.IsBinaryOperator() => BinaryExpression(type.BinarySyntaxKind(), inputs.First().Syntax(), inputs.Last().Syntax()),
+               OperationType type when type.IsTernaryOperator() => ConditionalExpression(inputs.First().Syntax(), inputs.Skip(1).First().Syntax(), inputs.Last().Syntax()),
+               OperationType.Bracket => ElementAccessExpression(inputs.First().Syntax(), BracketedArgumentList(Token(SyntaxKind.OpenBracketToken), SeparatedList(inputs.Skip(1).Select(x => x.Syntax()).Select(x => Argument(x))), Token(SyntaxKind.CloseBracketToken))),
+               OperationType.With => WithExpression(inputs.First().Syntax(), InitializerExpression(SyntaxKind.WithInitializerExpression, SeparatedList(inputs.Skip(1).Select(x => x.Syntax())))),
+               //OperationType.Pipeline => Apply(operation.OperationPipeline!.OutputNode, inputs),
+               _ => throw new NotImplementedException(),
+           };
+
+        private static ExpressionSyntax Apply(IOperationPipelineNode node, IEnumerable<IExpression> inputs, int argIndex = 0)
+        {
+            if (!inputs.Any()) return new OperationCall(node).Syntax();
+            var opParams = new List<ExpressionSyntax>();
+            foreach (var input in node.InputNodes)
+            {
+                var inputCount = input.GetLeafInputCount();
+                var arguments = inputs.Skip(argIndex).Take(inputCount).ToArray();
+                opParams.Add(new OperationCall(input, arguments).Syntax());
+
+                argIndex += inputCount;
+            }
+            opParams.AddRange(inputs.Skip(argIndex).Select(x => x.Syntax()));
+            return new OperationCall(node).Syntax(opParams);
+        }
+
+        public static SyntaxKind UnarySyntaxKind(this OperationType operation) => operation switch
+        {
+            OperationType.Not => SyntaxKind.LogicalNotExpression,
+            OperationType.Complement => SyntaxKind.BitwiseNotExpression,
+            OperationType.UnaryAdd => SyntaxKind.UnaryPlusExpression,
+            OperationType.UnaryAddBefore => SyntaxKind.PreIncrementExpression,
+            OperationType.UnaryAddAfter => SyntaxKind.PostIncrementExpression,
+            OperationType.UnarySubtract => SyntaxKind.UnaryMinusExpression,
+            OperationType.UnarySubtractBefore => SyntaxKind.PreDecrementExpression,
+            OperationType.UnarySubtractAfter => SyntaxKind.PostDecrementExpression,
+            _ => throw new NotImplementedException()
+        };
+
+        public static bool IsUnaryPrefix(this OperationType operation) => operation switch
+        {
+            OperationType.Not => true,
+            OperationType.Complement => true,
+            OperationType.UnaryAdd => true,
+            OperationType.UnaryAddBefore => true,
+            OperationType.UnaryAddAfter => false,
+            OperationType.UnarySubtract => true,
+            OperationType.UnarySubtractBefore => true,
+            OperationType.UnarySubtractAfter => false,
+            _ => throw new NotImplementedException()
+        };
+
+        public static SyntaxKind BinarySyntaxKind(this OperationType operation) => operation switch
+        {
+            OperationType.Plus => SyntaxKind.AddExpression,
+            OperationType.Subtract => SyntaxKind.SubtractExpression,
+            OperationType.Multiply => SyntaxKind.MultiplyExpression,
+            OperationType.Divide => SyntaxKind.DivideExpression,
+            OperationType.Modulo => SyntaxKind.ModuloExpression,
+            OperationType.Equals => SyntaxKind.EqualsEqualsToken,
+            OperationType.NotEquals => SyntaxKind.NotEqualsExpression,
+            OperationType.GreaterThan => SyntaxKind.GreaterThanExpression,
+            OperationType.GreaterThanOrEqual => SyntaxKind.GreaterThanOrEqualExpression,
+            OperationType.LessThan => SyntaxKind.LessThanExpression,
+            OperationType.LessThanOrEqual => SyntaxKind.LessThanOrEqualExpression,
+            OperationType.LogicalAnd => SyntaxKind.LogicalAndExpression,
+            OperationType.LogicalOr => SyntaxKind.LogicalOrExpression,
+            OperationType.BitwiseAnd => SyntaxKind.BitwiseAndExpression,
+            OperationType.BitwiseOr => SyntaxKind.BitwiseOrExpression,
+            OperationType.ExclusiveOr => SyntaxKind.ExclusiveOrExpression,
+            OperationType.LeftShift => SyntaxKind.LeftShiftExpression,
+            OperationType.RightShift => SyntaxKind.RightShiftExpression,
+            OperationType.Is => SyntaxKind.IsExpression,
+            OperationType.As => SyntaxKind.AsExpression,
+            OperationType.Coalesce => SyntaxKind.CoalesceExpression,
+            _ => throw new NotImplementedException()
+        };
+
+        public static SyntaxKind AnyArgOperatorSyntaxKind(this OperationType operation) => operation switch
+        {
+            OperationType.Bracket => SyntaxKind.BracketedArgumentList,
+            _ => throw new NotImplementedException()
+        };
+
+        public static object? ApplyUnaryOperator(this OperationType operation, params object?[] args) => operation switch
         {
             //OperationType.Not => !(dynamic)args[0]!,
             //OperationType.Complement => ~(dynamic)args[0]!,
@@ -84,7 +185,7 @@ namespace CodeAnalyzation.Models
             _ => throw new NotImplementedException()
         };
 
-        public static object? ApplyBinaryOperator(this OperationType operationType, params object?[] args) => operationType switch
+        public static object? ApplyBinaryOperator(this OperationType operation, params object?[] args) => operation switch
         {
             //OperationType.Plus => (dynamic)args[0]! + (dynamic)args[1]!,
             //OperationType.Subtract => (dynamic)args[0]! - (dynamic)args[1]!,
@@ -110,13 +211,13 @@ namespace CodeAnalyzation.Models
             _ => throw new NotImplementedException()
         };
 
-        public static object? ApplyTernaryOperator(this OperationType operationType, params object?[] args) => operationType switch
+        public static object? ApplyTernaryOperator(this OperationType operation, params object?[] args) => operation switch
         {
             //OperationType.Ternary => (dynamic)args[0]! ? (dynamic)args[1]! : (dynamic)args[2]!,
             _ => throw new NotImplementedException()
         };
 
-        public static object? ApplyAnyArgOperator(this OperationType operationType, params object?[] args) => operationType switch
+        public static object? ApplyAnyArgOperator(this OperationType operation, params object?[] args) => operation switch
         {
             OperationType.Bracket => args.Length switch
             {

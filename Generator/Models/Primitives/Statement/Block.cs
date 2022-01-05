@@ -10,7 +10,6 @@ namespace CodeAnalyzation.Models
 
     public record Block(List<IStatement> Statements) : AbstractStatement<BlockSyntax>
     {
-        public Block(IEnumerable<IStatement>? statements) : this(List(statements)) { }
         public override BlockSyntax Syntax() => Block(Statements.Select(x => x.Syntax()));
     }
 

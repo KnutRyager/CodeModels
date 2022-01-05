@@ -9,7 +9,12 @@ public static class SampleStaticClass
 
     public static void SetValue(int value)
     {
+        var a = value;
 
+        for(var i = 0; i < ConstInt; i++)
+        {
+
+        }
     }
 
     public static int GetValue()

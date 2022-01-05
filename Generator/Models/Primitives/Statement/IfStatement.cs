@@ -2,26 +2,28 @@
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models
 {
 
-    public record IfStatement(IEnumerable<AttributeListSyntax> AttributeLists, IExpression Condition, IStatement Statement, IStatement Else) : AbstractStatement<IfStatementSyntax>
+    public record IfStatement(IExpression Condition, IStatement Statement, IStatement? Else = null) : AbstractStatement<IfStatementSyntax>
     {
-        public override IfStatementSyntax Syntax() => IfStatementCustom(AttributeLists,
-            Condition.Syntax(), Statement.Syntax(), Else is null ? null : ElseClauseCustom(Else.Syntax()));
+        public override IfStatementSyntax Syntax() => IfStatementCustom(
+            Condition.Syntax(), Block(Statement).Syntax(), Else is null ? null : ElseClauseCustom(Block(Else).Syntax()));
     }
 
     public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else) : AbstractStatement<IfStatementSyntax>
     {
         public override IfStatementSyntax Syntax()
         {
-            var ifs = IfStatements.First().Syntax();
-            for (var i = 1; i < IfStatements.Count; i++)
+            var reversed = IfStatements.AsEnumerable().Reverse().ToList();
+            var ifs = reversed.First().Syntax();
+            if (Else is not null) ifs = ifs.WithElse(ElseClauseCustom(Block(Else).Syntax()));
+            for (var i = 1; i < reversed.Count; i++)
             {
-                ifs = ifs.WithElse(ElseClauseCustom(IfStatements[i].Syntax()));
+                ifs = reversed[i].Syntax().WithElse(ElseClauseCustom(ifs));
             }
-            if (Else is not null) ifs = ifs.WithElse(ElseClauseCustom(Else.Syntax()));
             return ifs;
         }
     }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CodeAnalyzation.Models;
 using CodeAnalyzation.Parsing;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
@@ -19,6 +20,7 @@ public static class TestUtil
         if (nodes.Count() == 1) CodeEqual(str, nodes.First());
         else throw new ArgumentException($"Length of nodes not 1, it is '{nodes.Count()}'.");
     }
+    public static void CodeModelEqual<T>(this T codeModel, string str, bool isExpression = false, bool ignoreWhitespace = false) where T : ICodeModel => CodeEqual(str, codeModel.Syntax(), isExpression, ignoreWhitespace);
     public static void CodeEqual<T>(this T node, string str, bool isExpression = false, bool ignoreWhitespace = false) where T : SyntaxNode => CodeEqual(str, node, isExpression, ignoreWhitespace);
     public static void CodeEqual<T>(this IEnumerable<T> node, string str) where T : SyntaxNode => CodeEqual(str, node);
     public static void CodeEqual(this string str, ISymbol node) => CodeEqual(str, node?.ToString() ?? "");

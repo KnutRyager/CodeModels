@@ -5,14 +5,20 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-
-    public record ForStatement(IStatement Statement, IExpression Condition, IExpression Initializer, IExpression Incrementors, VariableDeclaration Declaration) : AbstractStatement<ForStatementSyntax>
+    public record ForStatement(VariableDeclaration Declaration, IExpression? Initializers, IExpression Condition, IExpression Incrementors, IStatement Statement) : AbstractStatement<ForStatementSyntax>
     {
-        //public ForStatement(ForStatementSyntax Syntax) { }
         public override ForStatementSyntax Syntax() => ForStatementCustom(Declaration.Syntax(),
-            List(Initializer.Syntax()),
+            Initializers is null ? List<ExpressionSyntax>() : List(Initializers.Syntax()),
             Condition.Syntax(),
             List(Incrementors.Syntax()),
             Statement.Syntax());
     }
+
+    public record SimpleForStatement(string Variable, IExpression Limit, IStatement Statement)
+        : ForStatement(
+            CodeModelFactory.Declaration(Type("int"), Variable, CodeModelFactory.Literal(0)),
+            null,
+            BinaryExpression(CodeModelFactory.Identifier("i"), OperationType.LessThan, Limit),
+            UnaryExpression(CodeModelFactory.Identifier("i"), OperationType.UnaryAddAfter),
+            Statement);
 }

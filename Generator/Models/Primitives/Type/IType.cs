@@ -5,9 +5,11 @@ namespace CodeAnalyzation.Models
 {
     public interface IType
     {
+        string Name { get; }
         string Identifier { get; }
         bool Required { get; }
         bool IsMulti { get; }
+        bool IsStatic { get; }
         TypeSyntax? Syntax { get; }
         Type? Type { get; }
         TypeSyntax TypeSyntax();

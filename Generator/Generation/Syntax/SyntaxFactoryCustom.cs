@@ -318,6 +318,20 @@ namespace CodeAnalyzation.Generation
                 argumentList: argumentList,
                 initializer: initializer);
 
+        public static VariableDeclaratorSyntax VariableDeclaratorCustom(SyntaxToken identifier,
+             ExpressionSyntax value) => VariableDeclaratorCustom(
+                identifier: identifier,
+                initializer: EqualsValueClause(value));
+
+        public static DeclarationExpressionSyntax DeclarationExpressionCustom(TypeSyntax type, VariableDesignationSyntax designation)
+            => DeclarationExpression(type: type, designation: designation);
+
+        public static DeclarationExpressionSyntax DeclarationExpressionCustom(TypeSyntax type, string identifier, ExpressionSyntax? value = null)
+            => DeclarationExpression(type: type, designation: VariableDesignationCustom(identifier));
+
+        public static VariableDesignationSyntax VariableDesignationCustom(string identifier)
+            => SingleVariableDesignation(Identifier(identifier));
+
         public static AccessorListSyntax AccessorListCustom(IEnumerable<AccessorDeclarationSyntax> accessors) => AccessorList(
             accessors: List(accessors switch
             {
@@ -357,11 +371,10 @@ namespace CodeAnalyzation.Generation
                 incrementors: SeparatedList(incrementors),
                 statement: statement);
 
-        public static IfStatementSyntax IfStatementCustom(IEnumerable<AttributeListSyntax> attributeLists,
+        public static IfStatementSyntax IfStatementCustom(
             ExpressionSyntax condition,
             StatementSyntax statement,
-            ElseClauseSyntax? @else) => IfStatement(attributeLists: List(attributeLists),
-                condition: condition,
+            ElseClauseSyntax? @else) => IfStatement(condition: condition,
                 statement: statement,
                 @else: @else);
 
