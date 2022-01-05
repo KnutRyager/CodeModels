@@ -68,7 +68,7 @@ while(true) {
 }");
 
     [Fact]
-    public void DoWhileLoop() => Do(LocalDeclaration(Declaration(Type("int"), "b", Literal(1337))), Literal(true))
+    public void DoWhileLoop() => Do(LocalDeclaration(Type("int"), "b", Literal(1337)), Literal(true))
         .CodeModelEqual(@"
 do {
     int b = 1337;
@@ -78,4 +78,51 @@ do {
     public void ReturnStatement() => Return(Literal(true))
         .CodeModelEqual(@"
 return true;");
+
+    [Fact]
+    public void TryStatement() => Try(LocalDeclaration(Type("int"), "a", Literal(1337)),
+        Catch(Type("Exception"), "e", LocalDeclaration(Type("string"), "b", Literal("woops"))),
+        Finally(LocalDeclaration(Type("int"), "c", Literal(5))))
+        .CodeModelEqual(@"
+try {
+    int a = 1337;
+} catch(Exception e) {
+    string b = ""woops"";
+} finally {
+    int c = 5;
+}");
+
+    [Fact]
+    public void ThrowStatement() => Throw(Literal(1337))
+        .CodeModelEqual(@"
+throw 1337;");
+
+    [Fact]
+    public void ThrowExp() => ThrowExpression(Literal(1337))
+        .CodeModelEqual(@"
+throw 1337");
+
+    [Fact]
+    public void SwitchStatement() => Switch(Identifier("expr"),
+        new[]{ Case(Literal(1), LocalDeclaration(Type("int"), "a", Literal(1337))),
+        Cases(new[] { Literal(2), Literal(3) }, LocalDeclaration(Type("string"), "b", Literal("woops"))) },
+        LocalDeclaration(Type("int"), "c", Literal(5)))
+        .CodeModelEqual(@"
+switch (expr) {
+    case 1:
+    {
+        int a = 1337;
+        break;
+    }
+    case 2:
+    case 3:
+    {
+        string b = ""woops"";
+        break;
+    }
+    default:
+    {
+        int c = 5;
+    }
+}");
 }

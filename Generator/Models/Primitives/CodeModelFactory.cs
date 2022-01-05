@@ -120,9 +120,28 @@ namespace CodeAnalyzation.Models
         public static DoStatement Do(IStatement statement, IExpression condition, bool blockify = true) => new(Block(statement, blockify), condition);
 
         public static ReturnStatement Return(IExpression expression) => new(expression);
+        public static ContinueStatement Continue() => new();
+        public static BreakStatement Break() => new();
 
         public static VariableDeclaration Declaration(IType type, string name, IExpression value) => new(type, name, value);
         public static LocalDeclarationStatement LocalDeclaration(VariableDeclaration declaration, Modifier modifiers = Modifier.None) => new(declaration, modifiers);
+        public static LocalDeclarationStatement LocalDeclaration(IType type, string name, IExpression? value = null, Modifier modifiers = Modifier.None)
+            => LocalDeclaration(new(type, name, value), modifiers);
+
+        public static TryStatement Try(IStatement statement, IEnumerable<CatchClause> catchClauses, FinallyClause? @finally = null)
+            => new(statement, List(catchClauses), @finally);
+        public static TryStatement Try(IStatement statement, CatchClause catchClause, FinallyClause? @finally = null)
+            => new(statement, List(catchClause), @finally);
+        public static CatchClause Catch(IType type, string identifier, IStatement statement) => new(type, identifier, statement);
+        public static CatchClause Catch(IType type, IStatement statement) => new(type, null, statement);
+        public static FinallyClause Finally(IStatement statement) => new(statement);
+        public static ThrowStatement Throw(IExpression expression) => new(expression);
+        public static ThrowExpression ThrowExpression(IExpression expression) => new(expression);
+
+        public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
+            => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
+        public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
+        public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), statement);
 
         public static IdentifierExpression Identifier(string name, IType? type = null) => new(name, type);
 

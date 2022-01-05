@@ -5,6 +5,7 @@ namespace CodeAnalyzation.Models
     public interface IStatement : ICodeModel
     {
         new StatementSyntax Syntax();
+          bool EndsInBreak();
     }
 
     public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSyntax
@@ -15,5 +16,6 @@ namespace CodeAnalyzation.Models
     public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> where T : StatementSyntax
     {
         StatementSyntax IStatement.Syntax() => Syntax();
+        public virtual bool EndsInBreak() => false;
     }
 }
