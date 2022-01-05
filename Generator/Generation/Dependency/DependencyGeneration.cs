@@ -10,6 +10,8 @@ namespace CodeAnalyzation.Generation
 {
     public static class DependencyGeneration
     {
+        public static ClassDeclarationSyntax GenerateDependencies(IEnumerable<SyntaxTree> trees, Microsoft.CodeAnalysis.Compilation compilation)
+            => GenerateDependencies(trees, compilation.GetSemanticModel(trees.First()));
         public static ClassDeclarationSyntax GenerateDependencies(IEnumerable<SyntaxTree> trees, SemanticModel model)
         {
             var modelClasses = trees.GetModelClasses();
