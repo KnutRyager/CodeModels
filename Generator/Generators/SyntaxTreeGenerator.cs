@@ -38,9 +38,9 @@ namespace HelloWorldGenerated
             var classVisitor = new ClassVisiter(new ClassFilter(attributes: new Type[] { typeof(ModelAttribute) }));
             var classes = classVisitor.GetEntries(syntaxTrees);
 
-            var firstClass = classes.First();
-            var semanticModel = context.Compilation.GetSemanticModel(firstClass.SyntaxTree, true);
-            var type = semanticModel.GetDeclaredSymbol(firstClass) as ITypeSymbol;
+            //var firstClass = classes.First();
+            //var semanticModel = context.Compilation.GetSemanticModel(firstClass.SyntaxTree, true);
+            //var type = semanticModel.GetDeclaredSymbol(firstClass) as ITypeSymbol;
             //var models = classes.Where(x => x.AttributeLists.FirstOrDefault()?.GetType() == typeof(ModelAttribute));
             // add the filepath of each tree to the class we're building
             foreach (var model in classes)
@@ -57,12 +57,6 @@ namespace HelloWorldGenerated
             // inject the created source into the users compilation // inject the created source into the users compilation
             context.AddSource("helloWorldGenerator", SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
 
-        }
-
-        public void Find(PropertyDeclarationSyntax property)
-        {
-            var name = property.Identifier.ToString();
-            var type = property.Type;
         }
     }
 }

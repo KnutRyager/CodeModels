@@ -62,16 +62,16 @@ namespace CodeAnalyzation.Parsing
 
         public static string SingleQuote(this string str) => str.Replace("\"", "'");
 
-        public static string ParseToJson(this string str)
-        {
-            var parsed = str.Parse();
-            var @namespace = parsed.GetNamespaces().FirstOrDefault();
-            var classes = parsed.GetClasses().Select(x => x.ParseToJson(@namespace));
-            return JsonList(classes);
-        }
+        //public static string ParseToJson(this string str)
+        //{
+        //    var parsed = str.Parse();
+        //    var @namespace = parsed.GetNamespaces().FirstOrDefault();
+        //    var classes = parsed.GetClasses().Select(x => x.ParseToJson(@namespace));
+        //    return JsonList(classes);
+        //}
 
-        public static string ParseToJson(this ClassDeclarationSyntax c, NamespaceDeclarationSyntax? @namespace) => ClassModel.Parse(c, @namespace).ToJson();
-        public static string ParseFileToJson(this string path) => FileUtil.ReadFileToText(path).ParseToJson();
-        public static string JsonList(IEnumerable<string> jsonObjects) => $"[{string.Join(",", jsonObjects)}]";
+        //public static string ParseToJson(this ClassDeclarationSyntax c, NamespaceDeclarationSyntax? @namespace) => ClassModel.Parse(c, @namespace).ToJson();
+        //public static string ParseFileToJson(this string path) => FileUtil.ReadFileToText(path).ParseToJson();
+        //public static string JsonList(IEnumerable<string> jsonObjects) => $"[{string.Join(",", jsonObjects)}]";
     }
 }

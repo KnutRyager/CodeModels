@@ -9,8 +9,8 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace CodeAnalyzation.Generators
 {
-    [Generator]
-    public class AugmentingGenerator : ISourceGenerator
+    //[Generator]
+    public class MySourceGenerator : ISourceGenerator
     {
         public void Initialize(GeneratorInitializationContext context)
         {
