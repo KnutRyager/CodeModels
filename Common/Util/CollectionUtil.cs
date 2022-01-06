@@ -21,6 +21,12 @@ namespace Common.Util
         public static T[] L<T>(IEnumerable<T> list, params T[] items) => list.Concat(items).ToArray();
         public static T[] LL<T>(params IEnumerable<T>[] lists) => lists.SelectMany(x => x).ToArray();
 
+        public static List<T> Add<T>(IEnumerable<T> o, T item)
+        {
+            var list = o.ToList();
+            list.Add(item);
+            return list;
+        }
         public static List<T> Add<T>(IEnumerable<T> o1, IEnumerable<T> o2)
         {
             var list = o1.ToList();
