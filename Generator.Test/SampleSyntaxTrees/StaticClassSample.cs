@@ -15,11 +15,21 @@ public static class SampleStaticClass
         {
 
         }
+
+        switch(4)
+        {
+            case 4:
+                var x = 2;
+                var y = 3;
+                break;
+        }
     }
 
     public static int GetValue()
     {
-        return 0;
+        var a = 0;
+        var b = 0;
+        return a;
     }
 
     public static int StringExtensionMethod(this string sampleString)

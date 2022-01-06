@@ -6,7 +6,7 @@ namespace CodeAnalyzation.Models
 {
     public record VariableDeclaration(IType Type, string Name, IExpression? Value = null) : CodeModel<VariableDeclarationSyntax>
     {
-        public override VariableDeclarationSyntax Syntax() => VariableDeclarationCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name), Value.Syntax()));
+        public override VariableDeclarationSyntax Syntax() => VariableDeclarationCustom(Type.Syntax!, VariableDeclaratorCustom(Identifier(Name), Value?.Syntax()));
     }
     //public record VariableDeclarationExpression(IType Type, string Name, IExpression? Value = null) : Expression<DeclarationExpressionSyntax>
     //{

@@ -9,16 +9,16 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, List<Dependency> Dependencies, Modifier Modifier = Modifier.Public)
+    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null, Modifier Modifier = Modifier.Public)
         : IMethod
     {
-        public Method(string name, PropertyCollection parameters, IType returnType, IEnumerable<Dependency>? dependencies = null)
-            : this(name, parameters, returnType, dependencies?.ToList() ?? new List<Dependency>()) { }
-
-        public Method(MethodDeclarationSyntax method) : this(method.GetName(), new PropertyCollection(method),Type(method.ReturnType)) { }
+        public Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
+            : this(name, parameters, returnType, body, null, modifier) { }
+        public Method(string name, PropertyCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
+            : this(name, parameters, returnType, null, body, modifier) { }
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
-            attributeLists: default,
+            attributeLists: new List<AttributeListSyntax>(),
             modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
             returnType: ReturnType.TypeSyntax(),
             explicitInterfaceSpecifier: default,
@@ -26,10 +26,13 @@ namespace CodeAnalyzation.Models
             typeParameterList: default,
             parameterList: Parameters.ToParameters(),
             constraintClauses: default,
-            body: default,
-            expressionBody: default);
+            body: Statements?.Syntax(),
+            expressionBody: ExpressionBody is null ? null : ArrowExpressionClause(ExpressionBody.Syntax()));
 
         public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToMethodSyntax(modifier, removeModifier);
         public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
+
+        public MethodDeclarationSyntax Syntax() => ToMethodSyntax();
+        CSharpSyntaxNode ICodeModel.Syntax() => Syntax();
     }
 }

@@ -13,7 +13,7 @@ namespace CodeAnalyzation.Models
     {
         public override BlockSyntax Syntax() => Block(Statements.Select(x => x.Syntax()));
         public Block Add(IStatement statement) => this with { Statements = CollectionUtil.Add(Statements, statement) };
-        public override bool EndsInBreak() => Statements.LastOrDefault() is BreakStatement; 
+        public override bool EndsInBreak() => Statements.LastOrDefault() is BreakStatement;
     }
 
 }

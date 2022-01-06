@@ -130,7 +130,7 @@ namespace CodeAnalyzation.Generation
             closeBraceToken: Token(SyntaxKind.CloseBraceToken),
             semicolonToken: default);
 
-        public static MethodDeclarationSyntax MethodDeclarationCustom(SyntaxList<AttributeListSyntax> attributeLists,
+        public static MethodDeclarationSyntax MethodDeclarationCustom(IEnumerable<AttributeListSyntax> attributeLists,
             SyntaxTokenList modifiers,
             TypeSyntax returnType,
             ExplicitInterfaceSpecifierSyntax? explicitInterfaceSpecifier,
@@ -140,7 +140,7 @@ namespace CodeAnalyzation.Generation
             BlockSyntax? body,
             ArrowExpressionClauseSyntax? expressionBody,
             SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses) => MethodDeclaration(
-            attributeLists: attributeLists,
+            attributeLists: List(attributeLists),
             modifiers: modifiers,
             returnType: returnType,
             explicitInterfaceSpecifier: explicitInterfaceSpecifier,
@@ -161,8 +161,8 @@ namespace CodeAnalyzation.Generation
              SyntaxToken identifier,
              ParameterListSyntax? parameterList,
              BlockSyntax? body,
-             ConstructorInitializerSyntax? initializer,
-             ArrowExpressionClauseSyntax? expressionBody) => ConstructorDeclaration(
+             ConstructorInitializerSyntax? initializer = null,
+             ArrowExpressionClauseSyntax? expressionBody = null) => ConstructorDeclaration(
              attributeLists: attributeLists,
              modifiers: modifiers,
              identifier: identifier,
@@ -319,9 +319,9 @@ namespace CodeAnalyzation.Generation
                 initializer: initializer);
 
         public static VariableDeclaratorSyntax VariableDeclaratorCustom(SyntaxToken identifier,
-             ExpressionSyntax value) => VariableDeclaratorCustom(
+             ExpressionSyntax? value) => VariableDeclaratorCustom(
                 identifier: identifier,
-                initializer: EqualsValueClause(value));
+                initializer: value is null ? null : EqualsValueClause(value));
 
         public static DeclarationExpressionSyntax DeclarationExpressionCustom(TypeSyntax type, VariableDesignationSyntax designation)
             => DeclarationExpression(type: type, designation: designation);
@@ -384,6 +384,8 @@ namespace CodeAnalyzation.Generation
             => DoStatement(statement, condition);
 
         public static ReturnStatementSyntax ReturnCustom(ExpressionSyntax expression) => ReturnStatement(expression);
+        public static ContinueStatementSyntax ContinueCustom() => ContinueStatement();
+        public static BreakStatementSyntax BreakCustom() => BreakStatement();
 
         public static IfStatementSyntax IfStatementCustom(
             ExpressionSyntax condition,
@@ -394,7 +396,31 @@ namespace CodeAnalyzation.Generation
 
         public static ElseClauseSyntax ElseClauseCustom(StatementSyntax statement) => ElseClause(statement: statement);
 
+        public static SwitchStatementSyntax SwitchStatementCustom(ExpressionSyntax expression,
+            IEnumerable<SwitchSectionSyntax> sections)
+            => SwitchStatement(expression, List(sections));
+        public static SwitchSectionSyntax SwitchSectionCustom(IEnumerable<SwitchLabelSyntax> labels, IEnumerable<StatementSyntax> statements)
+            => SwitchSection(List(labels), List(statements));
+        public static SwitchSectionSyntax SwitchSectionCustom(IEnumerable<SwitchLabelSyntax> labels, params StatementSyntax[] statements)
+            => SwitchSection(List(labels), List(statements));
+        public static SwitchSectionSyntax SwitchSectionCustom(SwitchLabelSyntax label, params StatementSyntax[] statements)
+            => SwitchSection(List(new[] { label }), List(statements));
+        public static CaseSwitchLabelSyntax SwitchLabelCustom(ExpressionSyntax expression) => CaseSwitchLabel(expression);
+        public static DefaultSwitchLabelSyntax DefaultSwitchLabelCustom() => DefaultSwitchLabel();
 
+        public static TryStatementSyntax TryStatementCustom(
+           BlockSyntax block, IEnumerable<CatchClauseSyntax> catches, FinallyClauseSyntax? @finally)
+            => TryStatement(block, List(catches), @finally ?? FinallyClause());
+        public static CatchClauseSyntax CatchClauseCustom(CatchDeclarationSyntax? declaration,
+            BlockSyntax block,
+            CatchFilterClauseSyntax? filter = null)
+            => CatchClause(declaration, filter, block);
+        public static CatchDeclarationSyntax CatchDeclarationCustom(TypeSyntax type, string? identifier = null)
+            => identifier is null ? CatchDeclaration(type) : CatchDeclaration(type, Identifier(identifier));
+        public static FinallyClauseSyntax FinallyClauseCustom(BlockSyntax block) => FinallyClause(block);
+
+        public static ThrowStatementSyntax ThrowStatementCustom(ExpressionSyntax expression) => ThrowStatement(expression);
+        public static ThrowExpressionSyntax ThrowExpressionCustom(ExpressionSyntax expression) => ThrowExpression(expression);
 
         private static bool RecordHasContent(SyntaxList<MemberDeclarationSyntax>? members) => members?.Any() ?? false;
         private static bool IsGetOnly(AccessorListSyntax accessorList) => accessorList.Accessors.Count == 1 && accessorList.Accessors[0].Keyword.IsKind(SyntaxKind.GetKeyword);

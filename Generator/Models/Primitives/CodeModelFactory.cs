@@ -22,6 +22,21 @@ namespace CodeAnalyzation.Models
         public static TypeFromReflection Type(Type type) => new(type);
         public static QuickType Type(string name, bool required = true, bool isMulti = false, TypeSyntax? syntax = null, Type? type = null)
             => new(name, required, isMulti, syntax, type);
+        public static IType Type(string code) => Type(ParseTypeName(code));
+        public static IType Type(IdentifierExpression identifier) => Type(identifier.ToString());
+        public static IType Type(SyntaxToken token) => Type(token.ToString());
+
+        // TODO
+        public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
+        {
+            PredefinedTypeSyntax t => new QuickType(t.Keyword.ToString(), required, Syntax: fullType ?? t),
+            NullableTypeSyntax t => Type(t.ElementType, false, fullType: fullType ?? t),
+            IdentifierNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
+            ArrayTypeSyntax t => new QuickType(t.ElementType.ToString(), IsMulti: true, Syntax: fullType ?? t),
+            GenericNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
+            null => TypeShorthands.NullType,
+            _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
+        };
 
         public static IMethodHolder MetodHolder(Type type) => type switch
         {
@@ -63,8 +78,8 @@ namespace CodeAnalyzation.Models
         public static PropertyCollection PropertyCollection(Type type) => new(type);
         public static PropertyCollection PropertyCollection(string code) => code.Parse(code).Members.FirstOrDefault() switch
         {
-            ClassDeclarationSyntax declaration => new PropertyCollection(declaration),
-            RecordDeclarationSyntax declaration => new PropertyCollection(declaration),
+            ClassDeclarationSyntax declaration => new(declaration),
+            RecordDeclarationSyntax declaration => new(declaration),
             GlobalStatementSyntax statement => PropertyCollection(statement),
             _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{code}'.")
         };
@@ -73,38 +88,55 @@ namespace CodeAnalyzation.Models
             ExpressionStatementSyntax expression => PropertyCollection(expression.Expression),
             _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{statement}'.")
         };
-        public static PropertyCollection PropertyCollection(ExpressionSyntax expression) => expression switch
+        public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => syntax switch
         {
             TupleExpressionSyntax declaration => PropertyCollection(declaration.Arguments),
             TupleTypeSyntax declaration => new PropertyCollection(declaration),
-            _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{expression}'.")
+            _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{syntax}'.")
         };
         public static PropertyCollection PropertyCollection(IEnumerable<ArgumentSyntax> arguments) => new(arguments.Select(x => Property(x)));
         public static IExpression Expression(ExpressionSyntax? syntax) => syntax is null ? NullValue : new ExpressionFromSyntax(syntax);
 
-        public static IType Type(string code) => Type(ParseTypeName(code));
-
-        // TODO
-        public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
+        public static IStatement Statement(StatementSyntax syntax) => syntax switch
         {
-            PredefinedTypeSyntax t => new QuickType(t.Keyword.ToString(), required, Syntax: fullType ?? t),
-            NullableTypeSyntax t => Type(t.ElementType, false, fullType: fullType ?? t),
-            IdentifierNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
-            ArrayTypeSyntax t => new QuickType(t.ElementType.ToString(), IsMulti: true, Syntax: fullType ?? t),
-            GenericNameSyntax t => new QuickType(t.Identifier.ToString(), Syntax: fullType ?? t),
-            null => TypeShorthands.NullType,
-            _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
+
+            _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
         };
+        public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
+
+        public static Method Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
+            => new(name, parameters, returnType, body, modifier);
+        public static Method Method(string name, PropertyCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+            => new(name, parameters, returnType, Block(statements), modifier);
+        public static Method Method(string name, PropertyCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
+            => new(name, parameters, returnType, expressionBody, modifier);
+        public static Method Method(MethodDeclarationSyntax method)
+            => new(method.GetName(), new PropertyCollection(method), Type(method.ReturnType), method.Body is null ? null : Block(method.Body), method.ExpressionBody is null ? null : Expression(method.ExpressionBody.Expression));
+
+
+        public static Constructor Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
+            => new(name, parameters, body, modifier);
+        public static Constructor Constructor(string name, PropertyCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
+            => new(name, parameters, Block(statements), modifier);
+        public static Constructor Constructor(string name, PropertyCollection parameters, IExpression expressionBody, Modifier modifier = Modifier.Public)
+            => new(name, parameters, expressionBody, modifier);
+        public static Constructor Constructor(ConstructorDeclarationSyntax constructor)
+            => new(constructor.Identifier.ToString(), new PropertyCollection(constructor), constructor.Body is null ? null : Block(constructor.Body), constructor.ExpressionBody is null ? null : Expression(constructor.ExpressionBody.Expression));
 
         public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
         public static Block Block(params IStatement[] statements) => new(List(statements));
         public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
+        public static Block Block(BlockSyntax syntax) => syntax switch
+        {
+            // TODO
+            _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
+        };
 
         public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
         public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);
 
         public static ForStatement For(VariableDeclaration declaration, IExpression? initializer, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
-            => new(declaration, initializer, condition, incrementors, statement);
+            => new(declaration, initializer, condition, incrementors, Block(statement, blockify));
         public static ForStatement For(VariableDeclaration declaration, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
             => For(declaration, null, condition, incrementors, statement, blockify);
         public static SimpleForStatement For(string variable, IExpression limit, IStatement statement, bool blockify = true)
@@ -155,7 +187,7 @@ namespace CodeAnalyzation.Models
             => operation.IsTernaryOperator() ? new(input, output1, output2, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a ternary operator: '{operation}'");
 
         public static AnyArgExpression AnyArgExpression(IEnumerable<IExpression>? inputs, OperationType operation, IType? type = null)
-            => operation.IsAnyArgOperator() ? new(List(inputs), type, operation) : throw new ArgumentException($"Not an any arg operator: '{operation}'");
+            => operation.IsAnyArgOperator() ? new(List(inputs), type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not an any arg operator: '{operation}'");
 
 
     }

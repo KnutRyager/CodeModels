@@ -23,6 +23,7 @@ namespace CodeAnalyzation.Models
         public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
         public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
         public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+        public PropertyCollection(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
         public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
         public PropertyCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 

@@ -12,7 +12,7 @@ namespace CodeAnalyzation.Models
 
         public IType ToMultiType() => this with { IsMulti = true };
         public string Name => Identifier;
-        public bool IsStatic => Type is null ? false : ReflectionUtil.IsStatic(Type);
+        public bool IsStatic => Type is not null && ReflectionUtil.IsStatic(Type);
 
         public TypeSyntax TypeSyntax() => Syntax ?? TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));
         public TypeSyntax TypeSyntaxNonMultiWrapped() => Syntax ?? TypeSyntaxNullableWrapped(TypeSyntaxUnwrapped());
