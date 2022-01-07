@@ -25,7 +25,7 @@ public static partial class GeneratorLog
             var fieldName = field.Name;
             if (fieldName.StartsWith("log_"))
             {
-                Console.WriteLine($"Log for {fieldName[4..]}:");
+                Console.WriteLine($"{fieldName[4..]}:");
                 var strings = (field.GetValue(null) as string[])!;
                 foreach (var s in strings)
                 {
@@ -44,16 +44,11 @@ public static partial class GeneratorLog
     }
 }
 
-public static partial class UserClass
+public static partial class HelloWorld
 {
     public static void UserMethod()
     {
         //HelloWorldGenerated.HelloWorld.SayHello();
         //this.GeneratedMethod();
-    }
-
-    public static void Write(string s)
-    {
-        Console.WriteLine($"Sup, {s}");
     }
 }
