@@ -9,8 +9,14 @@ namespace CodeAnalyzation.Models.Primitives.Test;
 public class PropertyCollectionTests
 {
     [Fact]
+    public void ArrayField() => Field("a", Values("v")).CodeModelEqual(@"
+string[] a = new string[]{ ""v"" };
+");
+
+
+    [Fact]
     public void ParsePropertyCollectionFromRecord() => PropertyCollection("public record RecordA(int p1, string p2, long? p3, object? p4 = null, A p5 = A.Instance);")
-        .Should().Equals(new PropertyCollection(new Property[] {
+        .Should().Equals(PropertyCollection(new Property[] {
             Property(Type("int"),"p1"),
             Property(Type("string"),"p2"),
             Property(Type("long", false),"p3"),
@@ -20,7 +26,7 @@ public class PropertyCollectionTests
 
     [Fact]
     public void ParsePropertyCollectionFromTuple() => PropertyCollection("(int p1, string p2, long? p3, object? p4, A p5, uint Item6, float)")
-        .Should().Equals(new PropertyCollection(new Property[] {
+        .Should().Equals(PropertyCollection(new Property[] {
             Property(Type("int"),"p1"),
             Property(Type("string"),"p2"),
             Property(Type("long", false),"p3"),
@@ -40,7 +46,7 @@ public class ClassA {
     public A p5 { get; set; } = A.Instance;
     public int[] p6 { get; set; }
     public List<int> p7 { get; set; }
-}").Should().Equals(new PropertyCollection(new Property[] {
+}").Should().Equals(PropertyCollection(new Property[] {
             Property(Type("int"),"p1"),
             Property(Type("string"),"p2"),
             Property(Type("long", false),"p3"),
