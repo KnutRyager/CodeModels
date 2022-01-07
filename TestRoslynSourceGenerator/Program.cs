@@ -6,7 +6,7 @@ partial class Program
 {
     static void Main(string[] args)
     {
-        new UserClass().UserMethod();
+        GeneratorLog.Print();
         //HelloFrom("Generated Code");
         //Console.ReadLine();
     }
@@ -14,16 +14,45 @@ partial class Program
     //static partial void HelloFrom(string name);
 }
 
-public partial class UserClass
+
+public static partial class GeneratorLog
 {
-    public void UserMethod()
+    public static void Print()
     {
-        // call into a generated method inside the class
+        var fields = typeof(GeneratorLog).GetFields();
+        foreach (var field in fields)
+        {
+            var fieldName = field.Name;
+            if (fieldName.StartsWith("log_"))
+            {
+                Console.WriteLine($"Log for {fieldName[4..]}:");
+                var strings = (field.GetValue(null) as string[])!;
+                foreach (var s in strings)
+                {
+                    Console.WriteLine(s);
+                }
+            }
+        }
+        foreach(var method in typeof(GeneratorLog).GetMethods())
+        {
+            var name = method.Name;
+            if (name.StartsWith("Print_"))
+            {
+                method.Invoke(null, Array.Empty<object?>());
+            }
+        }
+    }
+}
+
+public static partial class UserClass
+{
+    public static void UserMethod()
+    {
+        //HelloWorldGenerated.HelloWorld.SayHello();
         //this.GeneratedMethod();
-        HelloWorldGenerated.HelloWorld.SayHello();
     }
 
-    public void Write(string s)
+    public static void Write(string s)
     {
         Console.WriteLine($"Sup, {s}");
     }
