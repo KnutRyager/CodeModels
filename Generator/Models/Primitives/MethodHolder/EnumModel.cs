@@ -7,7 +7,7 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 namespace CodeAnalyzation.Models
 {
     public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
-        : MethodHolder<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), new(), Namespace, IsStatic: true)
+        : MethodHolder<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), new(), Namespace, TopLevelModifier: Modifier.Static)
     {
         public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 

@@ -1,10 +1,12 @@
-﻿using Microsoft.CodeAnalysis.CSharp;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeAnalyzation.Models
 {
     public interface ICodeModel
     {
         CSharpSyntaxNode Syntax();
+        string Code();
     }
 
     public interface ICodeModel<T> : ICodeModel where T : CSharpSyntaxNode
@@ -16,5 +18,6 @@ namespace CodeAnalyzation.Models
     {
         public abstract T Syntax();
         CSharpSyntaxNode ICodeModel.Syntax() => Syntax();
+        public string Code() => Syntax().NormalizeWhitespace().ToString();
     }
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -10,13 +11,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models
 {
     public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
-            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None,
-            Modifier MemberModifier = Modifier.None, bool IsStatic = false, Type? Type = null) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.Public,
+            Modifier MemberModifier = Modifier.Public, Type? Type = null) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
     {
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
-            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None,
-            Modifier memberModifier = Modifier.None, Type? type = null)
-            : this(name, properties ?? new PropertyCollection(name: name), methods?.ToList() ?? new(), @namespace, topLevelModifier, memberModifier, Type: type)
+            Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
+            Modifier memberModifier = Modifier.Public, Type? type = null)
+            : this(name, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier, Type: type)
         {
             foreach (var property in Properties.Properties) property.Owner = this;
         }
@@ -34,9 +35,9 @@ namespace CodeAnalyzation.Models
         public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
-        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
-        public List<IMember> Members() => Properties.Ordered().Concat<IMember>(Methods).ToList(); // TODO: MemberModifier
-        public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
+        public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
+        public List<IMember> Members() => Properties.Ordered(MemberModifier).Concat<IMember>(Methods).ToList();
+        public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => SyntaxFactory.List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
 
         public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
                 attributeLists: default,
@@ -73,11 +74,13 @@ namespace CodeAnalyzation.Models
                 typeParameterList: default,
                 baseList: default,
                 constraintClauses: default,
-                members: List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.ToMemberSyntax(removeModifier: Modifier.Public))));
+                members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.ToMemberSyntax(removeModifier: Modifier.Public))));
 
         public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
         public Property GetProperty(string name) => Properties[name];
         public IMethod GetMethod(string name) => Methods.First(x => x.Name == name);
+
+        public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
         BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
     }

@@ -51,7 +51,7 @@ public class ClassA {
         }, "ClassA"));
 
     [Fact]
-    public void GenerateClass() => new PropertyCollection(new Property[] {
+    public void GenerateClass() => PropertyCollection(new Property[] {
             Property(Type("int"),"p1"),
             Property(Type("string"),"p2"),
             Property(Type("long", false),"p3"),

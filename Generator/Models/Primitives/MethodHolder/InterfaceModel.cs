@@ -10,7 +10,7 @@ namespace CodeAnalyzation.Models
         Namespace? Namespace = null, bool IsStatic = false)
         : MethodHolder<InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
             Modifier.Public.SetFlags(IsStatic ? Modifier.Static : Modifier.None),
-            IsStatic ? Modifier.Static : Modifier.None, IsStatic)
+            IsStatic ? Modifier.Static : Modifier.None)
     {
         public InterfaceModel(string identifier, PropertyCollection? properties = null,
             IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)

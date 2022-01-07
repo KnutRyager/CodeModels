@@ -6,18 +6,13 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record ExpressionCollection
+    public record ExpressionCollection(List<IExpression> Values) : Expression<ArrayCreationExpressionSyntax>(FindType(Values))
     {
-        public List<IExpression> Values { get; set; }
-
-        public ExpressionCollection(IEnumerable<IExpression> values)
-        {
-            Values = values.ToList();
-        }
-
+        public ExpressionCollection(IEnumerable<IExpression>? values = null) : this(List(values)) { }
         public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
         public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new LiteralExpression(x))) { }
 
@@ -31,9 +26,13 @@ namespace CodeAnalyzation.Models
 
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
         public TypeSyntax BaseType() => BaseTType().TypeSyntax();
-        public virtual IType BaseTType() => Values.Select(x => x.Type).Distinct().Count() is 1 ? Values.First().Type : new TypeFromReflection(typeof(object));
+        public virtual IType BaseTType() => FindType(Values);
         public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
         public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax()));
+
+        public override ArrayCreationExpressionSyntax Syntax() => ToArrayInitialization();
+
+        public static IType FindType(IEnumerable<IExpression> expressions) => expressions.Select(x => x.Type).Distinct().Count() is 1 ? expressions.First().Type : new TypeFromReflection(typeof(object));
     }
 }
 

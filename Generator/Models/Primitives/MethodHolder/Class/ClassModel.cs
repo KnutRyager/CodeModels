@@ -6,9 +6,9 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 namespace CodeAnalyzation.Models
 {
     public abstract record ClassModel(string Identifier, PropertyCollection Properties, List<IMethod> Methods,
-         Namespace? Namespace = null, bool IsStatic = false)
-        : MethodHolder<ClassDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
-            IsStatic ? Modifier.Static : Modifier.None, IsStatic ? Modifier.Static : Modifier.None, IsStatic)
+         Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None, Modifier MemberModifier = Modifier.None)
+        : MethodHolder<ClassDeclarationSyntax>(Identifier, Properties, Methods, Namespace, TopLevelModifier,
+            MemberModifier)
     {
         public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace) =>
            @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,

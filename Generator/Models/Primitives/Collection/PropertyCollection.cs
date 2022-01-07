@@ -27,19 +27,19 @@ namespace CodeAnalyzation.Models
         public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
         public PropertyCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
-        public ClassDeclarationSyntax ToClass(string? name = null) => ClassDeclarationCustom(
+        public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
                 attributeLists: default,
-                modifiers: TokenList(Token(SyntaxKind.PublicKeyword)),
+                modifiers: modifiers.Syntax(),
                 identifier: Identifier(name ?? Name ?? throw new ArgumentException("No identifier")),
                 typeParameterList: default,
                 baseList: default,
                 constraintClauses: default,
-                members: ToMembers()
+                members: ToMembers(memberModifiers)
             );
 
-        public RecordDeclarationSyntax ToRecord(string? name = null) => RecordDeclarationCustom(
+        public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
                 attributeLists: default,
-                modifiers: TokenList(Token(SyntaxKind.PublicKeyword)),
+                modifiers: modifiers.Syntax(),
                 identifier: name != null ? Identifier(name) : Identifier,
                 typeParameterList: default,
                 parameterList: ToParameters(),
@@ -49,8 +49,8 @@ namespace CodeAnalyzation.Models
 
         public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
         public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
-        public List<Property> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new PropertyComparer()).ToList();
-        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Ordered().Select(x => x.ToMemberSyntax(modifier)));
+        public List<Property> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new PropertyComparer(modifier)).ToList();
+        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Ordered(modifier).Select(x => x.ToMemberSyntax(modifier)));
         public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
         public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")));
 

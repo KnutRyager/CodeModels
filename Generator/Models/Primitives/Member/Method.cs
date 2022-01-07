@@ -10,7 +10,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models
 {
     public record Method(string Name, PropertyCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null, Modifier Modifier = Modifier.Public)
-        : IMethod
+        : CodeModel<MethodDeclarationSyntax>, IMethod
     {
         public Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
             : this(name, parameters, returnType, body, null, modifier) { }
@@ -32,7 +32,7 @@ namespace CodeAnalyzation.Models
         public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToMethodSyntax(modifier, removeModifier);
         public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
 
-        public MethodDeclarationSyntax Syntax() => ToMethodSyntax();
+        public override MethodDeclarationSyntax Syntax() => ToMethodSyntax();
         CSharpSyntaxNode ICodeModel.Syntax() => Syntax();
     }
 }

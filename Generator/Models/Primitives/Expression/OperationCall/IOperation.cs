@@ -23,7 +23,7 @@ namespace CodeAnalyzation.Models
         where TDataType : IDataType
         where TOperationPipeline : IOperationPipeline
     {
-        new TNamespace Namespace { get; }
+        new TNamespace? Namespace { get; }
         new TDataType Output { get; }
         new TOperationPipeline? OperationPipeline { get; }
     }

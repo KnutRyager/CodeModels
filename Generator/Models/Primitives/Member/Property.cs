@@ -10,7 +10,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Property(IType Type, string Name, IExpression? Value, Modifier Modifier, bool IsRandomlyGeneratedName) : IMember, ICodeModel, ITypeModel
+    public record Property(IType Type, string Name, IExpression? Value, Modifier Modifier, bool IsRandomlyGeneratedName)
+        : CodeModel<CSharpSyntaxNode>, IMember, ITypeModel
     {
         public IMethodHolder? Owner { get; set; }
 
@@ -35,18 +36,18 @@ namespace CodeAnalyzation.Models
                 @default: Initializer());
 
         public MemberDeclarationSyntax ToMemberSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
-                propertyType: Modifier.SetModifiers(modifiers),
+                propertyType: modifiers.SetModifiers(Modifier),
                 attributeLists: default,
-                modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
+                modifiers: modifiers.SetModifiers(Modifier).SetFlags(removeModifier, false).Syntax(),
                 type: TypeSyntax(),
                 explicitInterfaceSpecifier: default,
                 identifier: Identifier(Name!),
                 accessorList: AccessorListCustom(new AccessorDeclarationSyntax[] { }).
-                    AddAccessors(!(Modifier.SetModifiers(modifiers)).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
+                    AddAccessors(!(modifiers.SetModifiers(Modifier)).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
                         modifiers: default,
                         body: default,
                         expressionBody: default) } : new AccessorDeclarationSyntax[] { })
-                    .AddAccessors(Modifier.SetModifiers(modifiers).IsWritable() ? new[] {AccessorDeclarationSetCustom(attributeLists: default,
+                    .AddAccessors(modifiers.SetModifiers(Modifier).IsWritable() ? new[] {AccessorDeclarationSetCustom(attributeLists: default,
                         modifiers: default,
                         body: default,
                         expressionBody: default) } : new AccessorDeclarationSyntax[] { }),
@@ -69,7 +70,7 @@ namespace CodeAnalyzation.Models
         };
 
         public TypeSyntax TypeSyntax() => Type.TypeSyntax();
-        public CSharpSyntaxNode Syntax() => ToMemberSyntax();
+        public override CSharpSyntaxNode Syntax() => ToMemberSyntax();
 
         public EqualsValueClauseSyntax? Initializer() => DefaultValueSyntax() switch
         {

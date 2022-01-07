@@ -11,7 +11,7 @@ namespace CodeAnalyzation.Models
         Type.GetMethods().Select(x => new MethodFromReflection(x)).ToList<IMethod>(),
         new Namespace(Type.Namespace),
             ReflectionUtil.IsStatic(Type) ? Modifier.Static : Modifier.None,
-            ReflectionUtil.IsStatic(Type) ? Modifier.Static : Modifier.None, ReflectionUtil.IsStatic(Type))
+            ReflectionUtil.IsStatic(Type) ? Modifier.Static : Modifier.None)
     {
         public override ClassDeclarationSyntax Syntax() => ToClass();
     }

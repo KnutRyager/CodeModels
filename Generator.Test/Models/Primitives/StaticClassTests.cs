@@ -8,7 +8,7 @@ namespace CodeAnalyzation.Models.Primitives.Test;
 public class StaticClassTests
 {
     [Fact]
-    public void GenerateStaticClass() => new StaticClass("ClassA", new PropertyCollection(new Property[] {
+    public void GenerateStaticClass() => StaticClass("ClassA",  PropertyCollection(new Property[] {
             Property(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             Property(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             Property(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
@@ -17,8 +17,8 @@ public class StaticClassTests
             Property(Type("double"),"PI",Literal(3.14), modifier: PropertyAndFieldTypes.PublicConst),
             Property(Type("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
             Property(Type("string"),"ThePublicStaticReadonlyField",Literal("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
-        })).ToClass().CodeEqual(@"
-public static class ClassA {
+        }), topLevelModifier: Modifier.Partial, memberModifier: Modifier.Public).ToClass().CodeEqual(@"
+public static partial class ClassA {
     public const double PI = 3.14D;
     private const double PI_private = Math.PI;
     public static readonly string ThePublicStaticReadonlyField = ""abc"";

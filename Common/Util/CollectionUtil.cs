@@ -195,6 +195,13 @@ namespace Common.Util
             rest = list.Skip(5).ToList();
         }
 
+        public static object?[] ModernizeArray(Array array)
+        {
+            object?[] result = new object?[array.Length];
+            for (var i = 0; i < array.Length; i++) result[i] = array.GetValue(i);
+            return result;
+        }
+
         public static List<T> OrderByPredicate<T>(this IEnumerable<T> list, params Func<T, bool>[] order) => list.Take(order.Length).Select((_, index) => list.First(order[index])).ToList();
 
         public static IEnumerable<T>? OnlyIfNoNulls<T>(IEnumerable<T>? values) where T : class => (values?.All(x => x != default) ?? false) ? values : default;

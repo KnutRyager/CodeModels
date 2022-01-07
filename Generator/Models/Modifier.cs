@@ -41,6 +41,8 @@ namespace CodeAnalyzation.Models
         Await = 524288,
         // Using
         Using = 1048576,
+        // Partial
+        Partial = 2097152,
     }
 
     public enum ModifierType
@@ -55,6 +57,7 @@ namespace CodeAnalyzation.Models
         Field,
         Using,
         Async,
+        Partial,
     }
 
     public static class ModifierTypes
@@ -77,11 +80,15 @@ namespace CodeAnalyzation.Models
         public const Modifier NonAsync = ((Modifier)int.MaxValue) ^ Async;
         public const Modifier Using = Modifier.Using;
         public const Modifier NonUsing = ((Modifier)int.MaxValue) ^ Using;
+        public const Modifier Partial = Modifier.Partial;
+        public const Modifier NonPartial = ((Modifier)int.MaxValue) ^ Partial;
     }
 
     public static class MethodHolderTypes
     {
         public const Modifier PublicClass = Modifier.Public | Modifier.Class;
+        public const Modifier PublicPartialClass = Modifier.Public | Modifier.Partial | Modifier.Class;
+        public const Modifier PublicPartialStaticClass = Modifier.Public | Modifier.Partial | Modifier.Static | Modifier.Class;
         public const Modifier PublicInterface = Modifier.Public | Modifier.Interface;
         public const Modifier PublicAbstractInterface = Modifier.Public | Modifier.Abstract | Modifier.Interface;
         public const Modifier PublicStaticClass = Modifier.Public | Modifier.Static | Modifier.Class;
@@ -235,6 +242,18 @@ namespace CodeAnalyzation.Models
             _ => Token(SyntaxKind.None)
         };
 
+        public static Modifier PartialModifier(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Partial) => Modifier.Partial,
+            _ => Modifier.None
+        };
+
+        public static SyntaxToken PartialModifierToken(this Modifier modifier) => modifier switch
+        {
+            _ when modifier.HasFlag(Modifier.Partial) => Token(SyntaxKind.PartialKeyword),
+            _ => Token(SyntaxKind.None)
+        };
+
         public static ModifierType GetModifierType(this Modifier modifier) => modifier switch
         {
             (<= Modifier.None) => ModifierType.None,
@@ -247,6 +266,7 @@ namespace CodeAnalyzation.Models
             (<= Modifier.Field) => ModifierType.Field,
             (<= Modifier.Async) => ModifierType.Async,
             (<= Modifier.Using) => ModifierType.Using,
+            (<= Modifier.Partial) => ModifierType.Partial,
             _ => ModifierType.None
         };
 
@@ -262,6 +282,7 @@ namespace CodeAnalyzation.Models
             (<= Modifier.Field) => ModifierTypes.NonField,
             (<= Modifier.Async) => ModifierTypes.NonAsync,
             (<= Modifier.Using) => ModifierTypes.NonUsing,
+            (<= Modifier.Partial) => ModifierTypes.NonPartial,
             _ => Modifier.None
         };
 
@@ -278,6 +299,7 @@ namespace CodeAnalyzation.Models
             if (newModifier.MemberTypeModifier() is not Modifier.None) modifier = modifier.SetModifier(newModifier.MemberTypeModifier());
             if (newModifier.FieldModifier() is not Modifier.None) modifier = modifier.SetModifier(newModifier.FieldModifier());
             if (modifier.HasFlag(Modifier.Static) && modifier.HasFlag(Modifier.Const)) modifier.ClearFlags(Modifier.Static);
+            if (newModifier.PartialModifier() is not Modifier.None) modifier = modifier.SetModifier(newModifier.PartialModifier());
             return modifier;
         }
         public static Modifier Validate(this Modifier modifier)
@@ -290,8 +312,9 @@ namespace CodeAnalyzation.Models
         {
             modifier = modifier.Validate();
             return TokenList(new SyntaxToken[] {
-                UsingModifierToken (modifier), AccessModifierToken (modifier), StaticModifierToken(modifier),AbstractModifierToken(modifier),
-                AsyncModifierToken(modifier), ConstModifierToken(modifier), RecordModifierToken(modifier), MemberTypeModifierToken(modifier)
+                UsingModifierToken (modifier), AccessModifierToken (modifier), StaticModifierToken(modifier),
+                AbstractModifierToken(modifier), AsyncModifierToken(modifier), ConstModifierToken(modifier),
+                RecordModifierToken(modifier), PartialModifierToken(modifier), MemberTypeModifierToken(modifier)
             }.Where(x => x.Kind() is not SyntaxKind.None).ToArray());
         }
 

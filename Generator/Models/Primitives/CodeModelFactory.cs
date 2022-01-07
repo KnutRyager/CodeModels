@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeAnalyzation.Parsing;
 using Common.Reflection;
+using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -47,6 +48,8 @@ namespace CodeAnalyzation.Models
         };
 
         public static StaticClassFromReflection StaticClass(Type type) => new(type);
+        public static StaticClass StaticClass(string identifier, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
+            => new(identifier, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier);
         public static InstanceClassFromReflection InstanceClass(Type type) => new(type);
         public static InterfaceFromReflection Interface(Type type) => new(type);
         public static EnumFromReflection Enum(Type type) => new(type);
@@ -54,11 +57,21 @@ namespace CodeAnalyzation.Models
         public static List<IMethod> Methods(Type type) => type.GetMethods().Select(x => new MethodFromReflection(x)).ToList<IMethod>();
 
         public static LiteralExpression Literal(object value) => new(value);
+        public static IExpression Value(object? value) => value switch
+        {
+            null => NullValue,
+            Array array => Values(array),
+            _ => Literal(value),
+        };
+        public static ExpressionCollection Values(IEnumerable<object?> values) => new(values.Select(Value));
+        public static ExpressionCollection Values(Array values) => new(CollectionUtil.ModernizeArray(values).Select(Value));
+        public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
         public static List<LiteralExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
 
-        public static Property Property(IType type, string? name, IExpression? value = null, Modifier? modifier = null) => new(type, name, value, modifier);
-        public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(expression), modifier);
-        public static Property Property(IType type, string name, string qualifiedName, Modifier? modifier = null) => new(type, name, new ExpressionFromSyntax(qualifiedName), modifier);
+        public static Property Field(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Type, name, value, Modifier.Field.SetFlags(modifier));
+        public static Property Property(IType type, string? name, IExpression? value = null, Modifier modifier = Modifier.None) => new(type, name, value, modifier);
+        public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => new(type, name, new ExpressionFromSyntax(expression), modifier);
+        public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => new(type, name, new ExpressionFromSyntax(qualifiedName), modifier);
         public static Property Property(string name) => new(TypeShorthands.NullType, name);
         public static Property Property(ArgumentSyntax argument) => argument.Expression switch
         {
@@ -75,6 +88,8 @@ namespace CodeAnalyzation.Models
 
         public static PropertyCollection PropertyCollection(PropertyCollection? collection) => collection ?? new();
         public static PropertyCollection PropertyCollection(IEnumerable<Property> properties, string? name = null) => new(properties, name);
+        public static PropertyCollection PropertyCollection(string name, params Property[] properties) => new(properties, name);
+        public static PropertyCollection PropertyCollection(params Property[] properties) => new(properties);
         public static PropertyCollection PropertyCollection(Type type) => new(type);
         public static PropertyCollection PropertyCollection(string code) => code.Parse(code).Members.FirstOrDefault() switch
         {

@@ -2,10 +2,11 @@
 
 namespace CodeAnalyzation.Models
 {
-    public class PropertyComparer : IComparer<Property>
+    public record PropertyComparer(Modifier Modifier = Modifier.None) : IComparer<Property>
     {
         // Ordering: https://stackoverflow.com/questions/150479/order-of-items-in-classes-fields-properties-constructors-methods
-        public int Compare(Property a, Property b) => Compare(a.Modifier, b.Modifier);
+        public int Compare(Property a, Property b)
+            => Compare(Modifier.SetModifiers(a.Modifier), Modifier.SetModifiers(b.Modifier));
         public int Compare(Modifier a, Modifier b)
         {
             var constComparison = (b & Modifier.Const) - (a & Modifier.Const);
