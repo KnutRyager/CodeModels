@@ -6,6 +6,7 @@ partial class Program
 {
     static void Main(string[] args)
     {
+        HelloWorld2.UserMethod();
         GeneratorLog.Print();
         //HelloFrom("Generated Code");
         //Console.ReadLine();
@@ -44,11 +45,10 @@ public static partial class GeneratorLog
     }
 }
 
-public static partial class HelloWorld
+public static partial class HelloWorld2
 {
     public static void UserMethod()
     {
-        //HelloWorldGenerated.HelloWorld.SayHello();
-        //this.GeneratedMethod();
+        HelloWorldGenerated.HelloWorld.SayHello();
     }
 }
