@@ -28,7 +28,15 @@ namespace Common.Util
 
         public static string CleanCodeString(string s) => s
             .Replace("\\", "\\\\")
-            .Replace("\"", "\"\"");
+            .Replace("\"", "\"\"")
+            .Replace("{", "{{")
+            .Replace("}", "}}");
+
+        public static string StripCodeString(string s) => s
+            .Replace("\\", "")
+            .Replace("\"", "")
+            .Replace("{", "")
+            .Replace("}", "");
 
         public static string FilterJoin(string? str1, string? str2, string separator = ".") => $"{str1}{((string.IsNullOrWhiteSpace(str1)|| string.IsNullOrWhiteSpace(str2)) ? string.Empty : separator)}{str2}";
     }
