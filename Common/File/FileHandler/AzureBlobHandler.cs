@@ -27,7 +27,7 @@ namespace Common.Files
             throw new NotImplementedException();
         }
 
-        Task Copy(string srcPath, string destinationPath)
+        new Task Copy(string srcPath, string destinationPath)
         {
             throw new NotImplementedException();
         }
@@ -38,7 +38,7 @@ namespace Common.Files
             return Task.FromResult(0);
         }
 
-        public Task Write(string path, string content)
+        public new Task Write(string path, string content)
         {
             using var stream = DataConvert.Text2Stream(content);
             var result = Write(path, stream);
