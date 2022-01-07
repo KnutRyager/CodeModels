@@ -24,6 +24,8 @@ namespace CodeAnalyzation.Models
         public static QuickType Type(string name, bool required = true, bool isMulti = false, TypeSyntax? syntax = null, Type? type = null)
             => new(name, required, isMulti, syntax, type);
         public static IType Type(string code) => Type(ParseTypeName(code));
+        public static QuickType Type(IType type, bool? required = null, bool? isMulti = null) 
+            => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
         public static IType Type(IdentifierExpression identifier) => Type(identifier.ToString());
         public static IType Type(SyntaxToken token) => Type(token.ToString());
 

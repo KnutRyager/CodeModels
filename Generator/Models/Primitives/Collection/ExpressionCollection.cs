@@ -10,7 +10,7 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record ExpressionCollection(List<IExpression> Values) : Expression<ArrayCreationExpressionSyntax>(FindType(Values))
+    public record ExpressionCollection(List<IExpression> Values) : Expression<ArrayCreationExpressionSyntax>(Type(FindBaseType(Values), isMulti: true))
     {
         public ExpressionCollection(IEnumerable<IExpression>? values = null) : this(List(values)) { }
         public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
@@ -26,13 +26,15 @@ namespace CodeAnalyzation.Models
 
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
         public TypeSyntax BaseType() => BaseTType().TypeSyntax();
-        public virtual IType BaseTType() => FindType(Values);
+        public virtual IType BaseTType() => FindBaseType(Values);
         public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
         public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax()));
 
         public override ArrayCreationExpressionSyntax Syntax() => ToArrayInitialization();
 
-        public static IType FindType(IEnumerable<IExpression> expressions) => expressions.Select(x => x.Type).Distinct().Count() is 1 ? expressions.First().Type : new TypeFromReflection(typeof(object));
+        public static IType FindBaseType(IEnumerable<IExpression> expressions)
+            => expressions.Select(x => x.Type).Distinct().Count() is 1
+            ? expressions.First().Type : Type(typeof(object));
     }
 }
 
