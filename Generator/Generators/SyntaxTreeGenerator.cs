@@ -19,14 +19,14 @@ namespace CodeAnalyzation.Generators
             // using the context, get a list of syntax trees in the users compilation
             var syntaxTrees = context.Compilation.SyntaxTrees;
 
-            var classVisitor = new ClassVisiter2();
+            var classVisitor = new ClassVirtualizationVisitor();
             //var classVisitor = new ClassVisiter(new(attributes: new Type[] { typeof(ModelAttribute) }));
             var allNodes = syntaxTrees.SelectMany(x => x.GetRoot().DescendantNodes()).ToList();
-            var e = classVisitor.GetEntries(syntaxTrees.First().GetRoot().DescendantNodes());
+            var e = classVisitor.GetClasses(syntaxTrees);
             //var d = syntaxTrees.First().GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>() ;
-            var classesOnly = allNodes.Where(x => x is ClassDeclarationSyntax).ToList();
-            var classes = syntaxTrees.SelectMany(x => x.GetRoot().GetClasses()).ToList();
-            //var classes = classVisitor.GetEntries(syntaxTrees.Classes());
+            //var classesOnly = allNodes.Where(x => x is ClassDeclarationSyntax).ToList();
+            //var classes = syntaxTrees.SelectMany(x => x.GetRoot().GetClasses()).ToList();
+            var classes = classVisitor.GetClasses(syntaxTrees);
 
             //var firstClass = classes.First();
             //var semanticModel = context.Compilation.GetSemanticModel(firstClass.SyntaxTree, true);
