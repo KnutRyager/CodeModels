@@ -58,9 +58,9 @@ namespace CodeAnalyzation.Models
 
         public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
         public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
-        public PropertyExpression AccessValue(string identifier) => AccessValue(new LiteralExpression(identifier));
-        public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null ? NameSyntax
-            : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
+        public PropertyExpression AccessValue(string identifier) => AccessValue(CodeModelFactory.Identifier(identifier));
+        public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
+            : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
 
         public ExpressionSyntax? ExpressionSyntax => Value?.Syntax();
         public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax ?? Value switch

@@ -11,8 +11,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models
 {
     public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
-            Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.Public,
-            Modifier MemberModifier = Modifier.Public, Type? Type = null) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+            Namespace? Namespace, Modifier TopLevelModifier,
+            Modifier MemberModifier, Type? Type) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
     {
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
             Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,

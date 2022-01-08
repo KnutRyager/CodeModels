@@ -13,7 +13,7 @@ namespace CodeAnalyzation.Models
 {
     public record PropertyCollection(List<Property> Properties, string? Name = null)
     {
-        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(properties?.ToList() ?? new(), name) { }
+        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(CodeModelFactory.List(properties), name) { }
         public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
         public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
         public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }

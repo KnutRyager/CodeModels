@@ -7,12 +7,12 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 namespace CodeAnalyzation.Models
 {
     public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
-        : MethodHolder<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), new(), Namespace, TopLevelModifier: Modifier.Static)
+        : MethodHolder<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => Property((x.LiteralValue as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
     {
         public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 
         public EnumModel(string identifier, IEnumerable<string>? values = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
-            : this(identifier, new ExpressionCollection(Literals(AddNoneValue(values ?? new List<string>(), hasNoneValue))), @namespace, isFlags, hasNoneValue) { }
+            : this(identifier, new ExpressionCollection(Literals(AddNoneValue(List(values), hasNoneValue))), @namespace, isFlags, hasNoneValue) { }
 
         public EnumModel(string identifier, IEnumerable<IEnumerable<string>>? valueCategories = null, Namespace? @namespace = null, bool isFlags = false, bool hasNoneValue = false)
             : this(identifier, valueCategories.SelectMany(x => x), @namespace, isFlags, hasNoneValue)

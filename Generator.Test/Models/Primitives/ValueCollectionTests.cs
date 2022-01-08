@@ -1,4 +1,8 @@
+using System.Linq;
+using CodeAnalyzation.Parsing;
 using FluentAssertions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static CodeAnalyzation.Test.TestUtil;
 
@@ -38,5 +42,5 @@ public enum MyEnum {
     public void ParseValueCollectionFromEnum() => new ExpressionCollection(@"
 public enum MyEnum {
     Abc, Def, Ghi
-}").Should().Equals(new ExpressionCollection("Abc,Def,Ghi"));
+}".Parse().DescendantNodes().OfType<EnumDeclarationSyntax>().First()).Should().BeEquivalentTo(new ExpressionCollection("Abc,Def,Ghi"), o => o.ComparingByMembers<SyntaxToken>());
 }

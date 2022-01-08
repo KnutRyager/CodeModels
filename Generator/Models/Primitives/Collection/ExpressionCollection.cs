@@ -14,7 +14,7 @@ namespace CodeAnalyzation.Models
     {
         public ExpressionCollection(IEnumerable<IExpression>? values = null) : this(List(values)) { }
         public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
-        public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new LiteralExpression(x))) { }
+        public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new LiteralExpression(x.Identifier.ToString()))) { }
 
         public EnumDeclarationSyntax ToEnum(string name, bool isFlags = false, bool hasNoneValue = false) => EnumDeclaration(
                 attributeLists: default,
