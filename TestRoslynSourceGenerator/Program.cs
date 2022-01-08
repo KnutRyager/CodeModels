@@ -10,6 +10,14 @@ partial class Program
         GeneratorLog.Print();
         //HelloFrom("Generated Code");
         //Console.ReadLine();
+        foreach (var kv in ModelDependencies.Deps)
+        {
+            Console.WriteLine($"{kv.Key}: {kv.Value}");
+            foreach (var kv2 in kv.Value)
+            {
+                Console.WriteLine($"\t{kv2.Key}: {string.Join(',', kv2.Value)}");
+            }
+        }
     }
 
     //static partial void HelloFrom(string name);
@@ -34,7 +42,7 @@ public static partial class GeneratorLog
                 }
             }
         }
-        foreach(var method in typeof(GeneratorLog).GetMethods())
+        foreach (var method in typeof(GeneratorLog).GetMethods())
         {
             var name = method.Name;
             if (name.StartsWith("Print_"))

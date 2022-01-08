@@ -16,18 +16,18 @@ namespace CodeAnalyzation
         private static readonly IDictionary<string?, CompilationContext> contexts = new ConcurrentDictionary<string?, CompilationContext>();
         private static readonly IDictionary<SyntaxTree, CompilationContext> treeContexts = new ConcurrentDictionary<SyntaxTree, CompilationContext>();
         private static string? lastKey;
-        public static void SetCompilation(CSharpCompilation compilation, IEnumerable<SyntaxTree> trees, string? key = null)
+        public static void SetCompilation(Microsoft.CodeAnalysis.Compilation compilation, IEnumerable<SyntaxTree> trees, string? key = null)
         {
+            GetContext(key).SetCompilation(compilation, trees);
             foreach (var tree in trees)
             {
                 GetContext(tree).SetCompilation(compilation, trees);
-                GetContext(key).SetCompilation(compilation, trees);
+                SetSemanticModel(tree, key);
             }
-            GetContext(key).SetCompilation(compilation, trees);
         }
 
         public static void SetSemanticModel(SyntaxTree tree, string? key = null) => GetContext(tree, key).SetSemanticModel(tree);
-        public static void SetSemanticModel(int treeIndex, string? key = null) => GetContext(key).SetSemanticModel(treeIndex);
+        //public static void SetSemanticModel(int treeIndex, string? key = null) => GetContext(key).SetSemanticModel(treeIndex);
         public static SemanticModel GetSemanticModel(SyntaxTree? tree = null, string? key = null) => (tree != null ? GetContext(tree, key) : GetContext(key)).GetSemanticModel(tree);
 
         public static bool HasModifier(this MemberDeclarationSyntax node, SyntaxKind modifier) => node.Modifiers.Any(modifier);

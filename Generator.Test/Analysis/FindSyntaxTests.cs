@@ -54,7 +54,7 @@ public class FindSyntaxTests
         var tree = new[] { "using System; namespace Test.MyNameSpace { class Test{public int variable { get; set; }}}",
                     "using Test.MyNameSpace; using System; class Test2{public DateTime variable { get; set; }}" }
                        .Parse(nameof(GetFieldType_File2)).Last();
-        SyntaxNodeExtensions.SetSemanticModel(1, nameof(GetFieldType_File2));
+        SyntaxNodeExtensions.SetSemanticModel(tree.SyntaxTree, nameof(GetFieldType_File2));
         Assert.Equal("System.DateTime",
                        tree.GetProperties().First().DescendantNodes()
                        .OfType<IdentifierNameSyntax>().First().GetType(nameof(GetFieldType_File2)).ToString());
