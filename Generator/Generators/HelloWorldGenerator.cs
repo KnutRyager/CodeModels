@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace CodeAnalyzation.Generators
 {
+    // Cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md
     [Generator]
     public class HelloWorldGenerator : ISourceGenerator
     {
