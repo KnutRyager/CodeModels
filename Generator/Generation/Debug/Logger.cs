@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System.CodeDom.Compiler;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using CodeAnalyzation.Models;
@@ -11,9 +12,29 @@ public static class Logger
     public static void Print(GeneratorExecutionContext context, string tag, params string[] logs)
     {
         var model = StaticClass("GeneratorLog",
-            PropertyCollection(Field($"log_{tag}", Value(logs))),
+            PropertyCollection(Field($"log_{MakeIdentifier(tag)}", Values(logs))),
             topLevelModifier: Modifier.Partial, memberModifier: Modifier.Public);
         context.AddSource($"{tag}_log.Generated.cs", SourceText.From(model.Code(), Encoding.UTF8));
+    }
+
+    public static string MakeIdentifier(string str)
+    {
+        var sb = new StringBuilder();
+        var firstAllowedFound = false;
+        foreach (var c in str)
+        {
+            var isAllowedFirst = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
+            var isAllowedAfterFirst = c >= '0' && c <= '9';
+            firstAllowedFound &= isAllowedFirst;
+            if (!(isAllowedFirst || isAllowedAfterFirst))
+            {
+                sb.Append('_');
+                continue;
+            }
+            if (isAllowedAfterFirst && !firstAllowedFound) sb.Append('_');
+            sb.Append(c);
+        }
+        return sb.ToString();
     }
 
     public static void PrintFromCode(GeneratorExecutionContext context, string tag, IEnumerable<string> logs)
