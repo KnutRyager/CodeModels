@@ -13,6 +13,11 @@ public class PropertyCollectionTests
 string[] a = new string[]{ ""v"" };
 ");
 
+    [Fact]
+    public void EmptyArrayField() => Field("a", Values()).CodeModelEqual(@"
+object[] a = new object[]{ };
+");
+
 
     [Fact]
     public void ParsePropertyCollectionFromRecord() => PropertyCollection("public record RecordA(int p1, string p2, long? p3, object? p4 = null, A p5 = A.Instance);")

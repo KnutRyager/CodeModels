@@ -19,9 +19,9 @@ namespace CodeAnalyzation.Models
         public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
         public PropertyCollection(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
             : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
-        public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-        public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-        public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetValues(declaration.SyntaxTree).Select(x => new Property(x))) { }
+        public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+        public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+        public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
         public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
         public PropertyCollection(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
         public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
