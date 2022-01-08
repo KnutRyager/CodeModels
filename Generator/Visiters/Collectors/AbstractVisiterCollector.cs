@@ -32,16 +32,19 @@ namespace CodeAnalyzation.Collectors
             return node;
         }
 
-        public List<T> GetValues(SyntaxTree tree)
+        public List<T> GetEntries(SyntaxNode node)
         {
-            Visit(tree.GetRoot());
+            Visit(node);
             return entries;
         }
 
-        public List<T> GetEntries(IEnumerable<SyntaxTree> trees)
+        public List<T> GetEntries(IEnumerable<SyntaxNode> nodes)
         {
-            foreach (var tree in trees) Visit(tree.GetRoot());
+            foreach (var node in nodes) Visit(node);
             return entries;
         }
+
+        public List<T> GetEntries(SyntaxTree tree) => GetEntries(tree.GetRoot() as SyntaxNode);
+        public List<T> GetEntries(IEnumerable<SyntaxTree> trees) => GetEntries(trees.Select(x => x.GetRoot() as SyntaxNode));
     }
 }
