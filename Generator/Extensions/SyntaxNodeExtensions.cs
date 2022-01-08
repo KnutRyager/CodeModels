@@ -37,26 +37,26 @@ namespace CodeAnalyzation
         public static bool IsPrivate(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.PrivateKeyword);
         public static bool IsProtected(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.ProtectedKeyword);
         
-        public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this CSharpSyntaxNode node)
+        public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this SyntaxNode node)
             => from @namespace in node.DescendantNodes().OfType<NamespaceDeclarationSyntax>() select @namespace;
 
-        public static IEnumerable<ClassDeclarationSyntax> GetClasses(this CSharpSyntaxNode node)
+        public static IEnumerable<ClassDeclarationSyntax> GetClasses(this SyntaxNode node)
             => from classDeclaration in node.DescendantNodes().OfType<ClassDeclarationSyntax>() select classDeclaration;
 
-        public static IEnumerable<ClassDeclarationSyntax> GetStaticClasses(this CSharpSyntaxNode node)
+        public static IEnumerable<ClassDeclarationSyntax> GetStaticClasses(this SyntaxNode node)
             => node.GetClasses().Where(IsStatic);
 
-        public static IEnumerable<ClassDeclarationSyntax> GetNonStaticClasses(this CSharpSyntaxNode node)
+        public static IEnumerable<ClassDeclarationSyntax> GetNonStaticClasses(this SyntaxNode node)
             => node.GetClasses().Where(IsNonStatic);
 
-        public static IEnumerable<MethodDeclarationSyntax> GetMethods(this CSharpSyntaxNode node)
+        public static IEnumerable<MethodDeclarationSyntax> GetMethods(this SyntaxNode node)
             => from methodDeclaration in node.DescendantNodes().OfType<MethodDeclarationSyntax>() select methodDeclaration;
 
         public static SyntaxNode GetVisit(this SyntaxNode node, CSharpSyntaxRewriter visitor) => visitor.Visit(node);
         public static SyntaxNode GetVisit<T>(this SyntaxNode node) where T : CSharpSyntaxRewriter, new()
             => node.GetVisit(new T());
 
-        public static IEnumerable<MethodDeclarationSyntax> GetPublicMethods(this CSharpSyntaxNode node)
+        public static IEnumerable<MethodDeclarationSyntax> GetPublicMethods(this SyntaxNode node)
             => node.GetMethods().Where(IsPublic);
 
         public static string GetName(this MethodDeclarationSyntax method)
@@ -68,19 +68,19 @@ namespace CodeAnalyzation
         public static TypeSyntax GetReturn(this MethodDeclarationSyntax method)
             => method.ReturnType;
 
-        public static IEnumerable<PropertyDeclarationSyntax> GetProperties(this CSharpSyntaxNode node)
+        public static IEnumerable<PropertyDeclarationSyntax> GetProperties(this SyntaxNode node)
             => node.DescendantNodes().OfType<PropertyDeclarationSyntax>();
 
-        public static IEnumerable<FieldDeclarationSyntax> GetFields(this CSharpSyntaxNode node)
+        public static IEnumerable<FieldDeclarationSyntax> GetFields(this SyntaxNode node)
             => node.DescendantNodes().OfType<FieldDeclarationSyntax>();
 
-        public static IEnumerable<MemberDeclarationSyntax> GetMembers(this CSharpSyntaxNode node)
+        public static IEnumerable<MemberDeclarationSyntax> GetMembers(this SyntaxNode node)
             => node.DescendantNodes().OfType<MemberDeclarationSyntax>();
 
-        public static IEnumerable<VariableDeclarationSyntax> GetVariables(this CSharpSyntaxNode node)
+        public static IEnumerable<VariableDeclarationSyntax> GetVariables(this SyntaxNode node)
             => node.DescendantNodes().OfType<VariableDeclarationSyntax>();
 
-        public static List<ISymbol> GetMemberSymbols(this CSharpSyntaxNode node, SemanticModel model)
+        public static List<ISymbol> GetMemberSymbols(this SyntaxNode node, SemanticModel model)
             => node.GetMembers().ToList<SyntaxNode>().Concat(node.GetFields().SelectMany(y => y.Declaration.Variables)).Select(x => model.GetDeclaredSymbol(x)).Where(x => x is not null).ToList()!;
 
         // public static IEnumerable<ClassDeclarationSyntax> GetDerivedClasses(this ClassDeclarationSyntax node)
@@ -128,10 +128,10 @@ namespace CodeAnalyzation
         //    }
         //}
 
-        public static IEnumerable<FieldDeclarationSyntax> GetPublicStaticFields(this CSharpSyntaxNode node)
+        public static IEnumerable<FieldDeclarationSyntax> GetPublicStaticFields(this SyntaxNode node)
         => node.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(IsPublic);
 
-        public static ISymbol GetType(this CSharpSyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
+        public static ISymbol GetType(this SyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
 
         public static SyntaxNode GetContentRoot(this SyntaxNode node) => node switch
         {
