@@ -1,10 +1,9 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models
+namespace CodeAnalyzation.Models;
+
+public interface ITypeModel
 {
-    public interface ITypeModel
-    {
-        TypeSyntax TypeSyntax();
-        IType Type { get; }
-    }
+    TypeSyntax TypeSyntax();
+    IType Type { get; }
 }

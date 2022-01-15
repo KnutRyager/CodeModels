@@ -3,29 +3,28 @@ using System.Linq;
 using LibraryB;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Generators
+namespace CodeAnalyzation.Generators;
+
+//[Generator]
+public class DebuggingGenerator : ISourceGenerator
 {
-    //[Generator]
-    public class DebuggingGenerator : ISourceGenerator
+    public void Initialize(GeneratorInitializationContext context) { }
+
+    public void Execute(GeneratorExecutionContext context)
     {
-        public void Initialize(GeneratorInitializationContext context) { }
+        var assemblies = AppDomain.CurrentDomain.GetAssemblies();
 
-        public void Execute(GeneratorExecutionContext context)
-        {
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+        var libraryB = assemblies.FirstOrDefault(x => x.FullName.StartsWith("LibraryB"));
+        var bTypes = libraryB!.GetExportedTypes();
 
-            var libraryB = assemblies.FirstOrDefault(x => x.FullName.StartsWith("LibraryB"));
-            var bTypes = libraryB!.GetExportedTypes();
+        var assemblyNames = assemblies.Select(x => x.FullName);
+        var bTypeNames = bTypes.Select(x => x.FullName ?? "");
 
-            var assemblyNames = assemblies.Select(x => x.FullName);
-            var bTypeNames = bTypes.Select(x => x.FullName ?? "");
-
-            // add the generated implementation to the compilation
-            Logger.Print(context, "SimpleLogTest", "Success!");
-            Logger.PrintFromCode(context, "A", new[] { "LibraryA" }, "new A(): {new ClassA().Print()}");
-            Logger.Print(context, "B", new ClassB().Print(), "end B.");
-            Logger.PrintFromCode(context, "assemblyNames", assemblyNames);
-            Logger.PrintFromCode(context, "TypesInLibraryB", bTypeNames);
-        }
+        // add the generated implementation to the compilation
+        Logger.Print(context, "SimpleLogTest", "Success!");
+        Logger.PrintFromCode(context, "A", new[] { "LibraryA" }, "new A(): {new ClassA().Print()}");
+        Logger.Print(context, "B", new ClassB().Print(), "end B.");
+        Logger.PrintFromCode(context, "assemblyNames", assemblyNames);
+        Logger.PrintFromCode(context, "TypesInLibraryB", bTypeNames);
     }
 }

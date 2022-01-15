@@ -1,21 +1,20 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models
+namespace CodeAnalyzation.Models;
+
+public interface IExpression : ICodeModel
 {
-    public interface IExpression : ICodeModel
-    {
-        IType Type { get; }
-        bool IsLiteralExpression { get; }
-        LiteralExpressionSyntax? LiteralSyntax { get; }
-        ArgumentSyntax ToArgument();
-        object? LiteralValue { get; }
-        EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
+    IType Type { get; }
+    bool IsLiteralExpression { get; }
+    LiteralExpressionSyntax? LiteralSyntax { get; }
+    ArgumentSyntax ToArgument();
+    object? LiteralValue { get; }
+    EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
 
-        new ExpressionSyntax Syntax();
-    }
+    new ExpressionSyntax Syntax();
+}
 
-    public interface IExpression<T> : IExpression, ICodeModel<T> where T : ExpressionSyntax
-    {
-        new T Syntax();
-    }
+public interface IExpression<T> : IExpression, ICodeModel<T> where T : ExpressionSyntax
+{
+    new T Syntax();
 }

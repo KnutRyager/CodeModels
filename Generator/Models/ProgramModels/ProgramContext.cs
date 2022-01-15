@@ -1,16 +1,14 @@
-namespace CodeAnalyzation.Models.ProgramModels
+namespace CodeAnalyzation.Models.ProgramModels;
+
+public interface IProgramContext
 {
+    IExpression GetSingleton(IType type);
+}
 
-    public interface IProgramContext
+public record ProgramContext() : IProgramContext
+{
+    public IExpression GetSingleton(IType type)
     {
-        IExpression GetSingleton(IType type);
-    }
-
-    public record ProgramContext() : IProgramContext
-    {
-        public IExpression GetSingleton(IType type)
-        {
-            throw new System.NotImplementedException();
-        }
+        throw new System.NotImplementedException();
     }
 }

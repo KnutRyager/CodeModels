@@ -1,6 +1,5 @@
-﻿namespace CodeAnalyzation.Models.Syntax
+﻿namespace CodeAnalyzation.Models.Syntax;
+
+public class MSimpleNameSyntax : MNameSyntax
 {
-    public class MSimpleNameSyntax : MNameSyntax
-    {
-    }
 }

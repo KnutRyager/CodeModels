@@ -2,17 +2,16 @@
 using System.ComponentModel.DataAnnotations;
 using Models;
 
-namespace CodeAnalyzation.DataTransformation
-{
-    [Model]
-    public class OperationPipelineOperationInput
-    {
-        [Key] public int Id { get; set; }
-        public int ParameterIndex { get; set; }
-        public int OperationPipelineNodeId { get; set; }
-        public int OperationId { get; set; }
+namespace CodeAnalyzation.DataTransformation;
 
-        public OperationPipelineNode OperationPipelineNode { get; set; }
-        public Operation Operation { get; set; }
-    }
+[Model]
+public class OperationPipelineOperationInput
+{
+    [Key] public int Id { get; set; }
+    public int ParameterIndex { get; set; }
+    public int OperationPipelineNodeId { get; set; }
+    public int OperationId { get; set; }
+
+    public OperationPipelineNode OperationPipelineNode { get; set; }
+    public Operation Operation { get; set; }
 }

@@ -1,6 +1,5 @@
-﻿namespace CodeAnalyzation.Models.Syntax
+﻿namespace CodeAnalyzation.Models.Syntax;
+
+public class MBasePropertyDeclarationSyntax : MMemberDeclarationSyntax
 {
-    public class MBasePropertyDeclarationSyntax : MMemberDeclarationSyntax
-    {
-    }
 }

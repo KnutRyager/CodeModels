@@ -3,31 +3,30 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Rewriters
+namespace CodeAnalyzation.Rewriters;
+
+public class PublicOnlyRewriter : CSharpSyntaxRewriter
 {
-    public class PublicOnlyRewriter : CSharpSyntaxRewriter
+    //private readonly SemanticModel _model;
+
+    public PublicOnlyRewriter()
     {
-        //private readonly SemanticModel _model;
+        //_model = model;
+    }
 
-        public PublicOnlyRewriter()
+    public override SyntaxNode? Visit(SyntaxNode? node)
+    {
+        try
         {
-            //_model = model;
+            return node is not MemberDeclarationSyntax memberNode || memberNode.IsPublic() ? base.Visit(node) : null;
         }
-
-        public override SyntaxNode? Visit(SyntaxNode? node)
-        {
-            try
-            {
-                return node is not MemberDeclarationSyntax memberNode || memberNode.IsPublic() ? base.Visit(node) : null;
-            }
 #pragma warning disable IDE0059 // Unnecessary assignment of a value
 #pragma warning disable CS0168 // Variable is declared but never used
-            catch (Exception e)
+        catch (Exception e)
 #pragma warning restore CS0168 // Variable is declared but never used
 #pragma warning restore IDE0059 // Unnecessary assignment of a value
-            {
-                return null;
-            }
+        {
+            return null;
         }
     }
 }

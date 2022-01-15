@@ -1,6 +1,5 @@
-﻿namespace CodeAnalyzation.Models.Syntax
+﻿namespace CodeAnalyzation.Models.Syntax;
+
+public class MPredefinedTypeSyntax : MTypeSyntax
 {
-    public class MPredefinedTypeSyntax : MTypeSyntax
-    {
-    }
 }

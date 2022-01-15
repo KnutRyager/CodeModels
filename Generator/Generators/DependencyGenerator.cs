@@ -4,24 +4,23 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace CodeAnalyzation.Generators
+namespace CodeAnalyzation.Generators;
+
+[Generator]
+public class DependencyGenerator : ISourceGenerator
 {
-    [Generator]
-    public class DependencyGenerator : ISourceGenerator
+    public void Initialize(GeneratorInitializationContext context) { }
+
+    public void Execute(GeneratorExecutionContext context)
     {
-        public void Initialize(GeneratorInitializationContext context) { }
+        var syntaxTrees = context.Compilation.SyntaxTrees;
+        SyntaxNodeExtensions.SetCompilation(context.Compilation, syntaxTrees, "DependencyGenerator");
+        var dependencies = DependencyGeneration.GenerateDependencies(syntaxTrees, context.Compilation);
+        var dependenciesCode = dependencies.NormalizeWhitespace().ToString();
+        Logger.Print(context, nameof(DependencyGenerator), dependenciesCode);
 
-        public void Execute(GeneratorExecutionContext context)
-        {
-            var syntaxTrees = context.Compilation.SyntaxTrees;
-            SyntaxNodeExtensions.SetCompilation(context.Compilation, syntaxTrees, "DependencyGenerator");
-            var dependencies = DependencyGeneration.GenerateDependencies(syntaxTrees, context.Compilation);
-            var dependenciesCode = dependencies.NormalizeWhitespace().ToString();
-            Logger.Print(context, nameof(DependencyGenerator), dependenciesCode);
+        // inject the created source into the users compilation // inject the created source into the users compilation
+        context.AddSource("dependencyGenerator.Generated.cs", SourceText.From(dependenciesCode, Encoding.UTF8));
 
-            // inject the created source into the users compilation // inject the created source into the users compilation
-            context.AddSource("dependencyGenerator.Generated.cs", SourceText.From(dependenciesCode, Encoding.UTF8));
-
-        }
     }
 }

@@ -1,8 +1,6 @@
-namespace CodeAnalyzation.DataTransformation
+namespace CodeAnalyzation.DataTransformation;
+public enum SpecialType
 {
-    public enum SpecialType
-    {
-        None,
-        File
-    }
+    None,
+    File
 }

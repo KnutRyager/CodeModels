@@ -2,20 +2,20 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace CodeAnalyzation.Generators
+namespace CodeAnalyzation.Generators;
+
+// Cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md
+//[Generator]
+public class HelloWorldGenerator : ISourceGenerator
 {
-    // Cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md
-    //[Generator]
-    public class HelloWorldGenerator : ISourceGenerator
+    public void Initialize(GeneratorInitializationContext context)
     {
-        public void Initialize(GeneratorInitializationContext context)
-        {
-            // Register a factory that can create our custom syntax receiver
-        }
-        public void Execute(GeneratorExecutionContext context)
-        {
-            // begin creating the source we'll inject into the users compilation
-            StringBuilder sourceBuilder = new(@"
+        // Register a factory that can create our custom syntax receiver
+    }
+    public void Execute(GeneratorExecutionContext context)
+    {
+        // begin creating the source we'll inject into the users compilation
+        StringBuilder sourceBuilder = new(@"
 using System;
 namespace HelloWorldGenerated
 {
@@ -28,9 +28,8 @@ namespace HelloWorldGenerated
     }
 }");
 
-            // inject the created source into the users compilation // inject the created source into the users compilation
-            context.AddSource("helloWorldGenerator", SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
+        // inject the created source into the users compilation // inject the created source into the users compilation
+        context.AddSource("helloWorldGenerator", SourceText.From(sourceBuilder.ToString(), Encoding.UTF8));
 
-        }
     }
 }

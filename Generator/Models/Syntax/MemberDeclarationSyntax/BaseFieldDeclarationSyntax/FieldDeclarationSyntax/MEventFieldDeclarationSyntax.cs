@@ -1,6 +1,5 @@
-﻿namespace CodeAnalyzation.Models.Syntax
+﻿namespace CodeAnalyzation.Models.Syntax;
+
+public class MEventFieldDeclarationSyntax : MBaseFieldDeclarationSyntax
 {
-    public class MEventFieldDeclarationSyntax : MBaseFieldDeclarationSyntax
-    {
-    }
 }

@@ -2,16 +2,14 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
+namespace CodeAnalyzation.Models;
 
-namespace CodeAnalyzation.Models
+public record IdentifierExpression(string Name, IType? Type = null) : Expression<IdentifierNameSyntax>(Type ?? TypeShorthands.NullType)
 {
-    public record IdentifierExpression(string Name, IType? Type = null) : Expression<IdentifierNameSyntax>(Type ?? TypeShorthands.NullType)
+    public override IdentifierNameSyntax Syntax() => Syntax(Name ?? Type.Name);
+    public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);
+    public override IEnumerable<ICodeModel> Children()
     {
-        public override IdentifierNameSyntax Syntax() => Syntax(Name ?? Type.Name);
-        public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);
-        public override IEnumerable<ICodeModel> Children()
-        {
-            yield return Type;
-        }
+        yield return Type;
     }
 }

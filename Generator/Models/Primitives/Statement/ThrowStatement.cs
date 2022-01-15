@@ -1,28 +1,23 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using static CodeAnalyzation.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models
+namespace CodeAnalyzation.Models;
+
+public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowStatementSyntax>
 {
-
-    public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowStatementSyntax>
+    public override ThrowStatementSyntax Syntax() => ThrowStatementCustom(Expression.Syntax());
+    public override IEnumerable<ICodeModel> Children()
     {
-        public override ThrowStatementSyntax Syntax() => ThrowStatementCustom(Expression.Syntax());
-        public override IEnumerable<ICodeModel> Children()
-        {
-            yield return Expression;
-        }
+        yield return Expression;
     }
+}
 
-    public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Type)
+public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Type)
+{
+    public override ThrowExpressionSyntax Syntax() => ThrowExpressionCustom(Expression.Syntax());
+    public override IEnumerable<ICodeModel> Children()
     {
-        public override ThrowExpressionSyntax Syntax() => ThrowExpressionCustom(Expression.Syntax());
-        public override IEnumerable<ICodeModel> Children()
-        {
-            yield return Expression;
-        }
+        yield return Expression;
     }
 }

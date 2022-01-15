@@ -1,4 +1,3 @@
-﻿namespace CodeAnalyzation.Models
-{
-    public record Dependency(string Identifier);
-}
+﻿namespace CodeAnalyzation.Models;
+
+public record Dependency(string Identifier);

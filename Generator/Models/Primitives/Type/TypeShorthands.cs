@@ -1,16 +1,16 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
-
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-namespace CodeAnalyzation.Models
-{
-    public static class TypeShorthands
-    {
-        public static readonly IType NullType = new QuickType("null", SourceSyntax: IdentifierName("object"));
-        public static readonly IType VarType = new QuickType("var", SourceSyntax: IdentifierName("var"));
-        public static readonly IType VoidType = new QuickType("void", SourceSyntax: IdentifierName("void"));
 
-        public static readonly IDictionary<string, SyntaxKind> PredefinedTypes = new Dictionary<string, SyntaxKind>()
+namespace CodeAnalyzation.Models;
+
+public static class TypeShorthands
+{
+    public static readonly IType NullType = new QuickType("null", SourceSyntax: IdentifierName("object"));
+    public static readonly IType VarType = new QuickType("var", SourceSyntax: IdentifierName("var"));
+    public static readonly IType VoidType = new QuickType("void", SourceSyntax: IdentifierName("void"));
+
+    public static readonly IDictionary<string, SyntaxKind> PredefinedTypes = new Dictionary<string, SyntaxKind>()
         {
             { SyntaxKind.ByteKeyword.ToString(), SyntaxKind.ByteKeyword },
             { SyntaxKind.SByteKeyword.ToString(), SyntaxKind.SByteKeyword },
@@ -27,5 +27,4 @@ namespace CodeAnalyzation.Models
             { SyntaxKind.BoolKeyword.ToString(), SyntaxKind.BoolKeyword },
             { SyntaxKind.VoidKeyword.ToString(), SyntaxKind.VoidKeyword },
         };
-    }
 }
