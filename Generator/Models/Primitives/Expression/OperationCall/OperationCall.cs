@@ -34,6 +34,7 @@ namespace CodeAnalyzation.Models
                 OperationType type when type.IsBinaryOperator() => BinaryExpression(type.BinarySyntaxKind(), inputs.First(), inputs.Last()),
                 OperationType type when type.IsTernaryOperator() => ConditionalExpression(inputs.First(), inputs.Skip(1).First(), inputs.Last()),
                 OperationType.Bracket => ElementAccessExpression(inputs.First(), BracketedArgumentList(Token(SyntaxKind.OpenBracketToken), SeparatedList(inputs.Skip(1).Select(x => Argument(x))), Token(SyntaxKind.CloseBracketToken))),
+                OperationType.Invocation => ElementAccessExpression(inputs.First(), BracketedArgumentList(Token(SyntaxKind.OpenBracketToken), SeparatedList(inputs.Skip(1).Select(x => Argument(x))), Token(SyntaxKind.CloseBracketToken))),
                 OperationType.With => WithExpression(inputs.First(), InitializerExpression(SyntaxKind.WithInitializerExpression, SeparatedList(inputs.Skip(1)))),
                 OperationType.Pipeline => Apply(Operation.OperationPipeline!.OutputNode),
                 _ => throw new NotImplementedException(),

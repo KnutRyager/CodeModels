@@ -51,6 +51,7 @@ namespace CodeAnalyzation.Models
         Ternary,
         // Any arg operations
         Bracket,
+        Invocation,
         // IDK
         With,
     }

@@ -74,6 +74,7 @@ namespace CodeAnalyzation.Models
         public static string AnyArgOperatorName(this OperationType operation) => operation switch
         {
             OperationType.Bracket => "[]",
+            OperationType.Invocation => "()",
             OperationType.With => "with",
             _ => throw new NotImplementedException()
         };
@@ -94,6 +95,7 @@ namespace CodeAnalyzation.Models
                OperationType type when type.IsBinaryOperator() => BinaryExpression(type.BinarySyntaxKind(), inputs.First().Syntax(), inputs.Last().Syntax()),
                OperationType type when type.IsTernaryOperator() => ConditionalExpression(inputs.First().Syntax(), inputs.Skip(1).First().Syntax(), inputs.Last().Syntax()),
                OperationType.Bracket => ElementAccessExpression(inputs.First().Syntax(), BracketedArgumentList(Token(SyntaxKind.OpenBracketToken), SeparatedList(inputs.Skip(1).Select(x => x.Syntax()).Select(x => Argument(x))), Token(SyntaxKind.CloseBracketToken))),
+               OperationType.Invocation => operation.IsStatic ? InvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()) : DottedInvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()),
                OperationType.With => WithExpression(inputs.First().Syntax(), InitializerExpression(SyntaxKind.WithInitializerExpression, SeparatedList(inputs.Skip(1).Select(x => x.Syntax())))),
                //OperationType.Pipeline => Apply(operation.OperationPipeline!.OutputNode, inputs),
                _ => throw new NotImplementedException(),
