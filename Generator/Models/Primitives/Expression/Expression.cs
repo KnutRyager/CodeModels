@@ -1,4 +1,5 @@
 ﻿using System;
+using CodeAnalyzation.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -7,7 +8,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeModel<T>, IExpression<T> where T : ExpressionSyntax
+    public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, IProgramContext? Context = null) : CodeModel<T>(Context), IExpression<T> where T : ExpressionSyntax
     {
         public Expression(IType type) : this(type, null) { }
 
