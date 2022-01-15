@@ -191,7 +191,7 @@ public static class ReflectionSerialization
     public static string SerializeType(Type? type) => type == null ? MISSING_TYPE : $"{type.FullName}, {type.Assembly.FullName}";
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
-    private static IDictionary<string, Type> _deserializeTypeCache = new Dictionary<string, Type>();
+    private static readonly IDictionary<string, Type> _deserializeTypeCache = new Dictionary<string, Type>();
     public static Type DeserializeType(string valueType, Assembly? assemblyIn = null)
     {
         if (_deserializeTypeCache.ContainsKey(valueType)) return _deserializeTypeCache[valueType];
@@ -260,7 +260,7 @@ public static class ReflectionSerialization
     public static string GetShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
     public static string GetToShortHandName(string typeName) => _toTypeShorthands.ContainsKey(GetShortHandName(typeName)) ? _toTypeShorthands[GetShortHandName(typeName)] : typeName;
 
-    private static IDictionary<string, Assembly> _typeToAssemblyCache = new Dictionary<string, Assembly>();
+    private static readonly IDictionary<string, Assembly> _typeToAssemblyCache = new Dictionary<string, Assembly>();
     public static Assembly DeserializeAssembly(string name)
     {
         var isCached = _typeToAssemblyCache.ContainsKey(name);
