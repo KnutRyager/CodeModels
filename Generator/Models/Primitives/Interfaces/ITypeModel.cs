@@ -5,5 +5,6 @@ namespace CodeAnalyzation.Models
     public interface ITypeModel
     {
         TypeSyntax TypeSyntax();
+        IType Type { get; }
     }
 }

@@ -33,7 +33,8 @@ namespace CodeAnalyzation.Models
         public IMethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
         public IMethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
         public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
-        public IType Type() => CodeModelFactory.Type(Name);
+        public IType Type => CodeModelFactory.Type(Name);
+        public TypeSyntax TypeSyntax() => Type.Syntax();
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
