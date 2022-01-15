@@ -46,6 +46,13 @@ namespace Common.Util
             return allList;
         }
 
+        public static ISet<T> EnsureNonNullAdd<T>(this ISet<T>? set, T obj)
+        {
+            set ??= new HashSet<T>();
+            set.Add(obj);
+            return set; 
+        }
+
         public static List<T>? CombineFilters<T>(params IEnumerable<T>?[] lists)
         {
             var nonEmpty = lists.Where(x => x != null).ToArray();
