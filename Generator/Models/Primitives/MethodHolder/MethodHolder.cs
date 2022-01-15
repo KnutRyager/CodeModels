@@ -12,12 +12,12 @@ namespace CodeAnalyzation.Models
 {
     public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
             Namespace? Namespace, Modifier TopLevelModifier,
-            Modifier MemberModifier, Type? Type) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+            Modifier MemberModifier, Type? ReflectedType) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
     {
         public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
             Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
             Modifier memberModifier = Modifier.Public, Type? type = null)
-            : this(name, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier, Type: type)
+            : this(name, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
         {
             foreach (var property in Properties.Properties) property.Owner = this;
         }
@@ -33,6 +33,7 @@ namespace CodeAnalyzation.Models
         public IMethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
         public IMethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
         public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
+        public IType Type() => CodeModelFactory.Type(Name);
 
         public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
         public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
