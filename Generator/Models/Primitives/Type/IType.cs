@@ -11,7 +11,7 @@ namespace CodeAnalyzation.Models
         bool IsMulti { get; }
         bool IsStatic { get; }
         TypeSyntax? Syntax { get; }
-        Type? Type { get; }
+        Type? ReflectedType { get; }
         TypeSyntax TypeSyntax();
         TypeSyntax TypeSyntaxNonMultiWrapped();
         TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type);

@@ -30,5 +30,5 @@ namespace CodeAnalyzation.Models
         }
     }
 
-    public record EnumFromReflection(Type Type) : EnumModel(Type.Name, Type.GetFields().Select(x => x.Name), Namespace(Type));
+    public record EnumFromReflection(Type ReflectedType) : EnumModel(ReflectedType.Name, ReflectedType.GetFields().Select(x => x.Name), Namespace(ReflectedType));
 }

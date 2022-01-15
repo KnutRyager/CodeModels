@@ -14,5 +14,5 @@ namespace CodeAnalyzation.Models
             IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
         : this(identifier, PropertyCollection(properties), List(methods), @namespace) { }
     }
-    public record StaticClassFromReflection(Type Type) : StaticClass(Type.Name, new(Type), Methods(Type), Namespace(Type));
+    public record StaticClassFromReflection(Type ReflectedType) : StaticClass(ReflectedType.Name, new(ReflectedType), Methods(ReflectedType), Namespace(ReflectedType));
 }

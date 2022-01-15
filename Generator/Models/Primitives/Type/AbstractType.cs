@@ -6,13 +6,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public abstract record AbstractType(string Identifier, bool Required = true, bool IsMulti = false, TypeSyntax? Syntax = null, Type? Type = null) : IType
+    public abstract record AbstractType(string Identifier, bool Required = true, bool IsMulti = false, TypeSyntax? Syntax = null, Type? ReflectedType = null) : IType
     {
         private Type? _cachedType;
 
         public IType ToMultiType() => this with { IsMulti = true };
         public string Name => Identifier;
-        public bool IsStatic => Type is not null && ReflectionUtil.IsStatic(Type);
+        public bool IsStatic => ReflectedType is not null && ReflectionUtil.IsStatic(ReflectedType);
 
         public TypeSyntax TypeSyntax() => Syntax ?? TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));
         public TypeSyntax TypeSyntaxNonMultiWrapped() => Syntax ?? TypeSyntaxNullableWrapped(TypeSyntaxUnwrapped());
@@ -25,7 +25,7 @@ namespace CodeAnalyzation.Models
             _ => IdentifierName(Identifier(Identifier))
         };
 
-        public Type? GetReflectedType() => _cachedType ??= Type ??
+        public Type? GetReflectedType() => _cachedType ??= ReflectedType ??
             (ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default);
 
         public virtual string GetMostSpecificType() => Syntax?.ToString() ?? Identifier;
