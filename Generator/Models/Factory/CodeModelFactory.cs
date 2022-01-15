@@ -2,12 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Parsing;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeAnalyzation.Models.CodeModelParsing;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
@@ -21,28 +20,19 @@ public static class CodeModelFactory
     public static List<T> List<T>(params T[] objects) => objects?.ToList() ?? new List<T>();
 
     public static Namespace Namespace(string name) => new(name);
-    public static Namespace Namespace(Type type) => new(type.Namespace);
+    public static Namespace Namespace(Type type) => CodeModelsFromReflection.Namespace(type);
 
-    public static TypeFromReflection Type(Type type) => new(type);
+    public static TypeFromReflection Type(Type type) => CodeModelsFromReflection.Type(type);
     public static QuickType Type(string name, bool required = true, bool isMulti = false, TypeSyntax? syntax = null, Type? type = null)
         => new(name, required, isMulti, syntax, type);
-    public static IType Type(string code) => Type(ParseTypeName(code));
     public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
         => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
-    public static IType Type(IdentifierExpression identifier) => Type(identifier.ToString());
-    public static IType Type(SyntaxToken token) => Type(token.ToString());
+    public static IType Type(IdentifierExpression identifier) => ParseType(identifier.ToString());
+    public static IType Type(string code) => ParseType(code);
+    public static IType Type(SyntaxToken token) => ParseType(token);
 
     // TODO
-    public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
-    {
-        PredefinedTypeSyntax t => new QuickType(t.Keyword.ToString(), required, SourceSyntax: fullType ?? t),
-        NullableTypeSyntax t => Type(t.ElementType, false, fullType: fullType ?? t),
-        IdentifierNameSyntax t => new QuickType(t.Identifier.ToString(), SourceSyntax: fullType ?? t),
-        ArrayTypeSyntax t => new QuickType(t.ElementType.ToString(), IsMulti: true, SourceSyntax: fullType ?? t),
-        GenericNameSyntax t => new QuickType(t.Identifier.ToString(), SourceSyntax: fullType ?? t),
-        null => TypeShorthands.NullType,
-        _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
-    };
+    public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => Parse(type, required, fullType);
 
     public static IMethodHolder MetodHolder(Type type) => type switch
     {
@@ -51,29 +41,19 @@ public static class CodeModelFactory
         _ when ReflectionUtil.IsStatic(type) => StaticClass(type),
         _ => InstanceClass(type)
     };
-    public static Modifier Modifiers(SyntaxTokenList tokenList) => Modifier.None.SetModifiers(tokenList.Select(SingleModifier));
-    public static Modifier SingleModifier(SyntaxToken token) => token.Kind() switch
-    {
-        SyntaxKind.PrivateKeyword => Modifier.Private,
-        SyntaxKind.ProtectedKeyword => Modifier.Protected,
-        SyntaxKind.InternalKeyword => Modifier.Internal,
-        SyntaxKind.PublicKeyword => Modifier.Public,
-        SyntaxKind.ReadOnlyKeyword => Modifier.Readonly,
-        SyntaxKind.ConstKeyword => Modifier.Const,
-        SyntaxKind.AbstractKeyword => Modifier.Abstract,
-        _ => throw new ArgumentException($"Unhandled token '{token}'.")
-    };
+    public static Modifier Modifiers(SyntaxTokenList tokenList) => ParseModifier(tokenList);
+    public static Modifier SingleModifier(SyntaxToken token) => ParseSingleModifier(token);
 
-    public static StaticClassFromReflection StaticClass(Type type) => new(type);
+    public static StaticClassFromReflection StaticClass(Type type) => CodeModelsFromReflection.StaticClass(type);
     public static StaticClass StaticClass(string identifier, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
         => new(identifier, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier);
-    public static InstanceClassFromReflection InstanceClass(Type type) => new(type);
+    public static InstanceClassFromReflection InstanceClass(Type type) => CodeModelsFromReflection.InstanceClass(type);
     public static InstanceClass InstanceClass(string identifier, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
         => new(identifier, properties, methods, @namespace);
-    public static InterfaceFromReflection Interface(Type type) => new(type);
-    public static EnumFromReflection Enum(Type type) => new(type);
+    public static InterfaceFromReflection Interface(Type type) => CodeModelsFromReflection.Interface(type);
+    public static EnumFromReflection Enum(Type type) => CodeModelsFromReflection.Enum(type);
 
-    public static List<IMethod> Methods(Type type) => type.GetMethods().Select(x => new MethodFromReflection(x)).ToList<IMethod>();
+    public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
     public static LiteralExpression Literal(object value) => new(value);
     public static IExpression Value(object? value) => value switch
@@ -93,60 +73,21 @@ public static class CodeModelFactory
     public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => new(type, name, Expression(expression), modifier);
     public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => new(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
     public static Property Property(string name) => new(TypeShorthands.NullType, name);
-    public static Property Property(ArgumentSyntax argument) => argument.Expression switch
-    {
-        TypeSyntax type => new(Type(type), argument.NameColon?.Name.ToString()),
-        DeclarationExpressionSyntax declaration => Property(declaration),
-        _ => throw new ArgumentException($"Can't parse {nameof(Models.Property)} from '{argument}'.")
-    };
-    public static Property Property(DeclarationExpressionSyntax declaration) => new(Type(declaration.Type), declaration.Designation switch
-    {
-        null => default,
-        SingleVariableDesignationSyntax designation => designation.Identifier.ToString(),
-        _ => throw new ArgumentException($"Can't parse {nameof(Models.Property)} from '{declaration}'.")
-    });
+    public static Property Property(ArgumentSyntax argument) => ParseProperty(argument);
+    public static Property Property(DeclarationExpressionSyntax declaration) => ParseProperty(declaration);
 
     public static PropertyCollection PropertyCollection(PropertyCollection? collection) => collection ?? new();
     public static PropertyCollection PropertyCollection(IEnumerable<Property> properties, string? name = null) => new(properties, name);
     public static PropertyCollection PropertyCollection(string name, params Property[] properties) => new(properties, name);
     public static PropertyCollection PropertyCollection(params Property[] properties) => new(properties);
-    public static PropertyCollection PropertyCollection(Type type) => new(type);
-    public static PropertyCollection PropertyCollection(string code) => code.Parse(code).Members.FirstOrDefault() switch
-    {
-        ClassDeclarationSyntax declaration => new(declaration),
-        RecordDeclarationSyntax declaration => new(declaration),
-        GlobalStatementSyntax statement => PropertyCollection(statement),
-        _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{code}'.")
-    };
-    public static PropertyCollection PropertyCollection(GlobalStatementSyntax statement) => statement.Statement switch
-    {
-        ExpressionStatementSyntax expression => PropertyCollection(expression.Expression),
-        _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{statement}'.")
-    };
-    public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => syntax switch
-    {
-        TupleExpressionSyntax declaration => PropertyCollection(declaration.Arguments, nameByIndex: true),
-        TupleTypeSyntax declaration => new PropertyCollection(declaration),
-        _ => throw new ArgumentException($"Can't parse {nameof(Models.PropertyCollection)} from '{syntax}'.")
-    };
-    public static PropertyCollection PropertyCollection(IEnumerable<ArgumentSyntax> arguments, bool nameByIndex = false)
-        => new(arguments.Select((x, i) => nameByIndex ? x.NameColon is null ? x.WithNameColon(NameColon($"Item{i + 1}")) : x : x).Select(Property));
-    public static IExpression ExpressionFromQualifiedName(string qualifiedName) => new ExpressionFromSyntax(qualifiedName);
-    public static IExpression Expression(ExpressionSyntax? syntax) => syntax switch
-    {
-        null => VoidValue,
-        LiteralExpressionSyntax literal => literal.Kind() switch
-        {
-            SyntaxKind.NullLiteralExpression => NullValue,
-            _ => throw new ArgumentException($"Unhandled literal kind '{literal}'.")
-        },
-        _ => new ExpressionFromSyntax(syntax)
-    };
-    public static IStatement Statement(StatementSyntax syntax) => syntax switch
-    {
+    public static PropertyCollection PropertyCollection(Type type) => CodeModelsFromReflection.PropertyCollection(type);
+    public static PropertyCollection PropertyCollection(string code) => ParsePropertyCollection(code);
+    public static PropertyCollection PropertyCollection(GlobalStatementSyntax statement) => ParsePropertyCollection(statement);
+    public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => ParsePropertyCollection(syntax);
 
-        _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
-    };
+    public static IExpression ExpressionFromQualifiedName(string qualifiedName) => new ExpressionFromSyntax(qualifiedName);
+    public static IExpression Expression(ExpressionSyntax? syntax) => Parse(syntax);
+    public static IStatement Statement(StatementSyntax syntax) => Parse(syntax);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
     public static Method Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
@@ -156,9 +97,7 @@ public static class CodeModelFactory
     public static Method Method(string name, PropertyCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => new(name, parameters, returnType, expressionBody, modifier);
     public static MethodFromReflection Method(MethodInfo info) => new(info);
-    public static Method Method(MethodDeclarationSyntax method)
-        => new(method.GetName(), new PropertyCollection(method), Type(method.ReturnType), method.Body is null ? null : Block(method.Body), method.ExpressionBody is null ? null : Expression(method.ExpressionBody.Expression));
-
+    public static Method Method(MethodDeclarationSyntax method) => Parse(method);
 
     public static Constructor Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
         => new(name, parameters, body, modifier);
@@ -166,17 +105,12 @@ public static class CodeModelFactory
         => new(name, parameters, Block(statements), modifier);
     public static Constructor Constructor(string name, PropertyCollection parameters, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => new(name, parameters, expressionBody, modifier);
-    public static Constructor Constructor(ConstructorDeclarationSyntax constructor)
-        => new(constructor.Identifier.ToString(), new PropertyCollection(constructor), constructor.Body is null ? null : Block(constructor.Body), constructor.ExpressionBody is null ? null : Expression(constructor.ExpressionBody.Expression));
+    public static Constructor Constructor(ConstructorDeclarationSyntax syntax) => Parse(syntax);
 
     public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
     public static Block Block(params IStatement[] statements) => new(List(statements));
     public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
-    public static Block Block(BlockSyntax syntax) => syntax switch
-    {
-        // TODO
-        _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
-    };
+    public static Block Block(BlockSyntax syntax) => Parse(syntax);
 
     public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
     public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);
@@ -237,6 +171,4 @@ public static class CodeModelFactory
 
     public static AnyArgExpression<ExpressionSyntax> AnyArgExpression(IEnumerable<IExpression>? inputs, OperationType operation, IType? type = null)
         => operation.IsAnyArgOperator() ? new(List(inputs), type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not an any arg operator: '{operation}'");
-
-
 }
