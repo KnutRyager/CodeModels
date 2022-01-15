@@ -1,4 +1,3 @@
-﻿namespace Common.Files
-{
-    public interface IFileHandler : IFileReader, IFileWriter { }
-}
+﻿namespace Common.Files;
+
+public interface IFileHandler : IFileReader, IFileWriter { }
