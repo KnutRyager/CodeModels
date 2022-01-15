@@ -13,20 +13,20 @@ namespace CodeAnalyzation
 {
     public static class SyntaxNodeExtensions
     {
-        private static readonly IDictionary<string?, CompilationContext> contexts = new ConcurrentDictionary<string?, CompilationContext>();
-        private static readonly IDictionary<SyntaxTree, CompilationContext> treeContexts = new ConcurrentDictionary<SyntaxTree, CompilationContext>();
+        private static readonly IDictionary<string?, List<CompilationContext>> contexts = new ConcurrentDictionary<string?, List<CompilationContext>>();
+        private static readonly IDictionary<SyntaxTree, List<CompilationContext>> treeContexts = new ConcurrentDictionary<SyntaxTree, List<CompilationContext>>();
         private static string? lastKey;
         public static void SetCompilation(Microsoft.CodeAnalysis.Compilation compilation, IEnumerable<SyntaxTree> trees, string? key = null)
         {
             GetContext(key).SetCompilation(compilation, trees);
-            foreach (var tree in trees)
+            foreach (var (tree, i) in trees.Select((tree, i) => (tree, i)))
             {
-                GetContext(tree).SetCompilation(compilation, trees);
-                SetSemanticModel(tree, key);
+                GetContext(key, i).SetCompilation(compilation, new[] { tree });
+                GetContext(tree, key, i).SetCompilation(compilation, new[] { tree });
             }
         }
 
-        public static void SetSemanticModel(SyntaxTree tree, string? key = null) => GetContext(tree, key).SetSemanticModel(tree);
+        public static void SetSemanticModel(SyntaxTree tree, string? key = null, int index = 0) => GetContext(tree, key, index).SetSemanticModel(tree);
         //public static void SetSemanticModel(int treeIndex, string? key = null) => GetContext(key).SetSemanticModel(treeIndex);
         public static SemanticModel GetSemanticModel(SyntaxTree? tree = null, string? key = null) => (tree != null ? GetContext(tree, key) : GetContext(key)).GetSemanticModel(tree);
 
@@ -36,7 +36,7 @@ namespace CodeAnalyzation
         public static bool IsPublic(this MemberDeclarationSyntax node) => node is NamespaceDeclarationSyntax || node.HasModifier(SyntaxKind.PublicKeyword);
         public static bool IsPrivate(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.PrivateKeyword);
         public static bool IsProtected(this MemberDeclarationSyntax node) => node.HasModifier(SyntaxKind.ProtectedKeyword);
-        
+
         public static IEnumerable<NamespaceDeclarationSyntax> GetNamespaces(this SyntaxNode node)
             => from @namespace in node.DescendantNodes().OfType<NamespaceDeclarationSyntax>() select @namespace;
 
@@ -131,7 +131,7 @@ namespace CodeAnalyzation
         public static IEnumerable<FieldDeclarationSyntax> GetPublicStaticFields(this SyntaxNode node)
         => node.DescendantNodes().OfType<FieldDeclarationSyntax>().Where(IsPublic);
 
-        public static ISymbol GetType(this SyntaxNode node, string? key = null) => GetContext(key).SemanticModel.GetSymbolInfo(node).Symbol!;
+        public static ISymbol GetType(this SyntaxNode node, string? key = null, int index = 0) => GetContext(key, index).SemanticModel.GetSymbolInfo(node).Symbol!;
 
         public static SyntaxNode GetContentRoot(this SyntaxNode node) => node switch
         {
@@ -143,19 +143,24 @@ namespace CodeAnalyzation
             _ => throw new ArgumentException($"Can't find content root of node '{node}'")
         };
 
-        private static CompilationContext GetContext(SyntaxTree tree, string? key = null)
+        private static CompilationContext GetContext(SyntaxTree tree, string? key = null, int index = 0)
         {
-            if (key != null) return GetContext(key);
-            var context = treeContexts.ContainsKey(tree) ? treeContexts[tree] : new CompilationContext();
-            treeContexts[tree] = context;
+            var contextList = treeContexts.ContainsKey(tree) ? treeContexts[tree] : new List<CompilationContext>();
+            var contextExists = contextList.Count() > index;
+            var context = contextExists ? contextList[index] : new CompilationContext();
+            if (!contextExists) contextList.Add(context);
+            treeContexts[tree] = contextList;
             return context;
         }
 
-        private static CompilationContext GetContext(string? key = null)
+        private static CompilationContext GetContext(string? key = null, int index = 0)
         {
             key ??= lastKey;
-            var context = contexts.ContainsKey(key) ? contexts[key] : new CompilationContext();
-            contexts[key] = context;
+            var contextList = contexts.ContainsKey(key) ? contexts[key] : new List<CompilationContext>();
+            var contextExists = contextList.Count() > index;
+            var context = contextExists ? contextList[index] : new CompilationContext();
+            if (!contextExists) contextList.Add(context);
+            contexts[key] = contextList;
             lastKey = key;
             return context;
         }

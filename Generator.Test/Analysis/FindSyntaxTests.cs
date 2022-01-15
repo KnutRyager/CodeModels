@@ -49,16 +49,11 @@ public class FindSyntaxTests
                        .OfType<IdentifierNameSyntax>().First().GetType(nameof(GetFieldType_Custom)).ToString());
 
     [Fact]
-    public void GetFieldType_File2()
-    {
-        var tree = new[] { "using System; namespace Test.MyNameSpace { class Test{public int variable { get; set; }}}",
+    public void GetFieldType_File2() => Assert.Equal("System.DateTime",
+                       new[] { "using System; namespace Test.MyNameSpace { class Test{public int variable { get; set; }}}",
                     "using Test.MyNameSpace; using System; class Test2{public DateTime variable { get; set; }}" }
-                       .Parse(nameof(GetFieldType_File2)).Last();
-        SyntaxNodeExtensions.SetSemanticModel(tree.SyntaxTree, nameof(GetFieldType_File2));
-        Assert.Equal("System.DateTime",
-                       tree.GetProperties().First().DescendantNodes()
-                       .OfType<IdentifierNameSyntax>().First().GetType(nameof(GetFieldType_File2)).ToString());
-    }
+                       .Parse(nameof(GetFieldType_File2)).Last().GetProperties().First().DescendantNodes()
+                       .OfType<IdentifierNameSyntax>().First().GetType(nameof(GetFieldType_File2), 1).ToString());
 
     [Fact]
     public void GetProperties_Type()
