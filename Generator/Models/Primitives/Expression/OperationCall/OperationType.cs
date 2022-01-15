@@ -43,6 +43,7 @@ namespace CodeAnalyzation.Models
         ExclusiveOr,
         LeftShift,
         RightShift,
+        Dot,
         Is,
         As,
         Coalesce,
