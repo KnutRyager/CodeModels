@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 
@@ -8,5 +9,9 @@ namespace CodeAnalyzation.Models
     {
         public override IdentifierNameSyntax Syntax() => Syntax(Name ?? Type.Name);
         public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Type;
+        }
     }
 }

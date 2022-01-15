@@ -15,5 +15,10 @@ namespace CodeAnalyzation.Models
     {
         public override LocalDeclarationStatementSyntax Syntax() => LocalDeclarationStatementCustom(Modifiers.Syntax(),
             Declaration.Syntax());
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Declaration;
+        }
     }
 }

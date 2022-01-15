@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeAnalyzation.DataTransformation;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CodeAnalyzation.Models;
 
 namespace CodeAnalyzation.Models
 {
@@ -20,7 +18,7 @@ namespace CodeAnalyzation.Models
 
         public override ExpressionSyntax Syntax() => Pipeline is null ? Syntax(Inputs.Select(x => x.Syntax())) : Apply(Pipeline!.OutputNode);
 
-        public ExpressionSyntax Syntax(IEnumerable<ExpressionSyntax> inputs) => Pipeline != null ? Apply(Pipeline!.OutputNode) :
+        public ExpressionSyntax Syntax(IEnumerable<ExpressionSyntax> inputs) => Pipeline is not null ? Apply(Pipeline!.OutputNode) :
             Operation!.OperationType switch
             {
                 OperationType.None => throw new NotImplementedException(),
@@ -56,5 +54,7 @@ namespace CodeAnalyzation.Models
             opParams.AddRange(Inputs.Skip(argIndex).Select(x => x.Syntax()));
             return new OperationCall(node).Syntax(opParams);
         }
+
+        public override IEnumerable<ICodeModel> Children() => Inputs; // TODO: Remaining
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -81,5 +82,11 @@ namespace CodeAnalyzation.Models
         public PropertyExpression GetAccess(IExpression? instance) => new(this, instance);
 
         private SyntaxToken TupleNameIdentifier(string? name) => name == default || new Regex("Item+[1-9]+[0-9]*").IsMatch(name) ? default : Identifier(name);
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Type;
+            if (Value is not null) yield return Value;
+        }
     }
 }

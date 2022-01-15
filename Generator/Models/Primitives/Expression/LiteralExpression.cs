@@ -24,5 +24,10 @@ namespace CodeAnalyzation.Models
         public override LiteralExpressionSyntax LiteralSyntax => LiteralExpressionCustom(Value) ;
         public override object? LiteralValue => Value;
         public override LiteralExpressionSyntax Syntax() => LiteralSyntax;
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Type;
+        }
     }
 }

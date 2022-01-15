@@ -12,16 +12,35 @@ namespace CodeAnalyzation.Models
     {
         public override TryStatementSyntax Syntax() => TryStatementCustom(
              Block(Statement).Syntax(), CatchClauses.Select(x => x.Syntax()), Finally?.Syntax());
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Statement;
+            foreach (var catchClause in CatchClauses)
+            {
+                yield return catchClause;
+            }
+            if (Finally is not null) yield return Finally;
+        }
     }
 
     public record CatchClause(IType Type, string? Identifier, IStatement Statement) : CodeModel<CatchClauseSyntax>
     {
         public override CatchClauseSyntax Syntax() => CatchClauseCustom(
-            CatchDeclarationCustom(Type.TypeSyntax(), Identifier), Block(Statement).Syntax());
+            CatchDeclarationCustom(Type.Syntax(), Identifier), Block(Statement).Syntax());
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Type;
+            yield return Statement;
+        }
     }
 
     public record FinallyClause(IStatement Statement) : CodeModel<FinallyClauseSyntax>
     {
         public override FinallyClauseSyntax Syntax() => FinallyClauseCustom(Block(Statement).Syntax());
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Statement;
+        }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -12,6 +13,15 @@ namespace CodeAnalyzation.Models
             Condition.Syntax(),
             List(Incrementors.Syntax()),
             Statement.Syntax());
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Declaration;
+            yield return Condition;
+            yield return Incrementors;
+            yield return Statement;
+            if (Initializers is not null) yield return Initializers;
+        }
     }
 
     public record SimpleForStatement(string Variable, IExpression Limit, IStatement Statement)

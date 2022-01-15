@@ -15,6 +15,12 @@ namespace CodeAnalyzation.Models
 
         public override SwitchStatementSyntax Syntax()
             => SwitchStatementCustom(Expression.Syntax(), Sections.Select(x => x.Syntax()));
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Expression;
+            foreach(var section in Sections) yield return section;  
+        }
     }
 
     public record SwitchSection(List<IExpression> Labels, IStatement Statement) : CodeModel<SwitchSectionSyntax>
@@ -23,6 +29,11 @@ namespace CodeAnalyzation.Models
         public override SwitchSectionSyntax Syntax() =>
             SwitchSectionCustom(Labels.Select(x => SwitchLabelCustom(x.Syntax())), Block(Statement).Syntax());
         public SwitchSection WithBreak() => Statement.EndsInBreak() ? this : this with { Statement = Block(Statement).Add(Break()) };
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Statement;
+            foreach (var label in Labels) yield return label;
+        }
     }
 
     public record DefaultSwitchSection(IStatement Statement) : SwitchSection(new List<IExpression>(), Statement)

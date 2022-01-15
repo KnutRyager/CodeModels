@@ -84,5 +84,11 @@ namespace CodeAnalyzation.Models
         public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
         BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            foreach (var property in Properties.Properties) yield return property;
+            foreach (var method in Methods) yield return method;
+        }
     }
 }

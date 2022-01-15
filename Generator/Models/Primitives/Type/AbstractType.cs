@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Common.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -29,5 +30,7 @@ namespace CodeAnalyzation.Models
             (ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default);
 
         public virtual string GetMostSpecificType() => SourceSyntax?.ToString() ?? Identifier;
+
+        public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
     }
 }

@@ -35,6 +35,8 @@ namespace CodeAnalyzation.Models
         public static IType FindBaseType(IEnumerable<IExpression> expressions)
             => expressions.Select(x => x.Type).Distinct().Count() is 1
             ? expressions.First().Type : Type(typeof(object));
+
+        public override IEnumerable<ICodeModel> Children() => Values;
     }
 }
 

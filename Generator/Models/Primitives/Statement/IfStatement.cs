@@ -11,6 +11,13 @@ namespace CodeAnalyzation.Models
     {
         public override IfStatementSyntax Syntax() => IfStatementCustom(
             Condition.Syntax(), Block(Statement).Syntax(), Else is null ? null : ElseClauseCustom(Block(Else).Syntax()));
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            yield return Condition;
+            yield return Statement;
+            if (Else is not null) yield return Else;
+        }
     }
 
     public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else) : AbstractStatement<IfStatementSyntax>
@@ -25,6 +32,12 @@ namespace CodeAnalyzation.Models
                 ifs = reversed[i].Syntax().WithElse(ElseClauseCustom(ifs));
             }
             return ifs;
+        }
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            foreach (var statement in IfStatements) yield return statement;
+            if (Else is not null) yield return Else;
         }
     }
 }

@@ -59,6 +59,13 @@ namespace CodeAnalyzation.Models
         public Property this[string name] => Properties.First(x => x.Name == name);
         public Property? TryFindProperty(string name) => Properties.FirstOrDefault(x => x.Name == name);
         public IType Type => Name is null ? TypeShorthands.NullType : Type(Name);
+
+        public  ISet<IType> Dependencies(ISet<IType>? set = null)
+        {
+            var dependencies = set ?? new HashSet<IType>();
+            foreach (var property in Properties) property.Dependencies(dependencies);
+            return dependencies;
+        }
     }
 }
 

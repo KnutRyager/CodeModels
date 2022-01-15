@@ -31,5 +31,12 @@ namespace CodeAnalyzation.Models
         public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
 
         public override ConstructorDeclarationSyntax Syntax() => ToConstructorSyntax();
+
+        public override IEnumerable<ICodeModel> Children()
+        {
+            foreach (var property in Parameters.Properties) yield return property;
+            if (Statements is not null) yield return Statements;
+            if (ExpressionBody is not null) yield return ExpressionBody;
+        }
     }
 }
