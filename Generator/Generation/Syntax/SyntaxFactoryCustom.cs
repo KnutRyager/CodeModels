@@ -11,7 +11,7 @@ namespace CodeAnalyzation.Generation
 {
     public static class SyntaxFactoryCustom
     {
-        public static LiteralExpressionSyntax LiteralExpressionCustom(object value) => value switch
+        public static LiteralExpressionSyntax LiteralExpressionCustom(object? value) => value switch
         {
             short n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
             ushort n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
@@ -32,6 +32,7 @@ namespace CodeAnalyzation.Generation
             char n => LiteralExpression(SyntaxKind.CharacterLiteralExpression, Literal(n)),
             string s => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(s)),
             bool b => LiteralExpression(b ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
+            null => LiteralExpression(SyntaxKind.NullLiteralExpression),
             _ => throw new ArgumentException($"Unhandled literal expression: '{value}'."),
         };
 

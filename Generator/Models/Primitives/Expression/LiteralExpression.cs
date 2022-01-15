@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 //using Newtonsoft.Json;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 
@@ -20,9 +21,8 @@ namespace CodeAnalyzation.Models
         }
 
         public LiteralExpression(EnumMemberDeclarationSyntax value) : this(new TypeFromReflection(typeof(string)), value.Identifier) { }
-        public override LiteralExpressionSyntax LiteralSyntax => Value is not null ? LiteralExpressionCustom(Value) : base.LiteralSyntax!;
+        public override LiteralExpressionSyntax LiteralSyntax => LiteralExpressionCustom(Value) ;
         public override object? LiteralValue => Value;
         public override LiteralExpressionSyntax Syntax() => LiteralSyntax;
-
     }
 }

@@ -42,5 +42,5 @@ public enum MyEnum {
 public enum MyEnum {
     Abc, Def, Ghi
 }".Parse().DescendantNodes().OfType<EnumDeclarationSyntax>().First()).Should()
-        .BeEquivalentTo(new ExpressionCollection("Abc,Def,Ghi"), o => o.Excluding(x => x.Path == "LiteralSyntax"));
+        .BeEquivalentTo(new ExpressionCollection("Abc,Def,Ghi"), o => o.Excluding(x => x.Path.Contains("LiteralSyntax")));
 }

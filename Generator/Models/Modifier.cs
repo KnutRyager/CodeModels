@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -300,6 +301,11 @@ namespace CodeAnalyzation.Models
             if (newModifier.FieldModifier() is not Modifier.None) modifier = modifier.SetModifier(newModifier.FieldModifier());
             if (modifier.HasFlag(Modifier.Static) && modifier.HasFlag(Modifier.Const)) modifier.ClearFlags(Modifier.Static);
             if (newModifier.PartialModifier() is not Modifier.None) modifier = modifier.SetModifier(newModifier.PartialModifier());
+            return modifier;
+        }
+        public static Modifier SetModifiers(this Modifier modifier, IEnumerable<Modifier> newModifiers)
+        {
+            foreach (var newModifier in newModifiers) modifier = modifier.SetModifiers(newModifier);
             return modifier;
         }
         public static Modifier Validate(this Modifier modifier)
