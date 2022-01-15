@@ -25,7 +25,7 @@ namespace CodeAnalyzation.Models
             );
 
         public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
-        public TypeSyntax BaseType() => BaseTType().TypeSyntax();
+        public TypeSyntax BaseType() => BaseTType().Syntax();
         public virtual IType BaseTType() => FindBaseType(Values);
         public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseTType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
         public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseType(), Values.Select(x => x.Syntax()));

@@ -10,18 +10,18 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
-    public record Property(IType Type, string Name, IExpression? Value, Modifier Modifier, bool IsRandomlyGeneratedName)
-        : CodeModel<CSharpSyntaxNode>, IMember, ITypeModel
+    public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName)
+        : CodeModel<CSharpSyntaxNode>(), IMember, ITypeModel
     {
         public IMethodHolder? Owner { get; set; }
 
         public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IMethodHolder? owner = null)
-                : this(type, name ?? Guid.NewGuid().ToString(), expression, modifier ?? Modifier.Public, name is null)
+                : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null)
         {
             Owner = owner;
         }
 
-        public Property(PropertyDeclarationSyntax property, Modifier? modifier = null) : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value), modifier) { }
+        public Property(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None) : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value), Modifiers(property.Modifiers).SetModifiers(modifier)) { }
         public Property(TupleElementSyntax element, Modifier? modifier = null) : this(Type(element.Type), element.Identifier.ToString(), modifier: modifier) { }
         public Property(ParameterSyntax parameter, Modifier? modifier = null) : this(Type(parameter.Type), parameter.Identifier.ToString(), Expression(parameter.Default?.Value), modifier) { }
         public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null) : this(new TypeFromSymbol(typeSymbol), name, Expression(expression), modifier) { }
@@ -62,14 +62,14 @@ namespace CodeAnalyzation.Models
         public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
             : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
 
-        public ExpressionSyntax? ExpressionSyntax => Value?.Syntax();
-        public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax ?? Value switch
+        public ExpressionSyntax? ExpressionSyntax => Value switch
         {
-            _ when Value?.IsLiteralExpression == true => Value.LiteralSyntax,
-            _ => default
+            _ when ReferenceEquals(Value, VoidValue) => default,
+            _ => Value.Syntax()
         };
+        public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax;
 
-        public TypeSyntax TypeSyntax() => Type.TypeSyntax();
+        public TypeSyntax TypeSyntax() => Type.Syntax();
         public override CSharpSyntaxNode Syntax() => ToMemberSyntax();
 
         public EqualsValueClauseSyntax? Initializer() => DefaultValueSyntax() switch

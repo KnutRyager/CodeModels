@@ -7,13 +7,14 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
 {
     public record PropertyCollection(List<Property> Properties, string? Name = null)
     {
-        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(CodeModelFactory.List(properties), name) { }
+        public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(List(properties), name) { }
         public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
         public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
         public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
@@ -50,13 +51,14 @@ namespace CodeAnalyzation.Models
         public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
         public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
         public List<Property> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new PropertyComparer(modifier)).ToList();
-        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => List(Ordered(modifier).Select(x => x.ToMemberSyntax(modifier)));
+        public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.ToMemberSyntax(modifier)));
         public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
         public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")));
 
         public SyntaxToken Identifier => Identifier(Name ?? throw new ArgumentException("No identifier"));
         public Property this[string name] => Properties.First(x => x.Name == name);
         public Property? TryFindProperty(string name) => Properties.FirstOrDefault(x => x.Name == name);
+        public IType Type => Name is null ? TypeShorthands.NullType : Type(Name);
     }
 }
 

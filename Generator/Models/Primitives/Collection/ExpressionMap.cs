@@ -36,7 +36,7 @@ namespace CodeAnalyzation.Models
         public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public);
 
         public TypeSyntax BaseKeyType() => Keys.BaseType();
-        public TypeSyntax BaseValueType() => (_valueType ?? FindCommonType(KeyVaulePairs.Select(x => x.BaseTType()))).TypeSyntax();
+        public TypeSyntax BaseValueType() => (_valueType ?? FindCommonType(KeyVaulePairs.Select(x => x.BaseTType()))).Syntax();
 
         public static IType FindCommonType(IEnumerable<IType> types)
         {

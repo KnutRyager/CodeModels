@@ -7,13 +7,13 @@ namespace CodeAnalyzation.Models.Primitives.Test;
 public class TypeTests
 {
     [Fact]
-    public void ParseInt() => Type("int").TypeSyntax().CodeEqual("int");
+    public void ParseInt() => Type("int").Syntax().CodeEqual("int");
     [Fact]
-    public void ParseOptionalInt() => Type("int?").TypeSyntax().CodeEqual("int?");
+    public void ParseOptionalInt() => Type("int?").Syntax().CodeEqual("int?");
     [Fact]
-    public void ParseObject() => Type("object").TypeSyntax().CodeEqual("object");
+    public void ParseObject() => Type("object").Syntax().CodeEqual("object");
     [Fact]
-    public void FroTypeInt() => Type(typeof(int)).TypeSyntax().CodeEqual("int");
+    public void FroTypeInt() => Type(typeof(int)).Syntax().CodeEqual("int");
     [Fact]
-    public void FromTypeObject() => Type(typeof(object)).TypeSyntax().CodeEqual("object");
+    public void FromTypeObject() => Type(typeof(object)).Syntax().CodeEqual("object");
 }
