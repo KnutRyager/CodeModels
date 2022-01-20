@@ -11,12 +11,17 @@ public static class SampleStaticClass
     {
         var a = value;
 
-        for(var i = 0; i < ConstInt; i++)
+        for (var i = 0; i < ConstInt; i++)
         {
 
         }
 
-        switch(4)
+        foreach (var obj in new int[] {1})
+        {
+
+        }
+
+        switch (4)
         {
             case 4:
                 var x = 2;
