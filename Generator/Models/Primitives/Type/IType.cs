@@ -17,6 +17,7 @@ public interface IType : ICodeModel<TypeSyntax>
     TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type);
     TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type);
     TypeSyntax TypeSyntaxUnwrapped();
+    TypeParameterSyntax ToTypeParameter();
     Type? GetReflectedType();
     IType ToMultiType();
     string GetMostSpecificType();

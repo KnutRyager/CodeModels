@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Common.Reflection;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -32,4 +33,6 @@ public abstract record AbstractType(string Identifier, bool Required = true, boo
     public virtual string GetMostSpecificType() => SourceSyntax?.ToString() ?? Identifier;
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
+
+    public TypeParameterSyntax ToTypeParameter() => TypeParameter(Identifier);
 }

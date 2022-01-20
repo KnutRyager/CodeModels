@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static CodeAnalyzation.Models.CodeModelFactory;
@@ -6,21 +7,24 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record ForStatement(VariableDeclaration Declaration, IExpression? Initializers, IExpression Condition, IExpression Incrementors, IStatement Statement) : AbstractStatement<ForStatementSyntax>
+public record ForStatement(VariableDeclarations Declaration, List<IExpression> Initializers, IExpression Condition, List<IExpression> Incrementors, IStatement Statement) : AbstractStatement<ForStatementSyntax>
 {
+    public ForStatement(VariableDeclaration? declaration, IExpression? initializers, IExpression condition, IExpression incrementor, IStatement statement)
+        : this(new(declaration), initializers is null ? List<IExpression>() : List(initializers), condition, List(incrementor), statement) { }
+
     public override ForStatementSyntax Syntax() => ForStatementCustom(Declaration.Syntax(),
-        Initializers is null ? List<ExpressionSyntax>() : List(Initializers.Syntax()),
+        Initializers.Select(x => x.Syntax()),
         Condition.Syntax(),
-        List(Incrementors.Syntax()),
+        Incrementors.Select(x => x.Syntax()),
         Statement.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Declaration;
         yield return Condition;
-        yield return Incrementors;
+        foreach (var incrementor in Incrementors) yield return incrementor;
+        foreach (var initializer in Initializers) yield return initializer;
         yield return Statement;
-        if (Initializers is not null) yield return Initializers;
     }
 }
 

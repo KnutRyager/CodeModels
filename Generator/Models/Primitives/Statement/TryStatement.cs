@@ -22,6 +22,16 @@ public record TryStatement(IStatement Statement, List<CatchClause> CatchClauses,
     }
 }
 
+public record CatchDeclaration(IType Type, string? Identifier) : CodeModel<CatchDeclarationSyntax>
+{
+    public override CatchDeclarationSyntax Syntax() => CatchDeclarationCustom(Type.Syntax(), Identifier);
+
+    public override IEnumerable<ICodeModel> Children()
+    {
+        yield return Type;
+    }
+}
+
 public record CatchClause(IType Type, string? Identifier, IStatement Statement) : CodeModel<CatchClauseSyntax>
 {
     public override CatchClauseSyntax Syntax() => CatchClauseCustom(

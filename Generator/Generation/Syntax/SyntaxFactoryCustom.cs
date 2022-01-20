@@ -302,15 +302,14 @@ public static class SyntaxFactoryCustom
             variables: SeparatedList(variables));
 
     public static VariableDeclarationSyntax VariableDeclarationCustom(TypeSyntax type,
-        VariableDeclaratorSyntax variable) => VariableDeclaration(
+        VariableDeclaratorSyntax variable) => VariableDeclarationCustom(
             type: type,
-            variables: SeparatedList(new[] { variable }));
+            variables: new[] { variable });
 
     public static LocalDeclarationStatementSyntax LocalDeclarationStatementCustom(SyntaxTokenList modifiers,
         VariableDeclarationSyntax declaration) => LocalDeclarationStatement(
             modifiers: modifiers,
-            declaration: declaration,
-            semicolonToken: Token(SyntaxKind.SemicolonToken));
+            declaration: declaration);
 
     public static VariableDeclaratorSyntax VariableDeclaratorCustom(SyntaxToken identifier,
          BracketedArgumentListSyntax? argumentList = default,

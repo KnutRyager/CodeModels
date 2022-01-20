@@ -7,7 +7,6 @@ using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Models.CodeModelParsing;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
@@ -29,7 +28,7 @@ public static class CodeModelFactory
         => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
     public static IType Type(IdentifierExpression identifier) => ParseType(identifier.ToString());
     public static IType Type(string code) => ParseType(code);
-    public static IType Type(SyntaxToken token) => ParseType(token);
+    public static IType Type(SyntaxToken token) => Parse(token);
 
     // TODO
     public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => Parse(type, required, fullType);
@@ -86,7 +85,7 @@ public static class CodeModelFactory
     public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => ParsePropertyCollection(syntax);
 
     public static IExpression ExpressionFromQualifiedName(string qualifiedName) => new ExpressionFromSyntax(qualifiedName);
-    public static IExpression Expression(ExpressionSyntax? syntax) => Parse(syntax);
+    public static IExpression Expression(ExpressionSyntax? syntax) => ParseExpression(syntax);
     public static IStatement Statement(StatementSyntax syntax) => Parse(syntax);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
