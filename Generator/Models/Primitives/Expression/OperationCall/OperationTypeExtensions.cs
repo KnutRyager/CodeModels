@@ -97,8 +97,8 @@ public static class OperationTypeExtensions
           OperationType.Bracket => ElementAccessExpression(inputs.First().Syntax(), BracketedArgumentList(Token(SyntaxKind.OpenBracketToken), SeparatedList(inputs.Skip(1).Select(x => x.Syntax()).Select(x => Argument(x))), Token(SyntaxKind.CloseBracketToken))),
           OperationType.Invocation => operation.IsStatic ? InvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()) : DottedInvocationExpressionCustom(operation.Name, inputs.Select(x => x.Syntax()).ToArray()),
           OperationType.With => WithExpression(inputs.First().Syntax(), InitializerExpression(SyntaxKind.WithInitializerExpression, SeparatedList(inputs.Skip(1).Select(x => x.Syntax())))),
-              //OperationType.Pipeline => Apply(operation.OperationPipeline!.OutputNode, inputs),
-              _ => throw new NotImplementedException(),
+          //OperationType.Pipeline => Apply(operation.OperationPipeline!.OutputNode, inputs),
+          _ => throw new NotImplementedException(),
       };
 
     private static ExpressionSyntax Apply(IOperationPipelineNode node, IEnumerable<IExpression> inputs, int argIndex = 0)
@@ -176,48 +176,68 @@ public static class OperationTypeExtensions
         _ => throw new NotImplementedException()
     };
 
+    public static object? ApplyOperator(this OperationType operation, params object?[] args) => operation switch
+    {
+        //OperationType.Method => Invoker.Invoke(new[] { Method }, instance, args),
+        //OperationType.Constructor => Invoker.InvokeStatic(Output.PrimitiveType, "new", args),
+        //OperationType.Property => Property!.GetValue(instance)!,
+        //OperationType.Field => Field!.GetValue(instance)!,
+        //OperationType.Inheritance => args[0],
+        //OperationType.Cast => Convert.ChangeType(args[0], Output.PrimitiveType ?? throw new Exception("Cannot cast operation as there is no primitiveType.")),
+        //OperationType.Pipeline => OperationPipeline!.Apply(args),
+        OperationType.Identity => args[0],
+        OperationType.Implementation => args[0],
+        OperationType.Provider => args[0],
+        OperationType.Parenthesis => args[0],
+        _ when operation.IsUnaryOperator() => operation.ApplyUnaryOperator(args),
+        _ when operation.IsBinaryOperator() => operation.ApplyBinaryOperator(args),
+        _ when operation.IsTernaryOperator() => operation.ApplyTernaryOperator(args),
+        _ when operation.IsAnyArgOperator() => operation.ApplyAnyArgOperator(args),
+        _ => throw new NotImplementedException()
+    };
+
     public static object? ApplyUnaryOperator(this OperationType operation, params object?[] args) => operation switch
     {
-        //OperationType.Not => !(dynamic)args[0]!,
-        //OperationType.Complement => ~(dynamic)args[0]!,
-        //OperationType.UnaryAdd => +(dynamic)args[0]!,
-        //OperationType.UnaryAddBefore => new NotImplementedException(),
-        //OperationType.UnaryAddAfter => new NotImplementedException(),
-        //OperationType.UnarySubtract => -(dynamic)args[0]!,
-        //OperationType.UnarySubtractBefore => new NotImplementedException(),
-        //OperationType.UnarySubtractAfter => new NotImplementedException(),
+        OperationType.Not => !(dynamic)args[0]!,
+        OperationType.Complement => ~(dynamic)args[0]!,
+        OperationType.UnaryAdd => +(dynamic)args[0]!,
+        OperationType.UnaryAddBefore => new NotImplementedException(),
+        OperationType.UnaryAddAfter => new NotImplementedException(),
+        OperationType.UnarySubtract => -(dynamic)args[0]!,
+        OperationType.UnarySubtractBefore => new NotImplementedException(),
+        OperationType.UnarySubtractAfter => new NotImplementedException(),
         _ => throw new NotImplementedException()
     };
 
     public static object? ApplyBinaryOperator(this OperationType operation, params object?[] args) => operation switch
     {
-        //OperationType.Plus => (dynamic)args[0]! + (dynamic)args[1]!,
-        //OperationType.Subtract => (dynamic)args[0]! - (dynamic)args[1]!,
-        //OperationType.Multiply => (dynamic)args[0]! * (dynamic)args[1]!,
-        //OperationType.Divide => (dynamic)args[0]! / (dynamic)args[1]!,
-        //OperationType.Modulo => (dynamic)args[0]! % (dynamic)args[1]!,
-        //OperationType.Equals => (dynamic)args[0]! == (dynamic)args[1]!,
-        //OperationType.NotEquals => (dynamic)args[0]! != (dynamic)args[1]!,
-        //OperationType.GreaterThan => (dynamic)args[0]! > (dynamic)args[1]!,
-        //OperationType.GreaterThanOrEqual => (dynamic)args[0]! >= (dynamic)args[1]!,
-        //OperationType.LessThan => (dynamic)args[0]! < (dynamic)args[1]!,
-        //OperationType.LessThanOrEqual => (dynamic)args[0]! <= (dynamic)args[1]!,
-        //OperationType.LogicalAnd => (dynamic)args[0]! && (dynamic)args[1]!,
-        //OperationType.LogicalOr => (dynamic)args[0]! || (dynamic)args[1]!,
-        //OperationType.BitwiseAnd => (dynamic)args[0]! & (dynamic)args[1]!,
-        //OperationType.BitwiseOr => (dynamic)args[0]! | (dynamic)args[1]!,
-        //OperationType.ExclusiveOr => (dynamic)args[0]! ^ (dynamic)args[1]!,
-        //OperationType.LeftShift => (dynamic)args[0]! << (dynamic)args[1]!,
-        //OperationType.RightShift => (dynamic)args[0]! >> (dynamic)args[1]!,
-        //OperationType.Is => ((dynamic)args[0]!)?.GetType().IsAssignableFrom((dynamic)args[1]!) ?? false,
-        //OperationType.As => ((dynamic)args[0]!)?.GetType().IsAssignableFrom((dynamic)args[1]!) ? args[0] : null,
-        //OperationType.Coalesce => (dynamic)args[0]! ?? (dynamic)args[1]!,
+        OperationType.Plus => (dynamic)args[0]! + (dynamic)args[1]!,
+        OperationType.Subtract => (dynamic)args[0]! - (dynamic)args[1]!,
+        OperationType.Multiply => (dynamic)args[0]! * (dynamic)args[1]!,
+        OperationType.Divide => (dynamic)args[0]! / (dynamic)args[1]!,
+        OperationType.Modulo => (dynamic)args[0]! % (dynamic)args[1]!,
+        OperationType.Equals => (dynamic)args[0]! == (dynamic)args[1]!,
+        OperationType.NotEquals => (dynamic)args[0]! != (dynamic)args[1]!,
+        OperationType.GreaterThan => (dynamic)args[0]! > (dynamic)args[1]!,
+        OperationType.GreaterThanOrEqual => (dynamic)args[0]! >= (dynamic)args[1]!,
+        OperationType.LessThan => (dynamic)args[0]! < (dynamic)args[1]!,
+        OperationType.LessThanOrEqual => (dynamic)args[0]! <= (dynamic)args[1]!,
+        OperationType.LogicalAnd => (dynamic)args[0]! && (dynamic)args[1]!,
+        OperationType.LogicalOr => (dynamic)args[0]! || (dynamic)args[1]!,
+        OperationType.BitwiseAnd => (dynamic)args[0]! & (dynamic)args[1]!,
+        OperationType.BitwiseOr => (dynamic)args[0]! | (dynamic)args[1]!,
+        OperationType.ExclusiveOr => (dynamic)args[0]! ^ (dynamic)args[1]!,
+        OperationType.LeftShift => (dynamic)args[0]! << (dynamic)args[1]!,
+        OperationType.RightShift => (dynamic)args[0]! >> (dynamic)args[1]!,
+        OperationType.Is => ((dynamic)args[0]!)?.GetType().IsAssignableFrom((dynamic)args[1]!) ?? false,
+        OperationType.As => ((dynamic)args[0]!)?.GetType().IsAssignableFrom((dynamic)args[1]!) ? args[0] : null,
+        OperationType.Coalesce => (dynamic)args[0]! ?? (dynamic)args[1]!,
         _ => throw new NotImplementedException()
     };
 
     public static object? ApplyTernaryOperator(this OperationType operation, params object?[] args) => operation switch
     {
-        //OperationType.Ternary => (dynamic)args[0]! ? (dynamic)args[1]! : (dynamic)args[2]!,
+        OperationType.Ternary => (dynamic)args[0]! ? (dynamic)args[1]! : (dynamic)args[2]!,
         _ => throw new NotImplementedException()
     };
 
@@ -225,12 +245,12 @@ public static class OperationTypeExtensions
     {
         OperationType.Bracket => args.Length switch
         {
-            //2 => ((dynamic)args[0]!)[(dynamic)args[1]!],
-            //3 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!],
-            //4 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!],
-            //5 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!],
-            //6 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!, (dynamic)args[5]!],
-            //7 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!, (dynamic)args[5]!, (dynamic)args[6]!],
+            2 => ((dynamic)args[0]!)[(dynamic)args[1]!],
+            3 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!],
+            4 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!],
+            5 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!],
+            6 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!, (dynamic)args[5]!],
+            7 => ((dynamic)args[0]!)[(dynamic)args[1]!, (dynamic)args[2]!, (dynamic)args[3]!, (dynamic)args[4]!, (dynamic)args[5]!, (dynamic)args[6]!],
             _ => throw new NotImplementedException()
         },
         OperationType.With => throw new NotImplementedException(),
