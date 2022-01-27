@@ -7,15 +7,10 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record ExpressionsMap(IExpression Key, List<IExpression> Values, bool MultiValues = false, IType? ValueType = null) : ExpressionCollection(Values)
+public record ExpressionsMap(IExpression Key, List<IExpression> Values, bool MultiValues = false, IType? ValueType = null) : ExpressionCollection(Values, ValueType)
 {
-    private readonly IType? _valueType;
-
     public ExpressionsMap(IExpression key, IEnumerable<IExpression> values, bool multiValues = false, IType? valueType = null)
-        : this(key, values.ToList(), multiValues || (values.Count() is not 1))
-    {
-        _valueType = valueType;
-    }
+        : this(key, values.ToList(), multiValues || (values.Count() is not 1), valueType) {  }
 
     public ExpressionsMap(IExpression key, IExpression value, bool multiValues = false, AbstractType? valueType = null)
         : this(key, List(value), multiValues, valueType) { }
@@ -25,7 +20,7 @@ public record ExpressionsMap(IExpression Key, List<IExpression> Values, bool Mul
     public InitializerExpressionSyntax ToKeyValueInitialization() => ComplexElemementExpressionCustom(
         new ExpressionSyntax[] { Key.Syntax(), MultiValues ? ToArrayInitialization() : Values.First().Syntax() });
 
-    public override IType BaseTType() => _valueType ?? (MultiValues ? base.BaseTType().ToMultiType() : base.BaseTType());
+    public override IType BaseType() => ValueType ?? (MultiValues ? base.BaseType().ToMultiType() : base.BaseType());
 }
 
 

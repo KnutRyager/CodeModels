@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using CodeAnalyzation.Models;
 using Microsoft.CodeAnalysis;
@@ -17,18 +18,19 @@ public static class SyntaxFactoryCustom
         ushort n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
         int n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
         uint n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "U", n)),
+                n.ToString(NumberFormatInfo.InvariantInfo) + "U", n)),
         long n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "L", n)),
+                n.ToString(NumberFormatInfo.InvariantInfo) + "L", n)),
         ulong n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "UL", n)),
+                n.ToString(NumberFormatInfo.InvariantInfo) + "UL", n)),
         float n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                ((float)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "F", (float)n)),
+                ((float)n).ToString(NumberFormatInfo.InvariantInfo) + "F", (float)n)),
         double n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                ((double)n).ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "D", (double)n)),
+                ((double)n).ToString(NumberFormatInfo.InvariantInfo) + "D", (double)n)),
         decimal n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(
-                n.ToString(System.Globalization.NumberFormatInfo.InvariantInfo) + "M", n)),
+                n.ToString(NumberFormatInfo.InvariantInfo) + "M", n)),
         byte n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
+        sbyte n => LiteralExpression(SyntaxKind.NumericLiteralExpression, Literal(n)),
         char n => LiteralExpression(SyntaxKind.CharacterLiteralExpression, Literal(n)),
         string s => LiteralExpression(SyntaxKind.StringLiteralExpression, Literal(s)),
         bool b => LiteralExpression(b ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression),
@@ -174,9 +176,7 @@ public static class SyntaxFactoryCustom
          semicolonToken: SemicolonIfNone(body));
 
     public static ArgumentListSyntax ArgumentListCustom(IEnumerable<ArgumentSyntax> arguments) => ArgumentList(
-            openParenToken: Token(SyntaxKind.OpenBraceToken),
-            arguments: SeparatedList(arguments),
-            closeParenToken: Token(SyntaxKind.CloseBraceToken));
+            arguments: SeparatedList(arguments));
 
     public static ArgumentSyntax ArgumentCustom(NameColonSyntax? nameColon,
         SyntaxToken refKindKeyword,

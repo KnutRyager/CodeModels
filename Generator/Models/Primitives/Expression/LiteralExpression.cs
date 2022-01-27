@@ -28,4 +28,6 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
     {
         yield return Type;
     }
+
+    public override object? Evaluate(IProgramModelExecutionContext context) => LiteralValue;
 }

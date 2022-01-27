@@ -13,6 +13,8 @@ public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, Operatio
         yield return Type;
     }
 
+    public override object? Evaluate(IProgramModelExecutionContext context) =>Operation.ApplyOperator(Inputs);
+
     public override T Syntax() => (T)Operation.Syntax(Inputs, Type);
 }
 

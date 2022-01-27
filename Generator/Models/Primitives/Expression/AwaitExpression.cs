@@ -1,16 +1,15 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null) : Expression<ExpressionSyntax>(Property.Type)
+public record AwaitExpression(IExpression Expression)  : Expression<AwaitExpressionSyntax>(Expression.Type)
 {
-    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
-
+    public override AwaitExpressionSyntax Syntax() => AwaitExpression(Expression.Syntax());
     public override IEnumerable<ICodeModel> Children()
     {
-        yield return Type;
-        if (Instance is not null) yield return Instance;
+        yield return Expression;
     }
 
     public override object? Evaluate(IProgramModelExecutionContext context)

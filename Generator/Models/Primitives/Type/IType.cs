@@ -10,7 +10,6 @@ public interface IType : ICodeModel<TypeSyntax>
     bool Required { get; }
     bool IsMulti { get; }
     bool IsStatic { get; }
-    TypeSyntax? SourceSyntax { get; }
     new TypeSyntax Syntax();
     Type? ReflectedType { get; }
     TypeSyntax TypeSyntaxNonMultiWrapped();
@@ -21,4 +20,5 @@ public interface IType : ICodeModel<TypeSyntax>
     Type? GetReflectedType();
     IType ToMultiType();
     string GetMostSpecificType();
+    IType GetGenericType(int index);
 }

@@ -14,7 +14,7 @@ public static class OperationTypeExtensions
         => operation.IsUnaryOperator() || operation.IsBinaryOperator() || operation.IsTernaryOperator() || operation.IsAnyArgOperator();
 
     public static bool IsUnaryOperator(this OperationType operation)
-        => operation >= OperationType.Not && operation <= OperationType.UnarySubtractAfter;
+        => operation >= OperationType.Parenthesis && operation <= OperationType.UnarySubtractAfter;
 
     public static bool IsBinaryOperator(this OperationType operation)
         => operation >= OperationType.Plus && operation <= OperationType.Coalesce;
@@ -35,6 +35,14 @@ public static class OperationTypeExtensions
         OperationType.UnaryAddAfter => "<>++",
         OperationType.UnarySubtractBefore => "--<>",
         OperationType.UnarySubtractAfter => "<>--",
+        OperationType.Default => "default",
+        OperationType.Typeof => "typeof",
+        OperationType.Sizeof => "sizeof",
+        OperationType.Ref => "ref",
+        OperationType.AddressOf => "addressof",
+        OperationType.PointerIndirection => "*",
+        OperationType.Index => "index",
+        OperationType.SuppressNullableWarning => "!",
         _ => throw new NotImplementedException()
     };
 
@@ -91,6 +99,7 @@ public static class OperationTypeExtensions
           OperationType.Inheritance => inputs.First().Syntax(),
           OperationType.Identity => inputs.First().Syntax(),
           OperationType.Parenthesis => ParenthesizedExpression(inputs.First().Syntax()),
+          //OperationType.Dot => SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, inputs.First().Syntax(), Token(SyntaxKind.DotToken), inputs.Skip(1).First().Syntax()),
           OperationType type when type.IsUnaryOperator() => type.IsUnaryPrefix() ? PrefixUnaryExpression(type.UnarySyntaxKind(), inputs.First().Syntax()) : PostfixUnaryExpression(type.UnarySyntaxKind(), inputs.First().Syntax()),
           OperationType type when type.IsBinaryOperator() => BinaryExpression(type.BinarySyntaxKind(), inputs.First().Syntax(), inputs.Last().Syntax()),
           OperationType type when type.IsTernaryOperator() => ConditionalExpression(inputs.First().Syntax(), inputs.Skip(1).First().Syntax(), inputs.Last().Syntax()),
@@ -127,6 +136,14 @@ public static class OperationTypeExtensions
         OperationType.UnarySubtract => SyntaxKind.UnaryMinusExpression,
         OperationType.UnarySubtractBefore => SyntaxKind.PreDecrementExpression,
         OperationType.UnarySubtractAfter => SyntaxKind.PostDecrementExpression,
+        OperationType.Default => SyntaxKind.DefaultExpression,
+        OperationType.Typeof => SyntaxKind.TypeOfExpression,
+        OperationType.Sizeof => SyntaxKind.SizeOfExpression,
+        OperationType.Ref => SyntaxKind.RefExpression,
+        OperationType.AddressOf => SyntaxKind.AddressOfExpression,
+        OperationType.PointerIndirection => SyntaxKind.PointerIndirectionExpression,
+        OperationType.Index => SyntaxKind.IndexExpression,
+        OperationType.SuppressNullableWarning => SyntaxKind.SuppressNullableWarningExpression,
         _ => throw new NotImplementedException()
     };
 
@@ -140,6 +157,14 @@ public static class OperationTypeExtensions
         OperationType.UnarySubtract => true,
         OperationType.UnarySubtractBefore => true,
         OperationType.UnarySubtractAfter => false,
+        OperationType.Default => true,
+        OperationType.Typeof => true,
+        OperationType.Sizeof => true,
+        OperationType.Ref => true,
+        OperationType.AddressOf => true,
+        OperationType.PointerIndirection => true,
+        OperationType.Index => false,
+        OperationType.SuppressNullableWarning => false,
         _ => throw new NotImplementedException()
     };
 
@@ -183,7 +208,6 @@ public static class OperationTypeExtensions
         //OperationType.Property => Property!.GetValue(instance)!,
         //OperationType.Field => Field!.GetValue(instance)!,
         //OperationType.Inheritance => args[0],
-        //OperationType.Cast => Convert.ChangeType(args[0], Output.PrimitiveType ?? throw new Exception("Cannot cast operation as there is no primitiveType.")),
         //OperationType.Pipeline => OperationPipeline!.Apply(args),
         OperationType.Identity => args[0],
         OperationType.Implementation => args[0],
@@ -201,11 +225,27 @@ public static class OperationTypeExtensions
         OperationType.Not => !(dynamic)args[0]!,
         OperationType.Complement => ~(dynamic)args[0]!,
         OperationType.UnaryAdd => +(dynamic)args[0]!,
-        OperationType.UnaryAddBefore => new NotImplementedException(),
-        OperationType.UnaryAddAfter => new NotImplementedException(),
+        OperationType.UnaryAddBefore => (dynamic)args[0]! + 1,
+        OperationType.UnaryAddAfter => (dynamic)args[0]! + 1,    // TODO: Wrong return
         OperationType.UnarySubtract => -(dynamic)args[0]!,
-        OperationType.UnarySubtractBefore => new NotImplementedException(),
-        OperationType.UnarySubtractAfter => new NotImplementedException(),
+        OperationType.UnarySubtractBefore => (dynamic)args[0]! - 1,
+        OperationType.UnarySubtractAfter => (dynamic)args[0]! - 1,    // TODO: Wrong return
+        //OperationType.Cast => Convert.ChangeType(args[0], Output.PrimitiveType ?? throw new Exception("Cannot cast operation as there is no primitiveType.")),
+        OperationType.Default => Default(args[0]),
+        OperationType.Typeof => (args[0])?.GetType(),
+        OperationType.Sizeof => throw new NotImplementedException(),
+        OperationType.Ref => (dynamic)args[0]!,
+        OperationType.AddressOf => throw new NotImplementedException(),
+        OperationType.PointerIndirection => throw new NotImplementedException(),
+        OperationType.Index => throw new NotImplementedException(),
+        OperationType.SuppressNullableWarning => args[0],
+        _ => throw new NotImplementedException()
+    };
+
+    public static object? Default(object? o) => o?.GetType() switch
+    {
+        null => null,
+        _ when o.GetType().IsValueType => Activator.CreateInstance(o.GetType()),
         _ => throw new NotImplementedException()
     };
 

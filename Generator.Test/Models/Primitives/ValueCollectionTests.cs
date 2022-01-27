@@ -15,9 +15,9 @@ public enum MyEnum {
     Abc, Def, Ghi
 }");
 
-    [Fact] public void BaseTypeString() => new ExpressionCollection("Abc,Def,Ghi").BaseType().CodeEqual("string");
-    [Fact] public void BaseTypeInt() => new ExpressionCollection(new IExpression[] { new LiteralExpression(1), new LiteralExpression(2) }).BaseType().CodeEqual("int");
-    [Fact] public void BaseTypeObject() => new ExpressionCollection(new IExpression[] { new LiteralExpression("a"), new LiteralExpression(2) }).BaseType().CodeEqual("object");
+    [Fact] public void BaseTypeString() => new ExpressionCollection("Abc,Def,Ghi").BaseTypeSyntax().CodeEqual("string");
+    [Fact] public void BaseTypeInt() => new ExpressionCollection(new IExpression[] { new LiteralExpression(1), new LiteralExpression(2) }).BaseTypeSyntax().CodeEqual("int");
+    [Fact] public void BaseTypeObject() => new ExpressionCollection(new IExpression[] { new LiteralExpression("a"), new LiteralExpression(2) }).BaseTypeSyntax().CodeEqual("object");
 
     [Fact]
     public void GenerateArrayInitialization() => new ExpressionCollection("Abc,Def,Ghi").ToArrayInitialization().CodeEqual(@"new string[]{""Abc"",""Def"",""Ghi""}");

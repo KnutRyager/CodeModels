@@ -170,7 +170,7 @@ public static class ModelDependencies
             { ""B_C"", new string[]{ ""B_A"", ""B_B"" } }
         };
 
-        public static readonly IDictionary<string, IDictionary<string,string[]>> Deps = new Dictionary<string, IDictionary<string,string[]>>()
+        public static readonly IDictionary<string, Dictionary<string,string[]>> Deps = new Dictionary<string, Dictionary<string,string[]>>()
         {
             {  ""ClassA"", ModelDependencies.ClassA },
             {  ""ClassB"", ModelDependencies.ClassB }

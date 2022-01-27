@@ -8,48 +8,40 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record ExpressionMap
+public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollection Keys, ExpressionCollection Values, string? Name)
 {
-    public List<ExpressionsMap> KeyVaulePairs { get; set; }
-    public ExpressionCollection Keys { get; set; }
-    public ExpressionCollection Values { get; set; }
-    public string? Name { get; set; }
     private readonly AbstractType? _valueType;
 
     public ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
+        : this(values.ToList(), new ExpressionCollection(values.Select(x => x.Key)), new ExpressionCollection(values.SelectMany(x => x.Values)), name)
     {
-        KeyVaulePairs = values.ToList();
-        Keys = new ExpressionCollection(values.Select(x => x.Key));
-        Values = new ExpressionCollection(values.SelectMany(x => x.Values));
-        Name = name;
         _valueType = valueType;
     }
 
-    public ObjectCreationExpressionSyntax ToDictionary() => DictionaryCreationExpressionCustom(
-        keyType: BaseKeyType(),
-        valueType: BaseValueType(),
-        argumentList: default,
-        initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
-
-    public TypeSyntax ToDictionaryType() => GenericName(Identifier("IDictionary"), TypeArgumentListCustom(BaseKeyType(), BaseValueType()));
-
-    public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public);
-
-    public TypeSyntax BaseKeyType() => Keys.BaseType();
-    public TypeSyntax BaseValueType() => (_valueType ?? FindCommonType(KeyVaulePairs.Select(x => x.BaseTType()))).Syntax();
-
-    public static IType FindCommonType(IEnumerable<IType> types)
+    public ObjectCreationExpressionSyntax ToDictionary()
     {
-        var isMulti = types.Any(x => x.IsMulti);
-        var disinctTypes = types.Select(x => x.Identifier).Distinct();
-        var specificType = disinctTypes.Count() == 1 ? types.First().GetMostSpecificType()
-            : disinctTypes.Count() == 0 ? "int"
-            : types.Any(x => x.GetMostSpecificType() is "object") ? "object"
-            : types.Any(x => x.GetMostSpecificType() is "string") ? "string"
-            : "int";
-        var optional = types.Any(x => !x.Required);
-        return new QuickType(specificType, !optional, isMulti);
+        var fuk = DictionaryCreationExpressionCustom(
+keyType: BaseKeyTypeSyntax(),
+valueType: BaseValueTypeSyntax(),
+argumentList: default,
+initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
+        return DictionaryCreationExpressionCustom(
+keyType: BaseKeyTypeSyntax(),
+valueType: BaseValueTypeSyntax(),
+argumentList: default,
+initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
     }
+
+    public IType ToDictionaryType() => new QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
+    public IType ToDictionaryInterfaceType() => new QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
+
+    public Property ToProperty(string? name = null) => new(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
+    //public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType());
+
+    public IType BaseKeyType() => Keys.BaseType();
+    public TypeSyntax BaseKeyTypeSyntax() => BaseKeyType().Syntax();
+    public IType BaseValueType() => (_valueType ?? TypeUtil.FindCommonType(KeyVaulePairs.Select(x => x.BaseType())));
+    public TypeSyntax BaseValueTypeSyntax() => BaseValueType().Syntax();
 
 }
 

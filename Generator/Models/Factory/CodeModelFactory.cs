@@ -14,6 +14,7 @@ public static class CodeModelFactory
 {
     public static readonly LiteralExpression VoidValue = new(TypeShorthands.VoidType);
     public static readonly LiteralExpression NullValue = new(TypeShorthands.NullType);
+    public static readonly LiteralExpression DefaultValue = new(TypeShorthands.NullType);
 
     public static List<T> List<T>(IEnumerable<T>? objects) => objects?.ToList() ?? new List<T>();
     public static List<T> List<T>(params T[] objects) => objects?.ToList() ?? new List<T>();
@@ -22,8 +23,8 @@ public static class CodeModelFactory
     public static Namespace Namespace(Type type) => CodeModelsFromReflection.Namespace(type);
 
     public static TypeFromReflection Type(Type type) => CodeModelsFromReflection.Type(type);
-    public static QuickType Type(string name, bool required = true, bool isMulti = false, TypeSyntax? syntax = null, Type? type = null)
-        => new(name, required, isMulti, syntax, type);
+    public static QuickType Type(string name, bool required = true, bool isMulti = false, Type? type = null)
+        => new(name, required, isMulti, type);
     public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
         => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
     public static IType Type(IdentifierExpression identifier) => ParseType(identifier.ToString());
@@ -31,7 +32,7 @@ public static class CodeModelFactory
     public static IType Type(SyntaxToken token) => Parse(token);
 
     // TODO
-    public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => Parse(type, required, fullType);
+    public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => ParseType(type, required, fullType);
 
     public static IMethodHolder MetodHolder(Type type) => type switch
     {
@@ -84,8 +85,8 @@ public static class CodeModelFactory
     public static PropertyCollection PropertyCollection(GlobalStatementSyntax statement) => ParsePropertyCollection(statement);
     public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => ParsePropertyCollection(syntax);
 
-    public static IExpression ExpressionFromQualifiedName(string qualifiedName) => new ExpressionFromSyntax(qualifiedName);
-    public static IExpression Expression(ExpressionSyntax? syntax) => ParseExpression(syntax);
+    public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
+    public static IExpression Expression(ExpressionSyntax? syntax, IType? Type = null) => ParseExpression(syntax, Type);
     public static IStatement Statement(StatementSyntax syntax) => Parse(syntax);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
@@ -162,8 +163,8 @@ public static class CodeModelFactory
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
 
-    public static BinaryExpression MemberAccess(IExpression lhs, IExpression rhs, IType? type = null)
-        => BinaryExpression(lhs, OperationType.Dot, rhs, type);
+    public static MemberAccessExpression MemberAccess(IExpression lhs, string property, IType? type = null)
+        => new(lhs, property, type);
 
     public static TernaryExpression TernaryExpression(IExpression input, IExpression output1, IExpression output2, IType? type = null, OperationType operation = OperationType.Ternary)
         => operation.IsTernaryOperator() ? new(input, output1, output2, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a ternary operator: '{operation}'");

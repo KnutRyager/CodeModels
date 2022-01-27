@@ -3,14 +3,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null) : Expression<ExpressionSyntax>(Property.Type)
+public record TypeExpression(IType Type) : Expression<TypeSyntax>(Type)
 {
-    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
-
+    public override TypeSyntax Syntax() => Type.Syntax();
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        if (Instance is not null) yield return Instance;
     }
 
     public override object? Evaluate(IProgramModelExecutionContext context)

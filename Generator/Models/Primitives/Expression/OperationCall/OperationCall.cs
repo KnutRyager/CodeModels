@@ -57,4 +57,6 @@ public record OperationCall(IOperationPipeline Pipeline, IOperation? Operation, 
     }
 
     public override IEnumerable<ICodeModel> Children() => Inputs; // TODO: Remaining
+
+    public override object? Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
 }

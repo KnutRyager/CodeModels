@@ -12,9 +12,10 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyCollection(List<Property> Properties, string? Name = null) : ITypeModel
+public record PropertyCollection(List<Property> Properties, string? Name = null, IType? SpecifiedType = null)
+    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true)), ITypeModel
 {
-    public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null) : this(List(properties), name) { }
+    public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
     public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
     public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
     public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
@@ -50,22 +51,29 @@ public record PropertyCollection(List<Property> Properties, string? Name = null)
 
     public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
     public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
+    public ArgumentListSyntax ToArguments() => ArgumentListCustom(Properties.Select(x => x.Value.ToArgument()));
+    public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(Properties.Select(x => x.Value.Syntax())));
     public List<Property> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new PropertyComparer(modifier)).ToList();
     public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.ToMemberSyntax(modifier)));
     public List<Property> FilterValues() => Properties.Where(x => x.Value != null).ToList();
-    public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")));
+    public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Type);
+    public override ArrayCreationExpressionSyntax Syntax() => ToValueCollection().Syntax();
+    public override LiteralExpressionSyntax? LiteralSyntax => ToValueCollection().LiteralSyntax;
+    public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Properties.Select(x => x.ExpressionSyntax!));
+    public override object? LiteralValue => ToValueCollection().LiteralValue;
 
     public SyntaxToken Identifier => Identifier(Name ?? throw new ArgumentException("No identifier"));
     public Property this[string name] => Properties.First(x => x.Name == name);
     public Property? TryFindProperty(string name) => Properties.FirstOrDefault(x => x.Name == name);
-    public IType Type => Name is null ? TypeShorthands.NullType : Type(Name);
-    public TypeSyntax TypeSyntax() => Type.Syntax();
 
-    public ISet<IType> Dependencies(ISet<IType>? set = null)
+    public override IEnumerable<ICodeModel> Children()
     {
-        var dependencies = set ?? new HashSet<IType>();
-        foreach (var property in Properties) property.Dependencies(dependencies);
-        return dependencies;
+        foreach (var property in Properties) yield return property;
+    }
+
+    public override object? Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new NotImplementedException();
     }
 }
 

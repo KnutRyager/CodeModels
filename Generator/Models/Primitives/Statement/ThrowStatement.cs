@@ -20,4 +20,9 @@ public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressi
     {
         yield return Expression;
     }
+
+    public override object? Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

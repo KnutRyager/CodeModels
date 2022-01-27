@@ -9,6 +9,7 @@ public interface IExpression : ICodeModel
     LiteralExpressionSyntax? LiteralSyntax { get; }
     ArgumentSyntax ToArgument();
     object? LiteralValue { get; }
+    object? Evaluate(IProgramModelExecutionContext context);
     EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
 
     new ExpressionSyntax Syntax();
