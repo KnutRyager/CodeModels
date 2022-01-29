@@ -32,7 +32,6 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
     {
         context.EnterScope();
         Declaration.Evaluate(context);
-        var lit = Condition.Evaluate(context).LiteralValue;
         while ((bool)Condition.Evaluate(context).LiteralValue)
         {
             Statement.Evaluate(context);
@@ -40,7 +39,6 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
             if (context.HandleBreak())  break;
             if (context.HandleContinue())  continue;
             Incrementors.ForEach(x => x.Evaluate(context));
-            lit = Condition.Evaluate(context).LiteralValue;
         }
         context.ExitScope();
     }

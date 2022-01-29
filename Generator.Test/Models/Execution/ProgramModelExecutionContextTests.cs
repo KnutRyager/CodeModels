@@ -67,6 +67,32 @@ public class ProgramModelExecutionContextTests
     }
 
     [Fact]
+    public void SwitchCase()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.DefineVariable("a");
+        var switchCase = Switch(Identifier("a"),new[] {
+            Case(Literal(1),Assignment(Identifier("a"), Literal("one")).AsStatement()),
+            Case(Literal(2),Assignment(Identifier("a"), Literal("two")).AsStatement()),
+            Case(Literal(3),Assignment(Identifier("a"), Literal("three")).AsStatement()),
+            }, 
+            Assignment(Identifier("a"), Literal("four")).AsStatement());
+        context.SetValue("a", Literal(1));
+        switchCase.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("one");
+        context.SetValue("a", Literal(2));
+        switchCase.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("two");
+        context.SetValue("a", Literal(3));
+        switchCase.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("three");
+        context.SetValue("a", Literal(4));
+        switchCase.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("four");
+    }
+
+    [Fact]
     public void SimpleForLoop()
     {
         var context = new ProgramModelExecutionContext();

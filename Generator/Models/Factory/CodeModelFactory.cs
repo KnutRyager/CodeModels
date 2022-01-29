@@ -132,6 +132,11 @@ public static class CodeModelFactory
 
     public static DoStatement Do(IStatement statement, IExpression condition, bool blockify = true) => new(Block(statement, blockify), condition);
 
+    public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
+         => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
+    public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
+    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), statement);
+
     public static ReturnStatement Return(IExpression expression) => new(expression);
     public static ContinueStatement Continue() => new();
     public static BreakStatement Break() => new();
@@ -150,11 +155,6 @@ public static class CodeModelFactory
     public static FinallyClause Finally(IStatement statement) => new(statement);
     public static ThrowStatement Throw(IExpression expression) => new(expression);
     public static ThrowExpression ThrowExpression(IExpression expression) => new(expression);
-
-    public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
-        => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
-    public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
-    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), statement);
 
     public static IdentifierExpression Identifier(string name, IType? type = null) => new(name, type);
 

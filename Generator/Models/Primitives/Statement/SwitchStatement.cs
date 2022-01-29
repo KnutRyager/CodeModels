@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Common.Util;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,7 +11,7 @@ namespace CodeAnalyzation.Models;
 public record SwitchStatement(IExpression Expression, List<SwitchSection> Sections) : AbstractStatement<SwitchStatementSyntax>
 {
     public SwitchStatement(IExpression expression, List<SwitchSection> Sections, IStatement @default)
-            : this(expression, CollectionUtil.Add(Sections.Select(x => x.WithBreak()), new DefaultSwitchSection(@default))) { }
+           : this(expression, CollectionUtil.Add(Sections.Select(x => x.WithBreak()), new DefaultSwitchSection(@default))) { }
 
     public override SwitchStatementSyntax Syntax()
         => SwitchStatementCustom(Expression.Syntax(), Sections.Select(x => x.Syntax()));
@@ -23,7 +24,18 @@ public record SwitchStatement(IExpression Expression, List<SwitchSection> Sectio
 
     public override void Evaluate(IProgramModelExecutionContext context)
     {
-        throw new System.NotImplementedException();
+        context.EnterScope();
+        var condition = Expression.Evaluate(context);
+        foreach (var section in Sections)
+        {
+            if (section.IsMatch(context, condition))
+            {
+                section.Evaluate(context);
+                if (context.HandleReturn() || context.HandleThrow()) return;
+                if (context.HandleBreak()) break;
+            }
+        }
+        context.ExitScope();
     }
 }
 
@@ -38,9 +50,26 @@ public record SwitchSection(List<IExpression> Labels, IStatement Statement) : Co
         yield return Statement;
         foreach (var label in Labels) yield return label;
     }
+
+    public virtual bool IsMatch(IProgramModelExecutionContext context, IExpression condition)
+    {
+        foreach (var label in Labels)
+        {
+            var labelValue = label.Evaluate(context).LiteralValue;
+            if (Equals(labelValue, condition.LiteralValue)) return true;
+        }
+        return false;
+    }
+
+    public void Evaluate(IProgramModelExecutionContext context)
+    {
+        Statement.Evaluate(context);
+    }
 }
 
 public record DefaultSwitchSection(IStatement Statement) : SwitchSection(new List<IExpression>(), Statement)
 {
     public override SwitchSectionSyntax Syntax() => SwitchSectionCustom(DefaultSwitchLabelCustom(), Block(Statement).Syntax());
+
+    public override bool IsMatch(IProgramModelExecutionContext _, IExpression __) => true;
 }
