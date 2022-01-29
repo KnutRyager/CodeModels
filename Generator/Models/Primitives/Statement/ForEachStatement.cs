@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models;
 
@@ -28,10 +30,14 @@ public record ForEachStatement(IType? Type, string Identifier, IExpression Expre
         context.EnterScope();
         context.DefineVariable(Identifier);
         var iterator = Expression.Evaluate(context).LiteralValue as System.Collections.IEnumerable;
+        if (iterator is null)
+        {
+            context.Throw(new NullReferenceException("null iterator"));
+            return;
+        }
         foreach (var value in iterator)
         {
-            throw new System.NotImplementedException(); // TODO: Parse expression from arbitrary object
-            //context.SetValue(CodeModelParsing.ParseExpression(value));
+            context.SetValue(Identifier, Literal(value));
             Statement.Evaluate(context);
             if (context.HandleReturn() || context.HandleThrow()) return;
             if (context.HandleBreak()) break;

@@ -1,4 +1,5 @@
 ﻿using System;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using System.Collections.Generic;
 
 namespace CodeAnalyzation.Models;
@@ -120,4 +121,6 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     private IProgramModelExecutionScope FindScopeOrCrash(string identifier) => FindScope(identifier) ?? throw new ProgramModelExecutionException($"Cannot find scope of identifier: {identifier}");
 
     private IProgramModelExecutionScope GetScope(int depth = 0) => depth < _scopes.Count ? _scopes[_scopes.Count - 1 - depth] : throw new ProgramModelExecutionException($"No scope at depth: {depth}");
+
+    public void Throw(Exception exception) => Throw(Literal(exception));
 }

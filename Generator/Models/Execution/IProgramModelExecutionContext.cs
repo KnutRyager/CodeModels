@@ -1,4 +1,6 @@
-﻿namespace CodeAnalyzation.Models;
+﻿using System;
+
+namespace CodeAnalyzation.Models;
 
 public interface IProgramModelExecutionContext 
 {
@@ -15,6 +17,7 @@ public interface IProgramModelExecutionContext
     void SetReturn(IExpression Value);
     bool HandleReturn();
     void Throw(IExpression value);
+    public void Throw(Exception exception);
     bool HandleThrow();
     void EnterScope(object owner);
     void EnterScope();

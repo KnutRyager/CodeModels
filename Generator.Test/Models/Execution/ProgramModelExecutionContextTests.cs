@@ -72,11 +72,11 @@ public class ProgramModelExecutionContextTests
         var context = new ProgramModelExecutionContext();
         context.EnterScope();
         context.DefineVariable("a");
-        var switchCase = Switch(Identifier("a"),new[] {
+        var switchCase = Switch(Identifier("a"), new[] {
             Case(Literal(1),Assignment(Identifier("a"), Literal("one")).AsStatement()),
             Case(Literal(2),Assignment(Identifier("a"), Literal("two")).AsStatement()),
             Case(Literal(3),Assignment(Identifier("a"), Literal("three")).AsStatement()),
-            }, 
+            },
             Assignment(Identifier("a"), Literal("four")).AsStatement());
         context.SetValue("a", Literal(1));
         switchCase.Evaluate(context);
@@ -101,6 +101,43 @@ public class ProgramModelExecutionContextTests
         var forLoop = For("i", Literal(10), Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("i")).AsStatement());
         forLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(45);
+    }
+
+    [Fact]
+    public void WhileLoop()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(0), true);
+        var whileLoop = While(BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(10)),
+            Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Literal(1)).AsStatement());
+        whileLoop.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(10);
+    }
+
+    [Fact]
+    public void DoWhileLoop()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(0), true);
+        var doWhileLoop = Do(Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Literal(1)).AsStatement(),
+            BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(10)));
+        doWhileLoop.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(10);
+    }
+
+    [Fact]
+    public void ForEachLoop()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(0), true);
+        var forEachLoop = ForEach("b",
+            Literal(new object[] { 1, 2, 3, 4, 5 }),
+            Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("b")).AsStatement());
+        forEachLoop.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(15);
     }
 
     [Fact]
