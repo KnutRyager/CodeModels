@@ -1,10 +1,13 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CodeAnalyzation.Models;
 
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
+    private bool _continueFlag, _breakFlag, _returnFlag, _throwFlag;
+    private IExpression? _returnValue;
 
     public void EnterScope(object owner)
     {
@@ -29,11 +32,53 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         _scopes.RemoveAt(_scopes.Count - 1);
     }
 
-    public object? GetValue(string identifier) => FindScopeOrCrash(identifier).GetValue(identifier);
+    public void DefineVariable(string identifier) => GetScope().DefineVariable(identifier);
 
-    public object? GetValue(IdentifierExpression identifier)
+    public IExpression GetValue(string identifier) => FindScopeOrCrash(identifier).GetValue(identifier);
+
+    public IExpression? GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
+
+    public bool HandleBreak()
     {
-        throw new System.NotImplementedException();
+        var wasBreak = _breakFlag;
+        _breakFlag = false;
+        return wasBreak;
+    }
+
+    public bool HandleContinue()
+    {
+        var wasContinue = _continueFlag;
+        _continueFlag = false;
+        return wasContinue;
+    }
+
+    public bool HandleReturn()
+    {
+        var wasReturn = _returnFlag;
+        _returnFlag = false;
+        return wasReturn;
+    }
+
+    public bool HandleThrow()
+    {
+        var wasThrow = _throwFlag;
+        _throwFlag = false;
+        return wasThrow;
+    }
+
+    public void SetBreak()
+    {
+        _breakFlag = true;
+    }
+
+    public void SetContinue()
+    {
+        _continueFlag = true;
+    }
+
+    public void SetReturn(IExpression Value)
+    {
+        _returnFlag = true;
     }
 
     public void SetValue(string identifier, IExpression value, bool define = false)
@@ -45,12 +90,21 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void SetValue(IdentifierExpression identifier, IExpression value, bool define = false)
     {
-        throw new System.NotImplementedException();
+        SetValue(identifier.Name, value, define);
+    }
+
+    public void SetValue(IExpression expression, IExpression value, bool allowDefine = false)
+    {
+        switch (expression)
+        {
+            case IdentifierExpression identifier: SetValue(identifier, value, allowDefine); break;
+            default: throw new NotImplementedException();
+        }
     }
 
     public void Throw(IExpression value)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     private IProgramModelExecutionScope? FindScope(string identifier)

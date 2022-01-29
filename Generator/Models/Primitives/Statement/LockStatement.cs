@@ -13,4 +13,9 @@ public record LockStatement(IExpression Expression, IStatement Statement) : Abst
         yield return Expression;
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -13,7 +13,7 @@ public record PropertyExpression(Property Property, IExpression? Instance = null
         if (Instance is not null) yield return Instance;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

@@ -17,6 +17,24 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
         yield return Statement;
         if (Else is not null) yield return Else;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        if ((bool)Condition.Evaluate(context).LiteralValue)
+        {
+            context.EnterScope();
+            Statement.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            context.ExitScope();
+        }
+        else if (Else is not null)
+        {
+            context.EnterScope();
+            Else.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            context.ExitScope();
+        }
+    }
 }
 
 public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else) : AbstractStatement<IfStatementSyntax>
@@ -37,5 +55,30 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
     {
         foreach (var statement in IfStatements) yield return statement;
         if (Else is not null) yield return Else;
+    }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        var ifWasExecuted = false;
+        foreach (var statement in IfStatements)
+        {
+            var ifCondition = (bool)statement.Condition.Evaluate(context).LiteralValue;
+            ifWasExecuted |= ifCondition;
+            if (ifCondition)
+            {
+                context.EnterScope();
+                statement.Evaluate(context);
+                if (context.HandleReturn() || context.HandleThrow()) return;
+                context.ExitScope();
+            }
+            if (ifWasExecuted) break;
+        }
+        if (!ifWasExecuted && Else is not null)
+        {
+            context.EnterScope();
+            Else.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            context.ExitScope();
+        }
     }
 }

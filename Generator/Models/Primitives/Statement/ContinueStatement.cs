@@ -10,4 +10,9 @@ public record ContinueStatement() : AbstractStatement<ContinueStatementSyntax>
     public override ContinueStatementSyntax Syntax() => ContinueCustom();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.SetContinue();
+    }
 }

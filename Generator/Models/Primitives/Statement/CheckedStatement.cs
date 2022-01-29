@@ -13,4 +13,9 @@ public record CheckedStatement(Block Block) : AbstractStatement<CheckedStatement
     {
         yield return Block;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

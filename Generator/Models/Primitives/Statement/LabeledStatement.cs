@@ -12,4 +12,6 @@ public record LabeledStatement(string Identifier, IStatement Statement) : Abstra
     {
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context) => Statement.Evaluate(context);
 }

@@ -13,4 +13,9 @@ public record GotoStatement(IExpression Expression) : AbstractStatement<GotoStat
     {
         yield return Expression;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new NotImplementedException();
+    }
 }

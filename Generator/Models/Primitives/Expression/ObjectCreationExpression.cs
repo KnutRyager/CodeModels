@@ -14,7 +14,7 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
         yield return Type;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }
@@ -28,7 +28,7 @@ public record ImplicitObjectCreationExpression(IType Type, PropertyCollection Ar
         yield return Type;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

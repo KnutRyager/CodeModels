@@ -12,4 +12,17 @@ public record WhileStatement(IExpression Condition, IStatement Statement) : Abst
         yield return Condition;
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.EnterScope();
+        while ((bool)Condition.Evaluate(context).LiteralValue)
+        {
+            Statement.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            if (context.HandleBreak()) break;
+            if (context.HandleContinue()) continue;
+        }
+        context.ExitScope();
+    }
 }

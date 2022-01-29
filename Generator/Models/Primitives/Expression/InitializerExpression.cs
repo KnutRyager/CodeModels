@@ -16,7 +16,7 @@ public record InitializerExpression(IType Type, SyntaxKind Kind, PropertyCollect
         yield return Expressions;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

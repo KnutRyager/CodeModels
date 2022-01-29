@@ -5,6 +5,7 @@ using System.Reflection;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Models.CodeModelParsing;
 
@@ -171,4 +172,7 @@ public static class CodeModelFactory
 
     public static AnyArgExpression<ExpressionSyntax> AnyArgExpression(IEnumerable<IExpression>? inputs, OperationType operation, IType? type = null)
         => operation.IsAnyArgOperator() ? new(List(inputs), type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not an any arg operator: '{operation}'");
+
+    public static AssignmentExpression Assignment(IExpression left, SyntaxKind kind, IExpression right) => new(left, right, kind);
+    public static AssignmentExpression Assignment(IExpression left, IExpression right) => new(left, right, SyntaxKind.SimpleAssignmentExpression);
 }

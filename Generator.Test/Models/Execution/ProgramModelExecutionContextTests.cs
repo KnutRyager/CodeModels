@@ -2,6 +2,7 @@ using CodeAnalyzation.Test;
 using Xunit;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using FluentAssertions;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeAnalyzation.Models.Primitives.Test;
 
@@ -14,6 +15,66 @@ public class ProgramModelExecutionContextTests
         context.EnterScope();
         context.SetValue("test", Literal("a"), true);
         context.GetValue("test").Should().Be(Literal("a"));
+    }
+
+    [Fact]
+    public void AddTwoVariables()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(2), true);
+        context.SetValue("b", Literal(3), true);
+        context.SetValue("c", BinaryExpression(Identifier("a"), OperationType.Plus, Identifier("b")).Evaluate(context), true);
+        context.GetValue("c").EvaluatePlain(context).Should().Be(5);
+    }
+
+    [Fact]
+    public void SimpleIf()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(0), true);
+        If(Literal(true), Assignment(Identifier("a"), Literal(1337)).AsStatement()).Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(1337);
+        If(Literal(false), Assignment(Identifier("a"), Literal("nope")).AsStatement()).Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(1337);
+    }
+
+    [Fact]
+    public void MultiIfs()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.DefineVariable("a");
+        var ifs = MultiIf(new[] {
+            If(BinaryExpression(Identifier("a"), OperationType.Equals, Literal(0)), Assignment(Identifier("a"), Literal("equal")).AsStatement()),
+            If(BinaryExpression(Identifier("a"), OperationType.GreaterThan, Literal(1)), Assignment(Identifier("a"), Literal("great")).AsStatement()),
+            If(BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(0)), Assignment(Identifier("a"), Literal("less")).AsStatement()),
+             },
+            Assignment(Identifier("a"), Literal("one")).AsStatement());
+        context.SetValue("a", Literal(0));
+        ifs.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("equal");
+        context.SetValue("a", Literal(2));
+        ifs.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("great");
+        context.SetValue("a", Literal(-2));
+        ifs.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("less");
+        context.SetValue("a", Literal(1));
+        ifs.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be("one");
+    }
+
+    [Fact]
+    public void SimpleForLoop()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("a", Literal(0), true);
+        var forLoop = For("i", Literal(10), Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("i")).AsStatement());
+        forLoop.Evaluate(context);
+        context.GetValue("a").EvaluatePlain(context).Should().Be(45);
     }
 
     [Fact]

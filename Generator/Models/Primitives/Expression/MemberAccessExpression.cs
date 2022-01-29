@@ -16,5 +16,5 @@ public record MemberAccessExpression(IExpression Expression, string Name, IType?
         yield return Expression;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
 }

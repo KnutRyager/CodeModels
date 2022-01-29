@@ -14,6 +14,11 @@ public record LocalDeclarationStatement(VariableDeclaration Declaration, Modifie
     {
         yield return Declaration;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        Declaration.Evaluate(context);
+    }
 }
 
 public record LocalDeclarationStatements(VariableDeclarations Declarations, Modifier Modifiers = Modifier.None) : AbstractStatement<LocalDeclarationStatementSyntax>
@@ -24,4 +29,6 @@ public record LocalDeclarationStatements(VariableDeclarations Declarations, Modi
     {
         yield return Declarations;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context) => Declarations.Evaluate(context);
 }

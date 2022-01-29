@@ -35,7 +35,8 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
 
     public override IEnumerable<ICodeModel> Children() => Values;
 
-    public override object? Evaluate(IProgramModelExecutionContext context) => Values.Select(x => x.Evaluate(context)).ToArray();
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    //public override IExpression Evaluate(IProgramModelExecutionContext context) => Values.Select(x => x.Evaluate(context)).ToArray();
 }
 
 

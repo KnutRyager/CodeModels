@@ -12,4 +12,6 @@ public record ReturnStatement(IExpression Expression) : AbstractStatement<Return
     {
         yield return Expression;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context) => context.SetReturn(Expression);
 }

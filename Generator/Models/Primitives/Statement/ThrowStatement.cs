@@ -11,6 +11,8 @@ public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowSt
     {
         yield return Expression;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context) => context.Throw(Expression);
 }
 
 public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Type)
@@ -21,8 +23,9 @@ public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressi
         yield return Expression;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        throw new System.NotImplementedException();
+        context.Throw(Expression);
+        return Expression;
     }
 }

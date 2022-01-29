@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
@@ -13,7 +14,31 @@ public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, Operatio
         yield return Type;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context) =>Operation.ApplyOperator(Inputs);
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    {
+        switch (Operation)
+        {
+            case OperationType.UnaryAddBefore:
+            case OperationType.UnarySubtractBefore:
+                {
+                    var expression = Inputs.First();
+                    var value = Literal(Operation.ApplyOperator(Inputs.Select(x => x.EvaluatePlain(context)).ToArray()));
+                    context.SetValue(expression, value);
+                    return value;
+                }
+            case OperationType.UnaryAddAfter:
+            case OperationType.UnarySubtractAfter:
+                {
+                    var expression = Inputs.First();
+                    var value = Literal(Operation.ApplyOperator(Inputs.Select(x => x.EvaluatePlain(context)).ToArray()));
+                    context.SetValue(expression, value);
+                    return expression;
+                }
+            default:
+                return Literal(Operation.ApplyOperator(Inputs.Select(x => x.EvaluatePlain(context)).ToArray()));    // TODO: Handle object types
+        }
+
+    }
 
     public override T Syntax() => (T)Operation.Syntax(Inputs, Type);
 }

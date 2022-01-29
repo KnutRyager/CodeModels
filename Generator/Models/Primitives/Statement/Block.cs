@@ -14,4 +14,11 @@ public record Block(List<IStatement> Statements) : AbstractStatement<BlockSyntax
     public Block Add(IStatement statement) => this with { Statements = CollectionUtil.Add(Statements, statement) };
     public override bool EndsInBreak() => Statements.LastOrDefault() is BreakStatement;
     public override IEnumerable<ICodeModel> Children() => Statements;
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.EnterScope();
+        foreach(var statement in Statements) statement.Evaluate(context);
+        context.ExitScope();
+    }
 }

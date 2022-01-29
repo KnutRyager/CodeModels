@@ -10,4 +10,6 @@ public record BreakStatement() : AbstractStatement<BreakStatementSyntax>
     public override BreakStatementSyntax Syntax() => BreakCustom();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
+
+    public override void Evaluate(IProgramModelExecutionContext context) => context.SetBreak();
 }

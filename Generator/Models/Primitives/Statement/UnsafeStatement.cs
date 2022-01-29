@@ -14,4 +14,6 @@ public record UnsafeStatement(Block Block) : AbstractStatement<UnsafeStatementSy
     {
         yield return Block;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context) => Block.Evaluate(context);
 }

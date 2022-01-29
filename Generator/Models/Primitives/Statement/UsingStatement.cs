@@ -12,4 +12,9 @@ public record UsingStatement(IStatement Statement) : AbstractStatement<UsingStat
     {
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

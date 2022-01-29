@@ -20,6 +20,11 @@ public record SwitchStatement(IExpression Expression, List<SwitchSection> Sectio
         yield return Expression;
         foreach (var section in Sections) yield return section;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 public record SwitchSection(List<IExpression> Labels, IStatement Statement) : CodeModel<SwitchSectionSyntax>

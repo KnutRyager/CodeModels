@@ -6,6 +6,7 @@ public interface IStatement : ICodeModel
 {
     new StatementSyntax Syntax();
     bool EndsInBreak();
+    void Evaluate(IProgramModelExecutionContext context);
 }
 
 public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSyntax
@@ -17,4 +18,5 @@ public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> wher
 {
     StatementSyntax IStatement.Syntax() => Syntax();
     public virtual bool EndsInBreak() => false;
+    public abstract void Evaluate(IProgramModelExecutionContext context);
 }

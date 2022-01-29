@@ -52,6 +52,7 @@ public enum OperationType
     LeftShift,
     RightShift,
     ConditionalAccess,
+    Assignment,
     Dot,
     Is,
     As,

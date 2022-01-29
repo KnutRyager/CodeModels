@@ -13,5 +13,5 @@ public record IdentifierExpression(string Name, IType? Type = null) : Expression
         yield return Type;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context) => context.GetValue(this);
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => context.GetValue(this);
 }

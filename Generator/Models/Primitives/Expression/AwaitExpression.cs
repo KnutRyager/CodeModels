@@ -12,7 +12,7 @@ public record AwaitExpression(IExpression Expression)  : Expression<AwaitExpress
         yield return Expression;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

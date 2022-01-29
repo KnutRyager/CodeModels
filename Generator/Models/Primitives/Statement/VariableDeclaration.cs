@@ -16,6 +16,16 @@ public record VariableDeclaration(IType Type, string Name, IExpression? Value = 
         yield return Type;
         if (Value is not null) yield return Value;
     }
+
+    public void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.DefineVariable(Name);
+        if (Value is not null)
+        {
+            context.SetValue(Name, Value);
+            context.HandleThrow();
+        }
+    }
 }
 
 public record VariableDeclarations(IType Type, List<VariableDeclarator> Value) : CodeModel<VariableDeclarationSyntax>, ITypeModel
@@ -34,6 +44,15 @@ public record VariableDeclarations(IType Type, List<VariableDeclarator> Value) :
         yield return Type;
         foreach (var value in Value) yield return value;
     }
+
+    public void Evaluate(IProgramModelExecutionContext context)
+    {
+        foreach (var declarator in Value)
+        {
+            declarator.Evaluate(context);
+            context.HandleThrow();
+        }
+    }
 }
 
 public record VariableDeclarator(string Name, IExpression? Value = null) : CodeModel<VariableDeclaratorSyntax>
@@ -42,5 +61,15 @@ public record VariableDeclarator(string Name, IExpression? Value = null) : CodeM
     public override IEnumerable<ICodeModel> Children()
     {
         if (Value is not null) yield return Value;
+    }
+
+    public void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.DefineVariable(Name);
+        if (Value is not null)
+        {
+            context.SetValue(Name, Value);
+            context.HandleThrow();
+        }
     }
 }

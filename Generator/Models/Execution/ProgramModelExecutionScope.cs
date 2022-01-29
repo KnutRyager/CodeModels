@@ -18,8 +18,8 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
         _variables.Add(identifier);
     }
 
-    public object? GetValue(string identifier) => _values[identifier];
-    public object? GetValue(IdentifierExpression identifier) => _values[identifier];
+    public IExpression GetValue(string identifier) => _values[identifier];
+    public IExpression GetValue(IdentifierExpression identifier) => _values[identifier];
 
     public bool HasIdentifier(string identifier) => _variables.Contains(identifier);
     public bool HasIdentifier(IdentifierExpression identifier) => _variables.Contains(identifier);

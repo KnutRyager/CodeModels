@@ -22,4 +22,21 @@ public record ForEachStatement(IType? Type, string Identifier, IExpression Expre
         yield return Expression;
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.EnterScope();
+        context.DefineVariable(Identifier);
+        var iterator = Expression.Evaluate(context).LiteralValue as System.Collections.IEnumerable;
+        foreach (var value in iterator)
+        {
+            throw new System.NotImplementedException(); // TODO: Parse expression from arbitrary object
+            //context.SetValue(CodeModelParsing.ParseExpression(value));
+            Statement.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            if (context.HandleBreak()) break;
+            if (context.HandleContinue()) continue;
+        }
+        context.ExitScope();
+    }
 }

@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKind Kind) : Expression<AssignmentExpressionSyntax>(Left.Type)
+public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKind Kind) : Expression<AssignmentExpressionSyntax>(Left.Type)
 {
     public override AssignmentExpressionSyntax Syntax() => AssignmentExpression(Kind, Left.Syntax(), Right.Syntax());
     public override IEnumerable<ICodeModel> Children()
@@ -14,10 +15,29 @@ public abstract record AssignmentExpression(IExpression Left, IExpression Right,
         yield return Right;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        throw new System.NotImplementedException();
+        var result = CodeModelFactory.BinaryExpression(Left, GetOperationType(Kind), Right).Evaluate(context);
+        context.SetValue(Left, result);
+        return result;
     }
+
+    public static OperationType GetOperationType(SyntaxKind kind) => kind switch
+    {
+        SyntaxKind.SimpleAssignmentExpression => OperationType.Assignment,
+        SyntaxKind.AddAssignmentExpression => OperationType.Plus,
+        SyntaxKind.SubtractAssignmentExpression => OperationType.Subtract,
+        SyntaxKind.MultiplyAssignmentExpression => OperationType.Multiply,
+        SyntaxKind.DivideAssignmentExpression => OperationType.Divide,
+        SyntaxKind.ModuloAssignmentExpression => OperationType.Modulo,
+        SyntaxKind.AndAssignmentExpression => OperationType.LogicalAnd,
+        SyntaxKind.ExclusiveOrAssignmentExpression => OperationType.ExclusiveOr,
+        SyntaxKind.OrAssignmentExpression => OperationType.LogicalOr,
+        SyntaxKind.LeftShiftAssignmentExpression => OperationType.LeftShift,
+        SyntaxKind.RightShiftAssignmentExpression => OperationType.RightShift,
+        SyntaxKind.CoalesceAssignmentExpression => OperationType.Coalesce,
+        _ => throw new NotImplementedException($"{kind}")
+    };
 }
 
 public record SimpleAssignmentExpression(IExpression Left, IExpression Right) : AssignmentExpression(Left, Right, SyntaxKind.SimpleAssignmentExpression) { }

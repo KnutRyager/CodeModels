@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -26,12 +27,29 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
         foreach (var initializer in Initializers) yield return initializer;
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        context.EnterScope();
+        Declaration.Evaluate(context);
+        var lit = Condition.Evaluate(context).LiteralValue;
+        while ((bool)Condition.Evaluate(context).LiteralValue)
+        {
+            Statement.Evaluate(context);
+            if (context.HandleReturn() || context.HandleThrow()) return;
+            if (context.HandleBreak())  break;
+            if (context.HandleContinue())  continue;
+            Incrementors.ForEach(x => x.Evaluate(context));
+            lit = Condition.Evaluate(context).LiteralValue;
+        }
+        context.ExitScope();
+    }
 }
 
 public record SimpleForStatement(string Variable, IExpression Limit, IStatement Statement)
     : ForStatement(
         CodeModelFactory.Declaration(Type("int"), Variable, CodeModelFactory.Literal(0)),
         null,
-        BinaryExpression(CodeModelFactory.Identifier("i"), OperationType.LessThan, Limit),
-        UnaryExpression(CodeModelFactory.Identifier("i"), OperationType.UnaryAddAfter),
+        BinaryExpression(CodeModelFactory.Identifier(Variable), OperationType.LessThan, Limit),
+        UnaryExpression(CodeModelFactory.Identifier(Variable), OperationType.UnaryAddAfter),
         Statement);

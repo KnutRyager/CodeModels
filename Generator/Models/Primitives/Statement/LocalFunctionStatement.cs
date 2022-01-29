@@ -29,4 +29,9 @@ public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string
         if (Body is not null) yield return Body;
         if (ExpressionBody is not null) yield return ExpressionBody;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

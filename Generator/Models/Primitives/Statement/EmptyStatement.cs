@@ -12,4 +12,6 @@ public record EmptyStatement() : AbstractStatement<EmptyStatementSyntax>
     public override EmptyStatementSyntax Syntax() => EmptyStatement();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
+
+    public override void Evaluate(IProgramModelExecutionContext context)    {   }
 }

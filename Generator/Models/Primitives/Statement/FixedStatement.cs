@@ -13,4 +13,9 @@ public record FixedStatement(VariableDeclarations VariableDeclarations, IStateme
         yield return VariableDeclarations;
         yield return Statement;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

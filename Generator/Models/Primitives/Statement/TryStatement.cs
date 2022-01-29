@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -20,6 +21,25 @@ public record TryStatement(IStatement Statement, List<CatchClause> CatchClauses,
         }
         if (Finally is not null) yield return Finally;
     }
+
+    public override void Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new NotImplementedException();
+        // TODO
+        //context.EnterScope();
+        //Statement.Evaluate(context);
+        //if (context.HandleThrow())
+        //{
+        //    foreach(var catchClause in CatchClauses)
+        //    {
+        //        catchClause.Evaluate();
+        //    }
+        //}
+        //if(Finally is not null)
+        //{
+        //    Finally.Evaluate(context);
+        //}
+    }
 }
 
 public record CatchDeclaration(IType Type, string? Identifier) : CodeModel<CatchDeclarationSyntax>
@@ -29,6 +49,21 @@ public record CatchDeclaration(IType Type, string? Identifier) : CodeModel<Catch
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
+    }
+
+    public  void Evaluate(IProgramModelExecutionContext context, IExpression expression)
+    {
+        //context.EnterScope();
+        //Statement.Evaluate(context);
+        //if (context.HandleThrow())
+        //{
+        //    context.ExitScope();
+        //    context.EnterScope();
+        //}
+        //if (Finally is not null)
+        //{
+        //    Finally.Evaluate(context);
+        //}
     }
 }
 

@@ -11,7 +11,7 @@ public record TypeExpression(IType Type) : Expression<TypeSyntax>(Type)
         yield return Type;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

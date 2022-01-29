@@ -71,7 +71,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
         foreach (var property in Properties) yield return property;
     }
 
-    public override object? Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new NotImplementedException();
     }
