@@ -15,7 +15,7 @@ public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowSt
     public override void Evaluate(IProgramModelExecutionContext context) => context.Throw(Expression);
 }
 
-public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Type)
+public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Get_Type())
 {
     public override ThrowExpressionSyntax Syntax() => ThrowExpressionCustom(Expression.Syntax());
     public override IEnumerable<ICodeModel> Children()

@@ -4,7 +4,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record AwaitExpression(IExpression Expression)  : Expression<AwaitExpressionSyntax>(Expression.Type)
+public record AwaitExpression(IExpression Expression)  : Expression<AwaitExpressionSyntax>(Expression.Get_Type())
 {
     public override AwaitExpressionSyntax Syntax() => AwaitExpression(Expression.Syntax());
     public override IEnumerable<ICodeModel> Children()

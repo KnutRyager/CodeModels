@@ -8,6 +8,7 @@ namespace CodeAnalyzation.Models;
 
 public record VariableDeclaration(IType Type, string Name, IExpression? Value = null) : CodeModel<VariableDeclarationSyntax>, ITypeModel
 {
+    public IType Get_Type() => Type;
     public override VariableDeclarationSyntax Syntax() => VariableDeclarationCustom(Type.Syntax()!, VariableDeclaratorCustom(Identifier(Name), Value?.Syntax()));
     public TypeSyntax TypeSyntax() => Type.Syntax();
     public VariableDeclarator ToDeclarator() => new(Name, Value);
@@ -37,6 +38,7 @@ public record VariableDeclarations(IType Type, List<VariableDeclarator> Value) :
     public VariableDeclarations(IType Type, string name, IExpression? value = null)
         : this(Type, value is null ? new List<VariableDeclarator>() : CodeModelFactory.List(new VariableDeclarator(name, value))) { }
     public VariableDeclaration First() => new(Type, Value.First().Name, Value.First().Value);
+    public IType Get_Type() => Type;
     public override VariableDeclarationSyntax Syntax() => VariableDeclarationCustom(Type.Syntax()!, Value.Select(x => x.Syntax()));
     public TypeSyntax TypeSyntax() => Type.Syntax();
     public override IEnumerable<ICodeModel> Children()

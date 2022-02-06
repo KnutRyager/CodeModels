@@ -3,7 +3,7 @@ using Xunit;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using FluentAssertions;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeAnalyzation.Models.Execution.Test;
 
 public class ProgramModelExecutionScopeTests
 {

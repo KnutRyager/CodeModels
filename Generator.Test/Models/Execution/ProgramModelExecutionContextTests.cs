@@ -4,7 +4,7 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeAnalyzation.Models.Execution.Test;
 
 public class ProgramModelExecutionContextTests
 {

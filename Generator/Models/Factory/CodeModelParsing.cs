@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeAnalyzation.Parsing;
+using CodeAnalyzation.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,19 +13,76 @@ namespace CodeAnalyzation.Models;
 public static class CodeModelParsing
 {
     public static IType Parse(SyntaxToken token) => ParseType(token.ToString());
-    public static IType ParseType(string code) => ParseType(ParseTypeName(code));
+    public static IType ParseType(string identifier) => ParseType(ParseTypeName(identifier));
+    public static IType Parse(TypeInfo typeInfo) => typeInfo.Type is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type);  // TODO: Nullability
+    public static TypeFromSymbol Parse(ITypeSymbol symbol) => new TypeFromSymbol(symbol);
 
-    // TODO: Handle sourceSyntax: fullType ?? t
-    public static IType ParseType(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => type switch
+    public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
     {
-        PredefinedTypeSyntax t => new QuickType(t.Keyword.ToString(), required),
-        NullableTypeSyntax t => ParseType(t.ElementType, false, fullType: fullType ?? t),
-        IdentifierNameSyntax t => new QuickType(t.Identifier.ToString()),
-        ArrayTypeSyntax t => new QuickType(t.ElementType.ToString(), isMulti: true),
-        GenericNameSyntax t => new QuickType(t.ToString()),
+        var expression = Parse(syntax, required, knownType, model);
+        return (expression is IType type ? type : expression is IdentifierExpression identifier ? new QuickType(identifier.Name) : expression.Get_Type()) ??
+             throw new NotImplementedException($"No type for: '{syntax}'.");
+    }
+    public static IExpression Parse(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null) => syntax switch
+    {
+        ArrayTypeSyntax type => Parse(type, knownType, model),
+        FunctionPointerTypeSyntax type => Parse(type, knownType, model),
+        NameSyntax type => Parse(type, knownType, model),
+        NullableTypeSyntax type => Parse(type, knownType, model),
+        OmittedTypeArgumentSyntax type => Parse(type, model),
+        PointerTypeSyntax type => Parse(type, knownType, model),
+        PredefinedTypeSyntax type => Parse(type, required, knownType, model),
+        RefTypeSyntax type => Parse(type, knownType, model),
+        TupleTypeSyntax type => Parse(type, knownType, model),
         null => TypeShorthands.NullType,
-        _ => throw new ArgumentException($"Unhandled {nameof(TypeSyntax)}: '{type}'.")
+        _ => throw new NotImplementedException($"TypeSyntax {syntax} not implemented.")
     };
+
+    public static IType Parse(ArrayTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => QuickType.ArrayType(ParseType(syntax.ElementType, model: model));
+    public static IType Parse(FunctionPointerTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IExpression Parse(NameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
+    {
+        AliasQualifiedNameSyntax name => Parse(name, type, model),
+        QualifiedNameSyntax name => Parse(name, type, model),
+        SimpleNameSyntax name => Parse(name, type, model),
+        _ => throw new NotImplementedException($"NameSyntax {syntax} not implemented.")
+    };
+    public static IType Parse(AliasQualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IExpression Parse(SimpleNameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
+    {
+        GenericNameSyntax name => Parse(name, type, model),
+        IdentifierNameSyntax name => Parse(name, type, model),
+        _ => throw new NotImplementedException($"NameSyntax {syntax} not implemented.")
+    };
+    public static IType Parse(GenericNameSyntax syntax, IType? type = null, SemanticModel? model = null) => new QuickType(syntax.ToString());
+    public static IExpression Parse(IdentifierNameSyntax syntax, IType? type = null, SemanticModel? model = null)
+    {
+        var symbolFull = model is null ? default : model.GetSymbolInfo(syntax);
+        var symbol = model is null ? null : model.GetSymbolInfo(syntax).Symbol;
+        var typeInfo2 = model is null ? default : model.GetTypeInfo(syntax);
+        var containing = model is null ? default : symbol?.ContainingType;
+        var operation = model is null ? null : model.GetOperation(syntax);
+        return model.GetSymbolInfo(syntax).Symbol switch
+        {
+            IFieldSymbol field => new PropertyFromField(field).AccessValue(syntax.ToString(), type, field),
+            IPropertySymbol property => new PropertyFromReflection(property).AccessValue(syntax.ToString(), type, property),
+            IMethodSymbol method => new MethodFromReflection(method).Invoke(syntax.ToString(), type, method),
+            ITypeSymbol typeSymbol => Parse(typeSymbol),
+            INamespaceSymbol namespaceSymbol => new Namespace(namespaceSymbol),
+            _ when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, symbol),
+            _ when model.GetTypeInfo(syntax) is TypeInfo typeInfo => Parse(typeInfo),
+            _ => new QuickType(syntax.Identifier.ToString())
+        };
+    }
+
+    public static IType Parse(NullableTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => ParseType(syntax.ElementType, false);
+    public static IType Parse(OmittedTypeArgumentSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IType Parse(PointerTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IType Parse(PredefinedTypeSyntax syntax, bool required, IType? type = null, SemanticModel? model = null)
+        => new QuickType(syntax.Keyword.ToString(), required);
+    public static IType Parse(RefTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IType Parse(TupleTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
     public static Modifier ParseModifier(SyntaxTokenList syntax) => Modifier.None.SetModifiers(syntax.Select(ParseSingleModifier));
     public static Modifier ParseSingleModifier(SyntaxToken syntax) => syntax.Kind() switch
@@ -41,12 +99,13 @@ public static class CodeModelParsing
 
     public static Property ParseProperty(ArgumentSyntax syntax, IType? specifiedType = null) => syntax.Expression switch
     {
-        TypeSyntax type => new(ParseType(type), syntax.NameColon?.Name.ToString()),
+        TypeSyntax type => new(Parse(type), syntax.NameColon?.Name.ToString()),
         DeclarationExpressionSyntax declaration => ParseProperty(declaration, specifiedType),
+        ExpressionSyntax expression => new(ParseExpression(expression)),
         _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{syntax}'.")
     };
 
-    public static Property ParseProperty(DeclarationExpressionSyntax syntax, IType? type = null) => new(ParseType(syntax.Type), syntax.Designation switch
+    public static Property ParseProperty(DeclarationExpressionSyntax syntax, IType? type = null) => new(Parse(syntax.Type), syntax.Designation switch
     {
         null => default,
         SingleVariableDesignationSyntax designation => designation.Identifier.ToString(),
@@ -75,7 +134,7 @@ public static class CodeModelParsing
     };
 
     public static PropertyCollection ParsePropertyCollection(IType Type, IEnumerable<ExpressionSyntax> syntax, bool nameByIndex = false)
-        => new( syntax.Select((x, i) => new Property(Type, nameByIndex ? $"Item{i + 1}" : null, ParseExpression(x, Type))), specifiedType: Type);
+        => new(syntax.Select((x, i) => new Property(Type, nameByIndex ? $"Item{i + 1}" : null, ParseExpression(x, Type))), specifiedType: Type);
 
     public static PropertyCollection ParsePropertyCollection(IEnumerable<ArgumentSyntax> arguments, bool nameByIndex = false, IType? type = null)
         => new(arguments.Select((x, i) => nameByIndex ? x.NameColon is null ? x.WithNameColon(NameColon($"Item{i + 1}")) : x : x).Select(x => ParseProperty(x, type)), specifiedType: type);
@@ -83,7 +142,7 @@ public static class CodeModelParsing
     public static PropertyCollection ParsePropertyCollection(ArgumentListSyntax syntax, IType? type = null) => ParsePropertyCollection(syntax.Arguments, type: type);
 
 
-    public static IExpression ParseExpression(ExpressionSyntax? syntax, IType? type = null) => syntax switch
+    public static IExpression ParseExpression(ExpressionSyntax? syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
         null => CodeModelFactory.VoidValue,
         AnonymousFunctionExpressionSyntax expression => Parse(expression, type),
@@ -91,7 +150,7 @@ public static class CodeModelParsing
         ArrayCreationExpressionSyntax expression => Parse(expression, type),
         AssignmentExpressionSyntax expression => Parse(expression, type),
         AwaitExpressionSyntax expression => Parse(expression, type),
-        BaseObjectCreationExpressionSyntax expression => Parse(expression, type),
+        BaseObjectCreationExpressionSyntax expression => Parse(expression, type, model),
         BinaryExpressionSyntax expression => Parse(expression, type),
         CastExpressionSyntax expression => Parse(expression, type),
         CheckedExpressionSyntax expression => Parse(expression, type),
@@ -107,11 +166,11 @@ public static class CodeModelParsing
         InitializerExpressionSyntax expression => Parse(expression, type ?? TypeShorthands.NullType),
         InstanceExpressionSyntax expression => Parse(expression, type),
         InterpolatedStringExpressionSyntax expression => Parse(expression, type),
-        InvocationExpressionSyntax expression => Parse(expression, type),
+        InvocationExpressionSyntax expression => Parse(expression, type, model),
         IsPatternExpressionSyntax expression => Parse(expression, type),
         LiteralExpressionSyntax expression => Parse(expression, type),
         MakeRefExpressionSyntax expression => Parse(expression, type),
-        MemberAccessExpressionSyntax expression => Parse(expression, type),
+        MemberAccessExpressionSyntax expression => Parse(expression, type, model),
         MemberBindingExpressionSyntax expression => Parse(expression, type),
         OmittedArraySizeExpressionSyntax expression => Parse(expression, type),
         ParenthesizedExpressionSyntax expression => Parse(expression, type),
@@ -128,15 +187,15 @@ public static class CodeModelParsing
         ThrowExpressionSyntax expression => Parse(expression, type),
         TupleExpressionSyntax expression => Parse(expression, type),
         TypeOfExpressionSyntax expression => Parse(expression, type),
-        TypeSyntax expression => Parse(expression, type),
+        TypeSyntax expression => Parse(expression, true, type, model),
         WithExpressionSyntax expression => Parse(expression, type),
         _ => throw new NotImplementedException()
     };
 
     public static BinaryExpression Parse(WithExpressionSyntax syntax, IType? type = null)
         => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Expression), OperationType.With, Parse(syntax.Initializer, type ?? TypeShorthands.NullType));
-    public static UnaryExpression Parse(TypeOfExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.UnaryExpression(Parse(syntax.Type), OperationType.Typeof);
+    public static TypeOfExpression Parse(TypeOfExpressionSyntax syntax, IType? type = null)
+        => new TypeOfExpression((type ?? ParseType(syntax.Type)));
     public static PropertyCollection Parse(TupleExpressionSyntax syntax, IType? type = null) => ParsePropertyCollection(syntax.Arguments, nameByIndex: true);
     public static ThrowExpression Parse(ThrowExpressionSyntax syntax, IType? type = null) => new(ParseExpression(syntax.Expression));
 
@@ -144,8 +203,8 @@ public static class CodeModelParsing
 
     public static IExpression Parse(StackAllocArrayCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
-    public static UnaryExpression Parse(SizeOfExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.UnaryExpression(Parse(syntax.Type), OperationType.Sizeof);
+    public static SizeOfExpression Parse(SizeOfExpressionSyntax syntax, IType? type = null)
+        => new SizeOfExpression((type ?? ParseType(syntax.Type)));
 
     public static UnaryExpression Parse(RefValueExpressionSyntax syntax, IType? type = null)
         => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression), OperationType.Ref);
@@ -189,9 +248,9 @@ public static class CodeModelParsing
 
     public static IExpression Parse(MemberBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
-    public static MemberAccessExpression Parse(MemberAccessExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
+    public static MemberAccessExpression Parse(MemberAccessExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.SimpleMemberAccessExpression => new(ParseExpression(syntax.Expression), syntax.Name.ToString()),   // TODO: Type from semantic analysis
+        SyntaxKind.SimpleMemberAccessExpression => new(ParseExpression(syntax.Expression, model: model), Parse(syntax.Name, model: model).GetIdentifier()),
         SyntaxKind.PointerMemberAccessExpression => throw new NotImplementedException($"PointerMemberAccessExpression not implemented: {syntax}"),
         _ => throw new NotImplementedException($"MemberAccessExpression not implemented: {syntax}")
     };
@@ -225,12 +284,29 @@ public static class CodeModelParsing
     public static IExpression Parse(UnaryPatternSyntax syntax) => throw new NotImplementedException();    // TODO
     public static IExpression Parse(VarPatternSyntax syntax) => throw new NotImplementedException();    // TODO
 
-
-    public static InvocationExpression Parse(InvocationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static InvocationFromReflection Parse(InvocationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+    {
+        var methodInfo = SemanticReflection.GetMethod(model.GetSymbolInfo(syntax).Symbol as IMethodSymbol);
+        var expression = ParseExpression(syntax.Expression, model: model);
+        var caller = expression is MemberAccessExpression access ? access.Expression : expression;
+        return new InvocationFromReflection(methodInfo, caller, ParsePropertyCollection(syntax.ArgumentList).ToExpressions());
+    }
 
     public static IExpression Parse(InterpolatedStringExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
-    public static IExpression Parse(InstanceExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(InstanceExpressionSyntax syntax, IType? type = null) => syntax switch
+    {
+        BaseExpressionSyntax expression => Parse(expression, type),
+        ThisExpressionSyntax expression => Parse(expression, type),
+        _ => throw new NotImplementedException()
+    };
+
+    public static IExpression Parse(BaseExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
+    {
+        SyntaxKind.BaseExpression => new IdentifierExpression(syntax.Token.ToString()), // IDK, TODO
+        _ => throw new NotImplementedException()
+    };
+    public static IExpression Parse(ThisExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
     public static InitializerExpression Parse(InitializerExpressionSyntax syntax, IType Type) => syntax.Kind() switch
     {
@@ -238,8 +314,7 @@ public static class CodeModelParsing
         SyntaxKind.CollectionInitializerExpression => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions)),
         SyntaxKind.ArrayInitializerExpression => Type.Identifier switch
         {
-            "Dictionary" => new(Type, syntax.Kind(), ParsePropertyCollection(Type.GetGenericType(1), syntax.Expressions)),
-            "IDictionary" => new(Type, syntax.Kind(), ParsePropertyCollection(Type.GetGenericType(1), syntax.Expressions)),
+            "Dictionary" or "IDictionary" => new(Type, syntax.Kind(), ParsePropertyCollection(Type.GetGenericType(1), syntax.Expressions)),
             _ => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions)),
         },
         SyntaxKind.ComplexElementInitializerExpression => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions)),
@@ -276,7 +351,7 @@ public static class CodeModelParsing
 
     public static BinaryExpression Parse(BinaryExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {
-        SyntaxKind.AddExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.ConditionalAccess, ParseExpression(syntax.Right)),
+        SyntaxKind.AddExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Plus, ParseExpression(syntax.Right)),
         SyntaxKind.SubtractExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Subtract, ParseExpression(syntax.Right)),
         SyntaxKind.MultiplyExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Multiply, ParseExpression(syntax.Right)),
         SyntaxKind.DivideExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Divide, ParseExpression(syntax.Right)),
@@ -300,17 +375,23 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException()
     };
 
-    public static IExpression Parse(BaseObjectCreationExpressionSyntax syntax, IType? type = null) => syntax switch
+    public static IExpression Parse(BaseObjectCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
-        ImplicitObjectCreationExpressionSyntax expression => Parse(expression, type),
-        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? TypeShorthands.NullType),    // TODO: Get type from semantic analysis
+        ImplicitObjectCreationExpressionSyntax expression => Parse(expression, type, model),
+        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? TypeShorthands.NullType, model),
         _ => throw new NotImplementedException()
     };
 
-    public static ImplicitObjectCreationExpression Parse(ImplicitObjectCreationExpressionSyntax syntax, IType type)
+    public static ImplicitObjectCreationExpression Parse(ImplicitObjectCreationExpressionSyntax syntax, IType type, SemanticModel? model = null)
         => new(type, ParsePropertyCollection(syntax.ArgumentList), syntax.Initializer is null ? null : Parse(syntax.Initializer, type));
-    public static ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type)
-        => new(type, syntax.ArgumentList is null ? null : ParsePropertyCollection(syntax.ArgumentList, GetObjectCreationType(syntax, type)), syntax.Initializer is null ? null : Parse(syntax.Initializer, GetObjectCreationType(syntax, type)));
+    public static ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type, SemanticModel? model = null)
+    {
+        var symbol = model?.GetSymbolInfo(syntax).Symbol;
+        var op = model?.GetOperation(syntax);
+        var t = model?.GetTypeInfo(syntax);
+        return new(type, syntax.ArgumentList is null ? null : ParsePropertyCollection(syntax.ArgumentList, GetObjectCreationType(syntax, type)),
+            syntax.Initializer is null ? null : Parse(syntax.Initializer, GetObjectCreationType(syntax, type)), model?.GetOperation(syntax));
+    }
 
     public static IType GetObjectCreationType(ObjectCreationExpressionSyntax syntax, IType type) => syntax switch
     {
@@ -339,18 +420,16 @@ public static class CodeModelParsing
     };
 
     public static ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
-        => Parse(syntax.Initializer, type ?? ParseType(syntax.Type)).Expressions.ToValueCollection();
+        => Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions.ToValueCollection();
 
     public static IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
-
-    public static TypeExpression Parse(TypeSyntax syntax, IType? type = null) => new(type ?? ParseType(syntax));
 
     public static IExpression Parse(AnonymousFunctionExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
     public static LiteralExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {
         SyntaxKind.ArgListExpression => CodeModelFactory.NullValue,
-        SyntaxKind.NumericLiteralExpression => new(ParseNumber(syntax.Token.ValueText)),
+        SyntaxKind.NumericLiteralExpression => new(ParseNumber(syntax)),
         SyntaxKind.StringLiteralExpression => new(syntax.Token.ValueText),
         SyntaxKind.CharacterLiteralExpression => new(syntax.Token.ValueText[0]),
         SyntaxKind.TrueLiteralExpression => new(true),
@@ -360,20 +439,35 @@ public static class CodeModelParsing
         _ => throw new ArgumentException($"Unhandled literal kind '{syntax}'.")
     };
 
-    public static object ParseNumber(string s) => s switch
+    public static object ParseNumber(LiteralExpressionSyntax token) => token.Token.ToString().ToUpper() switch
     {
-        _ when s.EndsWith("UL") => ulong.Parse(s),
-        _ when s.LastOrDefault() == 'U' => uint.Parse(s),
-        _ when s.LastOrDefault() == 'L' => long.Parse(s),
-        _ when s.LastOrDefault() == 'F' => float.Parse(s),
-        _ when s.LastOrDefault() == 'D' => double.Parse(s),
-        _ when s.LastOrDefault() == 'M' => decimal.Parse(s),
-        _ when s.Contains('.') => decimal.Parse(s),
-        _ => long.Parse(s),
+        string s when s.EndsWith("UL") => ulong.Parse(token.Token.ValueText),
+        string s when s.LastOrDefault() is 'U' => uint.Parse(token.Token.ValueText),
+        string s when s.LastOrDefault() is 'L' => long.Parse(token.Token.ValueText),
+        string s when s.LastOrDefault() is 'F' && !s.Contains("X") => float.Parse(token.Token.ValueText),
+        string s when s.LastOrDefault() is 'D' => double.Parse(token.Token.ValueText),
+        string s when s.LastOrDefault() is 'M' => decimal.Parse(token.Token.ValueText),
+        string s when s.Contains('.') => decimal.Parse(token.Token.ValueText),
+        string when token.Parent?.ToString().StartsWith("-") ?? false => decimal.Parse(token.Token.ValueText) switch
+        {
+            // CASTS ARE NEEDED
+            > long.MaxValue => (object)decimal.Parse(token.Token.ValueText),
+            > int.MaxValue => (object)long.Parse(token.Token.ValueText),
+            _ => (object)int.Parse(token.Token.ValueText),
+        },
+        _ => decimal.Parse(token.Token.ValueText) switch
+        {
+            // CASTS ARE NEEDED
+            > ulong.MaxValue => (object)decimal.Parse(token.Token.ValueText),
+            > long.MaxValue => (object)ulong.Parse(token.Token.ValueText),
+            > uint.MaxValue => (object)long.Parse(token.Token.ValueText),
+            > int.MaxValue => (object)uint.Parse(token.Token.ValueText),
+            _ => (object)int.Parse(token.Token.ValueText),
+        },
     };
 
 
-    public static IStatement Parse(StatementSyntax syntax) => syntax switch
+    public static IStatement Parse(StatementSyntax syntax, SemanticModel? model = null) => syntax switch
     {
         BlockSyntax statement => Parse(statement),
         BreakStatementSyntax statement => Parse(statement),
@@ -382,13 +476,13 @@ public static class CodeModelParsing
         ContinueStatementSyntax statement => Parse(statement),
         DoStatementSyntax statement => Parse(statement),
         EmptyStatementSyntax statement => Parse(statement),
-        ExpressionStatementSyntax statement => Parse(statement),
+        ExpressionStatementSyntax statement => Parse(statement, model),
         FixedStatementSyntax statement => Parse(statement),
         ForStatementSyntax statement => Parse(statement),
         GotoStatementSyntax statement => Parse(statement),
         IfStatementSyntax statement => Parse(statement),
         LabeledStatementSyntax statement => Parse(statement),
-        LocalDeclarationStatementSyntax statement => Parse(statement),
+        LocalDeclarationStatementSyntax statement => Parse(statement, model),
         LocalFunctionStatementSyntax statement => Parse(statement),
         LockStatementSyntax statement => Parse(statement),
         ReturnStatementSyntax statement => Parse(statement),
@@ -401,7 +495,7 @@ public static class CodeModelParsing
         _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
     };
 
-    public static Block Parse(BlockSyntax syntax) => new(CodeModelFactory.List(syntax.Statements.Select(Parse)));
+    public static Block Parse(BlockSyntax syntax, SemanticModel? model = null) => new(CodeModelFactory.List(syntax.Statements.Select(x => Parse(x, model))));
     public static BreakStatement Parse(BreakStatementSyntax _) => new();
     public static CheckedStatement Parse(CheckedStatementSyntax syntax) => new(Parse(syntax.Block));
     public static ForEachStatement Parse(CommonForEachStatementSyntax syntax) => syntax switch
@@ -411,10 +505,16 @@ public static class CodeModelParsing
     };
     public static ForEachStatement Parse(ForEachStatementSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString(), ParseExpression(syntax.Expression), Parse(syntax.Statement));
     public static ContinueStatement Parse(ContinueStatementSyntax _) => new();
+    public static DoStatement Parse(DoStatementSyntax syntax) => new(Parse(syntax.Statement), ParseExpression(syntax.Condition));
     public static EmptyStatement Parse(EmptyStatementSyntax _) => new();
-    public static ExpressionStatement Parse(ExpressionStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
+    public static ExpressionStatement Parse(ExpressionStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
+    public static IMember Parse(GlobalStatementSyntax syntax, SemanticModel? model = null)
+    {
+        var statement = Parse(syntax.Statement, model);
+        return statement is ExpressionStatement ? statement : statement;
+    }
     public static FixedStatement Parse(FixedStatementSyntax syntax) => new(Parse(syntax.Declaration), Parse(syntax.Statement));
-    public static VariableDeclarations Parse(VariableDeclarationSyntax syntax) => new(ParseType(syntax.Type), Parse(syntax.Variables));
+    public static VariableDeclarations Parse(VariableDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), Parse(syntax.Variables));
     public static VariableDeclarator Parse(VariableDeclaratorSyntax syntax) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value));
     public static List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(Parse).ToList();
     public static List<Property> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(Parse).ToList();
@@ -431,7 +531,7 @@ public static class CodeModelParsing
     public static IfStatement Parse(IfStatementSyntax syntax) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement), syntax.Else is null ? null : Parse(syntax.Else));
     public static IStatement Parse(ElseClauseSyntax syntax) => Parse(syntax.Statement);
     public static LabeledStatement Parse(LabeledStatementSyntax syntax) => new(syntax.Identifier.ToString(), Parse(syntax.Statement));
-    public static LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => new(Parse(syntax.Declaration));
+    public static LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Declaration, model));
     public static LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax)
         => new(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
             ParseTypes(syntax.TypeParameterList),
@@ -470,9 +570,95 @@ public static class CodeModelParsing
     public static UsingStatement Parse(UsingStatementSyntax syntax) => new(Parse(syntax.Statement));
     public static WhileStatement Parse(WhileStatementSyntax syntax) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement));
 
-    public static Method Parse(MethodDeclarationSyntax syntax)
-        => new(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
+    public static CompilationUnit Parse(CompilationUnitSyntax syntax, SemanticModel model)
+            => new(syntax.Members.Select(x => Parse(x, model)).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
+    public static UsingDirective Parse(UsingDirectiveSyntax syntax)
+            => new(syntax.Name.ToString(), IsGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword), IsStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword), Alias: syntax.Alias?.ToString());
 
+    public static IMember Parse(MemberDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
+    {
+        BaseFieldDeclarationSyntax declaration => Parse(declaration),
+        BaseMethodDeclarationSyntax declaration => Parse(declaration),
+        BaseNamespaceDeclarationSyntax declaration => Parse(declaration),
+        BasePropertyDeclarationSyntax declaration => Parse(declaration),
+        BaseTypeDeclarationSyntax declaration => Parse(declaration),
+        DelegateDeclarationSyntax declaration => Parse(declaration),
+        EnumMemberDeclarationSyntax declaration => Parse(declaration),
+        GlobalStatementSyntax declaration => Parse(declaration, model),
+        IncompleteMemberSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented MemberDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(BaseFieldDeclarationSyntax syntax) => syntax switch
+    {
+        EventFieldDeclarationSyntax declaration => Parse(declaration),
+        FieldDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BaseFieldDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(EventFieldDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(FieldDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(BaseMethodDeclarationSyntax syntax) => syntax switch
+    {
+        ConstructorDeclarationSyntax declaration => Parse(declaration),
+        ConversionOperatorDeclarationSyntax declaration => Parse(declaration),
+        DestructorDeclarationSyntax declaration => Parse(declaration),
+        MethodDeclarationSyntax declaration => Parse(declaration),
+        OperatorDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BaseMethodDeclaration: '{syntax}'.")
+    };
     public static Constructor Parse(ConstructorDeclarationSyntax syntax)
-        => new(syntax.Identifier.ToString(), new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
+       => new(syntax.Identifier.ToString(), new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
+    public static IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static Method Parse(MethodDeclarationSyntax syntax)
+         => new(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
+    public static IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
+    {
+        FileScopedNamespaceDeclarationSyntax declaration => Parse(declaration),
+        NamespaceDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BaseNamespaceDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(FileScopedNamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(NamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(BasePropertyDeclarationSyntax syntax) => syntax switch
+    {
+        EventDeclarationSyntax declaration => Parse(declaration),
+        IndexerDeclarationSyntax declaration => Parse(declaration),
+        PropertyDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BasePropertyDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(EventDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(IndexerDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(PropertyDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(BaseTypeDeclarationSyntax syntax) => syntax switch
+    {
+        EnumDeclarationSyntax declaration => Parse(declaration),
+        TypeDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(EnumDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(TypeDeclarationSyntax syntax) => syntax switch
+    {
+        ClassDeclarationSyntax declaration => Parse(declaration),
+        InterfaceDeclarationSyntax declaration => Parse(declaration),
+        RecordDeclarationSyntax declaration => Parse(declaration),
+        StructDeclarationSyntax declaration => Parse(declaration),
+        _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(ClassDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(InterfaceDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
+    {
+        _ when syntax.IsKind(SyntaxKind.RecordDeclaration) => Parse(syntax),
+        _ when syntax.IsKind(SyntaxKind.RecordStructDeclaration) => Parse(syntax),
+        _ => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.")
+    };
+    public static IMember Parse(StructDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(DelegateDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(EnumMemberDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static IMember Parse(IncompleteMemberSyntax syntax) => throw new NotImplementedException();
+
+
+
+
 }

@@ -11,8 +11,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null)
-    : CodeModel<CSharpSyntaxNode>(), IMember, ITypeModel
+public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
+    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier), IMember, ITypeModel
 {
     public IMethodHolder? Owner { get; set; }
 
@@ -22,17 +22,20 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
         Owner = owner;
     }
 
-    public Property(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null) 
+    public Property(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, IMethodHolder? owner = null, IType? interfaceType = null)
+            : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
+
+    public Property(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null)
         : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value, Type(property.Type)), Modifiers(property.Modifiers).SetModifiers(modifier), interfaceType: interfaceType) { }
-    public Property(TupleElementSyntax element, Modifier? modifier = null, IType? interfaceType = null) 
+    public Property(TupleElementSyntax element, Modifier? modifier = null, IType? interfaceType = null)
         : this(Type(element.Type), element.Identifier.ToString(), modifier: modifier, interfaceType: interfaceType) { }
-    public Property(ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null) 
+    public Property(ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null)
         : this(Type(parameter.Type), parameter.Identifier.ToString(), Expression(parameter.Default?.Value, Type(parameter.Type)), modifier, interfaceType: interfaceType) { }
-    public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null) 
+    public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null)
         : this(new TypeFromSymbol(typeSymbol), name, Expression(expression, new TypeFromSymbol(typeSymbol)), modifier, interfaceType: interfaceType) { }
-    public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null) 
+    public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null)
         : this(Type(type), name, Expression(expression, Type(type)), modifier, interfaceType: Type(interfaceType)) { }
-    public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null) 
+    public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
         : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier, interfaceType: interfaceType) { }
 
     public ParameterSyntax ToParameter() => Parameter(
@@ -42,7 +45,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
             identifier: Identifier(Name!),
             @default: Initializer());
 
-    public MemberDeclarationSyntax ToMemberSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
+    public override MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
             propertyType: modifiers.SetModifiers(Modifier),
             attributeLists: default,
             modifiers: modifiers.SetModifiers(Modifier).SetFlags(removeModifier, false).Syntax(),
@@ -65,7 +68,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
 
     public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
-    public PropertyExpression AccessValue(string identifier) => AccessValue(CodeModelFactory.Identifier(identifier));
+    public PropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(Identifier(identifier, type, symbol));
     public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
         : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
 
@@ -76,9 +79,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     };
     public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax;
 
-    public TypeSyntax TypeSyntax() => Type.Syntax();
     public TypeSyntax DeclarationTypeSyntax() => (InterfaceType ?? Type).Syntax();
-    public override CSharpSyntaxNode Syntax() => ToMemberSyntax();
 
     public EqualsValueClauseSyntax? Initializer() => DefaultValueSyntax() switch
     {
@@ -94,5 +95,10 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     {
         yield return Type;
         if (Value is not null) yield return Value;
+    }
+
+    public virtual IExpression EvaluateAccess(IProgramModelExecutionContext context, IExpression instance)
+    {
+        throw new NotImplementedException();
     }
 }

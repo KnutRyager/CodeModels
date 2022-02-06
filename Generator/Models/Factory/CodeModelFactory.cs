@@ -31,9 +31,7 @@ public static class CodeModelFactory
     public static IType Type(IdentifierExpression identifier) => ParseType(identifier.ToString());
     public static IType Type(string code) => ParseType(code);
     public static IType Type(SyntaxToken token) => Parse(token);
-
-    // TODO
-    public static IType Type(TypeSyntax? type, bool required = true, TypeSyntax? fullType = null) => ParseType(type, required, fullType);
+    public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
 
     public static IMethodHolder MetodHolder(Type type) => type switch
     {
@@ -68,8 +66,9 @@ public static class CodeModelFactory
     public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
     public static List<LiteralExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
     public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
+    //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
 
-    public static Property Field(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Type, name, value, Modifier.Field.SetFlags(modifier));
+    public static Property Field(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
     public static Property Property(IType type, string? name, IExpression? value = null, Modifier modifier = Modifier.None) => new(type, name, value, modifier);
     public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => new(type, name, Expression(expression), modifier);
     public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => new(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
@@ -156,7 +155,7 @@ public static class CodeModelFactory
     public static ThrowStatement Throw(IExpression expression) => new(expression);
     public static ThrowExpression ThrowExpression(IExpression expression) => new(expression);
 
-    public static IdentifierExpression Identifier(string name, IType? type = null) => new(name, type);
+    public static IdentifierExpression Identifier(string name, IType? type = null, ISymbol? symbol = null) => new(name, type, symbol);
 
     public static UnaryExpression UnaryExpression(IExpression input, OperationType operation, IType? type = null)
        => operation.IsUnaryOperator() ? new(input, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a unary operator: '{operation}'");
@@ -164,7 +163,7 @@ public static class CodeModelFactory
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
 
-    public static MemberAccessExpression MemberAccess(IExpression lhs, string property, IType? type = null)
+    public static MemberAccessExpression MemberAccess(IExpression lhs, IdentifierExpression property, IType? type = null)
         => new(lhs, property, type);
 
     public static TernaryExpression TernaryExpression(IExpression input, IExpression output1, IExpression output2, IType? type = null, OperationType operation = OperationType.Ternary)

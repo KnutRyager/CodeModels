@@ -13,8 +13,6 @@ public record PropertyExpression(Property Property, IExpression? Instance = null
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
-    {
-        throw new System.NotImplementedException();
-    }
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(context, Instance);
+    public override IdentifierExpression GetIdentifier() => Instance is IdentifierExpression idetifier ? idetifier : base.GetIdentifier();
 }

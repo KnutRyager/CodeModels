@@ -6,7 +6,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKind Kind) : Expression<AssignmentExpressionSyntax>(Left.Type)
+public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKind Kind) : Expression<AssignmentExpressionSyntax>(Left.Get_Type())
 {
     public override AssignmentExpressionSyntax Syntax() => AssignmentExpression(Kind, Left.Syntax(), Right.Syntax());
     public override IEnumerable<ICodeModel> Children()

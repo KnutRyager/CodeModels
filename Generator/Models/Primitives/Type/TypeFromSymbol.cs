@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using CodeAnalyzation.Reflection;
 using Common.DataStructures;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public record TypeFromSymbol(ISymbol Symbol, bool Required = true, bool IsMulti = false)   // TODO: Generics
+public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMulti = false)   // TODO: Generics
     : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), Required, IsMulti)
 {
+    public override System.Type? GetReflectedType() => SemanticReflection.GetType(Symbol);
+
     public override string GetMostSpecificType() => Symbol.ToString();
 
     public virtual bool Equals(TypeFromSymbol other) => other is not null && (ReferenceEquals(this, other) ||

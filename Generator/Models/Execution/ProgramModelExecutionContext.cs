@@ -8,12 +8,14 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
     private bool _continueFlag, _breakFlag, _returnFlag, _throwFlag;
-    private IExpression? _returnValue;
+
+    public IExpression ReturnValue { get; private set; } = VoidValue;
+    public IExpression PreviousExpression { get; private set; } = VoidValue;
 
     public void EnterScope(object owner)
     {
         if (_scopes.Count >= 10000) throw new ProgramModelExecutionException("Stackoverflow");
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public void EnterScope()
@@ -87,6 +89,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         var scope = FindScope(identifier) ?? (define ? GetScope() : throw new ProgramModelExecutionException($"Identifier not found: {identifier}"));
         if (define) scope.DefineVariable(identifier);
         scope.SetValue(identifier, value);
+        PreviousExpression = value;
     }
 
     public void SetValue(IdentifierExpression identifier, IExpression value, bool define = false)
@@ -99,8 +102,21 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         switch (expression)
         {
             case IdentifierExpression identifier: SetValue(identifier, value, allowDefine); break;
+            case LiteralExpression _: break;
             default: throw new NotImplementedException();
         }
+    }
+
+    public IExpression ExecuteMethod(string identifier, params IExpression[] parameters)
+    {
+        var scope = FindScope(identifier) ?? throw new ProgramModelExecutionException($"Identifier not found: {identifier}");
+        return scope.ExecuteMethod(identifier, parameters);
+    }
+
+    public object ExecuteMethodPlain(string identifier, params object?[] parameters)
+    {
+        var scope = FindScope(identifier) ?? throw new ProgramModelExecutionException($"Identifier not found: {identifier}");
+        return scope.ExecuteMethodPlain(identifier, parameters);
     }
 
     public void Throw(IExpression value)
@@ -123,4 +139,10 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     private IProgramModelExecutionScope GetScope(int depth = 0) => depth < _scopes.Count ? _scopes[_scopes.Count - 1 - depth] : throw new ProgramModelExecutionException($"No scope at depth: {depth}");
 
     public void Throw(Exception exception) => Throw(Literal(exception));
+
+    public IExpression SetPreviousExpression(IExpression expression)
+    {
+        PreviousExpression = expression;
+        return expression;
+    }
 }

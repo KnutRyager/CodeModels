@@ -9,8 +9,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record Constructor(string Name, PropertyCollection Parameters, Block? Statements, IExpression? ExpressionBody = null, Modifier Modifier = Modifier.Public)
-    : CodeModel<ConstructorDeclarationSyntax>
+public record Constructor(string Name, PropertyCollection Parameters, Block? Statements, IExpression? ExpressionBody = null,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
+    : MemberModel<ConstructorDeclarationSyntax>(Name, Type(Name), Attributes ?? new List<AttributeList>(), Modifier)
 {
     public Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
         : this(name, parameters, body, null, modifier) { }
@@ -27,10 +28,8 @@ public record Constructor(string Name, PropertyCollection Parameters, Block? Sta
         initializer: null,
         expressionBody: ExpressionBody is null ? null : ArrowExpressionClause(ExpressionBody.Syntax()));
 
-    public MemberDeclarationSyntax ToMemberSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => ToConstructorSyntax(modifier, removeModifier);
-    public CSharpSyntaxNode SyntaxNode() => ToMemberSyntax();
-
-    public override ConstructorDeclarationSyntax Syntax() => ToConstructorSyntax();
+    public override ConstructorDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+        => ToConstructorSyntax(modifier, removeModifier);
 
     public override IEnumerable<ICodeModel> Children()
     {

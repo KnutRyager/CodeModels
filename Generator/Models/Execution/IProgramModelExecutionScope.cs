@@ -11,5 +11,7 @@ public interface IProgramModelExecutionScope
     void DefineVariable(IdentifierExpression identifier);
     void SetValue(string identifier, IExpression value);
     void SetValue(IdentifierExpression identifier, IExpression value);
+    IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
+    object ExecuteMethodPlain(string identifier, params object?[] parameters);
     void Throw(IExpression value);
 }

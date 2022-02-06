@@ -10,6 +10,8 @@ public interface IProgramModelExecutionContext
     void SetValue(string identifier, IExpression valueExpression, bool allowDefine = false);
     void SetValue(IdentifierExpression identifier, IExpression value, bool allowDefine = false);
     void SetValue(IExpression identifier, IExpression value, bool allowDefine = false);
+    IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
+    object ExecuteMethodPlain(string identifier, params object?[] parameters);
     void SetBreak();
     bool HandleBreak();
     void SetContinue();
@@ -23,5 +25,6 @@ public interface IProgramModelExecutionContext
     void EnterScope();
     void ExitScope(object owner);
     void ExitScope();
+    IExpression PreviousExpression { get; }
+    IExpression SetPreviousExpression(IExpression expression);
 }
-    

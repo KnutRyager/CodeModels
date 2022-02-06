@@ -13,7 +13,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, IProgra
     public Expression(IType type) : this(type, null) { }
 
     // TODO: Containing type for prop
-    public Expression(ISymbol symbol) : this(new TypeFromSymbol(symbol), symbol) { }
+    public Expression(ITypeSymbol symbol) : this(new TypeFromSymbol(symbol), symbol) { }
 
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => EnumMemberDeclaration(
             attributeLists: default,
@@ -33,7 +33,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, IProgra
     public virtual object? LiteralValue => null;
     public bool IsLiteralExpression => LiteralSyntax is not null;
     public virtual LiteralExpressionSyntax? LiteralSyntax => default;
-    public TypeSyntax TypeSyntax() => Type.Syntax();
+    public IType Get_Type() => Type;
+    public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
     ExpressionSyntax IExpression.Syntax() => Syntax();
     protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
@@ -41,4 +42,5 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, IProgra
     public abstract IExpression Evaluate(IProgramModelExecutionContext context);
     public object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue;
     public ExpressionStatement AsStatement() => new(this);
+    public virtual IdentifierExpression GetIdentifier() => new(Type.Name, Type, Symbol: Symbol);
 }

@@ -32,7 +32,7 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
         _ => IdentifierName(Identifier(Identifier))
     };
 
-    public Type? GetReflectedType() => _cachedType ??= ReflectedType ??
+    public virtual Type? GetReflectedType() => _cachedType ??= ReflectedType ??
         (ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default);
 
     public virtual string GetMostSpecificType() => Name;
@@ -42,4 +42,16 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public TypeParameterSyntax ToTypeParameter() => TypeParameter(Name);
 
     public IType GetGenericType(int index) => GenericTypes[index];
+
+    public IType Get_Type() => this;
+    public bool IsLiteralExpression => false;
+    public LiteralExpressionSyntax? LiteralSyntax => null;
+    public object? LiteralValue => null;
+    public ArgumentSyntax ToArgument() => throw new NotImplementedException();
+    public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public object? EvaluatePlain(IProgramModelExecutionContext context) => null;
+    public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
+    public ExpressionStatement AsStatement() => throw new NotImplementedException();
+    ExpressionSyntax IExpression.Syntax() => Syntax();
+    public IdentifierExpression GetIdentifier() => new(Get_Type().Name, Get_Type());
 }

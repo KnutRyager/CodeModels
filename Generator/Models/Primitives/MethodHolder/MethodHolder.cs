@@ -33,8 +33,8 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     public IMethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
     public IMethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
     public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
-    public IType Type => CodeModelFactory.Type(Name);
-    public TypeSyntax TypeSyntax() => Type.Syntax();
+    public IType Get_Type() => Type(Name);
+    public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
     public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
     public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
@@ -76,7 +76,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
-            members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.ToMemberSyntax(removeModifier: Modifier.Public))));
+            members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.SyntaxWithModifiers(removeModifier: Modifier.Public))));
 
     public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
     public Property GetProperty(string name) => Properties[name];

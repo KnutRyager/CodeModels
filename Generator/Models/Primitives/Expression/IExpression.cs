@@ -2,9 +2,9 @@
 
 namespace CodeAnalyzation.Models;
 
-public interface IExpression : ICodeModel
+public interface IExpression : ICodeModel, IIdentifiable
 {
-    IType Type { get; }
+    IType Get_Type();
     bool IsLiteralExpression { get; }
     LiteralExpressionSyntax? LiteralSyntax { get; }
     ArgumentSyntax ToArgument();
@@ -12,6 +12,7 @@ public interface IExpression : ICodeModel
     IExpression Evaluate(IProgramModelExecutionContext context);
     object? EvaluatePlain(IProgramModelExecutionContext context);
     EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
+    //System.Type GetReflectedType();
     ExpressionStatement AsStatement();
 
     new ExpressionSyntax Syntax();

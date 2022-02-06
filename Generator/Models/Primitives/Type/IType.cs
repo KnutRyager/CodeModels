@@ -1,9 +1,10 @@
 ﻿using System;
+using Common.DataStructures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public interface IType : ICodeModel<TypeSyntax>
+public interface IType : ICodeModel<TypeSyntax>, IExpression
 {
     string Name { get; }
     string Identifier { get; }
@@ -21,4 +22,5 @@ public interface IType : ICodeModel<TypeSyntax>
     IType ToMultiType();
     string GetMostSpecificType();
     IType GetGenericType(int index);
+    EqualityList<IType> GenericTypes { get; }
 }

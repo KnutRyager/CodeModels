@@ -24,6 +24,16 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
     public bool HasIdentifier(string identifier) => _variables.Contains(identifier);
     public bool HasIdentifier(IdentifierExpression identifier) => _variables.Contains(identifier);
 
+    public IExpression ExecuteMethod(string identifier, params IExpression[] parameters)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public object ExecuteMethodPlain(string identifier, params object?[] parameters)
+    {
+        throw new System.NotImplementedException();
+    }
+
     public bool IsBottomScope()
     {
         throw new System.NotImplementedException();
