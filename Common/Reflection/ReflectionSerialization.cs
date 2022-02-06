@@ -20,6 +20,8 @@ public static class ReflectionSerialization
         { "Object", "System.Object" },
         { "byte", "System.Byte" },
         { "Byte", "System.Byte" },
+        { "sbyte", "System.SByte" },
+        { "SByte", "System.SByte" },
         { "short", "System.Int16" },
         { "Int16", "System.Int16" },
         { "ushort", "System.UInt16" },
@@ -38,6 +40,8 @@ public static class ReflectionSerialization
         { "Double", "System.Double" },
         { "decimal", "System.Decimal" },
         { "Decimal", "System.Decimal" },
+        { "char", "System.Char" },
+        { "Char", "System.Char" },
         { "string", "System.String" },
         { "String", "System.String" },
         { "boolean", "System.Boolean" },
@@ -191,12 +195,18 @@ public static class ReflectionSerialization
     public static string SerializeType(Type? type) => type == null ? MISSING_TYPE : $"{type.FullName}, {type.Assembly.FullName}";
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
+    public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type)).ToString();
+    public static ParsedGenericType NormalizeType(ParsedGenericType type) => new(GetShortHandName(type.Name), type.Parameters.Select(NormalizeType).ToList());
+
+    // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
     private static readonly IDictionary<string, Type> _deserializeTypeCache = new Dictionary<string, Type>();
     public static Type DeserializeType(string valueType, Assembly? assemblyIn = null)
     {
         if (_deserializeTypeCache.ContainsKey(valueType)) return _deserializeTypeCache[valueType];
         if (string.IsNullOrEmpty(valueType) || valueType == MISSING_TYPE) return null!;
         if (valueType == "void") return typeof(void);
+        if (valueType.Contains("<")) valueType = NormalizeType(valueType);
+        else valueType = GetShortHandName(valueType);
         var type = Type.GetType(valueType);
         if (type != null) return type;
 
