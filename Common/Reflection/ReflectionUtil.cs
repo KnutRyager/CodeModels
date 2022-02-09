@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-//using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -44,7 +43,6 @@ public static class ReflectionUtil
 
     public static MethodInfo GetMethodInfo<TOut>(Expression<Func<TOut>> expression)
         => ((MethodCallExpression)expression.Body).Method;
-
     public static MethodInfo GetMethodInfo<T>(string name)
         => GetMethodInfo(typeof(T), name, Array.Empty<Type>())!;
 
@@ -75,7 +73,6 @@ public static class ReflectionUtil
 
     public static int? GetGenericParamIndex(Type type) => type switch
     {
-
         _ when type == typeof(IGenericParameter0) => 0,
         _ when type == typeof(IGenericParameter1) => 1,
         _ when type == typeof(IGenericParameter2) => 2,
@@ -135,9 +132,10 @@ public static class ReflectionUtil
         => GetStaticMethods<T>().Where(x => x.Name == name
         && IsSameParamemters(x.GetParameters(), Types<T1, T2, T3, T4, T5>())).FirstOrDefault();
 
-    public static bool IsGenericParameter(Type type) => type.Name.StartsWith("IGenericParameter`");
+    public static bool IsGenericParameter(Type type) => type.FullName is null || type.Name.StartsWith("IGenericParameter`");
     public static bool IsGenericParameterDescriptor(Type type) => type.Name.StartsWith("IGenericParameter") && !IsGenericParameter(type);
     public static Type[] GetGenericParameters(IEnumerable<Type> types) => types.Where(IsGenericParameter).Select(x => x.GenericTypeArguments.First()).ToArray();
+    
     /// <summary>
     /// Filter away those generic types that are of the IGenericParameter interface.
     /// </summary>
@@ -226,12 +224,54 @@ public static class ReflectionUtil
              && (genericArgumentCount == null || x.Args.Length == genericArgumentCount)
              && (genericIndexOfParameters == null || genericIndexOfParameters.All(y => y.GenericParam == null || (x.Params.Length > y.Param
                 && IsSameType(y.GenericParam.Value, x.Args[y.GenericParam.Value], x.Params[y.Param].ParameterType, parameters![y.GenericParam.Value]!))))
-             //x.Params[0].ParameterType == x.Args[0])
-             //&& (genericIndexOfParameters == null || genericIndexOfParameters.All(y => y.GenericParam == null || (x.Params.Length > y.Param && IsSameType(x.Params[y.Param].ParameterType, parameters![y.GenericParam.Value]))))  //x.Params[0].ParameterType == x.Args[0])
-             && (parameters == null || parameters.Zip(x.Params, (x, y) => (First: x, Second: y)).All(y => y.First == null || IsGenericParameterDescriptor(y.First) || y.First == y.Second.ParameterType)))
+             && (parameters == null || IsMethodMatch(x.Method, parameters!, genericArguments))
+             )
          .Select(x => x.Method)
          .ToArray();
     }
+
+    private static bool IsMethodMatch(MethodInfo method, Type[] parameters, Type[]? genericArguments = null)
+    {
+        MethodInfo? genericMethod = null;
+        if (method.IsGenericMethod || method.ContainsGenericParameters)
+            try
+            {
+                genericMethod = method.GetGenericMethodDefinition();
+            }
+            catch (Exception) { }
+        var methodParameters = method.GetParameters();
+        if (parameters.Length != methodParameters.Length)
+        {
+            return false;
+        }
+        var genericParameters = genericMethod?.GetParameters();
+        for (var i = 0; i < parameters.Length; i++)
+        {
+            if (!IsParameterMatch(parameters[i], methodParameters[i], genericParameters is null ? null : genericParameters[i])) return false;
+        }
+
+        return true;
+    }
+
+    private static bool IsParameterMatch(Type parameter, ParameterInfo parameter2, ParameterInfo? genericParameter = null)
+        => IsTypeMatch(parameter, parameter2.ParameterType, genericParameter);
+
+    private static bool IsTypeMatch(Type type, Type type2, ParameterInfo? genericParameter = null)
+    {
+        if (type == type2) return true;
+        var classification2 = ReflectionSerialization.Classify(type2);
+        if (classification2 == TypeVariant.GenericUnbound) return true;
+        var genericParameters = type.GetGenericArguments();
+        var genericParameters2 = type2.GetGenericArguments();
+        if (genericParameters.Length != genericParameters2.Length) return false;
+        for (var i = 0; i < genericParameters.Length; i++)
+        {
+            if (!IsTypeMatch(genericParameters[i], genericParameters2[i], genericParameter)) return false;
+        }
+        return true;
+    }
+
+    public static bool IsDirectlyGenericType(TypeVariant variant) => variant == TypeVariant.GenericUnbound || variant == TypeVariant.GenericBound;
 
     private static bool IsSameType(int genericParamIndex, Type genericParam, Type param, Type argument)
         => genericParam == param && genericParamIndex == GetGenericParamIndex(argument);

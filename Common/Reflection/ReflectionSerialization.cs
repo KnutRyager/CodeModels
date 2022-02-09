@@ -1,11 +1,11 @@
-using Common.Extensions;
-using Common.Util;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Common.Extensions;
+using Common.Util;
 using static Common.Reflection.ReflectionUtil;
 
 namespace Common.Reflection;
@@ -66,6 +66,22 @@ public static class ReflectionSerialization
     };
     private const string PARAMETER_SEPARATOR = "_;_";
 
+    public static TypeVariant Classify(Type? type, ParameterInfo? genericParameter = null, Type? genericParameterType = null, bool isInnerGenericType = false, TypeVariant parent = TypeVariant.None) => type switch
+    {
+        null => TypeVariant.Normal,
+        _ when parent == TypeVariant.GenericBound => TypeVariant.Normal,
+        _ when !isInnerGenericType && type.GenericTypeArguments.Length > 0 && genericParameter is not null && (!ContainsUnboundTypeArguments(type) && ContainsUnboundTypeArguments(genericParameter.ParameterType)) => TypeVariant.ParentOfGenericBound,
+        _ when !isInnerGenericType && type.GenericTypeArguments.Length > 0 && genericParameter is not null && ContainsUnboundTypeArguments(genericParameter.ParameterType) => TypeVariant.ParentOfGenericUnbound,
+        _ when type.FullName is null => TypeVariant.GenericUnbound,
+        _ when genericParameter is not null && genericParameter.Name != type.Name && Classify(genericParameter.ParameterType) == TypeVariant.GenericUnbound => TypeVariant.GenericBound,
+        _ when genericParameterType is not null && genericParameterType.Name != type.Name && Classify(genericParameterType) == TypeVariant.GenericUnbound => TypeVariant.GenericBound,
+        _ when isInnerGenericType => TypeVariant.GenericBound,
+        _ => TypeVariant.Normal,
+    };
+
+    public static bool IsTopLevelType(Type type) => type.GenericTypeArguments.Length == 0;
+    public static bool ContainsUnboundTypeArguments(Type type) => type.GenericTypeArguments.Any(x => Classify(x) == TypeVariant.GenericUnbound || ContainsUnboundTypeArguments(x));
+    public static bool ContainsBoundTypeArguments(Type type) => type.GenericTypeArguments.Any(x => Classify(x) == TypeVariant.GenericBound || ContainsBoundTypeArguments(x));
     public static string SerializeMethod(MethodInfo method)
     {
         MethodInfo? genericMethod = null;
@@ -96,9 +112,10 @@ public static class ReflectionSerialization
     {
         var sb = new StringBuilder();
         var isGeneric = genericParameter?.ParameterType.IsGenericParameter ?? false;
-        if (isGeneric) sb.Append('-');
-        sb.Append(isGeneric || parameter.ParameterType.Assembly == method.DeclaringType?.Assembly || parameter.ParameterType.Assembly == SystemAssembly
-            ? parameter.ParameterType : SerializeType(parameter.ParameterType));
+        //if (isGeneric) sb.Append('-');
+        sb.Append(SerializeType(parameter.ParameterType, genericParameter: genericParameter));
+        //sb.Append(isGeneric || parameter.ParameterType.Assembly == method.DeclaringType?.Assembly || parameter.ParameterType.Assembly == SystemAssembly
+        //    ? parameter.ParameterType : SerializeType(parameter.ParameterType));
         return sb.ToString();
     }
 
@@ -156,19 +173,22 @@ public static class ReflectionSerialization
 
     public static MethodInfo DeserializeMethod(Type type, string src)
     {
-        var args = StringUtil.GetInside(src, "(", ")").Split(PARAMETER_SEPARATOR).Select(x => DeserializeParameter(x, type.Assembly)).ToArray();
+        var allArgsString = StringUtil.GetInside(src, "(", ")");
+        var argsStrings = allArgsString.Split(PARAMETER_SEPARATOR).ToArray();
+        var args = argsStrings.Select(x => DeserializeParameter(x, type.Assembly)).ToArray();
         var fullNameWithMethod = src.Split("(")[0];
         var splittedFullName = fullNameWithMethod.Split(':');
         var fullName = splittedFullName[0];
         var methodName = splittedFullName[1];
         var parameterCount = args.Length;
-        var genericArgumentCount = args.Count(x => x.IsGeneric);
+        var genericArgumentCount = allArgsString.Count(c => c == '/' || c == '-');
         return GetGenericMethod(type, methodName, parameterCount, genericArgumentCount, args.Select(x => x.Type).ToArray())!;
     }
 
     public static MethodInfo DeserializeMethod<T>(string src) => DeserializeMethod(typeof(T), src);
 
-    public static (Type? Type, bool IsGeneric) DeserializeParameter(string src, Assembly? assembly = null) => (src == "-" ? null : DeserializeType(src, assembly), src.StartsWith("-"));
+    public static (Type? Type, bool IsGeneric) DeserializeParameter(string src, Assembly? assembly = null)
+        => (src.StartsWith("-") ? null : DeserializeType(src, assembly), src.StartsWith("-") || src.StartsWith("/"));
 
     public static PropertyInfo DeserializeProperty(string src)
     {
@@ -192,7 +212,44 @@ public static class ReflectionSerialization
         return type.GetField(fieldName)!;
     }
 
-    public static string SerializeType(Type? type) => type == null ? MISSING_TYPE : $"{type.FullName}, {type.Assembly.FullName}";
+    public static string SerializeType(Type? type, bool isInnerGenericType = false, ParameterInfo? genericParameter = null, TypeVariant parent = TypeVariant.None)
+    {
+        var classification = Classify(type, genericParameter, isInnerGenericType: isInnerGenericType, parent: parent);
+        if (type is null) return MISSING_TYPE;
+        var sb = new StringBuilder();
+        var isGenericUnbound = type.FullName is null;
+        if (isInnerGenericType) sb.Append("[");
+        if (classification == TypeVariant.GenericUnbound)
+        {
+            sb.Append("-");
+        }
+        else if (classification == TypeVariant.GenericBound)
+        {
+            sb.Append("/");
+        }
+        if (type.GenericTypeArguments.Length > 0)
+        {
+            var fullTypeName = type.FullName;
+            var beforeGenericName = fullTypeName is null ? $"{type.Namespace}{(string.IsNullOrEmpty(type.Namespace) ? "" : ".")}{type.Name}"
+                : $"{fullTypeName[0..fullTypeName.IndexOf("`")]}`{type.GenericTypeArguments.Length}";
+            var declaringType = type.DeclaringType;
+            sb.Append($"{beforeGenericName}[{string.Join(",", type.GenericTypeArguments.Select(x => SerializeType(x, true, genericParameter: genericParameter, parent: classification)).ToArray())}]");
+            //sb.Append($"{type.Namespace}{(string.IsNullOrEmpty(type.Namespace) ? "" : ".")}{type.Name}`{type.GenericTypeArguments.Length}[{string.Join(",", type.GenericTypeArguments.Select(x => SerializeType(x, true)).ToArray())}]");
+        }
+        else if (isGenericUnbound)
+        {
+            sb.Append(type.Name);
+        }
+        else
+        {
+            var fullTypeName = type.FullName ?? type.Name;
+            sb.Append(fullTypeName);
+        }
+        sb.Append($", {type.Assembly.FullName}");
+        if (isInnerGenericType) sb.Append("]");
+        return sb.ToString();
+    }
+
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
     public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type)).ToString();
@@ -207,6 +264,7 @@ public static class ReflectionSerialization
         if (valueType == "void") return typeof(void);
         if (valueType.Contains("<")) valueType = NormalizeType(valueType);
         else valueType = GetShortHandName(valueType);
+        valueType = valueType.Replace("/", "");
         var type = Type.GetType(valueType);
         if (type != null) return type;
 
