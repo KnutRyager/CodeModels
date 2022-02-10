@@ -72,9 +72,6 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
         foreach (var property in Properties) yield return property;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
-    {
-        throw new NotImplementedException();
-    }
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
 }
 

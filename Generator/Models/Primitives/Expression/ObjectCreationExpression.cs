@@ -27,6 +27,30 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
             var constructor = SemanticReflection.GetConstructor(objectCreationOperation);
             var value = constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
                 : Arguments.ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
+            if (Initializer is not null)
+            {
+                context.EnterScope(value);
+                var initialValues = Initializer.EvaluatePlain(context);
+                if (initialValues is IEnumerable<object?> initialPlainValues)
+                {
+                    if (value is System.Collections.IDictionary dictionary)
+                    {
+                        foreach (var v in initialPlainValues)
+                        {
+                            var keyValue = v as object[];
+                            dictionary.Add(keyValue![0], keyValue![1]);
+                        }
+                    }
+                    else if (value is System.Collections.IEnumerable collection)
+                    {
+                        var addMethod = collection.GetType().GetMethod("Add");
+                        if (addMethod is null) throw new NotImplementedException($"Unhandled ienumerable: '{value}'.");
+                        foreach (var v in initialPlainValues) addMethod.Invoke(collection, new[] { v });
+                    }
+                }
+                var h = new HashSet<int>();
+                context.ExitScope(value);
+            }
             return Value(value);
 
         }

@@ -15,7 +15,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     public void EnterScope(object owner)
     {
         if (_scopes.Count >= 10000) throw new ProgramModelExecutionException("Stackoverflow");
-        throw new NotImplementedException();
+        _scopes.Add(new ObjectModelExecutionScope(this, owner));
     }
 
     public void EnterScope()
@@ -27,6 +27,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     public void ExitScope(object owner)
     {
         if (_scopes.Count == 0) throw new ProgramModelExecutionException("Popped scope when no scopes");
+        ExitScope();    // TODO: Ensure enough scopes exited in case misaligned
     }
 
     public void ExitScope()

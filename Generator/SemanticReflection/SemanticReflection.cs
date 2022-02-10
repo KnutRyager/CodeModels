@@ -22,11 +22,11 @@ public static class SemanticReflection
 
     public static FieldInfo GetField(IFieldSymbol symbol) => GetContainingType(symbol).GetField(symbol.Name);
     public static PropertyInfo GetProperty(IPropertySymbol symbol) => GetContainingType(symbol).GetProperty(symbol.Name);
-    public static ConstructorInfo GetConstructor(IObjectCreationOperation symbol) => GetConstructor(symbol.Constructor);
-    public static ConstructorInfo GetConstructor(IMethodSymbol symbol)
+    public static ConstructorInfo GetConstructor(IObjectCreationOperation symbol)
     {
-        var type = GetType(symbol);
-        var parameters = symbol.Parameters.Select(GetType).ToArray();
+        var methodSymbol = symbol.Constructor;
+        var type = GetType(symbol.Type);
+        var parameters = methodSymbol.Parameters.Select(GetType).ToArray();
         var constructor = type.GetConstructor(parameters);
         return constructor;
     }
@@ -44,7 +44,7 @@ public static class SemanticReflection
     public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter);
     public static Type GetType(IParameterSymbol symbol) => GetType(symbol.ToString());
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
-    public static Type GetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(TypeUtil.RemoveGenericPart(name.Replace("?", ""))));
+    public static Type GetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
     public static Microsoft.CodeAnalysis.TypeInfo GetTypeInfo(SyntaxNode node, SemanticModel model) => model.GetTypeInfo(node);
     public static Type? GetType(SyntaxNode node, SemanticModel model) => GetType(GetTypeInfo(node, model).Type);
 }
