@@ -19,6 +19,7 @@ public class ReflectionEvalTests
     [Fact] public void InstantiateObject() => "new System.Text.StringBuilder(\"1337\").ToString()".Eval().Should().Be("1337");
     [Fact] public void InstantiateObjectWithInitializer() => "new System.Text.StringBuilder() { Capacity = 1337 }.Capacity".Eval().Should().Be(1337);
     [Fact] public void InstantiateArray() => "new int[] { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new int[] { 1, 2, 3 });
+    [Fact] public void InstantiateArrayImplicit() => "new [] { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new [] { 1, 2, 3 });
     [Fact] public void InstantiateList() => "new System.Collections.Generic.List<int>() { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new List<int>() { 1, 2, 3 });
     [Fact] public void InstantiateSet() => "new System.Collections.Generic.HashSet<int>() { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new HashSet<int>() { 1, 2, 3 });
     [Fact] public void InstantiateDictionary() => "new System.Collections.Generic.Dictionary<int, string>() { { 1, \"a\" }, { 2, \"b\" } }".Eval().Should().BeEquivalentTo(new Dictionary<int, string>() { { 1, "a" }, { 2, "b" } });

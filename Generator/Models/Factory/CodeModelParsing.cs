@@ -160,7 +160,7 @@ public static class CodeModelParsing
         DefaultExpressionSyntax expression => Parse(expression, type),
         ElementAccessExpressionSyntax expression => Parse(expression, type),
         ElementBindingExpressionSyntax expression => Parse(expression, type),
-        ImplicitArrayCreationExpressionSyntax expression => Parse(expression, type),
+        ImplicitArrayCreationExpressionSyntax expression => Parse(expression, type, model),
         ImplicitElementAccessSyntax expression => Parse(expression, type),
         ImplicitStackAllocArrayCreationExpressionSyntax expression => Parse(expression, type),
         InitializerExpressionSyntax expression => Parse(expression, type ?? TypeShorthands.NullType),
@@ -326,7 +326,8 @@ public static class CodeModelParsing
 
     public static IExpression Parse(ImplicitElementAccessSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
-    public static IExpression Parse(ImplicitArrayCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static ExpressionCollection Parse(ImplicitArrayCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) 
+        => Parse(syntax.Initializer, type ?? new TypeFromReflection(SemanticReflection.GetType(model.GetTypeInfo(syntax).Type!))).Expressions.ToValueCollection();
 
     public static IExpression Parse(ElementBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 

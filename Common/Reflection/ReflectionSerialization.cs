@@ -325,7 +325,10 @@ public static class ReflectionSerialization
 
     public static Type DeserializeTypeLookAtShortNames(string type) => DeserializeType(GetShortHandName(type));
     public static bool IsShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName);
-    public static string GetShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
+    public static string GetShortHandName(string typeName) => typeName.Contains("[")
+            ? $"{GetShortHandName(typeName[..typeName.IndexOf('[')])}{typeName[typeName.IndexOf('[')..]}"
+            : _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
+
     public static string GetToShortHandName(string typeName) => _toTypeShorthands.ContainsKey(GetShortHandName(typeName)) ? _toTypeShorthands[GetShortHandName(typeName)] : typeName;
 
     private static readonly IDictionary<string, Assembly> _typeToAssemblyCache = new Dictionary<string, Assembly>();
