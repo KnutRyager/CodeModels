@@ -252,7 +252,7 @@ public static class ReflectionSerialization
 
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
-    public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type)).ToString();
+    public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type.Replace(" ", string.Empty))).ToString();
     public static ParsedGenericType NormalizeType(ParsedGenericType type) => new(GetShortHandName(type.Name), type.Parameters.Select(NormalizeType).ToList());
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
