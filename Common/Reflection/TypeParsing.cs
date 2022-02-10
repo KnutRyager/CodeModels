@@ -1,14 +1,11 @@
 using System.Collections.Generic;
 using System.Linq;
-using Common.DataStructures;
 
 namespace Common.Reflection;
 
 public record ParsedGenericType(string Name, List<ParsedGenericType> Parameters)
 {
-    public override string ToString() => ToString(new(1));
-    private string ToString(Counter counter)
-        => Parameters.Count == 0 ? Name : $"{Name}`{counter.Take()}[{string.Join(",", Parameters.Select(x => x.ToString(counter)))}]";
+    public override string ToString() => Parameters.Count == 0 ? Name : $"{Name}`{Parameters.Count}[{string.Join(",", Parameters.Select(x => x.ToString()))}]";
 }
 
 public static class TypeParsing
