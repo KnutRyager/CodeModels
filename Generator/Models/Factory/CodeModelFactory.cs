@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CodeAnalyzation.Reflection;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -32,6 +33,8 @@ public static class CodeModelFactory
     public static IType Type(string code) => ParseType(code);
     public static IType Type(SyntaxToken token) => Parse(token);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
+    public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
+    public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
 
     public static IMethodHolder MetodHolder(Type type) => type switch
     {

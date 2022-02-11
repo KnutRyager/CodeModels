@@ -37,8 +37,7 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
                     {
                         foreach (var v in initialPlainValues)
                         {
-                            var keyValue = v as object[];
-                            dictionary.Add(keyValue![0], keyValue![1]);
+                            if (v is object[] array) dictionary.Add(array[0], array[1]);
                         }
                     }
                     else if (value is System.Collections.IEnumerable collection)

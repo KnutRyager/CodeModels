@@ -37,7 +37,6 @@ public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, Operatio
             default:
                 return Literal(Operation.ApplyOperator(Inputs.Select(x => x.EvaluatePlain(context)).ToArray()));    // TODO: Handle object types
         }
-
     }
 
     public override T Syntax() => (T)Operation.Syntax(Inputs, Type);
