@@ -4,6 +4,7 @@ namespace CodeAnalyzation.Models;
 
 public interface IProgramModelExecutionContext 
 {
+    IExpression This();
     IExpression GetValue(string identifier);
     IExpression GetValue(IdentifierExpression identifier);
     void DefineVariable(string identifier);

@@ -146,4 +146,14 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         PreviousExpression = expression;
         return expression;
     }
+
+    public IExpression This()
+    {
+        for (var i = 0; i < _scopes.Count; i++)
+        {
+            var scope = GetScope(i);
+            if (scope.HasThis()) return scope.This();
+        }
+        throw new ProgramModelExecutionException($"No 'this' reference found.");
+    }
 }

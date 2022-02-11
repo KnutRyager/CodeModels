@@ -14,4 +14,6 @@ public interface IProgramModelExecutionScope
     IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
     object ExecuteMethodPlain(string identifier, params object?[] parameters);
     void Throw(IExpression value);
+    bool HasThis();
+    IExpression This();
 }

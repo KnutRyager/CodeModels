@@ -64,8 +64,8 @@ public class ObjectModelExecutionScope : IProgramModelExecutionScope
 
     public void SetValue(IdentifierExpression identifier, IExpression value) => SetValue(identifier.Name, value);
 
-    public void Throw(IExpression value)
-    {
-        throw new System.NotImplementedException();
-    }
+    public void Throw(IExpression value) => throw new NotImplementedException();
+
+    public bool HasThis() => true;
+    public IExpression This() => Literal(_object);
 }

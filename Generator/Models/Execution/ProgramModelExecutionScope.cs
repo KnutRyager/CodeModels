@@ -46,4 +46,7 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
     {
         throw new System.NotImplementedException();
     }
+
+    public bool HasThis() => false;
+    public IExpression This() => throw new ProgramModelExecutionException($"No 'this' reference found.");
 }
