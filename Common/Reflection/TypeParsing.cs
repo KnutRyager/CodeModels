@@ -35,7 +35,7 @@ public static class TypeParsing
             else if ((c == ',' && depth == 0) || i == inner.Length)
             {
                 var subIdentifier = inner[innerTypeStartIndex..i];
-                innerTypes.Add(new ParsedGenericType(RemoveGenericPart(subIdentifier), ParseGenericParameters(subIdentifier)));
+                innerTypes.Add(new ParsedGenericType(RemoveGenericPart(ReflectionSerialization.NormalizeType(subIdentifier)), ParseGenericParameters(subIdentifier)));
                 innerTypeStartIndex = i + 1;
             }
         }
