@@ -17,9 +17,17 @@ public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKi
 
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
+        if (Left is IAssignable assignable)
+        {
+            assignable.Assign(Right, context);
+            return Right;
+        }
+        else
+        {
         var result = CodeModelFactory.BinaryExpression(Left, GetOperationType(Kind), Right).Evaluate(context);
-        context.SetValue(Left, result);
-        return result;
+            context.SetValue(Left, result);
+            return result;
+        }
     }
 
     public static OperationType GetOperationType(SyntaxKind kind) => kind switch
