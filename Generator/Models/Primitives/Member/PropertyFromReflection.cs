@@ -11,5 +11,10 @@ public record PropertyFromReflection(PropertyInfo Property)
         (!Property.CanWrite ? Modifier.Readonly : Modifier.None).SetFlags(Modifier.Public | Modifier.Property))
 {
     public PropertyFromReflection(IPropertySymbol symbol) : this(SemanticReflection.GetProperty(symbol)) { }
+
+    public override void Assign(IExpression value, IProgramModelExecutionContext context)
+    {
+        Property.SetValue(context.This().EvaluatePlain(context), value.EvaluatePlain(context));
+    }
 }
 

@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
-    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier), IMember, ITypeModel
+    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier), IMember, ITypeModel, IAssignable
 {
     public IMethodHolder? Owner { get; set; }
 
@@ -65,6 +65,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
             initializer: Initializer());
 
     public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(IsRandomlyGeneratedName ? null : Name));
+    public IExpression ToExpression() => Value;
 
     public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
@@ -98,6 +99,11 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     }
 
     public virtual IExpression EvaluateAccess(IProgramModelExecutionContext context, IExpression instance)
+    {
+        throw new NotImplementedException();
+    }
+
+    public virtual void Assign(IExpression value, IProgramModelExecutionContext context)
     {
         throw new NotImplementedException();
     }
