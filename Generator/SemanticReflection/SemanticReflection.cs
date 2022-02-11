@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Reflection;
-using System.Text;
 using System.Linq;
-using Common.Extensions;
+using System.Reflection;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
-using CodeAnalyzation.Models;
 
 namespace CodeAnalyzation.Reflection;
 
@@ -44,7 +41,8 @@ public static class SemanticReflection
     public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter);
     public static Type GetType(IParameterSymbol symbol) => GetType(symbol.ToString());
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
-    public static Type GetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
+    public static Type GetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))) 
+        ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
     public static Microsoft.CodeAnalysis.TypeInfo GetTypeInfo(SyntaxNode node, SemanticModel model) => model.GetTypeInfo(node);
     public static Type? GetType(SyntaxNode node, SemanticModel model) => GetType(GetTypeInfo(node, model).Type);
 }
