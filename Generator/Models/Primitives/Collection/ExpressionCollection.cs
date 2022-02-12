@@ -35,7 +35,13 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
 
     public override IEnumerable<ICodeModel> Children() => Values;
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => new LiteralExpression(Values.Select(x => x.EvaluatePlain(context)).ToArray());
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    {
+        var array = Array.CreateInstance(Type.GetReflectedType(), Values.Count);
+        for (var i = 0; i < array.Length; i++) { array.SetValue(Values[i].EvaluatePlain(context), i); }
+        return new LiteralExpression(array);
+    }
+
     //public override IExpression Evaluate(IProgramModelExecutionContext context) => Values.Select(x => x.Evaluate(context)).ToArray();
 }
 

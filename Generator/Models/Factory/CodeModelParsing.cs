@@ -101,8 +101,8 @@ public static class CodeModelParsing
     public static Property ParseProperty(ArgumentSyntax syntax, IType? specifiedType = null, SemanticModel? model = null) => syntax.Expression switch
     {
         TypeSyntax type => new(Parse(type), syntax.NameColon?.Name.ToString()),
-        DeclarationExpressionSyntax declaration => ParseProperty(declaration, specifiedType),
-        ExpressionSyntax expression => new(ParseExpression(expression)),
+        DeclarationExpressionSyntax declaration => ParseProperty(declaration, specifiedType, model: model),
+        ExpressionSyntax expression => new(ParseExpression(expression, model: model)),
         _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{syntax}'.")
     };
 
