@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using FluentAssertions;
 using Xunit;
+using System.Linq;
 
 namespace CodeAnalyzation.Models.Execution.Test;
 
@@ -16,6 +17,7 @@ public class ReflectionEvalTests
     [Fact] public void SizeOf() => "sizeof(int)".Eval().Should().Be(sizeof(int));
     [Fact] public void InstanceProperty() => "\"test\".Length".Eval().Should().Be("test".Length);
     [Fact] public void InstanceMethod() => "\"a_a\".Replace('a','b')".Eval().Should().Be("b_b");
+    [Fact] public void InstantiateStruct() => "new System.DateTime(2022, 2, 12)".Eval().Should().BeEquivalentTo(new DateTime(2022, 2, 12));
     [Fact] public void InstantiateObject() => "new System.Text.StringBuilder(\"1337\").ToString()".Eval().Should().Be("1337");
     [Fact] public void InstantiateObjectWithInitializer() => "new System.Text.StringBuilder() { Capacity = 1337 }.Capacity".Eval().Should().Be(1337);
     [Fact] public void InstantiateArray() => "new int[] { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new int[] { 1, 2, 3 });
