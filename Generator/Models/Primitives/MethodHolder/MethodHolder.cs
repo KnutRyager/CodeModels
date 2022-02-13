@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using Common.Util;
 
 namespace CodeAnalyzation.Models;
 
@@ -84,6 +85,8 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
+    public Modifier Modifier => throw new NotImplementedException();
+
     BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
 
     public override IEnumerable<ICodeModel> Children()
@@ -91,4 +94,9 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
         foreach (var property in Properties.Properties) yield return property;
         foreach (var method in Methods) yield return method;
     }
+
+    MemberDeclarationSyntax IMember.Syntax() => ToClass();
+
+    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+        => (this with { TopLevelModifier = Modifier.SetModifiers(modifier).SetFlags(removeModifier, false) }).Syntax();
 }

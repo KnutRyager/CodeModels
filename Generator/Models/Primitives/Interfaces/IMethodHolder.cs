@@ -2,7 +2,7 @@
 
 namespace CodeAnalyzation.Models;
 
-public interface IMethodHolder : ICodeModel, ITypeModel
+public interface IMethodHolder : ICodeModel, ITypeModel, IMember
 {
     new BaseTypeDeclarationSyntax Syntax();
     string Name { get; }

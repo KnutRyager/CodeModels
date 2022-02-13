@@ -648,7 +648,16 @@ public static class CodeModelParsing
         StructDeclarationSyntax declaration => Parse(declaration),
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(ClassDeclarationSyntax syntax) => throw new NotImplementedException();
+    public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null) =>
+       @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
+           null,
+           @class.GetMethods().Select(x => Method(x)),
+           @namespace: @namespace == default ? default : new(@namespace))
+       : new InstanceClass(@class.Identifier.ValueText,
+           null,
+           @class.GetMethods().Select(x => Method(x)),
+           @namespace: @namespace == default ? default : new(@namespace));
+
     public static IMember Parse(InterfaceDeclarationSyntax syntax) => throw new NotImplementedException();
     public static IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
     {
