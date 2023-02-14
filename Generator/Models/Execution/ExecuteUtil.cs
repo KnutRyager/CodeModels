@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using CodeAnalyzation.Models.ProgramModels;
+using Microsoft.CodeAnalysis;
 using static CodeAnalyzation.Parsing.ParseUtil;
 
 namespace CodeAnalyzation.Models.Execution;
@@ -7,6 +8,7 @@ public static class ExecuteUtil
 {
     public static object? Eval(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
     {
+        ProgramContext.NewContext();
         var model = str.ParseAndKeepSemanticModel(key, kind);
         var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
         if (compilationModel.Members.Count >= 0)
