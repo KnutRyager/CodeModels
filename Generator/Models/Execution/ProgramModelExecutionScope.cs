@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace CodeAnalyzation.Models;
 
@@ -49,4 +50,7 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
 
     public bool HasThis() => false;
     public IExpression This() => throw new ProgramModelExecutionException($"No 'this' reference found.");
+
+    public override string ToString()
+        => $"ProgramModelScope. Values: {string.Join(Environment.NewLine, _values)}, Variables: {string.Join(Environment.NewLine, _variables)}";
 }

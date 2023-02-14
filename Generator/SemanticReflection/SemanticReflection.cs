@@ -35,7 +35,10 @@ public static class SemanticReflection
     }
 
     public static Assembly GetAssembly(ISymbol symbol) => ReflectionSerialization.DeserializeAssembly(symbol.ContainingAssembly.ToString());
-    public static Type GetContainingType(ISymbol symbol) => GetType(symbol.ContainingType);
+    public static Type GetContainingType(ISymbol symbol) 
+        => symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.Name is "Program" 
+        ? null!
+        :GetType(symbol.ContainingType);
     public static Type GetType(ITypeSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(IMethodSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(INamedTypeSymbol symbol) => GetType(symbol.ToString(), symbol);

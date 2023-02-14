@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -32,6 +33,28 @@ public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string
 
     public override void Evaluate(IProgramModelExecutionContext context)
     {
-        throw new System.NotImplementedException();
+        new LocalFunctionExpression(this).Evaluate(context);
     }
+
+    public override IType Get_Type() => ReturnType;
+
+    public virtual object? EvaluatePlain(IProgramModelExecutionContext context)
+    {
+        if (Parameters.Properties.Count > 0)
+        {
+            throw new NotImplementedException();
+        }
+        else if (Body is Block block)
+        {
+            block.Evaluate(context);
+            return context.PreviousExpression.EvaluatePlain(context);
+        }
+        else if (ExpressionBody is IExpression expression)
+        {
+            return expression.EvaluatePlain(context);
+        }
+
+        throw new NotImplementedException();
+    }
+
 }

@@ -82,6 +82,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void SetReturn(IExpression Value)
     {
+        PreviousExpression = Value;
         _returnFlag = true;
     }
 
@@ -156,4 +157,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         }
         throw new ProgramModelExecutionException($"No 'this' reference found.");
     }
+
+    public override string ToString()
+        => $"ProgramModelContext. Scopes: {string.Join(Environment.NewLine, _scopes)}";
 }

@@ -410,18 +410,18 @@ public static class CodeModelParsing
 
     public static IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.SimpleAssignmentExpression => new SimpleAssignmentExpression(ParseExpression(syntax.Left, type, model), ParseExpression(syntax.Right)),
-        SyntaxKind.AddAssignmentExpression => new AddAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.SubtractAssignmentExpression => new SubtractAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.MultiplyAssignmentExpression => new MultiplyAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.DivideAssignmentExpression => new DivideAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.ModuloAssignmentExpression => new ModuloAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.AndAssignmentExpression => new AndAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.ExclusiveOrAssignmentExpression => new ExclusiveOrAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.OrAssignmentExpression => new OrAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.LeftShiftAssignmentExpression => new LeftShiftAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.RightShiftAssignmentExpression => new RightShiftAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.CoalesceAssignmentExpression => new CoalesceAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
+        SyntaxKind.SimpleAssignmentExpression => new SimpleAssignmentExpression(ParseExpression(syntax.Left, type, model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.AddAssignmentExpression => new AddAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.SubtractAssignmentExpression => new SubtractAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.MultiplyAssignmentExpression => new MultiplyAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.DivideAssignmentExpression => new DivideAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ModuloAssignmentExpression => new ModuloAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.AndAssignmentExpression => new AndAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ExclusiveOrAssignmentExpression => new ExclusiveOrAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.OrAssignmentExpression => new OrAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LeftShiftAssignmentExpression => new LeftShiftAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.RightShiftAssignmentExpression => new RightShiftAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.CoalesceAssignmentExpression => new CoalesceAssignmentExpression(ParseExpression(syntax.Left, model: model), ParseExpression(syntax.Right, model: model)),
         _ => throw new NotImplementedException($"Assignment expression {syntax} not implemented.")
     };
 
@@ -475,43 +475,43 @@ public static class CodeModelParsing
 
     public static IStatement Parse(StatementSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        BlockSyntax statement => Parse(statement),
+        BlockSyntax statement => Parse(statement, model),
         BreakStatementSyntax statement => Parse(statement),
         CheckedStatementSyntax statement => Parse(statement),
-        CommonForEachStatementSyntax statement => Parse(statement),
+        CommonForEachStatementSyntax statement => Parse(statement, model),
         ContinueStatementSyntax statement => Parse(statement),
-        DoStatementSyntax statement => Parse(statement),
+        DoStatementSyntax statement => Parse(statement, model),
         EmptyStatementSyntax statement => Parse(statement),
         ExpressionStatementSyntax statement => Parse(statement, model),
         FixedStatementSyntax statement => Parse(statement),
-        ForStatementSyntax statement => Parse(statement),
-        GotoStatementSyntax statement => Parse(statement),
-        IfStatementSyntax statement => Parse(statement),
-        LabeledStatementSyntax statement => Parse(statement),
+        ForStatementSyntax statement => Parse(statement, model),
+        GotoStatementSyntax statement => Parse(statement, model),
+        IfStatementSyntax statement => Parse(statement, model),
+        LabeledStatementSyntax statement => Parse(statement, model),
         LocalDeclarationStatementSyntax statement => Parse(statement, model),
-        LocalFunctionStatementSyntax statement => Parse(statement),
-        LockStatementSyntax statement => Parse(statement),
-        ReturnStatementSyntax statement => Parse(statement),
-        SwitchStatementSyntax statement => Parse(statement),
-        ThrowStatementSyntax statement => Parse(statement),
-        TryStatementSyntax statement => Parse(statement),
-        UnsafeStatementSyntax statement => Parse(statement),
-        UsingStatementSyntax statement => Parse(statement),
-        WhileStatementSyntax statement => Parse(statement),
+        LocalFunctionStatementSyntax statement => Parse(statement, model),
+        LockStatementSyntax statement => Parse(statement, model),
+        ReturnStatementSyntax statement => Parse(statement, model),
+        SwitchStatementSyntax statement => Parse(statement, model),
+        ThrowStatementSyntax statement => Parse(statement, model),
+        TryStatementSyntax statement => Parse(statement, model),
+        UnsafeStatementSyntax statement => Parse(statement, model),
+        UsingStatementSyntax statement => Parse(statement, model),
+        WhileStatementSyntax statement => Parse(statement, model),
         _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
     };
 
     public static Block Parse(BlockSyntax syntax, SemanticModel? model = null) => new(List(syntax.Statements.Select(x => Parse(x, model))));
     public static BreakStatement Parse(BreakStatementSyntax _) => new();
     public static CheckedStatement Parse(CheckedStatementSyntax syntax) => new(Parse(syntax.Block));
-    public static ForEachStatement Parse(CommonForEachStatementSyntax syntax) => syntax switch
+    public static ForEachStatement Parse(CommonForEachStatementSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        ForEachStatementSyntax statement => Parse(statement),
+        ForEachStatementSyntax statement => Parse(statement, model),
         _ => throw new ArgumentException($"Can't parse {nameof(ForEachStatement)} from '{syntax}'.")
     };
     public static ForEachStatement Parse(ForEachStatementSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString(), ParseExpression(syntax.Expression), Parse(syntax.Statement));
     public static ContinueStatement Parse(ContinueStatementSyntax _) => new();
-    public static DoStatement Parse(DoStatementSyntax syntax) => new(Parse(syntax.Statement), ParseExpression(syntax.Condition));
+    public static DoStatement Parse(DoStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Statement, model), ParseExpression(syntax.Condition, model: model));
     public static EmptyStatement Parse(EmptyStatementSyntax _) => new();
     public static ExpressionStatement Parse(ExpressionStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
     public static IMember Parse(GlobalStatementSyntax syntax, SemanticModel? model = null)
@@ -531,19 +531,19 @@ public static class CodeModelParsing
     public static Attribute Parse(AttributeSyntax syntax)
         => new(syntax.Name.ToString(), new(syntax.ArgumentList is null ? new List<AttributeArgument>() : syntax.ArgumentList.Arguments.Select(Parse).ToList()));
     public static AttributeArgument Parse(AttributeArgumentSyntax syntax) => new(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
-    public static ForStatement Parse(ForStatementSyntax syntax)
-        => new(syntax.Declaration is null ? new(null) : Parse(syntax.Declaration), syntax.Initializers.Select(x => ParseExpression(x)).ToList(), ParseExpression(syntax.Condition), List(syntax.Incrementors.Select(x => ParseExpression(x))), Parse(syntax.Statement));
-    public static GotoStatement Parse(GotoStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
-    public static IfStatement Parse(IfStatementSyntax syntax) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement), syntax.Else is null ? null : Parse(syntax.Else));
-    public static IStatement Parse(ElseClauseSyntax syntax) => Parse(syntax.Statement);
-    public static LabeledStatement Parse(LabeledStatementSyntax syntax) => new(syntax.Identifier.ToString(), Parse(syntax.Statement));
+    public static ForStatement Parse(ForStatementSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Declaration is null ? new(null) : Parse(syntax.Declaration, model), syntax.Initializers.Select(x => ParseExpression(x, model: model)).ToList(), ParseExpression(syntax.Condition, model: model), List(syntax.Incrementors.Select(x => ParseExpression(x, model: model))), Parse(syntax.Statement, model));
+    public static GotoStatement Parse(GotoStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
+    public static IfStatement Parse(IfStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement, model), syntax.Else is null ? null : Parse(syntax.Else, model));
+    public static IStatement Parse(ElseClauseSyntax syntax, SemanticModel? model = null) => Parse(syntax.Statement, model);
+    public static LabeledStatement Parse(LabeledStatementSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString(), Parse(syntax.Statement, model));
     public static LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Declaration, model));
-    public static LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax)
+    public static LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax, SemanticModel? model = null)
         => new(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
             ParseTypes(syntax.TypeParameterList),
-            ParseProperties(syntax.ParameterList), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body),
-            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
-    public static PropertyCollection ParseProperties(ParameterListSyntax syntax) => new(syntax.Parameters.Select(Parse));
+            ParseProperties(syntax.ParameterList, model), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body, model),
+            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model));
+    public static PropertyCollection ParseProperties(ParameterListSyntax syntax, SemanticModel? model = null) => new(syntax.Parameters.Select(x => Parse(x, model)));
     public static List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public static TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
         => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
@@ -559,22 +559,22 @@ public static class CodeModelParsing
     public static ConstructorConstraint Parse(ConstructorConstraintSyntax _) => new();
     public static DefaultConstraint Parse(DefaultConstraintSyntax _) => new();
     public static TypeConstraint Parse(TypeConstraintSyntax syntax) => new(ParseType(syntax.Type));
-    public static TypeCollection ParseTypes(TypeParameterListSyntax? syntax) => syntax is null ? new() : new(syntax.Parameters.Select(Parse));
-    public static Property Parse(ParameterSyntax syntax) => new(syntax);
-    public static IType Parse(TypeParameterSyntax syntax) => new QuickType(syntax.Identifier.ToString());    // TODO
-    public static LockStatement Parse(LockStatementSyntax syntax) => new(ParseExpression(syntax.Expression), Parse(syntax.Statement));
-    public static ReturnStatement Parse(ReturnStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
-    public static SwitchStatement Parse(SwitchStatementSyntax syntax) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
+    public static TypeCollection ParseTypes(TypeParameterListSyntax? syntax, SemanticModel? model = null) => syntax is null ? new() : new(syntax.Parameters.Select(x => Parse(x, model)));
+    public static Property Parse(ParameterSyntax syntax, SemanticModel? model = null) => new(syntax);
+    public static IType Parse(TypeParameterSyntax syntax, SemanticModel? model = null) => new QuickType(syntax.Identifier.ToString());    // TODO
+    public static LockStatement Parse(LockStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression), Parse(syntax.Statement));
+    public static ReturnStatement Parse(ReturnStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression));
+    public static SwitchStatement Parse(SwitchStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
     public static SwitchSection Parse(SwitchSectionSyntax syntax) => throw new NotImplementedException();// new(CodeModelFactory.List(syntax.Labels.Select(ParseExpression)), Parse(syntax.Statements));
     //public static SwitchSection Parse(SwitchLabelSyntax syntax) => new(syntax.E);
-    public static ThrowStatement Parse(ThrowStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
-    public static TryStatement Parse(TryStatementSyntax syntax) => new(Parse(syntax.Block), List(syntax.Catches.Select(Parse)), syntax.Finally is null ? null : Parse(syntax.Finally));
-    public static CatchClause Parse(CatchClauseSyntax syntax) => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block));
-    public static CatchDeclaration Parse(CatchDeclarationSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString());
-    public static FinallyClause Parse(FinallyClauseSyntax syntax) => new(Parse(syntax.Block));
-    public static UnsafeStatement Parse(UnsafeStatementSyntax syntax) => new(Parse(syntax.Block));
-    public static UsingStatement Parse(UsingStatementSyntax syntax) => new(Parse(syntax.Statement));
-    public static WhileStatement Parse(WhileStatementSyntax syntax) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement));
+    public static ThrowStatement Parse(ThrowStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression));
+    public static TryStatement Parse(TryStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
+    public static CatchClause Parse(CatchClauseSyntax syntax, SemanticModel? model = null) => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model));
+    public static CatchDeclaration Parse(CatchDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type), syntax.Identifier.ToString());
+    public static FinallyClause Parse(FinallyClauseSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
+    public static UnsafeStatement Parse(UnsafeStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
+    public static UsingStatement Parse(UsingStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Statement, model));
+    public static WhileStatement Parse(WhileStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Condition, model: model), Parse(syntax.Statement, model: model));
 
     public static CompilationUnit Parse(CompilationUnitSyntax syntax, SemanticModel model)
             => new(syntax.Members.Select(x => Parse(x, model)).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());

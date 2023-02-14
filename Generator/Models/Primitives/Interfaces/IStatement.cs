@@ -28,5 +28,5 @@ public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> wher
     MemberDeclarationSyntax IMember.Syntax() => throw new System.NotImplementedException();
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();
     public TypeSyntax TypeSyntax() => throw new System.NotImplementedException();
-    public IType Get_Type() => throw new System.NotImplementedException();
+    public virtual IType Get_Type() => throw new System.NotImplementedException();
 }

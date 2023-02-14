@@ -23,6 +23,10 @@ public static class ExecuteUtil
                     context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
                     //result = expressionStatement.Expression.Evaluate(context);
                 }
+                else if (member is ReturnStatement returnStatement)
+                {
+                    context.SetPreviousExpression(returnStatement.Expression.Evaluate(context));
+                }
                 else if (member is IStatement statement)
                 {
                     statement.Evaluate(context);
