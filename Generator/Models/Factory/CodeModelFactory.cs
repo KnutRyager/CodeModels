@@ -99,7 +99,20 @@ public static class CodeModelFactory
         => new(name, parameters, returnType, Block(statements), modifier);
     public static Method Method(string name, PropertyCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => new(name, parameters, returnType, expressionBody, modifier);
-    public static MethodFromReflection Method(MethodInfo info) => new(info);
+    public static ICodeModel Member(MemberInfo member) => member switch
+    {
+        Type type => new TypeFromReflection(type),
+        //FieldInfo field => Property(field),
+        MethodBase @base => Method(@base),
+        _ => throw new NotImplementedException($"Unhandled member: {member}")
+    };
+    public static ICodeModel Method(MethodBase @base) => @base switch
+    {
+        //ConstructorInfo constructor => new ConstructorFromReflection(constructor),
+        MethodInfo method => new MethodFromReflection(method),
+        _ => throw new NotImplementedException($"Unhandled base: {@base}")
+    };
+
     public static Method Method(MethodDeclarationSyntax method) => Parse(method);
 
     public static Constructor Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)

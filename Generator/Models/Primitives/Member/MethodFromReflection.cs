@@ -1,12 +1,132 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Reflection;
+using CodeAnalyzation.Models.ProgramModels;
+using CodeAnalyzation.Models.Reflection;
 using CodeAnalyzation.Reflection;
+using Common.DataStructures;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
 public record MethodFromReflection(MethodInfo Method)
     : Method(Method.Name, new PropertyCollection(Method.GetParameters()), new TypeFromReflection(Method.ReturnType))
 {
-    public MethodFromReflection(IMethodSymbol symbol) : this(SemanticReflection.GetMethod(symbol)) { }
+    //public MethodFromReflection(IMethodSymbol symbol) : this(SemanticReflection.GetMethod(symbol) ?? Context.Get<MethodInfo>(symbol)) { }
 }
+
+public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
+    where T : ISymbol
+    where TCodeModel : class, IMember
+{
+    public IProgramContext Context => ProgramContext.Context!;
+    public TCodeModel Lookup => Context.Get<TCodeModel>(Symbol);
+    public IMember Member => Lookup;
+
+    public string Name => Member.Name;
+    public Modifier Modifier => Member.Modifier;
+    public bool IsStatic => Member.IsStatic;
+    public IEnumerable<ICodeModel> Children() => Lookup.Children();
+    public string Code() => Lookup.Code();
+    public ISet<IType> Dependencies(ISet<IType>? set = null) => Lookup.Dependencies(set);
+    public IType Get_Type() => Lookup.Get_Type();
+    public MemberDeclarationSyntax Syntax() => Member.Syntax();
+    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+        => Lookup.SyntaxWithModifiers(modifier, removeModifier);
+    public TypeSyntax TypeSyntax() => Lookup.TypeSyntax();
+    CSharpSyntaxNode ICodeModel.Syntax() => Member.Syntax();
+}
+
+public abstract record MethodBaseFromSymbol<T, TCodeModel>(T Symbol) : MemberFromSymbol<T, TCodeModel>(Symbol), IMethodBase
+    where T : IMethodSymbol
+    where TCodeModel : class, IMethod
+{
+    public bool IsFamily => Lookup.IsFamily;
+    public bool IsFamilyAndAssembly => Lookup.IsFamilyAndAssembly;
+    public bool IsFamilyOrAssembly => Lookup.IsFamilyOrAssembly;
+    public bool IsFinal => Lookup.IsFinal;
+    public bool IsGenericMethod => Lookup.IsGenericMethod;
+    public bool IsGenericMethodDefinition => Lookup.IsGenericMethodDefinition;
+    public bool IsHideBySig => Lookup.IsHideBySig;
+    public bool IsPrivate => Lookup.IsPrivate;
+    public bool IsPublic => Lookup.IsPublic;
+    public bool IsSecurityCritical => Lookup.IsSecurityCritical;
+    public bool IsSecuritySafeCritical => Lookup.IsSecuritySafeCritical;
+    public bool IsSecurityTransparent => Lookup.IsSecurityTransparent;
+    public bool IsSpecialName => Lookup.IsSpecialName;
+    public bool IsConstructor => Lookup.IsConstructor;
+    public RuntimeMethodHandle MethodHandle => Lookup.MethodHandle;
+    public bool IsAssembly => Lookup.IsAssembly;
+    public bool ContainsGenericParameters => Lookup.ContainsGenericParameters;
+    public bool IsAbstract => Lookup.IsAbstract;
+    public MethodImplAttributes MethodImplementationFlags => Lookup.MethodImplementationFlags;
+    public CallingConventions CallingConvention => Lookup.CallingConvention;
+    public MethodAttributes Attributes => Lookup.Attributes;
+    public IEnumerable<CustomAttributeData> CustomAttributes => Lookup.CustomAttributes;
+    public ITypeInfo DeclaringType => Lookup.DeclaringType;
+    public MemberTypes MemberType => Lookup.MemberType;
+    public int MetadataToken => Lookup.MetadataToken;
+    public Module Module => Lookup.Module;
+    public ITypeInfo ReflectedType => Lookup.ReflectedType;
+    public object[] GetCustomAttributes(bool inherit) => Lookup.GetCustomAttributes(inherit);
+    public object[] GetCustomAttributes(ITypeInfo attributeType, bool inherit) => Lookup.GetCustomAttributes(attributeType, inherit);
+    public IList<CustomAttributeData> GetCustomAttributesData() => Lookup.GetCustomAttributesData();
+    public ITypeInfo[] GetGenericArguments() => Lookup.GetGenericArguments();
+    public IMethodInfo GetGenericMethodDefinition() => Lookup.GetGenericMethodDefinition();
+    public MethodBody GetMethodBody() => Lookup.GetMethodBody();
+    public MethodImplAttributes GetMethodImplementationFlags() => Lookup.GetMethodImplementationFlags();
+    public IParameterInfo[] GetParameters() => Lookup.GetParameters();
+    public object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) => Lookup.Children();
+    public object Invoke(object obj, object[] parameters) => Lookup.Invoke(obj, parameters);
+    public bool IsDefined(ITypeInfo attributeType, bool inherit) => Lookup.IsDefined(attributeType, inherit);
+}
+
+public record MethodFromSymbol(IMethodSymbol Symbol) : MethodBaseFromSymbol<IMethodSymbol, IMethod>(Symbol), IMethod
+{
+    public IParameterInfo ReturnParameter => Lookup.ReturnParameter;
+    public ITypeInfo ReturnType => Lookup.ReturnType;
+    public Reflection.ICustomAttributeProvider ReturnTypeCustomAttributes => Lookup.ReturnTypeCustomAttributes;
+    public Delegate CreateDelegate(ITypeInfo delegateType) => Lookup.CreateDelegate(delegateType);
+    public Delegate CreateDelegate(ITypeInfo delegateType, object target) => Lookup.CreateDelegate(delegateType, target);
+    public IMethodInfo GetBaseDefinition() => Lookup.GetBaseDefinition();
+    public IMethodInfo MakeGenericMethod(params ITypeInfo[] typeArguments) => Lookup.MakeGenericMethod(typeArguments);
+    public MethodDeclarationSyntax ToMethodSyntax(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+         => Lookup.ToMethodSyntax(modifier, removeModifier);
+    MethodDeclarationSyntax ICodeModel<MethodDeclarationSyntax>.Syntax() => (Member.Syntax() as MethodDeclarationSyntax)!;
+}
+
+public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol, IType>(Symbol), IType
+{
+    public string Identifier => Lookup.Identifier;
+    public bool Required => Lookup.Required;
+    public bool IsMulti => Lookup.IsMulti;
+    public Type? ReflectedType => Lookup.ReflectedType;
+    public EqualityList<IType> GenericTypes => Lookup.GenericTypes;
+    public bool IsLiteralExpression => Lookup.IsLiteralExpression;
+    public LiteralExpressionSyntax? LiteralSyntax => Lookup.LiteralSyntax;
+    public object? LiteralValue => Lookup.LiteralValue;
+    public ExpressionStatement AsStatement() => Lookup.AsStatement();
+    public IExpression Evaluate(IProgramModelExecutionContext context) => Lookup.AsStatement();
+    public object? EvaluatePlain(IProgramModelExecutionContext context) => Lookup.AsStatement();
+    public IType GetGenericType(int index) => Lookup.GetGenericType(index);
+    public IdentifierExpression GetIdentifier() => Lookup.GetIdentifier();
+    public string GetMostSpecificType() => Lookup.GetMostSpecificType();
+    public Type? GetReflectedType() => Lookup.GetReflectedType();
+    public ArgumentSyntax ToArgument() => Lookup.ToArgument();
+    public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => Lookup.ToEnumValue(value);
+    public IType ToMultiType() => Lookup.ToMultiType();
+    public TypeParameterSyntax ToTypeParameter() => Lookup.ToTypeParameter();
+    public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => Lookup.TypeSyntaxMultiWrapped(type);
+    public TypeSyntax TypeSyntaxNonMultiWrapped() => Lookup.TypeSyntaxNonMultiWrapped();
+    public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => Lookup.TypeSyntaxNullableWrapped(type);
+    public TypeSyntax TypeSyntaxUnwrapped() => Lookup.TypeSyntaxUnwrapped();
+    TypeSyntax IType.Syntax() => Lookup.Syntax();
+    TypeSyntax ICodeModel<TypeSyntax>.Syntax() => Lookup.Syntax();
+    ExpressionSyntax IExpression.Syntax() => Lookup.Syntax();
+}
+
+
 

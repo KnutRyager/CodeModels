@@ -4,13 +4,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public interface IType : ICodeModel<TypeSyntax>, IExpression
+public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
 {
-    string Name { get; }
     string Identifier { get; }
     bool Required { get; }
     bool IsMulti { get; }
-    bool IsStatic { get; }
     new TypeSyntax Syntax();
     Type? ReflectedType { get; }
     TypeSyntax TypeSyntaxNonMultiWrapped();

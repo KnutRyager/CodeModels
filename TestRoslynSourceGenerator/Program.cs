@@ -10,14 +10,14 @@ partial class Program
         GeneratorLog.Print();
         //HelloFrom("Generated Code");
         //Console.ReadLine();
-        foreach (var kv in ModelDependencies.Deps)
-        {
-            Console.WriteLine($"{kv.Key}: {kv.Value}");
-            foreach (var kv2 in kv.Value)
-            {
-                Console.WriteLine($"\t{kv2.Key}: {string.Join(',', kv2.Value)}");
-            }
-        }
+        //foreach (var kv in ModelDependencies.Deps)
+        //{
+        //    Console.WriteLine($"{kv.Key}: {kv.Value}");
+        //    foreach (var kv2 in kv.Value)
+        //    {
+        //        Console.WriteLine($"\t{kv2.Key}: {string.Join(',', kv2.Value)}");
+        //    }
+        //}
     }
 
     //static partial void HelloFrom(string name);

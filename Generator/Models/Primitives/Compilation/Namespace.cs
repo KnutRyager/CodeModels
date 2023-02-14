@@ -21,6 +21,8 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     public LiteralExpressionSyntax? LiteralSyntax => null;
     public object? LiteralValue => throw new NotImplementedException();
 
+    public Modifier Modifier => throw new NotImplementedException();
+
     public Namespace(IEnumerable<string> parts) : this(string.Join(".", parts)) { }
     public Namespace(INamespaceSymbol Symbol) : this(Symbol.ToString(), Symbol) { }
     public Namespace(params string[] parts) : this(parts.ToList()) { }
@@ -55,4 +57,19 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     ExpressionSyntax IExpression.Syntax() => throw new NotImplementedException();
 
     public IdentifierExpression GetIdentifier() => new(Identifier, Symbol: Symbol);
+
+    MemberDeclarationSyntax IMember.Syntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TypeSyntax TypeSyntax()
+    {
+        throw new NotImplementedException();
+    }
 }

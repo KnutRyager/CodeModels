@@ -18,8 +18,9 @@ public interface ICodeModel<T> : ICodeModel where T : CSharpSyntaxNode
     new T Syntax();
 }
 
-public abstract record CodeModel<T>(IProgramContext? Context = null) : ICodeModel<T> where T : CSharpSyntaxNode
+public abstract record CodeModel<T>() : ICodeModel<T> where T : CSharpSyntaxNode
 {
+    public IProgramContext Context = ProgramContext.Context!;
     public abstract T Syntax();
     CSharpSyntaxNode ICodeModel.Syntax() => Syntax();
     public string Code() => Syntax().NormalizeWhitespace().ToString();

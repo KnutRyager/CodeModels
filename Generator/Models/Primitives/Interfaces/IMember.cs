@@ -18,8 +18,8 @@ public interface IMember<T> : ICodeModel<T>, IMember where T : MemberDeclaration
     new T Syntax();
 }
 
-public abstract record MemberModel<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier, IProgramContext? Context = null)
-    : CodeModel<T>(Context), IMember<T> where T : MemberDeclarationSyntax
+public abstract record MemberModel<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier)
+    : CodeModel<T>, IMember<T> where T : MemberDeclarationSyntax
 {
     public IType Get_Type() => Type;
     public virtual bool IsStatic => Modifier.HasFlag(Modifier.Static);

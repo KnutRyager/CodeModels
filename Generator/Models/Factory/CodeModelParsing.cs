@@ -8,14 +8,17 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeAnalyzation.Models.CodeModelFactory;
+using CodeAnalyzation.Models.ProgramModels;
 
 namespace CodeAnalyzation.Models;
 
 public static class CodeModelParsing
 {
+    private static IProgramContext Context => ProgramContext.Context!;
+    private static T Register<T>(SyntaxNode node, T model) where T : ICodeModel => Context.Register(node, model);
     public static IType Parse(SyntaxToken token) => ParseType(token.ToString());
     public static IType ParseType(string identifier) => ParseType(ParseTypeName(identifier));
-    public static IType Parse(TypeInfo typeInfo) => typeInfo.Type is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type);  // TODO: Nullability
+    public static IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type);  // TODO: Nullability
     public static TypeFromSymbol Parse(ITypeSymbol symbol) => new TypeFromSymbol(symbol);
 
     public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
@@ -68,11 +71,11 @@ public static class CodeModelParsing
         {
             IFieldSymbol field => new PropertyFromField(field).AccessValue(syntax.ToString(), type, field),
             IPropertySymbol property => new PropertyFromReflection(property).AccessValue(syntax.ToString(), type, property),
-            IMethodSymbol method => new MethodFromReflection(method).Invoke(syntax.ToString(), type, method),
+            //IMethodSymbol method => new MethodFromSymbol(method).Invoke(syntax.ToString(), type, method),
             ITypeSymbol typeSymbol => Parse(typeSymbol),
             INamespaceSymbol namespaceSymbol => new Namespace(namespaceSymbol),
             _ when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, symbol),
-            _ when model.GetTypeInfo(syntax) is TypeInfo typeInfo => Parse(typeInfo),
+            _ when model.GetTypeInfo(syntax) is Microsoft.CodeAnalysis.TypeInfo typeInfo => Parse(typeInfo),
             _ => new QuickType(syntax.Identifier.ToString())
         };
     }
@@ -613,7 +616,7 @@ public static class CodeModelParsing
     public static IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public static IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
     public static Method Parse(MethodDeclarationSyntax syntax)
-         => new(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
+         => Register(syntax, new Method(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
     public static IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public static IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
     {
@@ -649,14 +652,14 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
     public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null) =>
-       @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
+       Register<ClassModel>(@class, @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
            null,
            @class.GetMethods().Select(x => Method(x)),
            @namespace: @namespace == default ? default : new(@namespace))
        : new InstanceClass(@class.Identifier.ValueText,
            null,
            @class.GetMethods().Select(x => Method(x)),
-           @namespace: @namespace == default ? default : new(@namespace));
+           @namespace: @namespace == default ? default : new(@namespace)));
 
     public static IMember Parse(InterfaceDeclarationSyntax syntax) => throw new NotImplementedException();
     public static IMember Parse(RecordDeclarationSyntax syntax) => syntax switch

@@ -8,12 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Common.Util;
+using CodeAnalyzation.Models.ProgramModels;
 
 namespace CodeAnalyzation.Models;
 
 public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
-        Modifier MemberModifier, Type? ReflectedType) : CodeModel<T>, IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+        Modifier MemberModifier, Type? ReflectedType) : CodeModel<T>(), IMethodHolder<T> where T : BaseTypeDeclarationSyntax
 {
     public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
@@ -79,9 +80,9 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
             constraintClauses: default,
             members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.SyntaxWithModifiers(removeModifier: Modifier.Public))));
 
-    public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => x.Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
+    public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
     public Property GetProperty(string name) => Properties[name];
-    public IMethod GetMethod(string name) => Methods.First(x => x.Name == name);
+    public IMethod GetMethod(string name) => Methods.First(x => ((IMember)x).Name == name);
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 

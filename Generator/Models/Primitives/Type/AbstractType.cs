@@ -47,6 +47,9 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public bool IsLiteralExpression => false;
     public LiteralExpressionSyntax? LiteralSyntax => null;
     public object? LiteralValue => null;
+
+    public Modifier Modifier => throw new NotImplementedException();
+
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
     public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
     public object? EvaluatePlain(IProgramModelExecutionContext context) => null;
@@ -54,4 +57,19 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
     ExpressionSyntax IExpression.Syntax() => Syntax();
     public IdentifierExpression GetIdentifier() => new(Get_Type().Name, Get_Type());
+
+    MemberDeclarationSyntax IMember.Syntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TypeSyntax TypeSyntax()
+    {
+        throw new NotImplementedException();
+    }
 }
