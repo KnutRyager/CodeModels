@@ -263,7 +263,7 @@ public static class ReflectionUtil
         if (classification2 == TypeVariant.GenericUnbound) return true;
         var genericParameters = type.GetGenericArguments();
         var genericParameters2 = type2.GetGenericArguments();
-        if (genericParameters.Length != genericParameters2.Length) return false;
+        if (genericParameters.Length != genericParameters2.Length || genericParameters.Length is 0) return false;
         for (var i = 0; i < genericParameters.Length; i++)
         {
             if (!IsTypeMatch(genericParameters[i], genericParameters2[i], genericParameter)) return false;
