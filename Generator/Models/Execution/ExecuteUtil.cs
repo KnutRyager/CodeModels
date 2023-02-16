@@ -26,26 +26,23 @@ public static class ExecuteUtil
         {
             var context = new ProgramModelExecutionContext();
             context.EnterScope();
-            //IExpression? result = null;
             foreach (var member in compilationModel.Members)
             {
                 if (member is ExpressionStatement expressionStatement)
                 {
-                    if (expressionStatement.Expression is InvocationFromReflection invocation && invocation.Method.Name is "Write" or "WriteLine")
+                    if (expressionStatement.Expression is InvocationFromReflection
+                        { Method.Name: "Write" or "WriteLine" } invocation)
                     {
                         var sw = new StringWriter();
                         Console.SetOut(sw);
                         Console.SetError(sw);
-                        var method = invocation.Method;
                         var arguments = invocation.Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
-                        method.Invoke(null, arguments);
-                        var result = sw.ToString();
-                        context.SetPreviousExpression(new LiteralExpression(result));
+                        invocation.Method.Invoke(null, arguments);
+                        context.SetPreviousExpression(new LiteralExpression(sw.ToString()));
                     }
                     else
                     {
                         context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
-                        //result = expressionStatement.Expression.Evaluate(context);
                     }
                 }
                 else if (member is ReturnStatement returnStatement)

@@ -156,15 +156,15 @@ public static class CodeModelParsing
         AssignmentExpressionSyntax expression => Parse(expression, type, model),
         AwaitExpressionSyntax expression => Parse(expression, type),
         BaseObjectCreationExpressionSyntax expression => Parse(expression, type, model),
-        BinaryExpressionSyntax expression => Parse(expression, type),
-        CastExpressionSyntax expression => Parse(expression, type),
-        CheckedExpressionSyntax expression => Parse(expression, type),
-        ConditionalAccessExpressionSyntax expression => Parse(expression, type),
-        ConditionalExpressionSyntax expression => Parse(expression, type),
-        DeclarationExpressionSyntax expression => Parse(expression, type),
-        DefaultExpressionSyntax expression => Parse(expression, type),
-        ElementAccessExpressionSyntax expression => Parse(expression, type),
-        ElementBindingExpressionSyntax expression => Parse(expression, type),
+        BinaryExpressionSyntax expression => Parse(expression, type, model),
+        CastExpressionSyntax expression => Parse(expression, type, model),
+        CheckedExpressionSyntax expression => Parse(expression, type, model),
+        ConditionalAccessExpressionSyntax expression => Parse(expression, type, model),
+        ConditionalExpressionSyntax expression => Parse(expression, type, model),
+        DeclarationExpressionSyntax expression => Parse(expression, type, model),
+        DefaultExpressionSyntax expression => Parse(expression, type, model),
+        ElementAccessExpressionSyntax expression => Parse(expression, type, model),
+        ElementBindingExpressionSyntax expression => Parse(expression, type, model),
         ImplicitArrayCreationExpressionSyntax expression => Parse(expression, type, model),
         ImplicitElementAccessSyntax expression => Parse(expression, type, model),
         ImplicitStackAllocArrayCreationExpressionSyntax expression => Parse(expression, type),
@@ -173,12 +173,12 @@ public static class CodeModelParsing
         InterpolatedStringExpressionSyntax expression => Parse(expression, type),
         InvocationExpressionSyntax expression => Parse(expression, type, model),
         IsPatternExpressionSyntax expression => Parse(expression, type),
-        LiteralExpressionSyntax expression => Parse(expression, type),
+        LiteralExpressionSyntax expression => Parse(expression, type, model),
         MakeRefExpressionSyntax expression => Parse(expression, type),
         MemberAccessExpressionSyntax expression => Parse(expression, type, model),
         MemberBindingExpressionSyntax expression => Parse(expression, type),
         OmittedArraySizeExpressionSyntax expression => Parse(expression, type),
-        ParenthesizedExpressionSyntax expression => Parse(expression, type),
+        ParenthesizedExpressionSyntax expression => Parse(expression, type, model),
         PostfixUnaryExpressionSyntax expression => Parse(expression, type),
         PrefixUnaryExpressionSyntax expression => Parse(expression, type),
         QueryExpressionSyntax expression => Parse(expression, type),
@@ -245,8 +245,8 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException()
     };
 
-    public static UnaryExpression Parse(ParenthesizedExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression), OperationType.Parenthesis);
+    public static UnaryExpression Parse(ParenthesizedExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Parenthesis);
 
 
     public static IExpression Parse(OmittedArraySizeExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
@@ -260,10 +260,10 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"MemberAccessExpression not implemented: {syntax}")
     };
 
-    public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
-    public static BinaryExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.BinaryExpression(Parse(syntax.Pattern), OperationType.Is, ParseExpression(syntax.Expression));
+    public static BinaryExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.BinaryExpression(Parse(syntax.Pattern), OperationType.Is, ParseExpression(syntax.Expression, model: model));
     public static IExpression Parse(PatternSyntax syntax) => syntax switch
     {
         BinaryPatternSyntax pattern => Parse(pattern),
@@ -291,16 +291,28 @@ public static class CodeModelParsing
 
     public static InvocationFromReflection Parse(InvocationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
     {
-        Console.Write(4);
+        if (model is null)
+        {
+            throw new ArgumentException($"No Semantic model. Check the stack where it may have gone.");
+        }
         var symbol = model.GetSymbolInfo(syntax);
-        if (symbol.Symbol is null)
+        var methodSymbol = (symbol.Symbol ?? symbol.CandidateSymbols.FirstOrDefault()) as IMethodSymbol;
+        if (methodSymbol is null)
         {
             throw new ArgumentException($"No Symbol found for {syntax}. Probably Assembly isn't loaded.");
         }
-        var methodInfo = SemanticReflection.GetMethod((symbol.Symbol as IMethodSymbol)!)!;
+        var methodInfo = SemanticReflection.GetMethod(methodSymbol);
+        if (methodInfo is null)
+        {
+            throw new ArgumentException($"Couldn't find method for symbol: {methodSymbol}");
+        }
         var expression = ParseExpression(syntax.Expression, model: model);
         var caller = expression is MemberAccessExpression access ? access.Expression : expression;
-        return new InvocationFromReflection(methodInfo, caller, ParsePropertyCollection(syntax.ArgumentList).ToExpressions());
+        var argumentExpressions = ParsePropertyCollection(syntax.ArgumentList, model: model).ToExpressions();
+        var argumentList = methodSymbol.MethodKind is MethodKind.ReducedExtension
+            ? new IExpression[] { caller }.Concat(argumentExpressions).ToList()
+            : argumentExpressions;
+        return new InvocationFromReflection(methodInfo, caller, argumentList);
     }
 
     public static IExpression Parse(InterpolatedStringExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
@@ -333,58 +345,58 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException()
     };
 
-    public static IExpression Parse(ImplicitStackAllocArrayCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(ImplicitStackAllocArrayCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
     public static ImplicitElementAccessExpression Parse(ImplicitElementAccessSyntax syntax, IType? type = null, SemanticModel? model = null)
         => new(type ?? (model.GetTypeInfo(syntax).Type is ITypeSymbol symbol ? Type(symbol) : TypeShorthands.VoidType), Parse(syntax.ArgumentList).Select(x => x.ToExpression()).ToList());
 
     public static ExpressionCollection Parse(ImplicitArrayCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => Parse(syntax.Initializer, type ?? Type(model.GetTypeInfo(syntax))).Expressions.ToValueCollection();
+        => Parse(syntax.Initializer, type ?? Type(model.GetTypeInfo(syntax)), model).Expressions.ToValueCollection();
 
-    public static IExpression Parse(ElementBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(ElementBindingExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
-    public static AnyArgExpression<ExpressionSyntax> Parse(ElementAccessExpressionSyntax syntax, IType? type = null)
-        => AnyArgExpression(List(ParseExpression(syntax.Expression)).Concat(Parse(syntax.ArgumentList).Select(x => x.Value)).ToList(), OperationType.Bracket);
+    public static AnyArgExpression<ExpressionSyntax> Parse(ElementAccessExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => AnyArgExpression(List(ParseExpression(syntax.Expression, model: model)).Concat(Parse(syntax.ArgumentList).Select(x => x.Value)).ToList(), OperationType.Bracket);
 
-    public static UnaryExpression Parse(DefaultExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.UnaryExpression(Parse(syntax.Type), OperationType.Default);
+    public static UnaryExpression Parse(DefaultExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.UnaryExpression(Parse(syntax.Type, model: model), OperationType.Default);
 
-    public static IExpression Parse(DeclarationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();
+    public static IExpression Parse(DeclarationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
-    public static TernaryExpression Parse(ConditionalExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.TernaryExpression(ParseExpression(syntax.Condition), ParseExpression(syntax.WhenTrue), ParseExpression(syntax.WhenFalse));
+    public static TernaryExpression Parse(ConditionalExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.TernaryExpression(ParseExpression(syntax.Condition, model: model), ParseExpression(syntax.WhenTrue, model: model), ParseExpression(syntax.WhenFalse, model: model));
 
-    public static BinaryExpression Parse(ConditionalAccessExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Expression), OperationType.ConditionalAccess, ParseExpression(syntax.WhenNotNull));
+    public static BinaryExpression Parse(ConditionalAccessExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.ConditionalAccess, ParseExpression(syntax.WhenNotNull, model: model));
 
-    public static IExpression Parse(CheckedExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();
+    public static IExpression Parse(CheckedExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
-    public static UnaryExpression Parse(CastExpressionSyntax syntax, IType? type = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression), OperationType.Cast);
+    public static UnaryExpression Parse(CastExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Cast);
 
-    public static BinaryExpression Parse(BinaryExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
+    public static BinaryExpression Parse(BinaryExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.AddExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Plus, ParseExpression(syntax.Right)),
-        SyntaxKind.SubtractExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Subtract, ParseExpression(syntax.Right)),
-        SyntaxKind.MultiplyExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Multiply, ParseExpression(syntax.Right)),
-        SyntaxKind.DivideExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Divide, ParseExpression(syntax.Right)),
-        SyntaxKind.ModuloExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Modulo, ParseExpression(syntax.Right)),
-        SyntaxKind.LeftShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.LeftShift, ParseExpression(syntax.Right)),
-        SyntaxKind.RightShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.RightShift, ParseExpression(syntax.Right)),
-        SyntaxKind.LogicalOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.LogicalOr, ParseExpression(syntax.Right)),
-        SyntaxKind.LogicalAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.LogicalAnd, ParseExpression(syntax.Right)),
-        SyntaxKind.BitwiseOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.BitwiseOr, ParseExpression(syntax.Right)),
-        SyntaxKind.BitwiseAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.BitwiseAnd, ParseExpression(syntax.Right)),
-        SyntaxKind.ExclusiveOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.ExclusiveOr, ParseExpression(syntax.Right)),
-        SyntaxKind.EqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Equals, ParseExpression(syntax.Right)),
-        SyntaxKind.NotEqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.NotEquals, ParseExpression(syntax.Right)),
-        SyntaxKind.LessThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.LessThan, ParseExpression(syntax.Right)),
-        SyntaxKind.LessThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.LessThanOrEqual, ParseExpression(syntax.Right)),
-        SyntaxKind.GreaterThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.GreaterThan, ParseExpression(syntax.Right)),
-        SyntaxKind.GreaterThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.GreaterThanOrEqual, ParseExpression(syntax.Right)),
-        SyntaxKind.IsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Is, ParseExpression(syntax.Right)),
-        SyntaxKind.AsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.As, ParseExpression(syntax.Right)),
-        SyntaxKind.CoalesceExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left), OperationType.Coalesce, ParseExpression(syntax.Right)),
+        SyntaxKind.AddExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Plus, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.SubtractExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Subtract, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.MultiplyExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Multiply, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.DivideExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Divide, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ModuloExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Modulo, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LeftShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LeftShift, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.RightShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.RightShift, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LogicalOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LogicalAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalAnd, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.BitwiseOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.BitwiseAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseAnd, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ExclusiveOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.ExclusiveOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.EqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Equals, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.NotEqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.NotEquals, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LessThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThan, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LessThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThanOrEqual, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.GreaterThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThan, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.GreaterThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThanOrEqual, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.IsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Is, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.AsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.As, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.CoalesceExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Coalesce, ParseExpression(syntax.Right, model: model)),
         _ => throw new NotImplementedException()
     };
 
@@ -432,14 +444,14 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"Assignment expression {syntax} not implemented.")
     };
 
-    public static ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
-        => Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions.ToValueCollection();
+    public static ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => Parse(syntax.Initializer, type ?? Parse(syntax.Type, model: model), model).Expressions.ToValueCollection();
 
-    public static IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
-    public static IExpression Parse(AnonymousFunctionExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(AnonymousFunctionExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
-    public static LiteralExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
+    public static LiteralExpression Parse(LiteralExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
         SyntaxKind.ArgListExpression => NullValue,
         SyntaxKind.NumericLiteralExpression => new(ParseNumber(syntax)),

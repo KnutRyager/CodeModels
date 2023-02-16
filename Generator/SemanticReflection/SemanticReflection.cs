@@ -31,12 +31,16 @@ public static class SemanticReflection
     public static MethodInfo? GetMethod(IMethodSymbol symbol)
     {
         var parameters = symbol.Parameters.Select(x => GetType(x.Type)).ToArray();
-        return ReflectionUtil.GetMethodInfo(GetContainingType(symbol), symbol.Name, parameters);
+        return ReflectionUtil.GetMethodInfo(GetContainingType(symbol),
+            symbol.Name,
+            symbol.MethodKind is MethodKind.ReducedExtension
+                ? new Type[] { GetType(symbol.ReceiverType!) }.Concat(parameters).ToArray()
+                : parameters);
     }
 
     public static Assembly GetAssembly(ISymbol symbol) => ReflectionSerialization.DeserializeAssembly(symbol.ContainingAssembly.ToString());
     public static Type GetContainingType(ISymbol symbol)
-        => symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.Name is "Program"
+        => symbol.ContainingType is INamedTypeSymbol { Name: "Program" } namedTypeSymbol
         ? null!
         : GetType(symbol.ContainingType);
     public static Type GetType(ITypeSymbol symbol) => GetType(symbol.ToString(), symbol);
@@ -55,12 +59,15 @@ public static class SemanticReflection
         //var ts2 = ts.Where(x => x.FullName.Contains("Console")).ToArray();
         var trimmedName = TrimGenericTypeName(name);
         return TryGetType(name)
-            ?? GetAssembly(symbol).GetTypes().FirstOrDefault(x => TrimGenericTypeName(x.Name) == trimmedName || TrimGenericTypeName(x.FullName) == trimmedName)
+            ?? GetAssembly(symbol).GetTypes().FirstOrDefault(x => ReplacePlusInPath(TrimGenericTypeName(x.Name)) == trimmedName || ReplacePlusInPath(TrimGenericTypeName(x.FullName)) == trimmedName)
             ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
     }
 
-    private static string TrimGenericTypeName(string name) => name.Contains("`") ? name[0..name.IndexOf("`")] : name;
+    private static string TrimGenericTypeName(string name)
+        => name.Contains("`") ? name[0..name.IndexOf("`")] : name;
 
+    private static string ReplacePlusInPath(string name)
+        => name.Contains("+") ? name.Replace("+", ".") : name;
 
     public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
 
