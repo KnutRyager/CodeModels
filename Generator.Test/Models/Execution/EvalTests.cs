@@ -37,13 +37,39 @@ int Squared100() {
     return sum;
 }".Eval().Should().Be(338350);
 
+    [Fact] public void SquaredSum() => @"
+int sum = 0;
+
+for (int i = 1; i <= 100; i++)
+{
+    sum += System.Math.Pow(i, 2);
+}
+
+ sum;
+".Eval().Should().Be(338350);
+
+    [Fact] public void NowDay() => @"System.DateTime.Now.Day;".Eval().Should().Be(System.DateTime.Now.Day);
+
+    [Fact] public void NowViaVariable() => @"
+System.DateTime now = System.DateTime.Now;
+return now.Day;
+".Eval().Should().Be(System.DateTime.Now.Day);
+
+    [Fact] public void ConsoleWrite() => "System.Console.Write(4+5);".Eval().Should().Be("9");
+    [Fact] public void ConsoleWriteLine() => "System.Console.WriteLine(4+5);".Eval().Should().Be("9\r\n");
+
     private void Test()
     {
-        int getN()
-        {
-            return 4;
-        }
-
-        var x = getN();
+        System.Console.WriteLine(4 + 5);
     }
+
+    [Fact] public void MainFunction() => @"
+using System;
+
+class MainClass {
+  public static void Main (string[] args) {
+    System.Console.Write(4+5);
+  }
+}
+".Eval().Should().Be("9");
 }

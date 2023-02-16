@@ -57,7 +57,7 @@ public static class CodeModelFactory
 
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
-    public static LiteralExpression Literal(object value) => new(value);
+    public static LiteralExpression Literal(object? value) => new(value);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -113,7 +113,7 @@ public static class CodeModelFactory
         _ => throw new NotImplementedException($"Unhandled base: {@base}")
     };
 
-    public static Method Method(MethodDeclarationSyntax method) => Parse(method);
+    public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method,model);
 
     public static Constructor Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
         => new(name, parameters, body, modifier);

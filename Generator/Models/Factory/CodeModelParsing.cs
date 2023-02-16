@@ -52,7 +52,8 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"NameSyntax {syntax} not implemented.")
     };
     public static IType Parse(AliasQualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
-    public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => new TypeFromReflection(System.Type.GetType(syntax.ToString()));
     public static IExpression Parse(SimpleNameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
         GenericNameSyntax name => Parse(name, type, model),
@@ -290,7 +291,13 @@ public static class CodeModelParsing
 
     public static InvocationFromReflection Parse(InvocationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
     {
-        var methodInfo = SemanticReflection.GetMethod(model.GetSymbolInfo(syntax).Symbol as IMethodSymbol);
+        Console.Write(4);
+        var symbol = model.GetSymbolInfo(syntax);
+        if (symbol.Symbol is null)
+        {
+            throw new ArgumentException($"No Symbol found for {syntax}. Probably Assembly isn't loaded.");
+        }
+        var methodInfo = SemanticReflection.GetMethod((symbol.Symbol as IMethodSymbol)!)!;
         var expression = ParseExpression(syntax.Expression, model: model);
         var caller = expression is MemberAccessExpression access ? access.Expression : expression;
         return new InvocationFromReflection(methodInfo, caller, ParsePropertyCollection(syntax.ArgumentList).ToExpressions());
@@ -509,7 +516,7 @@ public static class CodeModelParsing
         ForEachStatementSyntax statement => Parse(statement, model),
         _ => throw new ArgumentException($"Can't parse {nameof(ForEachStatement)} from '{syntax}'.")
     };
-    public static ForEachStatement Parse(ForEachStatementSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString(), ParseExpression(syntax.Expression), Parse(syntax.Statement));
+    public static ForEachStatement Parse(ForEachStatementSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), syntax.Identifier.ToString(), ParseExpression(syntax.Expression, model: model), Parse(syntax.Statement, model));
     public static ContinueStatement Parse(ContinueStatementSyntax _) => new();
     public static DoStatement Parse(DoStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Statement, model), ParseExpression(syntax.Condition, model: model));
     public static EmptyStatement Parse(EmptyStatementSyntax _) => new();
@@ -519,15 +526,15 @@ public static class CodeModelParsing
         var statement = Parse(syntax.Statement, model);
         return statement is ExpressionStatement ? statement : statement;
     }
-    public static FixedStatement Parse(FixedStatementSyntax syntax) => new(Parse(syntax.Declaration), Parse(syntax.Statement));
-    public static VariableDeclarations Parse(VariableDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), Parse(syntax.Variables));
-    public static VariableDeclarator Parse(VariableDeclaratorSyntax syntax) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value));
-    public static List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(Parse).ToList();
-    public static List<Property> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(Parse).ToList();
-    public static Property Parse(ArgumentSyntax syntax) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));  // TODO: Semantics for type
-    public static List<Property> Parse(IEnumerable<ArgumentSyntax> syntax) => syntax.Select(Parse).ToList();
-    public static AttributeList Parse(AttributeListSyntax syntax) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
-    public static AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax) => new(syntax.Identifier.ToString());
+    public static FixedStatement Parse(FixedStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Declaration, model), Parse(syntax.Statement, model));
+    public static VariableDeclarations Parse(VariableDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), Parse(syntax.Variables, model));
+    public static VariableDeclarator Parse(VariableDeclaratorSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value, model: model));
+    public static List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x, model)).ToList();
+    public static List<Property> Parse(BracketedArgumentListSyntax syntax, SemanticModel? model = null) => syntax.Arguments.Select(x => Parse(x, model)).ToList();
+    public static Property Parse(ArgumentSyntax syntax, SemanticModel? model = null) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression, model: model));  // TODO: Semantics for type
+    public static List<Property> Parse(IEnumerable<ArgumentSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
+    public static AttributeList Parse(AttributeListSyntax syntax, SemanticModel? model = null) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
+    public static AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString());
     public static Attribute Parse(AttributeSyntax syntax)
         => new(syntax.Name.ToString(), new(syntax.ArgumentList is null ? new List<AttributeArgument>() : syntax.ArgumentList.Arguments.Select(Parse).ToList()));
     public static AttributeArgument Parse(AttributeArgumentSyntax syntax) => new(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
@@ -544,10 +551,10 @@ public static class CodeModelParsing
             ParseProperties(syntax.ParameterList, model), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body, model),
             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model));
     public static PropertyCollection ParseProperties(ParameterListSyntax syntax, SemanticModel? model = null) => new(syntax.Parameters.Select(x => Parse(x, model)));
-    public static List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
-    public static TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
-        => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
-    public static ITypeParameterConstraint Parse(TypeParameterConstraintSyntax syntax) => syntax switch
+    public static List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
+    public static TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Name.ToString(), syntax.Constraints.Select(x => Parse(x, model)).ToList());
+    public static ITypeParameterConstraint Parse(TypeParameterConstraintSyntax syntax, SemanticModel? model = null) => syntax switch
     {
         ClassOrStructConstraintSyntax constraint => Parse(constraint),
         ConstructorConstraintSyntax constraint => Parse(constraint),
@@ -555,17 +562,17 @@ public static class CodeModelParsing
         TypeConstraintSyntax constraint => Parse(constraint),
         _ => throw new ArgumentException($"Can't parse {nameof(ITypeParameterConstraint)} from '{syntax}'.")
     };
-    public static ClassOrStructConstraint Parse(ClassOrStructConstraintSyntax syntax) => new(syntax.Kind(), syntax.ClassOrStructKeyword);
-    public static ConstructorConstraint Parse(ConstructorConstraintSyntax _) => new();
-    public static DefaultConstraint Parse(DefaultConstraintSyntax _) => new();
-    public static TypeConstraint Parse(TypeConstraintSyntax syntax) => new(ParseType(syntax.Type));
+    public static ClassOrStructConstraint Parse(ClassOrStructConstraintSyntax syntax, SemanticModel? model = null) => new(syntax.Kind(), syntax.ClassOrStructKeyword);
+    public static ConstructorConstraint Parse(ConstructorConstraintSyntax _, SemanticModel? model = null) => new();
+    public static DefaultConstraint Parse(DefaultConstraintSyntax _, SemanticModel? model = null) => new();
+    public static TypeConstraint Parse(TypeConstraintSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model));
     public static TypeCollection ParseTypes(TypeParameterListSyntax? syntax, SemanticModel? model = null) => syntax is null ? new() : new(syntax.Parameters.Select(x => Parse(x, model)));
     public static Property Parse(ParameterSyntax syntax, SemanticModel? model = null) => new(syntax);
     public static IType Parse(TypeParameterSyntax syntax, SemanticModel? model = null) => new QuickType(syntax.Identifier.ToString());    // TODO
-    public static LockStatement Parse(LockStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression), Parse(syntax.Statement));
-    public static ReturnStatement Parse(ReturnStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression));
-    public static SwitchStatement Parse(SwitchStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
-    public static SwitchSection Parse(SwitchSectionSyntax syntax) => throw new NotImplementedException();// new(CodeModelFactory.List(syntax.Labels.Select(ParseExpression)), Parse(syntax.Statements));
+    public static LockStatement Parse(LockStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model), Parse(syntax.Statement, model));
+    public static ReturnStatement Parse(ReturnStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
+    public static SwitchStatement Parse(SwitchStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model), List(syntax.Sections.Select(x => Parse(x))));
+    public static SwitchSection Parse(SwitchSectionSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();// new(CodeModelFactory.List(syntax.Labels.Select(ParseExpression)), Parse(syntax.Statements));
     //public static SwitchSection Parse(SwitchLabelSyntax syntax) => new(syntax.E);
     public static ThrowStatement Parse(ThrowStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression));
     public static TryStatement Parse(TryStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
@@ -577,101 +584,105 @@ public static class CodeModelParsing
     public static WhileStatement Parse(WhileStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Condition, model: model), Parse(syntax.Statement, model: model));
 
     public static CompilationUnit Parse(CompilationUnitSyntax syntax, SemanticModel model)
-            => new(syntax.Members.Select(x => Parse(x, model)).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
+            => new(syntax.Members.Select(x => Parse(x, model)).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(x => Parse(x, model)).ToList());
     public static UsingDirective Parse(UsingDirectiveSyntax syntax)
             => new(syntax.Name.ToString(), IsGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword), IsStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword), Alias: syntax.Alias?.ToString());
 
     public static IMember Parse(MemberDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        BaseFieldDeclarationSyntax declaration => Parse(declaration),
-        BaseMethodDeclarationSyntax declaration => Parse(declaration),
-        BaseNamespaceDeclarationSyntax declaration => Parse(declaration),
-        BasePropertyDeclarationSyntax declaration => Parse(declaration),
-        BaseTypeDeclarationSyntax declaration => Parse(declaration),
-        DelegateDeclarationSyntax declaration => Parse(declaration),
-        EnumMemberDeclarationSyntax declaration => Parse(declaration),
+        BaseFieldDeclarationSyntax declaration => Parse(declaration, model),
+        BaseMethodDeclarationSyntax declaration => Parse(declaration, model),
+        BaseNamespaceDeclarationSyntax declaration => Parse(declaration, model),
+        BasePropertyDeclarationSyntax declaration => Parse(declaration, model),
+        BaseTypeDeclarationSyntax declaration => Parse(declaration, model),
+        DelegateDeclarationSyntax declaration => Parse(declaration, model),
+        EnumMemberDeclarationSyntax declaration => Parse(declaration, model),
         GlobalStatementSyntax declaration => Parse(declaration, model),
-        IncompleteMemberSyntax declaration => Parse(declaration),
+        IncompleteMemberSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented MemberDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(BaseFieldDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(BaseFieldDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        EventFieldDeclarationSyntax declaration => Parse(declaration),
-        FieldDeclarationSyntax declaration => Parse(declaration),
+        EventFieldDeclarationSyntax declaration => Parse(declaration, model),
+        FieldDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseFieldDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(EventFieldDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(FieldDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(BaseMethodDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(EventFieldDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(FieldDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(BaseMethodDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        ConstructorDeclarationSyntax declaration => Parse(declaration),
-        ConversionOperatorDeclarationSyntax declaration => Parse(declaration),
-        DestructorDeclarationSyntax declaration => Parse(declaration),
-        MethodDeclarationSyntax declaration => Parse(declaration),
-        OperatorDeclarationSyntax declaration => Parse(declaration),
+        ConstructorDeclarationSyntax declaration => Parse(declaration, model),
+        ConversionOperatorDeclarationSyntax declaration => Parse(declaration, model),
+        DestructorDeclarationSyntax declaration => Parse(declaration, model),
+        MethodDeclarationSyntax declaration => Parse(declaration, model),
+        OperatorDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseMethodDeclaration: '{syntax}'.")
     };
-    public static Constructor Parse(ConstructorDeclarationSyntax syntax)
-       => new(syntax.Identifier.ToString(), new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
-    public static IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static Method Parse(MethodDeclarationSyntax syntax)
-         => Register(syntax, new Method(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
-    public static IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
+    public static Constructor Parse(ConstructorDeclarationSyntax syntax, SemanticModel? model = null)
+       => new(syntax.Identifier.ToString(), new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body, model), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model));
+    public static IMember Parse(ConversionOperatorDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(DestructorDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static Method Parse(MethodDeclarationSyntax syntax, SemanticModel? model = null)
+         => Register(syntax, new Method(syntax.GetName(), new PropertyCollection(syntax), ParseType(syntax.ReturnType, model: model), syntax.Body is null ? null : Parse(syntax.Body, model), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model)));
+    public static IMember Parse(OperatorDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(BaseNamespaceDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        FileScopedNamespaceDeclarationSyntax declaration => Parse(declaration),
-        NamespaceDeclarationSyntax declaration => Parse(declaration),
+        FileScopedNamespaceDeclarationSyntax declaration => Parse(declaration, model),
+        NamespaceDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseNamespaceDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(FileScopedNamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(NamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(BasePropertyDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(FileScopedNamespaceDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(NamespaceDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(BasePropertyDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        EventDeclarationSyntax declaration => Parse(declaration),
-        IndexerDeclarationSyntax declaration => Parse(declaration),
-        PropertyDeclarationSyntax declaration => Parse(declaration),
+        EventDeclarationSyntax declaration => Parse(declaration, model),
+        IndexerDeclarationSyntax declaration => Parse(declaration, model),
+        PropertyDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BasePropertyDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(EventDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(IndexerDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(PropertyDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(BaseTypeDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(EventDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(IndexerDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(PropertyDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(BaseTypeDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        EnumDeclarationSyntax declaration => Parse(declaration),
-        TypeDeclarationSyntax declaration => Parse(declaration),
+        EnumDeclarationSyntax declaration => Parse(declaration, model),
+        TypeDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(EnumDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(TypeDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(EnumDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(TypeDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        ClassDeclarationSyntax declaration => Parse(declaration),
-        InterfaceDeclarationSyntax declaration => Parse(declaration),
-        RecordDeclarationSyntax declaration => Parse(declaration),
-        StructDeclarationSyntax declaration => Parse(declaration),
+        ClassDeclarationSyntax declaration => Parse(declaration, model: model),
+        InterfaceDeclarationSyntax declaration => Parse(declaration, model),
+        RecordDeclarationSyntax declaration => Parse(declaration, model),
+        StructDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
-    public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null) =>
+    public static ClassModel Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null, SemanticModel? model = null) =>
        Register<ClassModel>(@class, @class.IsStatic() ? new StaticClass(@class.Identifier.ValueText,
            null,
-           @class.GetMethods().Select(x => Method(x)),
+           @class.GetMethods().Select(x => Method(x, model)),
            @namespace: @namespace == default ? default : new(@namespace))
        : new InstanceClass(@class.Identifier.ValueText,
            null,
-           @class.GetMethods().Select(x => Method(x)),
+           @class.GetMethods().Select(x => Method(x, model)),
            @namespace: @namespace == default ? default : new(@namespace)));
 
-    public static IMember Parse(InterfaceDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
+    public static IMember Parse(InterfaceDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(RecordDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {
-        _ when syntax.IsKind(SyntaxKind.RecordDeclaration) => Parse(syntax),
-        _ when syntax.IsKind(SyntaxKind.RecordStructDeclaration) => Parse(syntax),
+        _ when syntax.IsKind(SyntaxKind.RecordDeclaration) => ParseRecordNonStruct(syntax, model),
+        _ when syntax.IsKind(SyntaxKind.RecordStructDeclaration) => ParseRecordStruct(syntax, model),
         _ => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.")
     };
-    public static IMember Parse(StructDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(DelegateDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(EnumMemberDeclarationSyntax syntax) => throw new NotImplementedException();
-    public static IMember Parse(IncompleteMemberSyntax syntax) => throw new NotImplementedException();
+    public static IMember ParseRecordNonStruct(RecordDeclarationSyntax syntax, SemanticModel? model = null)
+        => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
+    public static IMember ParseRecordStruct(RecordDeclarationSyntax syntax, SemanticModel? model = null)
+        => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
+    public static IMember Parse(StructDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(DelegateDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(EnumMemberDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
+    public static IMember Parse(IncompleteMemberSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
 
 
 
