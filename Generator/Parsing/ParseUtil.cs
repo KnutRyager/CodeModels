@@ -1,16 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CodeAnalyzation.Compilation;
+using Common.Files;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Common.Extensions;
-using Common.Files;
-
 using static CodeAnalyzation.SyntaxNodeExtensions;
-using CodeAnalyzation.Models;
-using System;
-using CodeAnalyzation.Compilation;
-using System.Collections.Concurrent;
 
 namespace CodeAnalyzation.Parsing;
 
@@ -45,19 +40,12 @@ public static class ParseUtil
 
     private static void SetSemanticModel(IEnumerable<SyntaxTree> trees, string? key = null)
     {
-        var Mscorlib = GetReference<object>();
-        var linqLib = GetReference(typeof(Enumerable));
-        var collectionsLib = GetReference(typeof(List<>));
-        var concurrentLib = GetReference(typeof(ConcurrentDictionary<,>));
         var compilationWithModel = CSharpCompilation.Create("MyCompilation",
-            syntaxTrees: trees, references: new[] { Mscorlib, linqLib, collectionsLib, concurrentLib });
+            syntaxTrees: trees, references: Libraries.StandardSystemLibraries);
         //Note that we must specify the tree for which we want the model.
         //Each tree has its own semantic model
         SetCompilation(compilationWithModel, trees, key);
     }
-
-    private static PortableExecutableReference GetReference<T>() => GetReference(typeof(T));
-    private static PortableExecutableReference GetReference(Type type) => MetadataReference.CreateFromFile(type.Assembly.Location);
 
     public static CompilationUnitSyntax ParseFile(this string path)
         => FileUtil.ReadFileToText(path).Parse();

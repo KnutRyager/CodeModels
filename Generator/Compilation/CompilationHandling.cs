@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using static CodeAnalyzation.SyntaxNodeExtensions;
@@ -11,11 +9,8 @@ public static class CompilationHandling
 {
     private static void SetSemanticModel(IEnumerable<SyntaxTree> trees, string? key = null)
     {
-        var Mscorlib = GetReference<object>();
-        var linqLib = GetReference(typeof(Enumerable));
-        var collectionsLib = GetReference(typeof(List<>));
         var compilationWithModel = CSharpCompilation.Create("MyCompilation",
-            syntaxTrees: trees, references: new[] { Mscorlib, linqLib, collectionsLib });
+            syntaxTrees: trees, references: Libraries.StandardSystemLibraries);
         //Note that we must specify the tree for which we want the model.
         //Each tree has its own semantic model
         SetCompilation(compilationWithModel, trees, key);
@@ -32,7 +27,4 @@ public static class CompilationHandling
         SetSemanticModel(new[] { tree }, key ?? tree.ToString());
         return tree;
     }
-
-    private static PortableExecutableReference GetReference<T>() => GetReference(typeof(T));
-    private static PortableExecutableReference GetReference(Type type) => MetadataReference.CreateFromFile(type.Assembly.Location);
 }
