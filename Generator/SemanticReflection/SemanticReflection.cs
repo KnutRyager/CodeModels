@@ -35,10 +35,10 @@ public static class SemanticReflection
     }
 
     public static Assembly GetAssembly(ISymbol symbol) => ReflectionSerialization.DeserializeAssembly(symbol.ContainingAssembly.ToString());
-    public static Type GetContainingType(ISymbol symbol) 
-        => symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.Name is "Program" 
+    public static Type GetContainingType(ISymbol symbol)
+        => symbol.ContainingType is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.Name is "Program"
         ? null!
-        :GetType(symbol.ContainingType);
+        : GetType(symbol.ContainingType);
     public static Type GetType(ITypeSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(IMethodSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(INamedTypeSymbol symbol) => GetType(symbol.ToString(), symbol);
@@ -49,19 +49,19 @@ public static class SemanticReflection
     // Not loading? https://jeremybytes.blogspot.com/2020/01/using-typegettype-with-net-core.html
     public static Type GetType(string name, ISymbol symbol)
     {
-        //var fuuyuk = new ConcurrentDictionary<int, string>();
-        //var fakka = fuuyuk.GetType().Assembly;
         //var aa = GetAssembly(symbol);
         //var ts = aa.GetTypes();
         //var t = aa.GetType(name);
-        //var ts2 = ts.Where(x => x.FullName.Contains("ConcurrentDictionary")).ToArray();
-        //var ts3 = fakka.GetTypes();
-        //var t3 = fakka.GetType(name);
-        //var ts4 = ts3.Where(x => x.FullName.Contains("ConcurrentDictionary")).ToArray();
+        //var ts2 = ts.Where(x => x.FullName.Contains("Console")).ToArray();
+        var trimmedName = TrimGenericTypeName(name);
         return TryGetType(name)
-            ?? GetAssembly(symbol).GetTypes().FirstOrDefault(x => x.Name[0..(x.Name.Contains("`") ? x.Name.IndexOf("`") : x.Name.Length)] == name[0..(name.Contains("`") ? name.IndexOf("`") : name.Length)])
-?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
+            ?? GetAssembly(symbol).GetTypes().FirstOrDefault(x => TrimGenericTypeName(x.Name) == trimmedName || TrimGenericTypeName(x.FullName) == trimmedName)
+            ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
     }
+
+    private static string TrimGenericTypeName(string name) => name.Contains("`") ? name[0..name.IndexOf("`")] : name;
+
+
     public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
 
     public static Microsoft.CodeAnalysis.TypeInfo GetTypeInfo(SyntaxNode node, SemanticModel model) => model.GetTypeInfo(node);
