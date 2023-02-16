@@ -18,6 +18,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
     }
 
     public override IExpression Evaluate(IProgramModelExecutionContext context) => context.GetValue(this);
+    public override object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).EvaluatePlain(context);
     public override IdentifierExpression GetIdentifier() => this;
 
     public System.Type? GetReflectedType() => Type?.GetReflectedType() ?? (Symbol is ITypeSymbol typeSymbol ? SemanticReflection.GetType(typeSymbol) : null);

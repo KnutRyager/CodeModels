@@ -10,7 +10,7 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
     public LiteralExpression(IType type, object? value = null) : this(type, value, "missing_json_serializer") { }
     //public LiteralExpression(IType type, object? value = null) : this(type, value, JsonConvert.SerializeObject(value)) { }
 
-    public LiteralExpression(object value) : this(new TypeFromReflection(value.GetType()), value) { }
+    public LiteralExpression(object value) : this(new TypeFromReflection(value?.GetType() ?? typeof(object)), value) { }
 
     public LiteralExpression(AbstractType type, string serializedValue) : this(type, null, serializedValue)
     {

@@ -40,7 +40,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeM
     protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
 
     public abstract IExpression Evaluate(IProgramModelExecutionContext context);
-    public object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue;
+    public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue;
     public ExpressionStatement AsStatement() => new(this);
     public virtual IdentifierExpression GetIdentifier() => new(Type.Name, Type, Symbol: Symbol);
 }
