@@ -11,6 +11,7 @@ namespace CodeAnalyzation.Compilation;
 public static class Libraries
 {
     public static PortableExecutableReference Mscor = GetReference<object>();
+    public static PortableExecutableReference Environment = GetReference(typeof(Environment.SpecialFolder));
     public static PortableExecutableReference Linq = GetReference(typeof(Enumerable));
     public static PortableExecutableReference IO = GetReference(typeof(File));
     public static PortableExecutableReference Text = GetReference(typeof(System.Text.Encoder));
@@ -25,6 +26,7 @@ public static class Libraries
 
     public static readonly PortableExecutableReference[] StandardSystemLibraries = new[] {
         Mscor,
+        Environment,
         Linq,
         IO,
         Text,
