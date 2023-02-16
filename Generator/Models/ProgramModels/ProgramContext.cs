@@ -19,13 +19,13 @@ public interface IProgramContext
 public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 {
     public static IProgramContext? Context { get; private set; }
-    public static void NewContext() => Context = new ProgramContext();
+    public static void NewContext(SemanticModel? model = null) => Context = new ProgramContext(model);
 
     private Dictionary<ISymbol, ICodeModel> _symbols = new(SymbolEqualityComparer.Default);
 
     public bool Contains(ISymbol symbol)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public bool Contains(SyntaxNode node)
@@ -39,12 +39,12 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 
     public IExpression GetSingleton(IType type)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public T Register<T>(ISymbol symbol, T model) where T : ICodeModel
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
 
