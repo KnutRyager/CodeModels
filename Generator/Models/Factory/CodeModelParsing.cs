@@ -256,7 +256,7 @@ public static class CodeModelParsing
     public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
     public static BinaryExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.BinaryExpression(Parse(syntax.pattern), OperationType.Is, ParseExpression(syntax.Expression, model: model));
+        => CodeModelFactory.BinaryExpression(Parse(syntax.Pattern), OperationType.Is, ParseExpression(syntax.Expression, model: model));
     public static IExpression Parse(PatternSyntax syntax, SemanticModel? model = null) => syntax switch
     {
         BinaryPatternSyntax pattern => Parse(pattern, model),
@@ -418,7 +418,7 @@ public static class CodeModelParsing
         _ => type
     };
 
-    public static AwaitExpression Parse(AwaitExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => new(ParseExpression(syntax.Expressio, model: modeln));
+    public static AwaitExpression Parse(AwaitExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
 
     public static IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
