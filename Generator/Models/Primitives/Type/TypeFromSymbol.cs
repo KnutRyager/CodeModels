@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeAnalyzation.Models;
 
-public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMulti = false)   // TODO: Generics
-    : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), Required, IsMulti)
+public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMulti = false, System.Type? ReflectedType = null)   // TODO: Generics
+    : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), Required, IsMulti, ReflectedType ?? SemanticReflection.GetType(Symbol))
 {
     public override System.Type? GetReflectedType() => SemanticReflection.GetType(Symbol);
 
