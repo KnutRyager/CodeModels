@@ -55,6 +55,7 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
     ExpressionSyntax IExpression.Syntax() => throw new NotImplementedException();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => throw new NotImplementedException();
 
     public IdentifierExpression GetIdentifier() => new(Identifier, Symbol: Symbol);
 
@@ -72,4 +73,8 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     {
         throw new NotImplementedException();
     }
+    public bool Equals(IType other, IProgramModelExecutionContext context)
+        => Identifier == other.Identifier; // TODO: Check assembly
+    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+        => Equals(other);
 }

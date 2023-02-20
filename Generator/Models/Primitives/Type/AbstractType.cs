@@ -48,7 +48,7 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public LiteralExpressionSyntax? LiteralSyntax => null;
     public object? LiteralValue => null;
 
-    public Modifier Modifier => throw new NotImplementedException();
+    public Modifier Modifier => Modifier.None;
 
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
     public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
@@ -56,6 +56,7 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
     ExpressionSyntax IExpression.Syntax() => Syntax();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Syntax();
     public IdentifierExpression GetIdentifier() => new(Get_Type().Name, Get_Type());
 
     MemberDeclarationSyntax IMember.Syntax()
@@ -72,4 +73,9 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     {
         throw new NotImplementedException();
     }
+    public bool Equals(IType other, IProgramModelExecutionContext context)
+        => Identifier == other.Identifier; // TODO: Check assembly
+    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+        => (ReflectedType is Type type && other.ReflectedType is Type otherType
+            && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
 }

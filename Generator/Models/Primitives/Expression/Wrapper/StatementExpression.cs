@@ -21,6 +21,7 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     public virtual IdentifierExpression GetIdentifier() => throw new NotImplementedException();
     public virtual IType Get_Type() => Statement.Get_Type();
     public ExpressionSyntax Syntax() => throw new NotImplementedException();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => throw new NotImplementedException();
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     CSharpSyntaxNode ICodeModel.Syntax() => Statement.Syntax();

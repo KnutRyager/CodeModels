@@ -109,6 +109,12 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public LiteralExpressionSyntax? LiteralSyntax => Lookup.LiteralSyntax;
     public object? LiteralValue => Lookup.LiteralValue;
     public ExpressionStatement AsStatement() => Lookup.AsStatement();
+    public bool Equals(IType other, IProgramModelExecutionContext context)
+        => Identifier == other.Identifier; // TODO: Check assembly
+    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+        => (ReflectedType is Type type && other.ReflectedType is Type otherType
+            && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
+
     public IExpression Evaluate(IProgramModelExecutionContext context) => Lookup.AsStatement();
     public object? EvaluatePlain(IProgramModelExecutionContext context) => Lookup.AsStatement();
     public IType GetGenericType(int index) => Lookup.GetGenericType(index);
@@ -124,6 +130,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => Lookup.TypeSyntaxNullableWrapped(type);
     public TypeSyntax TypeSyntaxUnwrapped() => Lookup.TypeSyntaxUnwrapped();
     TypeSyntax IType.Syntax() => Lookup.Syntax();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Lookup.Syntax();
     TypeSyntax ICodeModel<TypeSyntax>.Syntax() => Lookup.Syntax();
     ExpressionSyntax IExpression.Syntax() => Lookup.Syntax();
 }

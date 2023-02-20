@@ -21,4 +21,6 @@ public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
     string GetMostSpecificType();
     IType GetGenericType(int index);
     EqualityList<IType> GenericTypes { get; }
+    bool Equals(IType other, IProgramModelExecutionContext context);
+    bool IsAssignableFrom(IType other, IProgramModelExecutionContext context);
 }

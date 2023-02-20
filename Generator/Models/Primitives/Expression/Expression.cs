@@ -37,6 +37,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeM
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
     ExpressionSyntax IExpression.Syntax() => Syntax();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Syntax();
     protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
 
     public abstract IExpression Evaluate(IProgramModelExecutionContext context);
