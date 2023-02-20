@@ -44,7 +44,7 @@ public static class ReflectionSerialization
         { "Char", "System.Char" },
         { "string", "System.String" },
         { "String", "System.String" },
-        { "boolean", "System.Boolean" },
+        { "bool", "System.Boolean" },
         { "Boolean", "System.Boolean" },
         { "DateTime", "System.DateTime" },
     };
@@ -62,7 +62,7 @@ public static class ReflectionSerialization
         { "System.Double", "double" },
         { "System.Decimal", "decimal" },
         { "System.String", "string" },
-        { "System.Boolean", "boolean" },
+        { "System.Boolean", "bool" },
     };
     private const string PARAMETER_SEPARATOR = "_;_";
 
