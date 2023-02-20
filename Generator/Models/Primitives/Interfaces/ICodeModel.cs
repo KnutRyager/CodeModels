@@ -37,4 +37,6 @@ public abstract record CodeModel<T>() : ICodeModel<T> where T : CSharpSyntaxNode
     ISet<IType> ICodeModel.Dependencies(ISet<IType>? set) => Dependencies(set);
 
     public abstract IEnumerable<ICodeModel> Children();
+
+    public override string ToString() => Syntax().ToString();
 }
