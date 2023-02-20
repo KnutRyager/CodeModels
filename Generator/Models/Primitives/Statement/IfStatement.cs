@@ -35,6 +35,8 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
             context.ExitScope();
         }
     }
+
+    public override string ToString() => $"if({Condition}){{{Statement}}}{(Else is null ? "" : $" else{{{Else}}}")}";
 }
 
 public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else) : AbstractStatement<IfStatementSyntax>
@@ -81,4 +83,10 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
             context.ExitScope();
         }
     }
+
+    public override string ToString() => $"{(
+        IfStatements.Count > 0 ?
+            $"ifs({string.Join("", IfStatements.Select(x => x.ToString()))})"
+            : ""
+        )}{(Else is null ? "" : $" else {{{Else}}}")}";
 }

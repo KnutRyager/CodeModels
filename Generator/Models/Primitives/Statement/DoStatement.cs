@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 
@@ -15,10 +16,20 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
         context.EnterScope();
         do
         {
-            Statement.Evaluate(context);
+            try
+            {
+
+                Statement.Evaluate(context);
+            }
+            catch (BreakException)
+            {
+                break;
+            }
+            catch (ContinueException)
+            {
+                continue;
+            }
             if (context.HandleReturn() || context.HandleThrow()) return;
-            if (context.HandleBreak()) break;
-            if (context.HandleContinue()) continue;
         } while ((bool)Condition.Evaluate(context).LiteralValue);
         context.ExitScope();
     }

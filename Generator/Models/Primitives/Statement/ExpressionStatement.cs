@@ -11,17 +11,18 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
     public bool IsStatic => false;
     public IType Get_Type() => Expression.Get_Type();
 
-    public bool IsLiteralExpression => throw new System.NotImplementedException();
+    public bool IsLiteralExpression => false;
 
-    public LiteralExpressionSyntax? LiteralSyntax => throw new System.NotImplementedException();
+    public LiteralExpressionSyntax? LiteralSyntax => null;
 
-    public object? LiteralValue => throw new System.NotImplementedException();
+    public object? LiteralValue => null;
 
     public ExpressionStatement(IStatement statement)
         : this(statement is ExpressionStatement expressionStatement ? expressionStatement.Expression : new ExpressionStatement(statement)) { }
     public override ExpressionStatementSyntax Syntax() => ExpressionStatement(Expression.Syntax());
 
     ExpressionSyntax IExpression.Syntax() => Expression.Syntax();
+    ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Expression.Syntax();
     MemberDeclarationSyntax IMember.Syntax() => GlobalStatement(Syntax());
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => GlobalStatement(Syntax());
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
@@ -34,10 +35,6 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
     public ExpressionStatement AsStatement() => Expression.AsStatement();
 
     public override void Evaluate(IProgramModelExecutionContext context) => context.SetPreviousExpression(Expression.Evaluate(context));
-    IExpression IExpression.Evaluate(IProgramModelExecutionContext context)
-    {
-        throw new System.NotImplementedException();
-    }
 
     public object? EvaluatePlain(IProgramModelExecutionContext context)
     {
@@ -50,4 +47,9 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
     }
 
     public IdentifierExpression GetIdentifier() => new(Get_Type().Name, Get_Type());
+
+    IExpression IExpressionOrPattern.Evaluate(IProgramModelExecutionContext context)
+    {
+        throw new System.NotImplementedException();
+    }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection.Emit;
 using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Reflection;
@@ -24,7 +25,9 @@ public static class CodeModelParsing
     public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
     {
         var expression = Parse(syntax, required, knownType, model);
-        return (expression is IType type ? type : expression is IdentifierExpression identifier ? new QuickType(identifier.Name) : expression.Get_Type()) ??
+        return (expression is IType type ? type
+            : expression is IdentifierExpression identifier
+                ? new QuickType(identifier.Name) : expression.Get_Type()) ??
              throw new NotImplementedException($"No type for: '{syntax}'.");
     }
     public static IExpression Parse(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null) => syntax switch
@@ -253,11 +256,13 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"MemberAccessExpression not implemented: {syntax}")
     };
 
-    public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => throw new NotImplementedException();    // TODO
 
-    public static BinaryExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.BinaryExpression(Parse(syntax.Pattern), OperationType.Is, ParseExpression(syntax.Expression, model: model));
-    public static IExpression Parse(PatternSyntax syntax, SemanticModel? model = null) => syntax switch
+    public static PatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => CodeModelFactory.PatternExpression(Parse(syntax.Pattern, model), ParseExpression(syntax.Expression, model: model));
+
+    public static IPattern Parse(PatternSyntax syntax, SemanticModel? model = null) => syntax switch
     {
         BinaryPatternSyntax pattern => Parse(pattern, model),
         ConstantPatternSyntax pattern => Parse(pattern, model),
@@ -271,16 +276,57 @@ public static class CodeModelParsing
         VarPatternSyntax pattern => Parse(pattern, model),
         _ => throw new NotImplementedException($"Pattern not implemented: {syntax}")
     };
-    public static IExpression Parse(BinaryPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(ConstantPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(DeclarationPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(DiscardPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(ParenthesizedPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(RecursivePatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(RelationalPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(TypePatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(UnaryPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
-    public static IExpression Parse(VarPatternSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
+
+
+    public static BinaryPattern Parse(BinaryPatternSyntax syntax, SemanticModel? model = null) => syntax.Kind() switch
+    {
+        SyntaxKind.OrPattern => new OrPattern(Parse(syntax.Left, model), Parse(syntax.Right, model)),
+        SyntaxKind.AndPattern => new AndPattern(Parse(syntax.Left, model), Parse(syntax.Right, model)),
+        _ => throw new NotImplementedException($"Not implemented BinaryPattern: '{syntax}'.")
+    };
+    public static ConstantPattern Parse(ConstantPatternSyntax syntax, SemanticModel? model = null)
+        => new(ParseExpression(syntax.Expression, model: model));
+    public static DeclarationPattern Parse(DeclarationPatternSyntax syntax, SemanticModel? model = null)
+        => new(ParseType(syntax.Type, model: model), Parse(syntax.Designation, model));
+    public static DiscardPattern Parse(DiscardPatternSyntax syntax, SemanticModel? model = null)
+        => new();
+    public static ParenthesizedPattern Parse(ParenthesizedPatternSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Pattern, model));
+    public static RecursivePattern Parse(RecursivePatternSyntax syntax, SemanticModel? model = null)
+        => new(ParseType(syntax.Type, model: model));
+    public static RelationalPattern Parse(RelationalPatternSyntax syntax, SemanticModel? model = null)
+        => new(syntax.OperatorToken, ParseExpression(syntax.Expression, model: model));
+    public static TypePattern Parse(TypePatternSyntax syntax, SemanticModel? model = null)
+        => new(ParseType(syntax.Type, model: model));
+    public static UnaryPattern Parse(UnaryPatternSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Pattern, model: model));
+    public static VarPattern Parse(VarPatternSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Designation, model: model));
+    public static IVariableDesignation Parse(VariableDesignationSyntax syntax, SemanticModel? model = null) => syntax switch
+    {
+        DiscardDesignationSyntax designation => Parse(designation, model),
+        SingleVariableDesignationSyntax designation => Parse(designation, model),
+        ParenthesizedVariableDesignationSyntax designation => Parse(designation, model),
+        _ => throw new NotImplementedException($"Not implemented VariableDesignation: '{syntax}'.")
+    };
+    public static DiscardDesignation Parse(DiscardDesignationSyntax syntax, SemanticModel? model = null)
+        => new();
+    public static SingleVariableDesignation Parse(SingleVariableDesignationSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Identifier.ToString());
+    public static ParenthesizedVariableDesignation Parse(ParenthesizedVariableDesignationSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Variables.Select(x => Parse(x, model)).ToList());
+
+    public static CasePatternSwitchLabel Parse(CasePatternSwitchLabelSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Pattern, model), syntax.WhenClause is null ? null : Parse(syntax.WhenClause, model));
+
+    public static CaseSwitchLabel Parse(CaseSwitchLabelSyntax syntax, SemanticModel? model = null)
+        => new(ParseExpression(syntax.Value, model: model));
+
+    public static DefaultSwitchLabel Parse()
+        => new();
+
+    public static WhenClause Parse(WhenClauseSyntax syntax, SemanticModel? model = null)
+        => new(ParseExpression(syntax.Condition, model: model));
 
     public static InvocationFromReflection Parse(InvocationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
     {
@@ -545,7 +591,8 @@ public static class CodeModelParsing
     public static ForStatement Parse(ForStatementSyntax syntax, SemanticModel? model = null)
         => new(syntax.Declaration is null ? new(null) : Parse(syntax.Declaration, model), syntax.Initializers.Select(x => ParseExpression(x, model: model)).ToList(), ParseExpression(syntax.Condition, model: model), List(syntax.Incrementors.Select(x => ParseExpression(x, model: model))), Parse(syntax.Statement, model));
     public static GotoStatement Parse(GotoStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
-    public static IfStatement Parse(IfStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement, model), syntax.Else is null ? null : Parse(syntax.Else, model));
+    public static IfStatement Parse(IfStatementSyntax syntax, SemanticModel? model = null)
+        => new(ParseExpression(syntax.Condition, model: model), Parse(syntax.Statement, model), syntax.Else is null ? null : Parse(syntax.Else, model));
     public static IStatement Parse(ElseClauseSyntax syntax, SemanticModel? model = null) => Parse(syntax.Statement, model);
     public static LabeledStatement Parse(LabeledStatementSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString(), Parse(syntax.Statement, model));
     public static LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Declaration, model));
@@ -576,11 +623,21 @@ public static class CodeModelParsing
     public static LockStatement Parse(LockStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model), Parse(syntax.Statement, model));
     public static ReturnStatement Parse(ReturnStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
     public static SwitchStatement Parse(SwitchStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model), List(syntax.Sections.Select(x => Parse(x))));
-    public static SwitchSection Parse(SwitchSectionSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();// new(CodeModelFactory.List(syntax.Labels.Select(ParseExpression)), Parse(syntax.Statements));
-    //public static SwitchSection Parse(SwitchLabelSyntax syntax) => new(syntax.E);
-    public static ThrowStatement Parse(ThrowStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression));
-    public static TryStatement Parse(TryStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
-    public static CatchClause Parse(CatchClauseSyntax syntax, SemanticModel? model = null) => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model));
+    public static SwitchSection Parse(SwitchSectionSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Labels.Select(x => Parse(x, model: model)).ToList(),
+           syntax.Statements.Select(x => Parse(x, model)).ToList());
+    public static ISwitchLabel Parse(SwitchLabelSyntax syntax, SemanticModel? model = null) => syntax switch
+    {
+        CasePatternSwitchLabelSyntax label => Parse(label, model),
+        CaseSwitchLabelSyntax label => Parse(label, model),
+        DefaultSwitchLabelSyntax _ => Parse(),
+        _ => throw new NotImplementedException($"SwitchLabelSyntax {syntax} not implemented.")
+    };
+    public static ThrowStatement Parse(ThrowStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
+    public static TryStatement Parse(TryStatementSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Block, model), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
+    public static CatchClause Parse(CatchClauseSyntax syntax, SemanticModel? model = null)
+        => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type, model: model), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model));
     public static CatchDeclaration Parse(CatchDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type), syntax.Identifier.ToString());
     public static FinallyClause Parse(FinallyClauseSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
     public static UnsafeStatement Parse(UnsafeStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));

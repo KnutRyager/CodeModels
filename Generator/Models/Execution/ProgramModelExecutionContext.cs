@@ -1,13 +1,14 @@
 ﻿using System;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution.Controlflow;
 
 namespace CodeAnalyzation.Models;
 
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
-    private bool _continueFlag, _breakFlag, _returnFlag, _throwFlag;
+    private bool _returnFlag, _throwFlag;
 
     public IExpression ReturnValue { get; private set; } = VoidValue;
     public IExpression PreviousExpression { get; private set; } = VoidValue;
@@ -42,20 +43,6 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression? GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
 
-    public bool HandleBreak()
-    {
-        var wasBreak = _breakFlag;
-        _breakFlag = false;
-        return wasBreak;
-    }
-
-    public bool HandleContinue()
-    {
-        var wasContinue = _continueFlag;
-        _continueFlag = false;
-        return wasContinue;
-    }
-
     public bool HandleReturn()
     {
         var wasReturn = _returnFlag;
@@ -68,16 +55,6 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         var wasThrow = _throwFlag;
         _throwFlag = false;
         return wasThrow;
-    }
-
-    public void SetBreak()
-    {
-        _breakFlag = true;
-    }
-
-    public void SetContinue()
-    {
-        _continueFlag = true;
     }
 
     public void SetReturn(IExpression Value)
@@ -123,8 +100,11 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void Throw(IExpression value)
     {
-        throw new NotImplementedException();
+        if (value.LiteralValue is Exception e) throw new ThrowException(e);
+        throw new ThrowException(value);
     }
+
+    public void Throw(Exception exception) => throw new ThrowException(exception);
 
     private IProgramModelExecutionScope? FindScope(string identifier)
     {
@@ -139,8 +119,6 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     private IProgramModelExecutionScope FindScopeOrCrash(string identifier) => FindScope(identifier) ?? throw new ProgramModelExecutionException($"Cannot find scope of identifier: {identifier}");
 
     private IProgramModelExecutionScope GetScope(int depth = 0) => depth < _scopes.Count ? _scopes[_scopes.Count - 1 - depth] : throw new ProgramModelExecutionException($"No scope at depth: {depth}");
-
-    public void Throw(Exception exception) => Throw(Literal(exception));
 
     public IExpression SetPreviousExpression(IExpression expression)
     {

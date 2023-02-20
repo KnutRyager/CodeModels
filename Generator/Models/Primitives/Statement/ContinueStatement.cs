@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 
@@ -12,7 +13,5 @@ public record ContinueStatement() : AbstractStatement<ContinueStatementSyntax>
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
     public override void Evaluate(IProgramModelExecutionContext context)
-    {
-        context.SetContinue();
-    }
+        => throw new ContinueException();
 }

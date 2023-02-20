@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -38,10 +39,18 @@ public record ForEachStatement(IType? Type, string Identifier, IExpression Expre
         foreach (var value in iterator)
         {
             context.SetValue(Identifier, Literal(value));
-            Statement.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
-            if (context.HandleBreak()) break;
-            if (context.HandleContinue()) continue;
+            try
+            {
+                Statement.Evaluate(context);
+            }
+            catch (BreakException)
+            {
+                break;
+            }
+            catch (ContinueException)
+            {
+                continue;
+            }
         }
         context.ExitScope();
     }

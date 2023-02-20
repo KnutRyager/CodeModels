@@ -150,7 +150,7 @@ public static class CodeModelFactory
     public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
          => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
     public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
-    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), statement);
+    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), List(statement));
 
     public static ReturnStatement Return(IExpression expression) => new(expression);
     public static ContinueStatement Continue() => new();
@@ -178,6 +178,9 @@ public static class CodeModelFactory
 
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
+
+    public static PatternExpression PatternExpression(IPattern pattern, IExpression rhs, IType? type = null)
+        => new(pattern, rhs, type ?? TypeShorthands.NullType);
 
     public static MemberAccessExpression MemberAccess(IExpression lhs, IdentifierExpression property, IType? type = null)
         => new(lhs, property, type);

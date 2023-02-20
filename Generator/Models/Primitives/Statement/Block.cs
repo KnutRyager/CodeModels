@@ -18,7 +18,9 @@ public record Block(List<IStatement> Statements) : AbstractStatement<BlockSyntax
     public override void Evaluate(IProgramModelExecutionContext context)
     {
         context.EnterScope();
-        foreach(var statement in Statements) statement.Evaluate(context);
+        foreach (var statement in Statements) statement.Evaluate(context);
         context.ExitScope();
     }
+
+    public override string ToString() => $"{{{string.Join(";", Statements)}}}";
 }

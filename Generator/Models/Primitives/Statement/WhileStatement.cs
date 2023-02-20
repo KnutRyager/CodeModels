@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 
@@ -18,10 +19,18 @@ public record WhileStatement(IExpression Condition, IStatement Statement) : Abst
         context.EnterScope();
         while ((bool)Condition.Evaluate(context).LiteralValue)
         {
-            Statement.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
-            if (context.HandleBreak()) break;
-            if (context.HandleContinue()) continue;
+            try
+            {
+                Statement.Evaluate(context);
+            }
+            catch (BreakException)
+            {
+                break;
+            }
+            catch (ContinueException)
+            {
+                continue;
+            }
         }
         context.ExitScope();
     }

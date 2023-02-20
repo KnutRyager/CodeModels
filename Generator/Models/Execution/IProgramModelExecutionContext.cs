@@ -13,10 +13,6 @@ public interface IProgramModelExecutionContext
     void SetValue(IExpression identifier, IExpression value, bool allowDefine = false);
     IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
     object ExecuteMethodPlain(string identifier, params object?[] parameters);
-    void SetBreak();
-    bool HandleBreak();
-    void SetContinue();
-    bool HandleContinue();
     void SetReturn(IExpression Value);
     bool HandleReturn();
     void Throw(IExpression value);

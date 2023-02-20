@@ -12,7 +12,7 @@ public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowSt
         yield return Expression;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context) => context.Throw(Expression);
+    public override void Evaluate(IProgramModelExecutionContext context) => context.Throw(Expression.Evaluate(context));
 }
 
 public record ThrowExpression(IExpression Expression) : Expression<ThrowExpressionSyntax>(Expression.Get_Type())

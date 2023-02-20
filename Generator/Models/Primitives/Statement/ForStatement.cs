@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static CodeAnalyzation.Models.CodeModelFactory;
@@ -34,14 +34,25 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
         Declaration.Evaluate(context);
         while ((bool)Condition.Evaluate(context).LiteralValue)
         {
-            Statement.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
-            if (context.HandleBreak())  break;
-            if (context.HandleContinue())  continue;
+            try
+            {
+                Statement.Evaluate(context);
+            }
+            catch (BreakException)
+            {
+                break;
+            }
+            catch (ContinueException)
+            {
+                Incrementors.ForEach(x => x.Evaluate(context));
+                continue;
+            }
             Incrementors.ForEach(x => x.Evaluate(context));
         }
         context.ExitScope();
     }
+
+    public override string ToString() => $"for({Declaration}{Initializers},{Incrementors}{Condition}){{{Statement}}}";
 }
 
 public record SimpleForStatement(string Variable, IExpression Limit, IStatement Statement)
