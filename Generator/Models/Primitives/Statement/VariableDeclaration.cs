@@ -24,7 +24,6 @@ public record VariableDeclaration(IType Type, string Name, IExpression? Value = 
         if (Value is not null)
         {
             context.SetValue(Name, Value);
-            context.HandleThrow();
         }
     }
 }
@@ -52,7 +51,6 @@ public record VariableDeclarations(IType Type, List<VariableDeclarator> Value) :
         foreach (var declarator in Value)
         {
             declarator.Evaluate(context);
-            context.HandleThrow();
         }
     }
 }
@@ -71,7 +69,6 @@ public record VariableDeclarator(string Name, IExpression? Value = null) : CodeM
         if (Value is not null)
         {
             context.SetValue(Name, Value);
-            context.HandleThrow();
         }
     }
 }

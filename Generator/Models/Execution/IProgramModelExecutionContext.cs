@@ -14,10 +14,8 @@ public interface IProgramModelExecutionContext
     IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
     object ExecuteMethodPlain(string identifier, params object?[] parameters);
     void SetReturn(IExpression Value);
-    bool HandleReturn();
     void Throw(IExpression value);
     public void Throw(Exception exception);
-    bool HandleThrow();
     void EnterScope(object owner);
     void EnterScope();
     void ExitScope(object owner);

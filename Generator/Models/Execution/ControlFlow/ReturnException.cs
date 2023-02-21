@@ -2,10 +2,10 @@
 
 public class ReturnException : ControlFlowException
 {
-    public IExpression Expression { get; private set; }
+    public object? Value { get; private set; }
 
-    public ReturnException(IExpression expression)
+    public ReturnException(object? value)
     {
-        this.Expression = expression;
+        this.Value = value;
     }
 }

@@ -24,14 +24,12 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
         {
             context.EnterScope();
             Statement.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
             context.ExitScope();
         }
         else if (Else is not null)
         {
             context.EnterScope();
             Else.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
             context.ExitScope();
         }
     }
@@ -70,7 +68,6 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
             {
                 context.EnterScope();
                 statement.Evaluate(context);
-                if (context.HandleReturn() || context.HandleThrow()) return;
                 context.ExitScope();
             }
             if (ifWasExecuted) break;
@@ -79,7 +76,6 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
         {
             context.EnterScope();
             Else.Evaluate(context);
-            if (context.HandleReturn() || context.HandleThrow()) return;
             context.ExitScope();
         }
     }

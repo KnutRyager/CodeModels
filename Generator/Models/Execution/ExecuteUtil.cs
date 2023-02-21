@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using CodeAnalyzation.Models.Execution.Controlflow;
 using CodeAnalyzation.Models.ProgramModels;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -25,36 +26,43 @@ public static class ExecuteUtil
         if (compilationModel.Members.Count >= 0)
         {
             var context = new ProgramModelExecutionContext();
-            context.EnterScope();
-            foreach (var member in compilationModel.Members)
+            try
             {
-                if (member is ExpressionStatement expressionStatement)
+                context.EnterScope();
+                foreach (var member in compilationModel.Members)
                 {
-                    if (expressionStatement.Expression is InvocationFromReflection
-                        { Method.Name: "Write" or "WriteLine" } invocation)
+                    if (member is ExpressionStatement expressionStatement)
                     {
-                        var sw = new StringWriter();
-                        Console.SetOut(sw);
-                        Console.SetError(sw);
-                        var arguments = invocation.Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
-                        invocation.Method.Invoke(null, arguments);
-                        context.SetPreviousExpression(new LiteralExpression(sw.ToString()));
+                        if (expressionStatement.Expression is InvocationFromReflection
+                            { Method.Name: "Write" or "WriteLine" } invocation)
+                        {
+                            var sw = new StringWriter();
+                            Console.SetOut(sw);
+                            Console.SetError(sw);
+                            var arguments = invocation.Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
+                            invocation.Method.Invoke(null, arguments);
+                            context.SetPreviousExpression(new LiteralExpression(sw.ToString()));
+                        }
+                        else
+                        {
+                            context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
+                        }
                     }
-                    else
+                    else if (member is IStatement statement)
                     {
-                        context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
+                        statement.Evaluate(context);
                     }
                 }
-                else if (member is ReturnStatement returnStatement)
-                {
-                    context.SetPreviousExpression(returnStatement.Expression.Evaluate(context));
-                }
-                else if (member is IStatement statement)
-                {
-                    statement.Evaluate(context);
-                }
+                return context.PreviousExpression.EvaluatePlain(context);
             }
-            return context.PreviousExpression.EvaluatePlain(context);
+            catch (ReturnException e)
+            {
+                return e.Value;
+            }
+            catch (ThrowException e)
+            {
+                return e.InnerException;
+            }
         }
         return null;
     }

@@ -8,9 +8,7 @@ namespace CodeAnalyzation.Models;
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
-    private bool _returnFlag, _throwFlag;
 
-    public IExpression ReturnValue { get; private set; } = VoidValue;
     public IExpression PreviousExpression { get; private set; } = VoidValue;
 
     public void EnterScope(object owner)
@@ -43,24 +41,10 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression? GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
 
-    public bool HandleReturn()
-    {
-        var wasReturn = _returnFlag;
-        _returnFlag = false;
-        return wasReturn;
-    }
-
-    public bool HandleThrow()
-    {
-        var wasThrow = _throwFlag;
-        _throwFlag = false;
-        return wasThrow;
-    }
 
     public void SetReturn(IExpression Value)
     {
         PreviousExpression = Value;
-        _returnFlag = true;
     }
 
     public void SetValue(string identifier, IExpression value, bool define = false)

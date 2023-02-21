@@ -37,7 +37,6 @@ public record SwitchStatement(IExpression Expression, List<SwitchSection> Sectio
                 {
                     break;
                 }
-                if (context.HandleReturn() || context.HandleThrow()) return;
             }
         }
         context.ExitScope();
