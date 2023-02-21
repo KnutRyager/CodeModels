@@ -31,8 +31,16 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
     public override void Evaluate(IProgramModelExecutionContext context)
     {
         context.EnterScope();
-        Declaration.Evaluate(context);
-        while ((bool)Condition.Evaluate(context).LiteralValue)
+        try
+        {
+            context.IncreaseDisableSetPreviousValueLock();
+            Declaration.Evaluate(context);
+        }
+        finally
+        {
+            context.DecreaseDisableSetPreviousValueLock();
+        }
+        while (((bool?)Condition.Evaluate(context).LiteralValue) ?? false)
         {
             try
             {
@@ -47,7 +55,15 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
                 Incrementors.ForEach(x => x.Evaluate(context));
                 continue;
             }
-            Incrementors.ForEach(x => x.Evaluate(context));
+            try
+            {
+                context.IncreaseDisableSetPreviousValueLock();
+                Incrementors.ForEach(x => x.Evaluate(context));
+            }
+            finally
+            {
+                context.DecreaseDisableSetPreviousValueLock();
+            }
         }
         context.ExitScope();
     }

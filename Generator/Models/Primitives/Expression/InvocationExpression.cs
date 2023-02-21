@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,5 +22,18 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 
     public override IExpression Evaluate(IProgramModelExecutionContext context)
-        => Literal(Method.Invoke(Caller.EvaluatePlain(context), Arguments.Select(x => x.EvaluatePlain(context)).ToArray()));
+    {
+        var arguments = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
+        if (Method is { Name: "Write" or "WriteLine" })
+        {
+            var consoleWriter = new StringWriter();
+            Console.SetOut(consoleWriter);
+            Console.SetError(consoleWriter);
+            Method.Invoke(null, arguments);
+            var result = consoleWriter.ToString();
+            context.ConsoleWrite(result);
+
+        }
+        return Literal(Method.Invoke(Caller.EvaluatePlain(context), arguments));
+    }
 }

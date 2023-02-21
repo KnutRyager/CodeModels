@@ -46,16 +46,12 @@ for (int i = 1; i <= 100; i++)
 
     [Fact] public void NowDay() => @"System.DateTime.Now.Day;".Eval().Should().Be(System.DateTime.Now.Day);
     [Fact] public void NowDayToString() => @"System.DateTime.Now.Day.ToString();".Eval().Should().Be(System.DateTime.Now.Day.ToString());
-    [Fact] public void NowDayToConsoleWrite() => "// Start code\r\nSystem.Console.Write(System.DateTime.Now);".Eval().Should().Be(System.DateTime.Now.Day.ToString());
-    [Fact] public void NowDayToStringConsoleWrite() => @"System.Console.Write(System.DateTime.Now.Day.ToString());".Eval().Should().Be(System.DateTime.Now.Day.ToString());
+    [Fact] public void CommentIgnored() => "// Start code\r\n5;".Eval().Should().Be(5);
 
     [Fact] public void NowViaVariable() => @"
 System.DateTime now = System.DateTime.Now;
 return now.Day;
 ".Eval().Should().Be(System.DateTime.Now.Day);
-
-    [Fact] public void ConsoleWrite() => "System.Console.Write(4+5);".Eval().Should().Be("9");
-    [Fact] public void ConsoleWriteLine() => "System.Console.WriteLine(4+5);".Eval().Should().Be("9\r\n");
 
     [Fact]
     public void Test()

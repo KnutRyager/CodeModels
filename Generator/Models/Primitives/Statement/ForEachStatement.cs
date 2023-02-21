@@ -30,15 +30,22 @@ public record ForEachStatement(IType? Type, string Identifier, IExpression Expre
     {
         context.EnterScope();
         context.DefineVariable(Identifier);
-        var iterator = Expression.Evaluate(context).LiteralValue as System.Collections.IEnumerable;
-        if (iterator is null)
+        if (Expression.Evaluate(context).LiteralValue is not System.Collections.IEnumerable iterator)
         {
             context.Throw(new NullReferenceException("null iterator"));
             return;
         }
         foreach (var value in iterator)
         {
-            context.SetValue(Identifier, Literal(value));
+            try
+            {
+                context.IncreaseDisableSetPreviousValueLock();
+                context.SetValue(Identifier, Literal(value));
+            }
+            finally
+            {
+                context.DecreaseDisableSetPreviousValueLock();
+            }
             try
             {
                 Statement.Evaluate(context);

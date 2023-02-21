@@ -1,9 +1,5 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using CodeAnalyzation.Models.Execution.Controlflow;
+﻿using CodeAnalyzation.Models.Execution.Controlflow;
 using CodeAnalyzation.Models.ProgramModels;
-using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Parsing.ParseUtil;
@@ -33,27 +29,14 @@ public static class ExecuteUtil
                 {
                     if (member is ExpressionStatement expressionStatement)
                     {
-                        if (expressionStatement.Expression is InvocationFromReflection
-                            { Method.Name: "Write" or "WriteLine" } invocation)
-                        {
-                            var sw = new StringWriter();
-                            Console.SetOut(sw);
-                            Console.SetError(sw);
-                            var arguments = invocation.Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
-                            invocation.Method.Invoke(null, arguments);
-                            context.SetPreviousExpression(new LiteralExpression(sw.ToString()));
-                        }
-                        else
-                        {
-                            context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
-                        }
+                        context.SetPreviousExpression(expressionStatement.Expression.Evaluate(context));
                     }
                     else if (member is IStatement statement)
                     {
                         statement.Evaluate(context);
                     }
                 }
-                return context.PreviousExpression.EvaluatePlain(context);
+                return context.PreviousExpression.EvaluatePlain(context) ?? context.ConsoleOutput;
             }
             catch (ReturnException e)
             {

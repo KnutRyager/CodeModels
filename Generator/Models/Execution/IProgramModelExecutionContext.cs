@@ -2,7 +2,7 @@
 
 namespace CodeAnalyzation.Models;
 
-public interface IProgramModelExecutionContext 
+public interface IProgramModelExecutionContext
 {
     IExpression This();
     IExpression GetValue(string identifier);
@@ -13,7 +13,6 @@ public interface IProgramModelExecutionContext
     void SetValue(IExpression identifier, IExpression value, bool allowDefine = false);
     IExpression ExecuteMethod(string identifier, params IExpression[] parameters);
     object ExecuteMethodPlain(string identifier, params object?[] parameters);
-    void SetReturn(IExpression Value);
     void Throw(IExpression value);
     public void Throw(Exception exception);
     void EnterScope(object owner);
@@ -22,4 +21,9 @@ public interface IProgramModelExecutionContext
     void ExitScope();
     IExpression PreviousExpression { get; }
     IExpression SetPreviousExpression(IExpression expression);
+    string ConsoleOutput { get; }
+    void ConsoleWrite(string s);
+    void ConsoleWriteLine(string s);
+    void IncreaseDisableSetPreviousValueLock();
+    void DecreaseDisableSetPreviousValueLock();
 }

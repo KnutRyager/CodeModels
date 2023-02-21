@@ -18,6 +18,7 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
         {
             try
             {
+
                 Statement.Evaluate(context);
             }
             catch (BreakException)
@@ -28,7 +29,7 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
             {
                 continue;
             }
-        } while ((bool)Condition.Evaluate(context).LiteralValue);
+        } while (((bool?)Condition.Evaluate(context).LiteralValue) ?? false);
         context.ExitScope();
     }
 }

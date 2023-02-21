@@ -33,4 +33,12 @@ foreach(var i in new int[]{ 1, 2, 3, 4, 5 }) {
     a += i;
 }
 a;".Eval().Should().Be(15);
+
+    [Fact] public void ForLoopIncrementorNotRecorded() => @"
+""correct"";
+for(var i = 0; i < 1; i++){ }".Eval().Should().Be("correct");
+
+    [Fact] public void ForEachLoopIncrementorNotRecorded() => @"
+""correct"";
+foreach(var i in new int[]{ 1 }) { }".Eval().Should().Be("correct");
 }

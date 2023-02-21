@@ -17,7 +17,7 @@ public record WhileStatement(IExpression Condition, IStatement Statement) : Abst
     public override void Evaluate(IProgramModelExecutionContext context)
     {
         context.EnterScope();
-        while ((bool)Condition.Evaluate(context).LiteralValue)
+        while (((bool?)Condition.Evaluate(context).LiteralValue) ?? false)
         {
             try
             {

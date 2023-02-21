@@ -2,6 +2,8 @@
 using static CodeAnalyzation.Models.CodeModelFactory;
 using System.Collections.Generic;
 using CodeAnalyzation.Models.Execution.Controlflow;
+using System.IO;
+using Azure.Storage.Blobs.Models;
 
 namespace CodeAnalyzation.Models;
 
@@ -10,6 +12,26 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
 
     public IExpression PreviousExpression { get; private set; } = VoidValue;
+
+    private TextWriter Console { get; set; }
+    private int previousValueLock = 0;
+
+    public ProgramModelExecutionContext(TextWriter? console = null)
+    {
+        Console = console ?? new StringWriter();
+    }
+
+    public string ConsoleOutput => Console.ToString();
+
+    public void ConsoleWrite(string s)
+    {
+        Console.Write(s);
+        SetPreviousExpression(new LiteralExpression(s));
+    }
+
+    public void ConsoleWriteLine(string s) => ConsoleWrite($"{s}\r\n");
+    public void IncreaseDisableSetPreviousValueLock() => previousValueLock++;
+    public void DecreaseDisableSetPreviousValueLock() => previousValueLock--;
 
     public void EnterScope(object owner)
     {
@@ -41,18 +63,12 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression? GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
 
-
-    public void SetReturn(IExpression Value)
-    {
-        PreviousExpression = Value;
-    }
-
     public void SetValue(string identifier, IExpression value, bool define = false)
     {
         var scope = FindScope(identifier) ?? (define ? GetScope() : throw new ProgramModelExecutionException($"Identifier not found: {identifier}"));
         if (define) scope.DefineVariable(identifier);
         scope.SetValue(identifier, value);
-        PreviousExpression = value;
+        SetPreviousExpression(value);
     }
 
     public void SetValue(IdentifierExpression identifier, IExpression value, bool define = false)
@@ -106,7 +122,10 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression SetPreviousExpression(IExpression expression)
     {
-        PreviousExpression = expression;
+        if (previousValueLock <= 0)
+        {
+            PreviousExpression = expression;
+        }
         return expression;
     }
 
