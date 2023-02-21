@@ -1,10 +1,12 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace CodeAnalyzation.Models.Execution.Expression.Test;
 
 public class LiteralEvalTests
 {
+    [Fact] public void EmptyExpressionIsNull() => "".Eval().Should().Be(null);
+    [Fact] public void EmptyStringExpressionIsEmptyString() => "\"\"".Eval().Should().Be("");
     [Fact] public void String() => "\"Hello, world!\"".Eval().Should().Be("Hello, world!");
     [Fact] public void True() => "true".Eval().Should().Be(true);
     [Fact] public void False() => "false".Eval().Should().Be(false);

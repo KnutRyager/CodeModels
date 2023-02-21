@@ -1,13 +1,12 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.Execution;
 using FluentAssertions;
 using Xunit;
-using System.Linq;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace Generator.Test.Models.Execution.Reflection;
 
-public class ReflectionEvalTests
+public class ReflectionTests
 {
     [Fact] public void StaticField() => "System.Math.PI".Eval().Should().Be(Math.PI);
     //[Fact] public void StaticProperty() => "System.Math.Sqrt(25)".Eval().Should().Be(5);

@@ -1,7 +1,8 @@
+using CodeAnalyzation.Models.Execution;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace Generator.Test.Models.Execution.Statement;
 
 public class ConsoleTests
 {
@@ -18,7 +19,7 @@ System.Console.WriteLine(""abc"");".Eval().Should().Be("abc\r\n");
 System.Console.Write(""a"");
 System.Console.Write(""b"");".Eval().Should().Be("ab");
 
-[Fact] public void ConsoleWriteLineMultiple() => @"
+    [Fact] public void ConsoleWriteLineMultiple() => @"
 System.Console.WriteLine(""a"");
 System.Console.WriteLine(""b"");".Eval().Should().Be("a\r\nb\r\n");
 
@@ -27,7 +28,7 @@ for(var i = 0; i < 5; i++){
     System.Console.Write(i);
 }".Eval().Should().Be("01234");
 
-[Fact] public void ConsoleWriteLineLoop() => @"
+    [Fact] public void ConsoleWriteLineLoop() => @"
 for(var i = 0; i < 5; i++){
     System.Console.WriteLine(i);
 }".Eval().Should().Be("0\r\n1\r\n2\r\n3\r\n4\r\n");

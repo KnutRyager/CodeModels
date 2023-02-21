@@ -1,4 +1,4 @@
-﻿namespace CodeAnalyzation.Models.Execution.Controlflow;
+﻿namespace CodeAnalyzation.Models.Execution.ControlFlow;
 
 public class GotoException : ControlFlowException
 {

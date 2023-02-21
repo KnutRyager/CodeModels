@@ -1,4 +1,4 @@
-﻿namespace CodeAnalyzation.Models.Execution.Controlflow;
+﻿namespace CodeAnalyzation.Models.Execution.ControlFlow;
 
 public class ReturnException : ControlFlowException
 {
@@ -6,6 +6,6 @@ public class ReturnException : ControlFlowException
 
     public ReturnException(object? value)
     {
-        this.Value = value;
+        Value = value;
     }
 }

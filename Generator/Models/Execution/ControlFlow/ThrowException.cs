@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeAnalyzation.Models.Execution.Controlflow;
+namespace CodeAnalyzation.Models.Execution.ControlFlow;
 
 public class ThrowException : ControlFlowException
 {
@@ -8,11 +8,11 @@ public class ThrowException : ControlFlowException
 
     public ThrowException(IExpression expression)
     {
-        this.Expression = expression;
+        Expression = expression;
     }
 
     public ThrowException(Exception exception) : base(exception)
     {
-        this.Expression = new LiteralExpression(exception);
+        Expression = new LiteralExpression(exception);
     }
 }

@@ -1,7 +1,8 @@
+using CodeAnalyzation.Models.Execution;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.ControlFlow;
+namespace CodeAnalyzation.Models.Execution.ControlFlow.Test;
 
 public class LoopTests
 {

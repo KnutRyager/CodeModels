@@ -1,9 +1,10 @@
 using System;
-using CodeAnalyzation.Models.Execution.Controlflow;
+using CodeAnalyzation.Models.Execution;
+using CodeAnalyzation.Models.Execution.ControlFlow;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.ControlFlow;
+namespace CodeAnalyzation.Models.Execution.ControlFlow.Test;
 
 public class ExceptionTests
 {

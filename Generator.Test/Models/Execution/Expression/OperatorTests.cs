@@ -1,14 +1,15 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace CodeAnalyzation.Models.Execution.Expression.Test;
 
-public class ExpressionEvalTests
+public class OperatorTests
 {
     // Unary
     [Fact] public void NotTrue() => "!false".Eval().Should().Be(true);
     [Fact] public void NotFalse() => "!true".Eval().Should().Be(false);
     [Fact] public void Complement() => "~0x00FF00FF00FF00FFUL".Eval().Should().Be(0xFF00FF00FF00FF00UL);
+
     [Fact] public void UnaryAdd() => "+5".Eval().Should().Be(5);
     [Fact] public void UnaryAddBefore() => "++5".Eval().Should().Be(6);
     [Fact] public void UnaryAddAfter() => "5++".Eval().Should().Be(5);

@@ -1,7 +1,9 @@
+using System;
+using CodeAnalyzation.Models.Execution;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.ControlFlow;
+namespace CodeAnalyzation.Models.Execution.ControlFlow.Test;
 
 public class IfElseTests
 {
@@ -39,11 +41,16 @@ var a = false; if(a) {
     ""nope"";
 }".Eval().Should().Be("nope");
 
-    [Fact] public void IfIllegalBreakBreaks() => @"
+    [Fact]
+    public void IfIllegalBreakBreaks()
+    {
+        Action action = () => @"
 var s = 0; if(true) {
     s += 1;
     break;
     s += 2;
 }
-s;".Eval().Should().Be(1);
+s;".Eval();
+        action.Should().Throw<BreakException>();
+    }
 }
