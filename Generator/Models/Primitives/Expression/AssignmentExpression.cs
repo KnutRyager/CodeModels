@@ -21,10 +21,14 @@ public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKi
         {
             assignable.Assign(Right, context);
             return Right;
+        } else if (Kind == SyntaxKind.SimpleAssignmentExpression)
+        {
+            context.SetValue(Left, new LiteralExpression(Right.EvaluatePlain(context)));
+            return Right;
         }
         else
         {
-        var result = CodeModelFactory.BinaryExpression(Left, GetOperationType(Kind), Right).Evaluate(context);
+            var result = CodeModelFactory.BinaryExpression(Left, GetOperationType(Kind), Right).Evaluate(context);
             context.SetValue(Left, result);
             return result;
         }
