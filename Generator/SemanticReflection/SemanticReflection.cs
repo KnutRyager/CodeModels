@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Common.Reflection;
@@ -30,12 +31,38 @@ public static class SemanticReflection
 
     public static MethodInfo? GetMethod(IMethodSymbol symbol)
     {
-        var parameters = symbol.Parameters.Select(x => GetType(x.Type)).ToArray();
-        return ReflectionUtil.GetMethodInfo(GetContainingType(symbol),
+        var parameters = symbol.Parameters;
+        var parametersTypes = parameters.Select(GetType).ToArray();
+        var containingType = GetContainingType(symbol);
+        if (symbol.IsGenericMethod)
+        {
+            var genericMethod = symbol.ConstructedFrom;
+            var genericParameters = genericMethod.Parameters;
+            var genericParameterOut = new List<Type>();
+            var genericIndexOfParameters = new List<(int Param, int? GenericParam)>();
+            for (var i = 0; i < parameters.Length; i++)
+            {
+                var parameter = parameters[i];
+                var genericParameter = genericParameters[i];
+                if (genericParameter.Type != parameter.Type)
+                {
+                    genericIndexOfParameters.Add((i, genericParameterOut.Count));
+                    genericParameterOut.Add(GetType(parameter));
+                }
+            }
+            return ReflectionUtil.GetGenericMethod(containingType,
+                symbol.Name,
+                parameters.Length,
+                genericParameterOut.Count,
+                parametersTypes,
+                genericParameterOut.ToArray(),
+                genericIndexOfParameters.ToArray());
+        }
+        return ReflectionUtil.GetMethodInfo(containingType,
             symbol.Name,
             symbol.MethodKind is MethodKind.ReducedExtension
-                ? new Type[] { GetType(symbol.ReceiverType!) }.Concat(parameters).ToArray()
-                : parameters);
+                ? new Type[] { GetType(symbol.ReceiverType!) }.Concat(parametersTypes).ToArray()
+                : parametersTypes);
     }
 
     public static Assembly GetAssembly(ISymbol symbol) => ReflectionSerialization.DeserializeAssembly(symbol.ContainingAssembly.ToString());
@@ -47,7 +74,7 @@ public static class SemanticReflection
     public static Type GetType(IMethodSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(INamedTypeSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter);
-    public static Type GetType(IParameterSymbol symbol) => GetType(symbol.ToString(), symbol);
+    public static Type GetType(IParameterSymbol symbol) => GetType(symbol.Type);
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
     // Not loading? https://jeremybytes.blogspot.com/2020/01/using-typegettype-with-net-core.html
