@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection.Emit;
 using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Reflection;
+using Generator.Models.Primitives.Expression.AnonymousFunction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,9 +19,9 @@ public static class CodeModelParsing
 {
     private static IProgramContext Context => ProgramContext.Context!;
     private static T Register<T>(SyntaxNode node, T model) where T : ICodeModel => Context.Register(node, model);
-    public static IType Parse(SyntaxToken token) => ParseType(token.ToString());
-    public static IType ParseType(string identifier) => ParseType(ParseTypeName(identifier));
-    public static IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type);  // TODO: Nullability
+    public static IType Parse(SyntaxToken token, SemanticModel? model = null) => ParseType(token.ToString(), model);
+    public static IType ParseType(string identifier, SemanticModel? model = null) => ParseType(ParseTypeName(identifier), model: model);
+    public static IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo, SemanticModel? model = null) => typeInfo.Type is null && typeInfo.ConvertedType is null ? ParseType(typeInfo.ToString(), model) : Parse(typeInfo.Type ?? typeInfo.ConvertedType);  // TODO: Nullability
     public static TypeFromSymbol Parse(ITypeSymbol symbol) => new(symbol);
 
     public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
@@ -56,7 +58,9 @@ public static class CodeModelParsing
     };
     public static IType Parse(AliasQualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
     public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => new TypeFromReflection(System.Type.GetType(syntax.ToString()));
+        => new TypeFromReflection(model is null
+            ? System.Type.GetType(syntax.ToString())
+            : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type));
     public static IExpression Parse(SimpleNameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
         GenericNameSyntax name => Parse(name, type, model),
@@ -486,9 +490,40 @@ public static class CodeModelParsing
     public static ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
         => Parse(syntax.Initializer, type ?? Parse(syntax.Type, model: model), model).Expressions.ToValueCollection();
 
-    public static IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
+    public static IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+         => throw new NotImplementedException();    // TODO
 
-    public static IExpression Parse(AnonymousFunctionExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
+    public static IAnonymousFunctionExpression Parse(AnonymousFunctionExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
+    {
+        AnonymousMethodExpressionSyntax expression => Parse(expression, model),
+        LambdaExpressionSyntax expression => Parse(expression, model: model),
+        _ => throw new ArgumentException($"Can't parse {nameof(AnonymousObjectCreationExpressionSyntax)} from '{syntax}'.")
+    };
+
+    public static AnonymousMethodExpression Parse(AnonymousMethodExpressionSyntax syntax, SemanticModel? model = null)
+         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default, syntax.DelegateKeyword != default,
+             ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
+             syntax.Block is null ? null : Parse(syntax.Block, model),
+             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody, model: model));
+
+    public static ILambdaExpression Parse(LambdaExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
+    {
+        SimpleLambdaExpressionSyntax expression => Parse(expression, model),
+        ParenthesizedLambdaExpressionSyntax expression => Parse(expression, model),
+        _ => throw new ArgumentException($"Can't parse {nameof(LambdaExpressionSyntax)} from '{syntax}'.")
+    };
+
+    public static SimpleLambdaExpression Parse(SimpleLambdaExpressionSyntax syntax, SemanticModel? model = null)
+         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
+             Parse(syntax.Parameter, model), Parse(model.GetTypeInfo(syntax), model),
+             syntax.Block is null ? null : Parse(syntax.Block, model),
+             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody, model: model));
+
+    public static ParenthesizedLambdaExpression Parse(ParenthesizedLambdaExpressionSyntax syntax, SemanticModel? model = null)
+         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
+             ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
+             syntax.Block is null ? null : Parse(syntax.Block, model),
+             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody, model: model));
 
     public static LiteralExpression Parse(LiteralExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {

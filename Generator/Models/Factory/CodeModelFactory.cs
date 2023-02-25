@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CodeAnalyzation.Reflection;
+using Common.Extensions;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -29,9 +30,9 @@ public static class CodeModelFactory
         => new(name, required, isMulti, type);
     public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
         => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
-    public static IType Type(IdentifierExpression identifier) => ParseType(identifier.ToString());
+    public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
     public static IType Type(string code) => ParseType(code);
-    public static IType Type(SyntaxToken token) => Parse(token);
+    public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
     public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
@@ -113,7 +114,7 @@ public static class CodeModelFactory
         _ => throw new NotImplementedException($"Unhandled base: {@base}")
     };
 
-    public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method,model);
+    public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method, model);
 
     public static Constructor Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
         => new(name, parameters, body, modifier);
