@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 using CodeAnalyzation.Reflection;
-using Common.Util;
+using Common.Extensions;
 using Microsoft.CodeAnalysis;
 
 namespace CodeAnalyzation.Models;
