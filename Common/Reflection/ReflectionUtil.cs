@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading.Tasks;
 using Common.Util;
 
 namespace Common.Reflection;
@@ -43,6 +44,7 @@ public static class ReflectionUtil
 
     public static MethodInfo GetMethodInfo<TOut>(Expression<Func<TOut>> expression)
         => ((MethodCallExpression)expression.Body).Method;
+
     public static MethodInfo GetMethodInfo<T>(string name)
         => GetMethodInfo(typeof(T), name, Array.Empty<Type>())!;
 
@@ -135,7 +137,7 @@ public static class ReflectionUtil
     public static bool IsGenericParameter(Type type) => type.FullName is null || type.Name.StartsWith("IGenericParameter`");
     public static bool IsGenericParameterDescriptor(Type type) => type.Name.StartsWith("IGenericParameter") && !IsGenericParameter(type);
     public static Type[] GetGenericParameters(IEnumerable<Type> types) => types.Where(IsGenericParameter).Select(x => x.GenericTypeArguments.First()).ToArray();
-    
+
     /// <summary>
     /// Filter away those generic types that are of the IGenericParameter interface.
     /// </summary>
@@ -226,7 +228,8 @@ public static class ReflectionUtil
                 && IsSameType(y.GenericParam.Value, x.Args[y.GenericParam.Value], x.Params[y.Param].ParameterType, parameters![y.GenericParam.Value]!))))
              && (parameters == null || IsMethodMatch(x.Method, parameters!, genericArguments))
              )
-         .Select(x => x.Method)
+         .Select(x =>
+              (genericArgumentCount ?? 0) > 0 ? x.Method.MakeGenericMethod(genericArguments) : x.Method)
          .ToArray();
     }
 
@@ -274,7 +277,7 @@ public static class ReflectionUtil
     public static bool IsDirectlyGenericType(TypeVariant variant) => variant == TypeVariant.GenericUnbound || variant == TypeVariant.GenericBound;
 
     private static bool IsSameType(int genericParamIndex, Type genericParam, Type param, Type argument)
-        => genericParam == param && genericParamIndex == GetGenericParamIndex(argument);
+        => genericParam == param && GetGenericParamIndex(argument) == genericParamIndex || GetGenericParamIndex(argument) is null;
 
     public static PropertyInfo? GetFieldOfType<TModel, TFieldType>() => GetFieldOfType(typeof(TModel), typeof(TFieldType));
 
@@ -487,4 +490,16 @@ public static class ReflectionUtil
     public static bool IsContainerOf(Type type, Func<Type, bool> predicate) => typeof(System.Collections.IEnumerable).IsAssignableFrom(type) && type.GetGenericArguments().Any(predicate);
     public static bool IsStatic(Type type) => type.IsAbstract && type.IsSealed && !type.GetConstructors().Any();
     public static bool IsStatic(PropertyInfo property) => property.GetAccessors(true)[0].IsStatic;
+
+    // https://stackoverflow.com/questions/22109246/get-result-of-taskt-without-knowing-typeof-t
+    public static object ConvertTaskResult(Task task)
+    {
+        var voidTaskType = typeof(Task<>).MakeGenericType(Type.GetType("System.Threading.Tasks.VoidTaskResult"));
+        if (voidTaskType.IsAssignableFrom(task.GetType()))
+            throw new InvalidOperationException("Task does not have a return value (" + task.GetType().ToString() + ")");
+        var property = task.GetType().GetProperty("Result", BindingFlags.Public | BindingFlags.Instance);
+        if (property == null)
+            throw new InvalidOperationException("Task does not have a return value (" + task.GetType().ToString() + ")");
+        return property.GetValue(task);
+    }
 }
