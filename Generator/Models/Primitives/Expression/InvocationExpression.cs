@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using CodeAnalyzation.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static CodeAnalyzation.Models.CodeModelFactory;
@@ -50,8 +51,16 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
         }
         else
         {
-            var invocationResult = Method.Invoke(instance, arguments);
-            return Literal(invocationResult);
+            try
+            {
+                var invocationResult = Method.Invoke(instance, arguments);
+                return Literal(invocationResult);
+            }
+            catch (TargetInvocationException e) when
+                (e.InnerException is ObjectDisposedException innerException)
+            {
+                throw new ThrowException(innerException);
+            }
         }
     }
 }

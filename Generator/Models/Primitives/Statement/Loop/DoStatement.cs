@@ -18,7 +18,6 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
         {
             try
             {
-
                 Statement.Evaluate(context);
             }
             catch (BreakException)

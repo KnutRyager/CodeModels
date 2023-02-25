@@ -673,10 +673,13 @@ public static class CodeModelParsing
         => new(Parse(syntax.Block, model), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
     public static CatchClause Parse(CatchClauseSyntax syntax, SemanticModel? model = null)
         => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type, model: model), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model));
-    public static CatchDeclaration Parse(CatchDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type), syntax.Identifier.ToString());
+    public static CatchDeclaration Parse(CatchDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), syntax.Identifier.ToString());
     public static FinallyClause Parse(FinallyClauseSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
     public static UnsafeStatement Parse(UnsafeStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
-    public static UsingStatement Parse(UsingStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Statement, model));
+    public static UsingStatement Parse(UsingStatementSyntax syntax, SemanticModel? model = null)
+        => new(Parse(syntax.Statement, model),
+            syntax.Declaration is null ? null : Parse(syntax.Declaration, model),
+            syntax.Expression is null ? null : ParseExpression(syntax.Expression, model: model));
     public static WhileStatement Parse(WhileStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Condition, model: model), Parse(syntax.Statement, model: model));
 
     public static CompilationUnit Parse(CompilationUnitSyntax syntax, SemanticModel model)
