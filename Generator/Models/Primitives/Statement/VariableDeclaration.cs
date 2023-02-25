@@ -68,7 +68,7 @@ public record VariableDeclarator(string Name, IExpression? Value = null) : CodeM
         context.DefineVariable(Name);
         if (Value is not null)
         {
-            context.SetValue(Name, Value);
+            context.SetValue(Name, new LiteralExpression(Value.EvaluatePlain(context)));
         }
     }
 }
