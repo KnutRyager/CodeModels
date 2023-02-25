@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Common.Extensions;
 using Microsoft.CodeAnalysis;
-using static CodeAnalyzation.Models.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using Common.Util;
-using CodeAnalyzation.Models.ProgramModels;
 
 namespace CodeAnalyzation.Models;
 

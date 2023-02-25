@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using Common.Util;
+using Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Models.CodeModelFactory;
 

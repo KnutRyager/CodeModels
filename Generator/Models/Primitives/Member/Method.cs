@@ -1,14 +1,13 @@
-﻿using CodeAnalyzation.Models.Reflection;
-using Common.Util;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using CodeAnalyzation.Models.Reflection;
+using Common.Extensions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static CodeAnalyzation.Models.CodeModelFactory;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models
