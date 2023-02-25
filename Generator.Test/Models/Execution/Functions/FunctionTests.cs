@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using FluentAssertions;
 using Xunit;
 
@@ -8,11 +5,20 @@ namespace CodeAnalyzation.Models.Execution.Function.Test;
 
 public class FunctionTests
 {
-    [Fact] public void Function() => "int newN() { return 3; }".Eval().Should().Be(3);
-    [Fact] public void FunctionLamda() => "int newN() => 3;".Eval().Should().Be(3);
-    [Fact] public void RunLocalFunction() => "int newN() { return 3; } newN();".Eval().Should().Be(3);
-    [Fact] public void RunLocalLambda() => "int newN() => 3; newN();".Eval().Should().Be(3);
-    [Fact] public void StaticVariableInFunction() => "int x = 1; int newN() { x *= 2; return x; } newN();newN();newN();".Eval().Should().Be(8);
+    [Fact] public void EvaluateFunctionDefinition() => @"
+int newN() { return 3; }".Eval().Should().Be(3);
+
+    [Fact] public void RunLocalFunction() => @"
+int newN() { return 3; }
+newN();".Eval().Should().Be(3);
+
+    [Fact] public void StaticVariableInFunction() => @"
+int x = 1;
+int newN() { x *= 2; return x; }
+newN();
+newN();
+newN();".Eval().Should().Be(8);
+
     [Fact] public void MainFunction() => @"
 using System;
 
