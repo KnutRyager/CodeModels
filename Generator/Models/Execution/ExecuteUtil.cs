@@ -1,4 +1,5 @@
-﻿using CodeAnalyzation.Models.Execution.ControlFlow;
+﻿using System.Threading.Tasks;
+using CodeAnalyzation.Models.Execution.ControlFlow;
 using CodeAnalyzation.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -36,8 +37,10 @@ public static class ExecuteUtil
                         statement.Evaluate(context);
                     }
                 }
-                return context.PreviousExpression.EvaluatePlain(context)
-                    ?? (context.ConsoleOutput is not "" ? context.ConsoleOutput : null);
+                var previousExpression = context.PreviousExpression.EvaluatePlain(context);
+
+                return previousExpression is not Task && previousExpression is not null ? previousExpression
+                    : (context.ConsoleOutput is not "" ? context.ConsoleOutput : null);
             }
             catch (ReturnException e)
             {
