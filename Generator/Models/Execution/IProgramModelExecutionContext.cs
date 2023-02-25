@@ -17,8 +17,10 @@ public interface IProgramModelExecutionContext
     public void Throw(Exception exception);
     void EnterScope(object owner);
     void EnterScope();
+    void EnterScope(IProgramModelExecutionScope scope);
     void ExitScope(object owner);
     void ExitScope();
+    IProgramModelExecutionScope CaptureScope();
     IExpression PreviousExpression { get; }
     IExpression SetPreviousExpression(IExpression expression);
     string ConsoleOutput { get; }

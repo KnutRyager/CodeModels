@@ -38,10 +38,12 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         _scopes.Add(new ObjectModelExecutionScope(this, owner));
     }
 
-    public void EnterScope()
+    public void EnterScope() => EnterScope(new ProgramModelExecutionScope());
+
+    public void EnterScope(IProgramModelExecutionScope scope)
     {
         if (_scopes.Count >= 10000) throw new ProgramModelExecutionException("Stackoverflow");
-        _scopes.Add(new ProgramModelExecutionScope());
+        _scopes.Add(scope);
     }
 
     public void ExitScope(object owner)
@@ -114,6 +116,8 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         }
         return default;
     }
+
+    public IProgramModelExecutionScope CaptureScope() => GetScope(0);
 
     private IProgramModelExecutionScope FindScopeOrCrash(string identifier) => FindScope(identifier) ?? throw new ProgramModelExecutionException($"Cannot find scope of identifier: {identifier}");
 
