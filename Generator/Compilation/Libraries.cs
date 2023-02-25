@@ -17,6 +17,7 @@ public static class Libraries
     public static PortableExecutableReference Text = GetReference(typeof(System.Text.Encoder));
     public static PortableExecutableReference Net = GetReference<HttpClient>();
     public static PortableExecutableReference Threading = GetReference(typeof(System.Threading.Barrier));
+    public static PortableExecutableReference Task = GetReference(typeof(System.Threading.Tasks.Task));
     public static PortableExecutableReference Console = GetReference(typeof(Console));
     public static PortableExecutableReference Xml = GetReference(typeof(System.Xml.ConformanceLevel));
     public static PortableExecutableReference Security = GetReference(typeof(System.Security.AllowPartiallyTrustedCallersAttribute));
@@ -32,6 +33,7 @@ public static class Libraries
         Text,
         Net,
         Threading,
+        Task,
         Console,
         Xml,
         Security,
