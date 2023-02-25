@@ -32,8 +32,26 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
             Method.Invoke(null, arguments);
             var result = consoleWriter.ToString();
             context.ConsoleWrite(result);
-
         }
-        return Literal(Method.Invoke(Caller.EvaluatePlain(context), arguments));
+
+        var instance = Caller.EvaluatePlain(context);
+        if (instance is Delegate && instance.GetType() is Type t && (t.FullName.Contains("System.Func")
+            || (t.IsGenericType && t.FullName.Contains("System.Action"))))
+        {
+            var declaringType = Method.DeclaringType;
+            var genericFuncType = Method.DeclaringType.GetGenericTypeDefinition();
+            var genericTypeArguments = declaringType.GenericTypeArguments;
+            var objectFuncType = genericFuncType
+                .MakeGenericType(genericTypeArguments.Select(x => typeof(object)).ToArray());
+            var objectMethod = objectFuncType.GetMethod("Invoke");
+            var instanceGeneric = Caller.EvaluatePlain(context);
+            var invocationResultGeneric = objectMethod.Invoke(instanceGeneric, arguments);
+            return Literal(invocationResultGeneric);
+        }
+        else
+        {
+            var invocationResult = Method.Invoke(instance, arguments);
+            return Literal(invocationResult);
+        }
     }
 }
