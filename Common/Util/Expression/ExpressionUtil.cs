@@ -85,4 +85,23 @@ public static class ExpressionUtil
 
     private static Expression CastIfNeeded(Expression exp, Type type, Type? optionalOverride = null)
         => optionalOverride == type ? exp : optionalOverride == null ? exp : Convert(exp, optionalOverride);
+
+    public static Func<TTarget1, TTarget2> ConvertTypes<TSource1, TSource2, TTarget1, TTarget2>(Expression<Func<TSource1, TSource2>> root)
+    {
+        var visitor1 = new ParameterTypeVisitor(typeof(TSource1), typeof(TTarget1));
+        var visitor2 = new ParameterTypeVisitor(typeof(TSource2), typeof(TTarget2));
+        var visited1 = (Expression<Func<TTarget1, TSource2>>)visitor1.Visit(root);
+        var expression = (Expression<Func<TTarget1, TTarget2>>)visitor2.Visit(visited1);
+        return expression.Compile();
+    }
+
+    public static LambdaExpression ConvertTypes2(Expression<Func<object?, object?>> root,
+        Type source1, Type source2, Type target1, Type target2)
+    {
+        var visitor1 = new ParameterTypeVisitor(source1, target1);
+        var visitor2 = new ParameterTypeVisitor(source2, target2);
+        var visited1 = (LambdaExpression)visitor1.Visit(root);
+        var expression = (LambdaExpression)visitor2.Visit(visited1);
+        return expression;
+    }
 }
