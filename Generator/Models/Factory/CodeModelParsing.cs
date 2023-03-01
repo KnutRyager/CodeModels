@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Reflection.Emit;
 using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Reflection;
+using Common.Reflection;
 using Generator.Models.Primitives.Expression.AnonymousFunction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -255,10 +254,33 @@ public static class CodeModelParsing
 
     public static MemberAccessExpression Parse(MemberAccessExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.SimpleMemberAccessExpression => new(ParseExpression(syntax.Expression, model: model), Parse(syntax.Name, model: model).GetIdentifier()),
+        SyntaxKind.SimpleMemberAccessExpression => ParseSimpleMemberAccess(syntax, model),
         SyntaxKind.PointerMemberAccessExpression => throw new NotImplementedException($"PointerMemberAccessExpression not implemented: {syntax}"),
         _ => throw new NotImplementedException($"MemberAccessExpression not implemented: {syntax}")
     };
+
+
+    public static MemberAccessExpression ParseSimpleMemberAccess(MemberAccessExpressionSyntax syntax, SemanticModel? model = null)
+    {
+        IType? typeModel = null;
+        try
+        {
+            var deserializedType = ReflectionSerialization.DeserializeType(syntax.Expression.ToString());
+            if (deserializedType is not null)
+            {
+                typeModel = new TypeFromReflection(deserializedType);
+            }
+        }
+        catch (Exception)
+        {
+
+        }
+        var expression = typeModel is null ? ParseExpression(syntax.Expression, model: model)
+            : typeModel;
+        //var parsedType = type is not null ? Parse(type) : null;
+        return new(expression, Parse(syntax.Name, model: model).GetIdentifier(), typeModel);
+        //return new(expression, property ?? Parse(syntax.Name, model: model).GetIdentifier(), typeModel);
+    }
 
     public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
         => throw new NotImplementedException();    // TODO
@@ -339,7 +361,18 @@ public static class CodeModelParsing
             throw new ArgumentException($"No Semantic model. Check the stack where it may have gone.");
         }
         var symbol = model.GetSymbolInfo(syntax);
-        var methodSymbol = (symbol.Symbol ?? symbol.CandidateSymbols.FirstOrDefault()) as IMethodSymbol;
+        IMethodSymbol? methodSymbol = null;
+        if (symbol.Symbol is IMethodSymbol foundMethodSymbol)
+        {
+            methodSymbol = foundMethodSymbol;
+        }
+        else
+        {
+            var arguments = syntax.ArgumentList.Arguments.Select(x => model.GetSymbolInfo(x)).ToArray();
+            var argaumentTypes = syntax.ArgumentList.Arguments.Select(x => model.GetTypeInfo(x)).ToArray();
+            //methodSymbol = (symbol.CandidateSymbols).FirstOrDefault(x => (x as IParameterSymbol).Parameters) as IMethodSymbol;
+            methodSymbol = (symbol.CandidateSymbols).FirstOrDefault() as IMethodSymbol;
+        }
         if (methodSymbol is null)
         {
             throw new ArgumentException($"No Symbol found for {syntax}. Probably Assembly isn't loaded.");
