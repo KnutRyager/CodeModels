@@ -18,6 +18,28 @@ public class ProgramModelExecutionContextTests
     }
 
     [Fact]
+    public void DefineAndAssignVariable()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.DefineVariable("test");
+        var assignment = Assignment(Identifier("test"), Literal("a"));
+        assignment.Evaluate(context);
+        context.GetValue("test").Should().Be(Literal("a"));
+    }
+
+    [Fact]
+    public void AddAssignment()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.SetValue("test", Literal(2), true);
+        var assignment = Assignment(Identifier("test"), SyntaxKind.AddAssignmentExpression, Literal(3));
+        assignment.Evaluate(context);
+        context.GetValue("test").Should().Be(Literal(5));
+    }
+
+    [Fact]
     public void AddTwoVariables()
     {
         var context = new ProgramModelExecutionContext();
@@ -138,6 +160,18 @@ public class ProgramModelExecutionContextTests
             Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("b")).AsStatement());
         forEachLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(15);
+    }
+
+    [Fact]
+    public void AssignToVariableInLowerScope()
+    {
+        var context = new ProgramModelExecutionContext();
+        context.EnterScope();
+        context.DefineVariable("a");
+        context.EnterScope();
+        context.SetValue("a", Literal(1337));
+        context.ExitScope();
+        context.GetValue("a").EvaluatePlain(context).Should().Be(1337);
     }
 
     [Fact]
