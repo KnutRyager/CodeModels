@@ -9,6 +9,7 @@ using Generator.Models.Primitives.Expression.AnonymousFunction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Operations;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -265,10 +266,20 @@ public static class CodeModelParsing
         IType? typeModel = null;
         try
         {
-            var deserializedType = ReflectionSerialization.DeserializeType(syntax.Expression.ToString());
-            if (deserializedType is not null)
+            var symbol = model.GetSymbolInfo(syntax);
+            var operation = model?.GetOperation(syntax);
+            if (operation is IFieldReferenceOperation fieldReferenceOperation)
             {
-                typeModel = new TypeFromReflection(deserializedType);
+                var fieldSymbol = fieldReferenceOperation.Field;
+                typeModel = new TypeFromReflection(SemanticReflection.GetType(fieldSymbol));
+            }
+            else
+            {
+                var deserializedType = ReflectionSerialization.DeserializeType(syntax.Expression.ToString());
+                if (deserializedType is not null)
+                {
+                    typeModel = new TypeFromReflection(deserializedType);
+                }
             }
         }
         catch (Exception)
