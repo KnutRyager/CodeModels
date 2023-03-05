@@ -71,6 +71,8 @@ public static class SemanticReflection
         ? null!
         : GetType(symbol.ContainingType);
     public static Type GetType(ITypeSymbol symbol) => GetType(symbol.ToString(), symbol);
+    public static Type GetType(IFieldSymbol symbol) => GetType(symbol.Type);
+    public static Type GetType(IPropertySymbol symbol) => GetType(symbol.Type);
     public static Type GetType(IMethodSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(INamedTypeSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter);
