@@ -53,6 +53,12 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
         {
             try
             {
+                var argumentDiff = Method.GetParameters().Length - arguments.Length;
+                if (argumentDiff > 0)
+                {
+                    arguments = arguments.Concat(Enumerable.Range(0, argumentDiff)
+                        .Select(x => System.Type.Missing)).ToArray();
+                }
                 var invocationResult = Method.Invoke(instance, arguments);
                 return Literal(invocationResult);
             }
