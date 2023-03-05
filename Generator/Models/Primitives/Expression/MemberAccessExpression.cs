@@ -53,7 +53,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
                 }
             }
         }
-        throw new NotImplementedException();
+        return CodeModelFactory.NullValue;
     }
 
     public override string ToString() => $"(Expression: {Expression}, Name: {Name}, Type: {Type})";
