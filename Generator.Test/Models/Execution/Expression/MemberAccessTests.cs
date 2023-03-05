@@ -14,4 +14,8 @@ System.Text.RegularExpressions.RegexOptions.IgnoreCase;
     [Fact] public void EnumPropertyAccess2() => @"
 var x = System.Net.Http.HttpVersionPolicy.RequestVersionExact;
 ".Eval().Should().Be(HttpVersionPolicy.RequestVersionExact);
+
+    [Fact] public void EnumPropertyAccess3() => @"
+System.Environment.SpecialFolder.MyDocuments;
+".Eval().Should().Be(System.Environment.SpecialFolder.MyDocuments);
 }

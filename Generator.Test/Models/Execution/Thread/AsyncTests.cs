@@ -1,7 +1,3 @@
-using System;
-using System.Net.Http;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
@@ -46,38 +42,27 @@ string title = titleMatch.Groups[""Title""].Value.Trim();
 Console.Write(title);
 }".Eval().Should().Be("Example Domain");
 
-    private void Test()
-    {
-        var a = Task.FromResult(1);
-    }
-    private async Task<int> Test2()
-    {
-        await Task.Run(() =>
-        {
-            Console.Write("Success");
-        });
-        var httpClient = new HttpClient();
-        //Task<Func<string, string>> f = async x => await Task.FromResult(x);
-        //await Task<string>.Run((x) =>
-        //{
-        //    Console.Write(x);
-        //});
-        string url = "https://example.com/";
+    [Fact] public void AwaitHttpClient2() => @"
+using System;
+using System.Net.Http;
+using System.Linq; 
+var client = new HttpClient(); 
+string html = await client.GetStringAsync(""https://example.com"");
+//var title1 = html.Split(""<title>""); 
+//var title2 = title1[1]; 
+//var title3 = title2.Split(""</title>""); 
+//var title = title3[0]; 
+var title = html.Split(""<title>"")[1].Split(""</title>"")[0]; 
+Console.Write(title);
+".Eval().Should().Be("Example Domain");
 
-        HttpClient client = new HttpClient();
-        string html = await client.GetStringAsync(url);
-
-        string titlePattern = @"";
-        System.Text.RegularExpressions.Match titleMatch = 
-            System.Text.RegularExpressions.Regex.Match(html, titlePattern,
-            System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        Match titleMatch2 = Regex.Match(html, titlePattern, RegexOptions.IgnoreCase);
-
-
-        string title = titleMatch.Groups["Title"].Value.Trim();
-
-        return 4;
-    }
-
-    private async Task<string> F() => await Task<string>.FromResult("Success");
+    [Fact] public void GetCertificates() => (@"
+using System.Security.Cryptography.X509Certificates;
+X509Store store = new X509Store(StoreName.My,StoreLocation.LocalMachine);
+store.Open(OpenFlags.ReadOnly);
+foreach (X509Certificate2 cert in store.Certificates) {
+    System.Console.WriteLine(cert.Subject);
+}
+store.Close();
+".Eval() is string {Length: >= 3 } s ? s[..3] : "").Should().Be("CN=");
 }
