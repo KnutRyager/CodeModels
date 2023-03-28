@@ -8,7 +8,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyntax>
+public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyntax>,
+    ITypeCollection
 {
     public TypeCollection(IEnumerable<IType>? values = null) : this(List(values)) { }
 
@@ -17,6 +18,16 @@ public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyn
     public override TypeParameterListSyntax Syntax() => TypeParameterList(SeparatedList(Types.Select(x => x.ToTypeParameter())));
 
     public override IEnumerable<ICodeModel> Children() => Types;
+
+    public IType BaseType()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public List<IType> AsList(IType? typeSpecifier = null)
+    {
+        throw new System.NotImplementedException();
+    }
 }
 
 

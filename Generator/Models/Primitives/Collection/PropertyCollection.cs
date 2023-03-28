@@ -13,7 +13,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public record PropertyCollection(List<Property> Properties, string? Name = null, IType? SpecifiedType = null)
-    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true)), ITypeModel
+    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true)),
+    INamedValueCollection<Property>,
+    ITypeModel
 {
     public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
     public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
@@ -49,7 +51,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
             constraintClauses: default,
             members: default);
 
-    public TupleTypeSyntax ToTuple() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
+    public TupleTypeSyntax ToTupleType() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
     public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
     public ArgumentListSyntax ToArguments() => ArgumentListCustom(Properties.Select(x => x.Value.ToArgument()));
     public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(Properties.Select(x => x.Value.Syntax())));
@@ -73,5 +75,17 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     }
 
     public override IExpression Evaluate(IProgramModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
+
+    public IType BaseType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IType> ConvertToList()
+    => AsList().Select(x => x.ToType()).ToList();
+
+    public List<Property> AsList(Property? typeSpecifier = null) => Properties;
+
+    public ITypeCollection ToTypeCollection() => new TypeCollection(ConvertToList());
 }
 

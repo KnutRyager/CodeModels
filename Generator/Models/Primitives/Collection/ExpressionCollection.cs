@@ -11,7 +11,8 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 namespace CodeAnalyzation.Models;
 
 public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedType = null)
-    : Expression<ArrayCreationExpressionSyntax>(Type(SpecifiedType ?? TypeUtil.FindCommonType(Values), isMulti: true))
+    : Expression<ArrayCreationExpressionSyntax>(Type(SpecifiedType ?? TypeUtil.FindCommonType(Values), isMulti: true)),
+    IExpressionCollection
 {
     public ExpressionCollection(IEnumerable<IExpression>? values = null, IType? specifiedType = null) : this(List(values), specifiedType) { }
     public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
@@ -41,6 +42,9 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
         for (var i = 0; i < array.Length; i++) { array.SetValue(Values[i].EvaluatePlain(context), i); }
         return new LiteralExpression(array);
     }
+
+    public List<IType> AsList(IType? typeSpecifier = null) => Values.Select(x => x.Get_Type()).ToList();
+    public ArgumentListSyntax As(ArgumentListSyntax? typeSpecifier = null) => ToArguments();
 
     //public override IExpression Evaluate(IProgramModelExecutionContext context) => Values.Select(x => x.Evaluate(context)).ToArray();
 }

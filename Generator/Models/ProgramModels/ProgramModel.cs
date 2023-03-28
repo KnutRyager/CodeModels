@@ -3,16 +3,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeAnalyzation.Models.ProgramModels;
 
-public interface IProgramModel : ICodeModel
-{
-    ICodeModel Render();
-}
-
-public interface IProgramModel<T> : IProgramModel where T : ICodeModel
-{
-    new T Render();
-}
-
 public abstract record ProgramModel<T>(IProgramContext? Context) : IProgramModel<T> where T : ICodeModel
 {
     public abstract T Render();

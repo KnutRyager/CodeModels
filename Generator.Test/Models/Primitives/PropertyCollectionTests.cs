@@ -1,6 +1,8 @@
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Test;
+using Common.Interfaces;
 using FluentAssertions;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
@@ -103,5 +105,5 @@ public class ClassA {
             Property(Type("float"), default),
             Property(Type("int[]"),"p6"),
             Property(Type("List<int>"),"p7"),
-        }).ToTuple().CodeEqual("(int p1, string p2, long? p3, object? p4, A p5, uint, float, int[] p6, List<int> p7)");
+        }).ToTupleType().CodeEqual("(int p1, string p2, long? p3, object? p4, A p5, uint, float, int[] p6, List<int> p7)");
 }

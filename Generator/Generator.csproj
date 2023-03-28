@@ -24,4 +24,8 @@
 		<ProjectReference Include="..\LibraryB\LibraryB.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Models\Primitives\Interfaces\Misc\" />
+	</ItemGroup>
+
 </Project>

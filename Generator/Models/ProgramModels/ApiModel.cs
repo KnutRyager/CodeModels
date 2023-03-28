@@ -1,20 +1,32 @@
+using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ErDiagram;
-//using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using Common.Reflection;
+using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models.ProgramModels;
 
-public class ApiModel
+public record ApiModel(PropertyCollection Model, IProgramContext? Context = null) : ProgramModel<ClassModel>(Context ?? new ProgramContext())
 {
-    //[Key]
-    public int Id { get; set; } = default!;
-    public string Name { get; set; } = default!;
-
-    public Clazz Clazz { get; set; } = default!;
-    public virtual IList<ERDiagram> ERDiagrams { get; set; }
-
-    public ApiModel()
+    public override ClassModel Render()
     {
-        ERDiagrams = new List<ERDiagram>();
+        var dbContext = Type("Microsoft.EntityFrameworkCore.DbContext");
+        var firstOrDefault = Method(ReflectionUtil.GetMethodInfo(typeof(Queryable), nameof(Queryable.FirstOrDefault), new[] { typeof(object) }));
+        var invocation = null as Block ?? throw new NotImplementedException(); // firstOrDefault.Invoke(Context.GetSingleton(dbContext), Literal(0));    // TODO: ID Lambda
+        var getMethod = Method("Get", PropertyCollection(Property(Type("int"), "id")), Model.Type, invocation);
+        var model = InstanceClass($"{Model.Identifier}Api");
+        return model;
+    }
+
+    public override IEnumerable<ICodeModel> Children()
+    {
+        foreach (var property in Model.Properties) yield return property;
+    }
+
+    public override ISet<IType> Dependencies(ISet<IType>? set = null)
+    {
+        throw new System.NotImplementedException();
     }
 }
+
+public record CrudMethods(bool Get = false, bool Post = false, bool Put = false, bool Delete = false, bool Search = false);

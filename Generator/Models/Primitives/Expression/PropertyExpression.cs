@@ -3,7 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null) : Expression<ExpressionSyntax>(Property.Type), IAssignable
+public record PropertyExpression(Property Property, IExpression? Instance = null) 
+    : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Common.Extensions;
+using Common.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,7 +13,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
-    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier), IMember, ITypeModel, IAssignable
+    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier),
+    IMember, ITypeModel, IAssignable, INamedValue
 {
     public IMethodHolder? Owner { get; set; }
 
@@ -107,4 +109,6 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     {
         throw new NotImplementedException();
     }
+
+    public IType ToType() => Type;
 }
