@@ -1,11 +1,10 @@
 using Common.Files;
 using Xunit;
 
-namespace Common.Tests
+namespace Common.Test.Files
 {
     public class FileUtilTests
     {
-
         [Fact]
         public void Pathify()
         {
