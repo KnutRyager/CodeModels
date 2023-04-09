@@ -29,9 +29,9 @@ public class ClassA {
     private string myPrivateProperty { get; set; } = ""myPrivatePropertyValue"";
 }");
 
-    [Fact] public void ComparePublic() => new PropertyComparer().Compare(Modifier.Public, Modifier.Private).Should().Be(-(int)Modifier.Public);
-    [Fact] public void CompareConst() => new PropertyComparer().Compare(Modifier.Const, Modifier.Readonly).Should().Be(-(int)Modifier.Const);
-    [Fact] public void CompareConstReverse() => new PropertyComparer().Compare(Modifier.Readonly, Modifier.Const).Should().Be((int)Modifier.Const);
+    [Fact] public void ComparePublic() => new ModifierComparer().Compare(Modifier.Public, Modifier.Private).Should().Be(-(int)Modifier.Public);
+    [Fact] public void CompareConst() => new ModifierComparer().Compare(Modifier.Const, Modifier.Readonly).Should().Be(-(int)Modifier.Const);
+    [Fact] public void CompareConstReverse() => new ModifierComparer().Compare(Modifier.Readonly, Modifier.Const).Should().Be((int)Modifier.Const);
 
 
 }
