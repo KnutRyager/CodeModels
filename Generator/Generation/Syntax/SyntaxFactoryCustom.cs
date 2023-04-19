@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CodeAnalyzation.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -421,6 +422,7 @@ public static class SyntaxFactoryCustom
 
     public static ThrowStatementSyntax ThrowStatementCustom(ExpressionSyntax expression) => ThrowStatement(expression);
     public static ThrowExpressionSyntax ThrowExpressionCustom(ExpressionSyntax expression) => ThrowExpression(expression);
+    public static SyntaxToken TupleNameIdentifier(string? name) => name == default || new Regex("Item+[1-9]+[0-9]*").IsMatch(name) ? default : SyntaxFactory.Identifier(name);
 
     private static bool RecordHasContent(SyntaxList<MemberDeclarationSyntax>? members) => members?.Any() ?? false;
     private static bool IsGetOnly(AccessorListSyntax accessorList) => accessorList.Accessors.Count == 1 && accessorList.Accessors[0].Keyword.IsKind(SyntaxKind.GetKeyword);
