@@ -3,12 +3,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null) 
+public record PropertyModelExpression(PropertyModel Property, IExpression? Instance = null) 
     : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
     public IMethodHolder? Owner => Property.Owner;
 
-    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
+    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -16,7 +16,7 @@ public record PropertyExpression(Property Property, IExpression? Instance = null
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(context, Instance);
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(context, Instance ?? Property.Owner?.ToExpression());
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
 
     public virtual void Assign(IExpression value, IProgramModelExecutionContext context) => Property.Assign(value, context);

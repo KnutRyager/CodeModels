@@ -13,7 +13,9 @@ namespace CodeAnalyzation.Models;
 
 public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
-        Modifier MemberModifier, Type? ReflectedType) : CodeModel<T>(), IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+        Modifier MemberModifier, Type? ReflectedType)
+    : NamedCodeModel<T>(Name),
+    IMethodHolder<T> where T : BaseTypeDeclarationSyntax
 {
     public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
@@ -45,7 +47,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
             attributeLists: default,
             modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
-            identifier: Identifier(Name),
+            identifier: IdentifierSyntax(),
             typeParameterList: default,
             parameterList: Properties.ToParameters(),
             baseList: default,
@@ -55,7 +57,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     public ClassDeclarationSyntax ToClass() => ClassDeclarationCustom(
             attributeLists: default,
             modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
-            identifier: Identifier(Name),
+            identifier: IdentifierSyntax(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
@@ -64,7 +66,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     public StructDeclarationSyntax ToStruct() => StructDeclarationCustom(
             attributeLists: default,
             modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
-            identifier: Identifier(Name),
+            identifier: IdentifierSyntax(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
@@ -73,7 +75,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     public InterfaceDeclarationSyntax ToInterface() => InterfaceDeclarationCustom(
             attributeLists: default,
             modifiers: TopLevelModifier.Syntax(),
-            identifier: Identifier(Name),
+            identifier: IdentifierSyntax(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
@@ -87,6 +89,8 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
 
     public Modifier Modifier => throw new NotImplementedException();
 
+    List<IFieldOrProperty> IMethodHolder.Members => throw new NotImplementedException();
+
     BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
 
     public override IEnumerable<ICodeModel> Children()
@@ -99,4 +103,29 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
 
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => (this with { TopLevelModifier = Modifier.SetModifiers(modifier).SetFlags(removeModifier, false) }).Syntax();
+
+    public ICodeModel Render(Namespace @namespace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
 }

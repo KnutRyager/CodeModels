@@ -1,8 +1,6 @@
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Test;
-using Common.Interfaces;
 using FluentAssertions;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
@@ -11,12 +9,12 @@ namespace CodeAnalyzation.Models.Primitives.Test;
 public class PropertyCollectionTests
 {
     [Fact]
-    public void ArrayField() => Field("a", Values("v")).CodeModelEqual(@"
+    public void ArrayField() => FieldProperty("a", Values("v")).CodeModelEqual(@"
 string[] a = new string[]{ ""v"" };
 ");
 
     [Fact]
-    public void EmptyArrayField() => Field("a", Values()).CodeModelEqual(@"
+    public void EmptyArrayField() => FieldProperty("a", Values()).CodeModelEqual(@"
 object[] a = new object[]{ };
 ");
 

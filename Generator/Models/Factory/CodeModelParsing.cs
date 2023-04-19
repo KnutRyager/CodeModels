@@ -289,8 +289,8 @@ public static class CodeModelParsing
         var expression = typeModel is null ? ParseExpression(syntax.Expression, model: model)
             : typeModel;
         //var parsedType = type is not null ? Parse(type) : null;
-        return new(expression, Parse(syntax.Name, model: model).GetIdentifier(), typeModel);
-        //return new(expression, property ?? Parse(syntax.Name, model: model).GetIdentifier(), typeModel);
+        return new(expression, Parse(syntax.Name, model: model).ToIdentifierExpression(), typeModel);
+        //return new(expression, property ?? Parse(syntax.Name, model: model).Identifier(), typeModel);
     }
 
     public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
@@ -422,7 +422,7 @@ public static class CodeModelParsing
     {
         SyntaxKind.ObjectInitializerExpression => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions, model: model)),
         SyntaxKind.CollectionInitializerExpression => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions, model: model)),
-        SyntaxKind.ArrayInitializerExpression => Type.Identifier switch
+        SyntaxKind.ArrayInitializerExpression => Type.TypeName switch
         {
             "Dictionary" or "IDictionary" => new(Type, syntax.Kind(), ParsePropertyCollection(Type.GetGenericType(1), syntax.Expressions, model: model)),
             _ => new(Type, syntax.Kind(), ParsePropertyCollection(Type, syntax.Expressions, model: model)),

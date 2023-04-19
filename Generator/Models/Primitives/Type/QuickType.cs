@@ -15,7 +15,7 @@ public record QuickType(string Identifier, EqualityList<IType> GenericTypes, boo
     public QuickType(string identifier, IEnumerable<IType> genericTypes, bool required = true, bool isMulti = false, Type? type = null)
         : this(TypeParsing.RemoveGenericAndArrayPart(identifier), genericTypes.ToEqualityList(), required, isMulti || TypeParsing.IsArrayIdentifier(identifier), type) { }
 
-    public static QuickType ArrayType(IType type) => new(type.Identifier, type.GenericTypes, type.Required, true, type.ReflectedType?.MakeArrayType());
+    public static QuickType ArrayType(IType type) => new(type.TypeName, type.GenericTypes, type.Required, true, type.ReflectedType?.MakeArrayType());
 
-    public override string ToString() => $"(Identifier: {Identifier}, GenericTypes: {GenericTypes}, Required: {Required}, IsMulti: {IsMulti}, ReflectedType: {ReflectedType})";
+    public override string ToString() => $"(Identifier: {TypeName}, GenericTypes: {GenericTypes}, Required: {Required}, IsMulti: {IsMulti}, ReflectedType: {ReflectedType})";
 }

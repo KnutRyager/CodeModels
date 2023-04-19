@@ -13,7 +13,7 @@ public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMu
     public override string GetMostSpecificType() => Symbol.ToString();
 
     public virtual bool Equals(TypeFromSymbol other) => other is not null && (ReferenceEquals(this, other) ||
-            (Identifier.Equals(other.Identifier)
+            (TypeName.Equals(other.TypeName)
             && (Symbol?.Equals(other.Symbol, SymbolEqualityComparer.Default) ?? other.Symbol is null)
             && (ReflectedType?.Equals(other.ReflectedType) ?? other.ReflectedType is null)
             && Required.Equals(other.Required)));
@@ -23,7 +23,7 @@ public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMu
         unchecked // Overflow is fine, just wrap
         {
             int hash = 17;
-            hash = hash * 23 + Identifier.GetHashCode();
+            hash = hash * 23 + TypeName.GetHashCode();
 #pragma warning disable RS1024 // Symbols should be compared for equality
             hash = hash * 23 + Symbol?.GetHashCode() ?? 0;
 #pragma warning restore RS1024 // Symbols should be compared for equality

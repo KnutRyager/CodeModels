@@ -9,7 +9,7 @@ namespace CodeAnalyzation.Models;
 
 public record Constructor(string Name, PropertyCollection Parameters, Block? Statements, IExpression? ExpressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-    : MemberModel<ConstructorDeclarationSyntax>(Name, Type(Name), Attributes ?? new List<AttributeList>(), Modifier)
+    : FieldOrProperty<ConstructorDeclarationSyntax>(Name, Type(Name), Attributes ?? new List<AttributeList>(), Modifier, CodeModelFactory.VoidValue)
 {
     public Constructor(string name, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
         : this(name, parameters, body, null, modifier) { }
@@ -20,7 +20,7 @@ public record Constructor(string Name, PropertyCollection Parameters, Block? Sta
         => ConstructorDeclarationCustom(
         attributeLists: List<AttributeListSyntax>(),
         modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
-        identifier: Identifier(Name),
+        identifier: ToIdentifier(),
         parameterList: Parameters.ToParameters(),
         body: Statements?.Syntax(),
         initializer: null,
@@ -34,5 +34,10 @@ public record Constructor(string Name, PropertyCollection Parameters, Block? Sta
         foreach (var property in Parameters.Properties) yield return property;
         if (Statements is not null) yield return Statements;
         if (ExpressionBody is not null) yield return ExpressionBody;
+    }
+
+    public override IExpression AccessValue(IExpression? instance = null)
+    {
+        throw new System.NotImplementedException();
     }
 }

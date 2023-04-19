@@ -53,4 +53,33 @@ public static class ExecuteUtil
         }
         return null;
     }
+
+    public static object? Eval(this IExpression expression, IProgramModelExecutionContext? context = null)
+    {
+        if (context is null)
+        {
+            ProgramContext.NewContext();
+            context = new ProgramModelExecutionContext();
+            context.EnterScope();
+            if (expression is IMemberAccess memberAccess)
+            {
+                if (memberAccess.Instance is InstantiatedObject instance)
+                    instance.EnterScopes(context);
+                else if (memberAccess.Owner is ClassModel2 c)
+                    context.EnterScope(c.GetStaticScope());
+            }
+        }
+        try
+        {
+            return expression.EvaluatePlain(context);
+        }
+        catch (ReturnException e)
+        {
+            return e.Value;
+        }
+        catch (ThrowException e)
+        {
+            return e.InnerException;
+        }
+    }
 }

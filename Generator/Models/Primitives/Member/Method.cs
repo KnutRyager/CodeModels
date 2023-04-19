@@ -26,7 +26,7 @@ namespace CodeAnalyzation.Models
             modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
             returnType: ReturnType.Syntax() ?? TypeShorthands.VoidType.Syntax()!,
             explicitInterfaceSpecifier: default,
-            identifier: Identifier(Name),
+            identifier: IdentifierSyntax(),
             typeParameterList: default,
             parameterList: Parameters.ToParameters(),
             constraintClauses: default,
@@ -37,12 +37,12 @@ namespace CodeAnalyzation.Models
         public InvocationExpression Invoke(IExpression caller, params IExpression[] arguments) => Invocation(this, caller, arguments);
         public InvocationExpression Invoke(string identifier, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier), arguments);
         public InvocationExpression Invoke(string identifier, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier), arguments);
-        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, type, symbol), arguments);
-        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, params IExpression[] arguments) => Invoke(Identifier(identifier, type, symbol), arguments);
-        public InvocationExpression Invoke(string identifier, IType type, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, type), arguments);
-        public InvocationExpression Invoke(string identifier, IType type, params IExpression[] arguments) => Invoke(Identifier(identifier, type), arguments);
-        public InvocationExpression Invoke(string identifier, ISymbol symbol, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, symbol: symbol), arguments);
-        public InvocationExpression Invoke(string identifier, ISymbol symbol, params IExpression[] arguments) => Invoke(Identifier(identifier, symbol: symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, type, symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, type, symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType type, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, type), arguments);
+        public InvocationExpression Invoke(string identifier, IType type, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, type), arguments);
+        public InvocationExpression Invoke(string identifier, ISymbol symbol, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, symbol: symbol), arguments);
+        public InvocationExpression Invoke(string identifier, ISymbol symbol, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, symbol: symbol), arguments);
 
         public override MethodDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
             => ToMethodSyntax(modifier, removeModifier);
@@ -69,7 +69,6 @@ namespace CodeAnalyzation.Models
         public bool IsSecuritySafeCritical => throw new NotImplementedException();
         public bool IsSecurityTransparent => throw new NotImplementedException();
         public bool IsSpecialName => throw new NotImplementedException();
-        public bool IsStatic => throw new NotImplementedException();
         public bool IsConstructor => throw new NotImplementedException();
         public RuntimeMethodHandle MethodHandle => throw new NotImplementedException();
         public bool IsAssembly => throw new NotImplementedException();
@@ -77,7 +76,7 @@ namespace CodeAnalyzation.Models
         public bool IsAbstract => throw new NotImplementedException();
         public MethodImplAttributes MethodImplementationFlags => throw new NotImplementedException();
         public CallingConventions CallingConvention => throw new NotImplementedException();
-        public MethodAttributes Attributes => throw new NotImplementedException();
+        new public MethodAttributes Attributes => throw new NotImplementedException();
 
         public IParameterInfo ReturnParameter => throw new NotImplementedException();
 
@@ -96,6 +95,10 @@ namespace CodeAnalyzation.Models
         public Module Module => throw new NotImplementedException();
 
         public ITypeInfo ReflectedType => throw new NotImplementedException();
+
+        public ExpressionSyntax? ExpressionSyntax => throw new NotImplementedException();
+
+        public IExpression Value => throw new NotImplementedException();
 
         public ITypeInfo[] GetGenericArguments() => throw new NotImplementedException();
         public MethodBody GetMethodBody() => throw new NotImplementedException();
@@ -145,6 +148,26 @@ namespace CodeAnalyzation.Models
         }
 
         public bool IsDefined(ITypeInfo attributeType, bool inherit)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IExpression AccessValue(IExpression? instance = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ExpressionSyntax? AccessSyntax(IExpression? instance = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override CodeModel<MethodDeclarationSyntax> Render(Namespace @namespace)
         {
             throw new NotImplementedException();
         }

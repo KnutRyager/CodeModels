@@ -13,9 +13,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public record PropertyCollection(List<Property> Properties, string? Name = null, IType? SpecifiedType = null)
-    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true)),
+    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true), Name: Name),
     INamedValueCollection<Property>,
-    ITypeModel
+    IMember
 {
     public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
     public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
@@ -34,7 +34,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
             modifiers: modifiers.Syntax(),
-            identifier: Identifier(name ?? Name ?? throw new ArgumentException("No identifier")),
+            identifier: name is null ? IdentifierSyntax() : CodeModelFactory.Identifier(name).ToToken(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
@@ -44,7 +44,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
             attributeLists: default,
             modifiers: modifiers.Syntax(),
-            identifier: name != null ? Identifier(name) : Identifier,
+            identifier: name is null ? IdentifierSyntax() : CodeModelFactory.Identifier(name).ToToken(),
             typeParameterList: default,
             parameterList: ToParameters(),
             baseList: default,
@@ -65,7 +65,10 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Properties.Select(x => x.ExpressionSyntax!));
     public override object? LiteralValue => ToValueCollection().LiteralValue;
 
-    public SyntaxToken Identifier => Identifier(Name ?? throw new ArgumentException("No identifier"));
+    public Modifier Modifier => Modifier.Public;
+
+    public bool IsStatic => false;
+
     public Property this[string name] => Properties.First(x => x.Name == name);
     public Property? TryFindProperty(string name) => Properties.FirstOrDefault(x => x.Name == name);
 
@@ -77,9 +80,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public override IExpression Evaluate(IProgramModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
 
     public IType BaseType()
-    {
-        throw new NotImplementedException();
-    }
+        => new QuickType(Name);
 
     public List<IType> ConvertToList()
     => AsList().Select(x => x.ToType()).ToList();
@@ -87,5 +88,38 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public List<Property> AsList(Property? typeSpecifier = null) => Properties;
 
     public ITypeCollection ToTypeCollection() => new TypeCollection(ConvertToList());
+
+    MemberDeclarationSyntax IMember.Syntax()
+        => ToClass();
+
+    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
+        => ToMembers(modifier).First();
+
+    public ICodeModel Render(Namespace @namespace)
+        => this with { Name = @namespace.Name };
+
+    public List<IFieldOrProperty> ToFieldOrProperties() => Properties.Select(x => x.ToFieldOrProperty()).ToList();
+
+    public IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ClassModel2 ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToFieldOrProperty()));
 }
 

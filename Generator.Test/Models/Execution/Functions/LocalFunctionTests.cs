@@ -3,7 +3,7 @@ using Xunit;
 
 namespace CodeAnalyzation.Models.Execution.Function.Test;
 
-public class FunctionTests
+public class LocalFunctionTests
 {
     [Fact] public void EvaluateFunctionDefinition() => @"
 int newN() { return 3; }".Eval().Should().Be(3);

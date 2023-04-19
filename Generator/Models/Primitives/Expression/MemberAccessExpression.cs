@@ -8,10 +8,11 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record MemberAccessExpression(IExpression Expression, IdentifierExpression Name, IType? Type = null) : Expression<MemberAccessExpressionSyntax>(Type ?? TypeShorthands.NullType)  // TODO: Type from semantic analysis
+public record MemberAccessExpression(IExpression Expression, IdentifierExpression Identifier, IType? Type = null) 
+    : Expression<MemberAccessExpressionSyntax>(Type ?? TypeShorthands.NullType)  // TODO: Type from semantic analysis
 {
     public override MemberAccessExpressionSyntax Syntax()
-        => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Expression.Syntax(), Token(SyntaxKind.DotToken), Name.Syntax());
+        => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Expression.Syntax(), Token(SyntaxKind.DotToken), Identifier.Syntax());
     public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);
     public override IEnumerable<ICodeModel> Children()
     {
@@ -20,16 +21,16 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
 
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        if (Name.Symbol is not null)
+        if (Identifier.Symbol is not null)
         {
-            return Name.Symbol switch
+            return Identifier.Symbol switch
             {
                 IFieldSymbol field => new LiteralExpression(SemanticReflection.GetField(field).GetValue(Expression.EvaluatePlain(context))),
                 IPropertySymbol property => new LiteralExpression(SemanticReflection.GetProperty(property).GetValue(Expression.EvaluatePlain(context))),
                 IMethodSymbol method => throw new NotImplementedException(),
                 INamespaceSymbol @namespace => new Namespace(@namespace),
                 ITypeSymbol type => new TypeFromSymbol(type),
-                _ when Name.Type is not null => Name.Type,
+                _ when Identifier.Type is not null => Identifier.Type,
                 _ => throw new NotImplementedException($"Evaluate not implemented for MemberAccessExpression '{ToString()}'.")
             };
         }
@@ -38,14 +39,14 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
         {
             try
             {
-                var propertyInfo = foundType.GetProperty(Name.Name);
+                var propertyInfo = foundType.GetProperty(Identifier.Name);
                 return new LiteralExpression(propertyInfo.GetValue(Expression.LiteralValue));
             }
             catch (Exception)
             {
                 try
                 {
-                    var fieldInfo = foundType.GetField(Name.Name);
+                    var fieldInfo = foundType.GetField(Identifier.Name);
                     return new LiteralExpression(fieldInfo.GetValue(Expression.LiteralValue));
                 }
                 catch (Exception)

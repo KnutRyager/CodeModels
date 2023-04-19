@@ -10,13 +10,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record AbstractType(string Identifier, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null)
+public abstract record AbstractType(string TypeName, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null)
     : CodeModel<TypeSyntax>, IType
 {
     private Type? _cachedType;
 
     public IType ToMultiType() => this with { IsMulti = true };
-    public string Name => $"{Identifier}{(GenericTypes.Count > 0 ? "<" : "")}{string.Join(",", GenericTypes.Select(x => x.Name))}{(GenericTypes.Count > 0 ? ">" : "")}{(IsMulti ? "[]" : "")}";
+    public string Name => $"{TypeName}{(GenericTypes.Count > 0 ? "<" : "")}{string.Join(",", GenericTypes.Select(x => x.Name))}{(GenericTypes.Count > 0 ? ">" : "")}{(IsMulti ? "[]" : "")}";
     public bool IsStatic => ReflectedType is not null && ReflectionUtil.IsStatic(ReflectedType);
 
     public override TypeSyntax Syntax() => TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));
@@ -24,16 +24,16 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => Required ? type : NullableType(type);
     public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => IsMulti ? ArrayType(type, rankSpecifiers: List(new[] { ArrayRankSpecifierCustom() })) : type;
 
-    public TypeSyntax TypeSyntaxUnwrapped() => Identifier switch
+    public TypeSyntax TypeSyntaxUnwrapped() => Name switch
     {
-        _ when TypeShorthands.PredefinedTypes.ContainsKey(Identifier) => PredefinedType(Token(TypeShorthands.PredefinedTypes[Identifier])),
-        _ when GenericTypes.Count > 0 => GenericName(Identifier(Identifier),
+        _ when TypeShorthands.PredefinedTypes.ContainsKey(Name) => PredefinedType(Token(TypeShorthands.PredefinedTypes[Name])),
+        _ when GenericTypes.Count > 0 => GenericName(SyntaxFactory.Identifier(Name),
             TypeArgumentList(SeparatedList(GenericTypes.Select(x => x.Syntax())))),
-        _ => IdentifierName(Identifier(Identifier))
+        _ => IdentifierName(SyntaxFactory.Identifier(Name))
     };
 
     public virtual Type? GetReflectedType() => _cachedType ??= ReflectedType ??
-        (ReflectionSerialization.IsShortHandName(Identifier) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Identifier) : default);
+        (ReflectionSerialization.IsShortHandName(Name) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Name) : default);
 
     public virtual string GetMostSpecificType() => Name;
 
@@ -49,6 +49,8 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
     public object? LiteralValue => null;
 
     public Modifier Modifier => Modifier.None;
+
+    public SimpleNameSyntax NameSyntax => IdentifierName(Name);
 
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
     public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
@@ -74,8 +76,48 @@ public abstract record AbstractType(string Identifier, EqualityList<IType> Gener
         throw new NotImplementedException();
     }
     public bool Equals(IType other, IProgramModelExecutionContext context)
-        => Identifier == other.Identifier; // TODO: Check assembly
+        => TypeName == other.TypeName; // TODO: Check assembly
     public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
         => (ReflectedType is Type type && other.ReflectedType is Type otherType
             && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
+
+    public ICodeModel Render(Namespace @namespace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierNameSyntax IdentifierNameSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Microsoft.CodeAnalysis.SyntaxToken IdentifierSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierExpression ToIdentifierExpression()
+    {
+        throw new NotImplementedException();
+    }
 }

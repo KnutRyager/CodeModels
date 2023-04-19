@@ -14,7 +14,8 @@ public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSy
     new T Syntax();
 }
 
-public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> where T : StatementSyntax
+public abstract record AbstractStatement<T>(string? Name = null)
+    : NamedCodeModel<T>(Name ?? "_AbstractStatement"), IStatement<T> where T : StatementSyntax
 {
 
     StatementSyntax IStatement.Syntax() => Syntax();
@@ -25,8 +26,36 @@ public abstract record AbstractStatement<T>() : CodeModel<T>, IStatement<T> wher
     public string Name => $"Statement";
     public Modifier Modifier => Modifier.None;
     public bool IsStatic => false;
+
+    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
+
     MemberDeclarationSyntax IMember.Syntax() => throw new System.NotImplementedException();
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();
     public TypeSyntax TypeSyntax() => throw new System.NotImplementedException();
     public virtual IType Get_Type() => throw new System.NotImplementedException();
+
+    public ICodeModel Render(Namespace @namespace)
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IType ToType()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new System.NotImplementedException();
+    }
 }

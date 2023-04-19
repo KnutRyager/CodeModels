@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
 public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string Identifier, TypeCollection TypeParameters, PropertyCollection Parameters, List<TypeParameterConstraintClause> ConstraintClauses, Block? Body, IExpression? ExpressionBody)
-    : AbstractStatement<LocalFunctionStatementSyntax>
+    : AbstractStatement<LocalFunctionStatementSyntax>(Identifier)
 {
     public override LocalFunctionStatementSyntax Syntax()
         => LocalFunctionStatement(
            modifiers: Modifier.Syntax(),
            returnType: ReturnType.Syntax(),
-            identifier: Identifier(Identifier),
+            identifier: IdentifierSyntax(),
             typeParameterList: TypeParameters.Syntax(),
             parameterList: Parameters.ToParameters(),
            constraintClauses: List(ConstraintClauses.Select(x => x.Syntax())),

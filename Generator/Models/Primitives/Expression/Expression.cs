@@ -1,6 +1,7 @@
 ﻿using System;
 using CodeAnalyzation.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -8,7 +9,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeModel<T>, IExpression<T> where T : ExpressionSyntax
+public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string? Name = null)
+    : NamedCodeModel<T>(Name ?? Type.Name), IExpression<T> where T : ExpressionSyntax
 {
     public Expression(IType type) : this(type, null) { }
 
@@ -19,7 +21,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeM
             attributeLists: default,
             identifier: Type switch
             {
-                _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => Identifier(name),
+                _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => SyntaxFactory.Identifier(name),
                 _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
             },
             equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
@@ -43,5 +45,5 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null) : CodeM
     public abstract IExpression Evaluate(IProgramModelExecutionContext context);
     public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue;
     public ExpressionStatement AsStatement() => new(this);
-    public virtual IdentifierExpression GetIdentifier() => new(Type.Name, Type, Symbol: Symbol);
+    public virtual IdentifierExpression ToIdentifierExpression() => new(Type.Name, Type, Symbol: Symbol);
 }

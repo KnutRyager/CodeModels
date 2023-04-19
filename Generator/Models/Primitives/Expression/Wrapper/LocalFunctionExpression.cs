@@ -10,13 +10,13 @@ public record LocalFunctionExpression(LocalFunctionStatement Function)
 {
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        var name = GetIdentifier().ToString();
+        var name = Identifier().ToString();
         context.DefineVariable(name);
         context.SetValue(name, this);
         return this;
     }
 
-    public override IdentifierExpression GetIdentifier()
+    public override IdentifierExpression Identifier()
         => new(Function.Identifier, Get_Type());
 
     public override object? EvaluatePlain(IProgramModelExecutionContext context)

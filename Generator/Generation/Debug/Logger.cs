@@ -12,7 +12,7 @@ public static class Logger
     public static void Print(GeneratorExecutionContext context, string tag, params string[] logs)
     {
         var model = StaticClass("GeneratorLog",
-            PropertyCollection(Field($"log_{MakeIdentifier(tag)}", Values(logs))),
+            PropertyCollection(FieldProperty($"log_{MakeIdentifier(tag)}", Values(logs))),
             topLevelModifier: Modifier.Partial, memberModifier: Modifier.Public);
         context.AddSource($"{tag}_log.Generated.cs", SourceText.From(model.Code(), Encoding.UTF8));
     }

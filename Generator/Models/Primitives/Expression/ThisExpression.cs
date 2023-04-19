@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -13,5 +14,6 @@ public record ThisExpression(IType Type) : Expression<ThisExpressionSyntax>(Type
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => context.This();
+    public override object? EvaluatePlain(IProgramModelExecutionContext context) => context.This().EvaluatePlain(context);
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => context.This().Evaluate(context);
 }

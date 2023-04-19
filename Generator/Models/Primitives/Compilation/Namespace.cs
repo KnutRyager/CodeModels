@@ -3,14 +3,17 @@ using System.Collections.Generic;
 using System.Linq;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : CodeModel<NamespaceDeclarationSyntax>(), IType
+public record Namespace(
+    string Name, 
+    INamespaceSymbol? Symbol = null)
+    : NamedCodeModel<NamespaceDeclarationSyntax>(Name), IType
 {
-    public string Name => Identifier;
     public bool Required => throw new NotImplementedException();
     public bool IsMulti => throw new NotImplementedException();
     public bool IsStatic => throw new NotImplementedException();
@@ -23,6 +26,8 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
 
     public Modifier Modifier => throw new NotImplementedException();
 
+    public string TypeName => throw new NotImplementedException();
+
     public Namespace(IEnumerable<string> parts) : this(string.Join(".", parts)) { }
     public Namespace(INamespaceSymbol Symbol) : this(Symbol.ToString(), Symbol) { }
     public Namespace(params string[] parts) : this(parts.ToList()) { }
@@ -31,7 +36,7 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     : new[] { @namespace.Name.ToString() })
     { }
 
-    public override NamespaceDeclarationSyntax Syntax() => NamespaceDeclaration(IdentifierName(Identifier));
+    public override NamespaceDeclarationSyntax Syntax() => NamespaceDeclaration(IdentifierNameSyntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -57,8 +62,6 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
     ExpressionSyntax IExpression.Syntax() => throw new NotImplementedException();
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => throw new NotImplementedException();
 
-    public IdentifierExpression GetIdentifier() => new(Identifier, Symbol: Symbol);
-
     MemberDeclarationSyntax IMember.Syntax()
     {
         throw new NotImplementedException();
@@ -74,7 +77,32 @@ public record Namespace(string Identifier, INamespaceSymbol? Symbol = null) : Co
         throw new NotImplementedException();
     }
     public bool Equals(IType other, IProgramModelExecutionContext context)
-        => Identifier == other.Identifier; // TODO: Check assembly
+        => TypeName == other.TypeName; // TODO: Check assembly
     public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
         => Equals(other);
+
+    public ICodeModel Render(Namespace @namespace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
 }

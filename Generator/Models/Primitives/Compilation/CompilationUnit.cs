@@ -5,12 +5,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-// TODO: Externs
-public record CompilationUnit(List<IMember> Members, List<UsingDirective> Usings, List<AttributeList> Attributes)
+public record CompilationUnit(
+    List<IMember> Members,
+    List<UsingDirective> Usings,
+    List<AttributeList> Attributes,
+    List<ExternAliasDirective>? Externs = null)
     : CodeModel<CompilationUnitSyntax>()
 {
-
-    public override CompilationUnitSyntax Syntax() => CompilationUnit(List<ExternAliasDirectiveSyntax>(),
+    public override CompilationUnitSyntax Syntax() => CompilationUnit(
+        List((Externs ?? Enumerable.Empty<ExternAliasDirective>()).Select(x => x.Syntax())),
         List(Usings.Select(x => x.Syntax())),
         List(Attributes.Select(x => x.Syntax())),
         List(Members.Select(x => x.Syntax())));

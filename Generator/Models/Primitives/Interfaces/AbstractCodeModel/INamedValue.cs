@@ -9,4 +9,5 @@ public interface INamedValue :
     IToParameterConvertible,
     IToTupleElementConvertible
 {
+    string Name { get; }
 }

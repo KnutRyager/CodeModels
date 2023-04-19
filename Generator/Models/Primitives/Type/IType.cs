@@ -6,7 +6,7 @@ namespace CodeAnalyzation.Models;
 
 public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
 {
-    string Identifier { get; }
+    string TypeName { get; }
     bool Required { get; }
     bool IsMulti { get; }
     new TypeSyntax Syntax();

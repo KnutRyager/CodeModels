@@ -46,7 +46,7 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
         yield return Expression;
     }
 
-    public IdentifierExpression GetIdentifier() => new(Get_Type().Name, Get_Type());
+    public IdentifierExpression Identifier() => new(Get_Type().Name, Get_Type());
 
     IExpression IExpressionOrPattern.Evaluate(IProgramModelExecutionContext context)
     {

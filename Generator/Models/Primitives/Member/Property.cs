@@ -16,8 +16,6 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier),
     IMember, ITypeModel, IAssignable, INamedValue
 {
-    public IMethodHolder? Owner { get; set; }
-
     public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IMethodHolder? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)
     {
@@ -44,7 +42,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
             attributeLists: default,
             modifiers: default,
             type: TypeSyntax(),
-            identifier: Identifier(Name!),
+            identifier: IdentifierSyntax(),
             @default: Initializer());
 
     public override MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => PropertyOrFieldDeclarationCustom(
@@ -53,7 +51,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
             modifiers: modifiers.SetModifiers(Modifier).SetFlags(removeModifier, false).Syntax(),
             type: DeclarationTypeSyntax(),
             explicitInterfaceSpecifier: default,
-            identifier: Identifier(Name!),
+            identifier: IdentifierSyntax(),
             accessorList: AccessorListCustom(new AccessorDeclarationSyntax[] { }).
                 AddAccessors(!(modifiers.SetModifiers(Modifier)).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
                         modifiers: default,
@@ -71,7 +69,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
 
     public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
-    public PropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(Identifier(identifier, type, symbol));
+    public PropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(CodeModelFactory.Identifier(identifier, type, symbol));
     public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
         : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
 
@@ -92,8 +90,6 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
 
     public PropertyExpression GetAccess(IExpression? instance) => new(this, instance);
 
-    private SyntaxToken TupleNameIdentifier(string? name) => name == default || new Regex("Item+[1-9]+[0-9]*").IsMatch(name) ? default : Identifier(name);
-
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
@@ -111,4 +107,11 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     }
 
     public IType ToType() => Type;
+
+    public override CodeModel<MemberDeclarationSyntax> Render(Namespace @namespace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IFieldOrProperty ToFieldOrProperty() => CodeModelFactory.PropertyModel(Name, Type);
 }

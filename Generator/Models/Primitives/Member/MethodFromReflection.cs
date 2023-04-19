@@ -33,11 +33,55 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     public string Code() => Lookup.Code();
     public ISet<IType> Dependencies(ISet<IType>? set = null) => Lookup.Dependencies(set);
     public IType Get_Type() => Lookup.Get_Type();
+
+    public virtual SimpleNameSyntax NameSyntax => throw new NotImplementedException();
+
     public MemberDeclarationSyntax Syntax() => Member.Syntax();
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => Lookup.SyntaxWithModifiers(modifier, removeModifier);
+
+    public IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+
     public TypeSyntax TypeSyntax() => Lookup.TypeSyntax();
     CSharpSyntaxNode ICodeModel.Syntax() => Member.Syntax();
+
+    public ICodeModel Render(Namespace @namespace)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierExpression ToIdentifierExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierNameSyntax IdentifierNameSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SyntaxToken IdentifierSyntax()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public abstract record MethodBaseFromSymbol<T, TCodeModel>(T Symbol) : MemberFromSymbol<T, TCodeModel>(Symbol), IMethodBase
@@ -89,6 +133,29 @@ public record MethodFromSymbol(IMethodSymbol Symbol) : MethodBaseFromSymbol<IMet
     public IParameterInfo ReturnParameter => Lookup.ReturnParameter;
     public ITypeInfo ReturnType => Lookup.ReturnType;
     public Reflection.ICustomAttributeProvider ReturnTypeCustomAttributes => Lookup.ReturnTypeCustomAttributes;
+
+    public IMethodHolder? Owner { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+
+    public ExpressionSyntax? ExpressionSyntax => throw new NotImplementedException();
+
+    public IExpression Value => throw new NotImplementedException();
+
+
+    public ExpressionSyntax? AccessSyntax(IExpression? instance = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IExpression AccessValue(IExpression? instance = null)
+    {
+        throw new NotImplementedException();
+    }
+
     public Delegate CreateDelegate(ITypeInfo delegateType) => Lookup.CreateDelegate(delegateType);
     public Delegate CreateDelegate(ITypeInfo delegateType, object target) => Lookup.CreateDelegate(delegateType, target);
     public IMethodInfo GetBaseDefinition() => Lookup.GetBaseDefinition();
@@ -100,7 +167,7 @@ public record MethodFromSymbol(IMethodSymbol Symbol) : MethodBaseFromSymbol<IMet
 
 public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol, IType>(Symbol), IType
 {
-    public string Identifier => Lookup.Identifier;
+    public string TypeName => Lookup.TypeName;
     public bool Required => Lookup.Required;
     public bool IsMulti => Lookup.IsMulti;
     public Type? ReflectedType => Lookup.ReflectedType;
@@ -110,7 +177,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public object? LiteralValue => Lookup.LiteralValue;
     public ExpressionStatement AsStatement() => Lookup.AsStatement();
     public bool Equals(IType other, IProgramModelExecutionContext context)
-        => Identifier == other.Identifier; // TODO: Check assembly
+        => TypeName == other.TypeName; // TODO: Check assembly
     public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
         => (ReflectedType is Type type && other.ReflectedType is Type otherType
             && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
@@ -118,7 +185,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public IExpression Evaluate(IProgramModelExecutionContext context) => Lookup.AsStatement();
     public object? EvaluatePlain(IProgramModelExecutionContext context) => Lookup.AsStatement();
     public IType GetGenericType(int index) => Lookup.GetGenericType(index);
-    public IdentifierExpression GetIdentifier() => Lookup.GetIdentifier();
+    public IdentifierExpression ToIdentifierExpression() => new(Lookup.TypeName);
     public string GetMostSpecificType() => Lookup.GetMostSpecificType();
     public Type? GetReflectedType() => Lookup.GetReflectedType();
     public ArgumentSyntax ToArgument() => Lookup.ToArgument();

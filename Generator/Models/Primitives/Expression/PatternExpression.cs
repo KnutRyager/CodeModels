@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -13,6 +14,8 @@ public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
     public LiteralExpressionSyntax? LiteralSyntax => throw new System.NotImplementedException();
 
     public object? LiteralValue => throw new System.NotImplementedException();
+
+    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
 
     public ExpressionStatement AsStatement()
     {
@@ -44,7 +47,7 @@ public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
         throw new System.NotImplementedException();
     }
 
-    public IdentifierExpression GetIdentifier()
+    public IdentifierExpression Identifier()
     {
         throw new System.NotImplementedException();
     }
@@ -75,6 +78,21 @@ public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
     }
 
     CSharpSyntaxNode ICodeModel.Syntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IdentifierNameSyntax IdentifierNameSyntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public SyntaxToken IdentifierSyntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IdentifierExpression ToIdentifierExpression()
     {
         throw new System.NotImplementedException();
     }

@@ -1,10 +1,13 @@
-﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+﻿using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
 public abstract record Pattern<T>() : CodeModel<T>, IPattern<T>
     where T : PatternSyntax
 {
+    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
+
     public IExpression Evaluate(IProgramModelExecutionContext context)
     {
         throw new System.NotImplementedException();
@@ -15,7 +18,7 @@ public abstract record Pattern<T>() : CodeModel<T>, IPattern<T>
         throw new System.NotImplementedException();
     }
 
-    public IdentifierExpression GetIdentifier()
+    public IdentifierExpression Identifier()
     {
         throw new System.NotImplementedException();
     }
@@ -28,6 +31,21 @@ public abstract record Pattern<T>() : CodeModel<T>, IPattern<T>
     PatternSyntax IPattern.Syntax() => Syntax();
 
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IdentifierNameSyntax IdentifierNameSyntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public SyntaxToken IdentifierSyntax()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IdentifierExpression ToIdentifierExpression()
     {
         throw new System.NotImplementedException();
     }

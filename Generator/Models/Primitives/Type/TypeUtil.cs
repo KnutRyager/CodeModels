@@ -12,7 +12,7 @@ public static class TypeUtil
         if (types.Count() == 0) return new QuickType("object");
         var isMulti = types.Any(x => x.IsMulti);
         var isOptional = types.Any(x => !x.Required);
-        var disinctTypes = types.Select(x => x.Identifier).Distinct();
+        var disinctTypes = types.Select(x => x.TypeName).Distinct();
         var specificType = types.Distinct().Count() is 1 ? types.First().Name : "object";
         //var specificType = disinctTypes.Count() == 1 ? types.First().GetMostSpecificType()
         //    : disinctTypes.Count() == 0 ? "int"

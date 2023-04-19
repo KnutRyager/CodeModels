@@ -14,6 +14,64 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation)
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
+
+    public override IExpression Evaluate(IProgramModelExecutionContext context)
+        => Literal(EvaluatePlain(context));
+
+    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    {
+        if (Method.Statements is null && Method.ExpressionBody is null)
+        {
+            throw new NotImplementedException();
+        }
+        if (Caller is InstantiatedObject instance)
+        {
+            instance.EnterScopes(context);
+        }
+        else
+        {
+            context.EnterScope();
+        }
+        for (var i = 0; i < Arguments.Count(); i++)
+        {
+            var argument = Arguments[i];
+            var parameter = Method.Parameters.Properties[i];
+            context.DefineVariable(parameter.Name);
+            context.SetValue(parameter.Name, argument == VoidValue ? parameter.Value : argument);
+        }
+
+        if (Method.Statements is Block block)
+        {
+            //block.Evaluate(context);
+            foreach (var statement in block.Statements) statement.Evaluate(context);
+            var result = context.PreviousExpression.EvaluatePlain(context);
+            //var result = context.PreviousExpression == this ? Function.EvaluatePlain(context) : context.PreviousExpression.EvaluatePlain(context);
+
+            if (Caller is InstantiatedObject instance2)
+            {
+                instance2.ExitScopes(context);
+            }
+            else
+            {
+                context.ExitScope();
+            }
+            return result;
+        }
+        else
+        {
+            var result = Method.ExpressionBody!.EvaluatePlain(context);
+            if (Caller is InstantiatedObject instance2)
+            {
+                instance2.ExitScopes(context);
+            }
+            else
+            {
+                context.ExitScope();
+            }
+            return result;
+        }
+    }
+
 }
 
 

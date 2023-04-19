@@ -26,16 +26,20 @@ public static class CodeModelFactory
     public static Namespace Namespace(Type type) => CodeModelsFromReflection.Namespace(type);
 
     public static TypeFromReflection Type(Type type) => CodeModelsFromReflection.Type(type);
+    public static TypeFromReflection Type<T>() => Type(typeof(T));
     public static QuickType Type(string name, bool required = true, bool isMulti = false, Type? type = null)
         => new(name, required, isMulti, type);
     public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
-        => new(type.Identifier, required ?? type.Required, isMulti ?? type.IsMulti);
+        => new(type.TypeName, required ?? type.Required, isMulti ?? type.IsMulti);
     public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
     public static IType Type(string code) => ParseType(code);
     public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
     public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
+
+    public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, List<AttributeList>? attributes = null, List<ExternAliasDirective>? externs = null)
+        => new(members, usings ?? new List<UsingDirective>(), attributes ?? new List<AttributeList>(), externs);
 
     public static IMethodHolder MetodHolder(Type type) => type switch
     {
@@ -71,14 +75,52 @@ public static class CodeModelFactory
     public static List<LiteralExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
     public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
+    public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name));
 
-    public static Property Field(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
-    public static Property Property(IType type, string? name, IExpression? value = null, Modifier modifier = Modifier.None) => new(type, name, value, modifier);
-    public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => new(type, name, Expression(expression), modifier);
-    public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => new(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
-    public static Property Property(string name) => new(TypeShorthands.NullType, name);
+    public static Property FieldProperty(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
+    public static Property Property(IType? type = null, string? name = null, IExpression? value = null, Modifier modifier = Modifier.None) => new(type ?? value?.Get_Type() ?? TypeShorthands.NullType, name, value, modifier);
+    public static Property Property(string name, IExpression value, Modifier modifier = Modifier.None) => Property(null, name, value, modifier);
+    public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => Property(type, name, Expression(expression), modifier);
+    public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => Property(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
+    public static Property Property<T>(string? name, IExpression? value = null, Modifier modifier = Modifier.None) => Property(Type<T>(), name, value, modifier);
+    public static Property Property<T>(string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => Property(Type<T>(), name, Expression(expression), modifier);
+    public static Property Property<T>(string name, string qualifiedName, Modifier modifier = Modifier.None) => Property(Type<T>(), name, ExpressionFromQualifiedName(qualifiedName), modifier);
+    public static Property Property(string name) => Property(null, name);
     public static Property Property(ArgumentSyntax argument) => ParseProperty(argument);
     public static Property Property(DeclarationExpressionSyntax declaration) => ParseProperty(declaration);
+
+    public static FieldModel FieldModel(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
+        => Models.FieldModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
+    public static FieldModel FieldModel(string name, IExpression value, Modifier modifier = Modifier.None)
+        => FieldModel(value?.Get_Type(), name, modifier: modifier, value: value);
+    public static FieldModel FieldModel<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
+            => FieldModel(Type<T>(), name, modifier: modifier, value: value);
+
+    public static PropertyModel PropertyModel(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
+        => Models.PropertyModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
+    public static PropertyModel PropertyModel(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
+        => PropertyModel(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
+    public static PropertyModel PropertyModel<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
+            => PropertyModel(Type<T>(), name, modifier: modifier, value: value);
+
+    public static Accessor Accessor(AccessorType type,
+    Block? body = null,
+    IExpression? expressionBody = null,
+    IEnumerable<AttributeList>? attributes = null,
+    Modifier modifier = Modifier.None) => Models.Accessor.Create(type, body, expressionBody, attributes, modifier);
+
+    public static PropertyModel PropertyModel(string name,
+    IType type,
+    List<AttributeList>? attributes = null,
+    List<Accessor>? accessors = null,
+    Modifier modifier = Modifier.None,
+    IExpression? value = null) => new(
+        Name: name,
+        Type: type,
+        Attributes: attributes ?? List<AttributeList>(),
+        Accessors: accessors ?? new List<Accessor>(),
+        Modifier: modifier,
+        Value: value ?? VoidValue);
 
     public static PropertyCollection PropertyCollection(PropertyCollection? collection) => collection ?? new();
     public static PropertyCollection PropertyCollection(IEnumerable<Property> properties, string? name = null) => new(properties, name);
@@ -127,6 +169,7 @@ public static class CodeModelFactory
     public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
     public static Block Block(params IStatement[] statements) => new(List(statements));
     public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
+    public static Block Block(IExpression expression) => Block(new[] { Statement(expression) });
     public static Block Block(BlockSyntax syntax) => Parse(syntax);
 
     public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
@@ -153,7 +196,9 @@ public static class CodeModelFactory
     public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
     public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), List(statement));
 
+    public static ThisExpression This() => new(TypeShorthands.VoidType);
     public static ReturnStatement Return(IExpression expression) => new(expression);
+    public static ReturnStatement Return(object? literal) => new(Literal(literal));
     public static ContinueStatement Continue() => new();
     public static BreakStatement Break() => new();
 
@@ -194,4 +239,15 @@ public static class CodeModelFactory
 
     public static AssignmentExpression Assignment(IExpression left, SyntaxKind kind, IExpression right) => new(left, right, kind);
     public static AssignmentExpression Assignment(IExpression left, IExpression right) => new(left, right, SyntaxKind.SimpleAssignmentExpression);
+
+    public static ExpressionStatement Statement(IExpression expression) => new(expression);
+
+    public static ClassModel2 Class(string name,
+    IEnumerable<IFieldOrProperty>? members,
+    IEnumerable<IMethod>? methods = null,
+    IType? specifiedType = null) => ClassModel2.Create(name, members, methods, specifiedType);
+    public static ClassModel2 Class(PropertyCollection collection) => collection.ToClassModel();
+    public static ClassModel2 Class(string name, IEnumerable<Property> properties) => Class(name, properties.Select(x => x.ToFieldOrProperty()));
+    public static ClassModel2 Class(string name, params Property[] propertiesArray) => Class(name, properties: propertiesArray);
+    public static ClassModel2 Class(string name, params IFieldOrProperty[] fieldsOrProperties) => Class(name, members: fieldsOrProperties);
 }

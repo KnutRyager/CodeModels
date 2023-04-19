@@ -1,31 +1,58 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public interface IMember : ICodeModel, ITypeModel
+public interface IMember : ICodeModel, IIdentifiable, ITypeModel, INamedValue
 {
-    string Name { get; }
     Modifier Modifier { get; }
     bool IsStatic { get; }
     new MemberDeclarationSyntax Syntax();
     MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None);
+    ICodeModel Render(Namespace @namespace);
 }
 
 public interface IMember<T> : ICodeModel<T>, IMember where T : MemberDeclarationSyntax
 {
     new T Syntax();
+    new CodeModel<T> Render(Namespace @namespace);
 }
 
 public abstract record MemberModel<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier)
-    : CodeModel<T>, IMember<T> where T : MemberDeclarationSyntax
+    : NamedCodeModel<T>(Name), IMember<T> where T : MemberDeclarationSyntax
 {
+    public IMethodHolder? Owner { get; set; }
     public IType Get_Type() => Type;
     public virtual bool IsStatic => Modifier.HasFlag(Modifier.Static);
+
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
     MemberDeclarationSyntax IMember.Syntax() => Syntax();
     public abstract T SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None);
     MemberDeclarationSyntax IMember.SyntaxWithModifiers(Modifier modifier, Modifier removeModifier) => SyntaxWithModifiers(modifier, removeModifier);
     public override T Syntax() => SyntaxWithModifiers();
+    public abstract CodeModel<T> Render(Namespace @namespace);
+    ICodeModel IMember.Render(Namespace @namespace)
+        => Render(@namespace);
+
+    public IType ToType()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public IExpression ToExpression()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public TupleElementSyntax ToTupleElement()
+    {
+        throw new System.NotImplementedException();
+    }
 }

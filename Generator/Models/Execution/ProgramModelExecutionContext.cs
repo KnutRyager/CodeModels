@@ -9,6 +9,8 @@ namespace CodeAnalyzation.Models;
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
+    private IDictionary<string, ClassModel2> _types = new Dictionary<string, ClassModel2>();
+    private IDictionary<string, IProgramModelExecutionScope> _staticScopes = new Dictionary<string, IProgramModelExecutionScope>();
 
     public IExpression PreviousExpression { get; private set; } = VoidValue;
 
@@ -62,7 +64,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression GetValue(string identifier) => FindScopeOrCrash(identifier).GetValue(identifier);
 
-    public IExpression? GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
+    public IExpression GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
 
     public void SetValue(string identifier, IExpression value, bool define = false)
     {
@@ -82,6 +84,22 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         switch (expression)
         {
             case IdentifierExpression identifier: SetValue(identifier, value, allowDefine); break;
+            case MemberAccessExpression memberAccess:
+                {
+                    if (memberAccess.Expression is InstantiatedObject instance)
+                    {
+                        try
+                        {
+                            instance.EnterScopes(this);
+                            SetValue(memberAccess.Identifier, value, allowDefine);
+                        }
+                        finally
+                        {
+                            instance.ExitScopes(this);
+                        }
+                    }
+                    break;
+                }
             case LiteralExpression _: break;
             default: throw new NotImplementedException();
         }
@@ -140,6 +158,14 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
             if (scope.HasThis()) return scope.This();
         }
         throw new ProgramModelExecutionException($"No 'this' reference found.");
+    }
+
+    public ClassModel2 GetType(string name) => _types[name];
+
+    public void AddType(ClassModel2 type)
+    {
+        _types[type.Name] = type;
+        _staticScopes[type.Name] = type.GetStaticScope();
     }
 
     public override string ToString()

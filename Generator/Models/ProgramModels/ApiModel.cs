@@ -14,7 +14,7 @@ public record ApiModel(PropertyCollection Model, IProgramContext? Context = null
         var firstOrDefault = Method(ReflectionUtil.GetMethodInfo(typeof(Queryable), nameof(Queryable.FirstOrDefault), new[] { typeof(object) }));
         var invocation = null as Block ?? throw new NotImplementedException(); // firstOrDefault.Invoke(Context.GetSingleton(dbContext), Literal(0));    // TODO: ID Lambda
         var getMethod = Method("Get", PropertyCollection(Property(Type("int"), "id")), Model.Type, invocation);
-        var model = InstanceClass($"{Model.Identifier}Api");
+        var model = InstanceClass($"{Model.ToIdentifier()}Api");
         return model;
     }
 
