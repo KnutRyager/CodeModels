@@ -18,8 +18,8 @@ public class ObjectModelExecutionScope : IProgramModelExecutionScope
         _type = @object.GetType();
     }
 
-    public void DefineVariable(string identifier) => throw new Exception("Can't define a variable in an object scope");
-    public void DefineVariable(IdentifierExpression identifier) => throw new Exception("Can't define a variable in an object scope");
+    public void DefineVariable(string identifier, IExpression? value = null) => throw new Exception("Can't define a variable in an object scope");
+    public void DefineVariable(IdentifierExpression identifier, IExpression? value = null) => throw new Exception("Can't define a variable in an object scope");
 
     public IExpression GetValue(string identifier) => _type.GetMember(identifier).FirstOrDefault() switch
     {

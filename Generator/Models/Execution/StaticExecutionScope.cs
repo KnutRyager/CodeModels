@@ -16,8 +16,8 @@ public class StaticExecutionScope : IProgramModelExecutionScope
         _type = type;
     }
 
-    public void DefineVariable(string identifier) => throw new Exception("Can't define a variable in a static scope");
-    public void DefineVariable(IdentifierExpression identifier) => throw new Exception("Can't define a variable in a static scope");
+    public void DefineVariable(string identifier, IExpression? value = null) => throw new Exception("Can't define a variable in a static scope");
+    public void DefineVariable(IdentifierExpression identifier, IExpression? value = null) => throw new Exception("Can't define a variable in a static scope");
 
     public IExpression GetValue(string identifier) => _type.GetMember(identifier).FirstOrDefault() switch
     {

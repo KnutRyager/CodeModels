@@ -7,17 +7,21 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
 {
     private HashSet<object> _variables = new HashSet<object>();
     private IDictionary<object, IExpression> _values = new Dictionary<object, IExpression>();
+    private IExpression? _this;
 
-    public void DefineVariable(string identifier)
+    public ProgramModelExecutionScope(IExpression? thisExpression = null)
+    {
+        _this = thisExpression;
+    }
+
+    public void DefineVariable(string identifier, IExpression? value = null)
     {
         if (_variables.Contains(identifier)) throw new ProgramModelExecutionException($"Already defined: {identifier}");
         _variables.Add(identifier);
+        if (value is not null) SetValue(identifier, value);
     }
-    public void DefineVariable(IdentifierExpression identifier)
-    {
-        if (_variables.Contains(identifier)) throw new ProgramModelExecutionException($"Already defined: {identifier}");
-        _variables.Add(identifier);
-    }
+    public void DefineVariable(IdentifierExpression identifier, IExpression? value = null)
+        => DefineVariable(identifier.Name, value);
 
     public IExpression GetValue(string identifier) => _values[identifier];
     public IExpression GetValue(IdentifierExpression identifier) => _values[identifier];
@@ -48,8 +52,10 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
         throw new System.NotImplementedException();
     }
 
-    public bool HasThis() => false;
-    public IExpression This() => throw new ProgramModelExecutionException($"No 'this' reference found.");
+    public void SetThis(IExpression thisExpression) => _this = thisExpression;
+
+    public bool HasThis() => _this is not null;
+    public IExpression This() => _this ?? throw new ProgramModelExecutionException($"No 'this' reference found.");
 
     public override string ToString()
         => $"ProgramModelScope. Values: {string.Join(Environment.NewLine, _values)}, Variables: {string.Join(Environment.NewLine, _variables)}";
