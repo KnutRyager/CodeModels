@@ -191,7 +191,7 @@ public static class ReflectionUtil
         => GetOrMakeGenericMethod(type, name, parameterCount, 1, parameters, new Type[] { typeof(TMethodType) }, genericIndexOfParameter == null ? null : new (int Param, int? GenericParam)[] { genericIndexOfParameter.Value });
 
     public static MethodInfo? GetOrMakeGenericMethod(Type type, string name, int? parameterCount = null, int? genericArgumentCount = null, Type?[]? parameters = null, Type[]? genericArguments = null, (int Param, int? GenericParam)[]? genericIndexOfParameters = null)
-        => (GetGenericMethod(type, name, parameterCount, genericArgumentCount, parameters, genericArguments, genericIndexOfParameters) ?? type.GetMethod(name))?.MakeGenericMethod(genericArguments ?? Array.Empty<Type>());
+        => GetGenericMethod(type, name, parameterCount, genericArgumentCount, parameters, genericArguments, genericIndexOfParameters) ?? type.GetMethod(name);
 
     public static TMethodType RunGenericMethod<T, TMethodType>(string methodName, T? instance = null, params object[] parameters) where T : class
         => (TMethodType)GetOrMakeGenericMethod<T, TMethodType>(methodName)?.Invoke(instance, parameters)!;
@@ -212,6 +212,8 @@ public static class ReflectionUtil
     {
         parameterCount ??= parameters?.Length;
         genericArgumentCount ??= genericArguments?.Length;
+        var isUnboundGenericMethod = (genericArgumentCount > 0 && (genericArguments is null)
+            || (genericArguments?.Any(x => x is null) ?? false));
         return type
          .GetMethods()
          .Where(m => m.Name == name)
@@ -229,7 +231,7 @@ public static class ReflectionUtil
              && (parameters == null || IsMethodMatch(x.Method, parameters!, genericArguments))
              )
          .Select(x =>
-              (genericArgumentCount ?? 0) > 0 ? x.Method.MakeGenericMethod(genericArguments) : x.Method)
+              !isUnboundGenericMethod && (genericArgumentCount ?? 0) > 0 ? x.Method.MakeGenericMethod(genericArguments) : x.Method)
          .ToArray();
     }
 
