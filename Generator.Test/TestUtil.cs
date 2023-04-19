@@ -40,14 +40,4 @@ public static class TestUtil
         int c = str.TakeWhile(c => char.IsWhiteSpace(c)).Count();
         return (c == str.Length) ? -1 : c;
     }
-
-    public static T FirstOrDefault<T>(this IEnumerable<T> enumerable, T defaultValue)
-    {
-        using var enumerator = enumerable.GetEnumerator();
-        if (enumerator.MoveNext())
-        {
-            return enumerator.Current;
-        }
-        return defaultValue;
-    }
 }
