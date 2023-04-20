@@ -243,11 +243,8 @@ public static class CodeModelFactory
     public static ExpressionStatement Statement(IExpression expression) => new(expression);
 
     public static ClassModel2 Class(string name,
-    IEnumerable<IFieldOrProperty>? members,
-    IEnumerable<IMethod>? methods = null,
-    IType? specifiedType = null) => ClassModel2.Create(name, members, methods, specifiedType);
+        IEnumerable<IMember>? members,
+        IType? specifiedType = null) => ClassModel2.Create(name, members, specifiedType);
     public static ClassModel2 Class(PropertyCollection collection) => collection.ToClassModel();
-    public static ClassModel2 Class(string name, IEnumerable<Property> properties) => Class(name, properties.Select(x => x.ToFieldOrProperty()));
-    public static ClassModel2 Class(string name, params Property[] propertiesArray) => Class(name, properties: propertiesArray);
-    public static ClassModel2 Class(string name, params IFieldOrProperty[] fieldsOrProperties) => Class(name, members: fieldsOrProperties);
+    public static ClassModel2 Class(string name, params IMember[] members) => Class(name, members, specifiedType: null);
 }

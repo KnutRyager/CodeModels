@@ -5,8 +5,8 @@ namespace CodeAnalyzation.Models;
 
 public interface IMethodHolder : ICodeModel, ITypeModel, IMember
 {
-    List<IFieldOrProperty> Members { get; }
-    List<IMethod> Methods { get; }
+    List<IMember> Members { get; }
+    List<Method> Methods();
     new BaseTypeDeclarationSyntax Syntax();
 }
 

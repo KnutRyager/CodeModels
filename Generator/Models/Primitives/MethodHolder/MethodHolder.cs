@@ -89,7 +89,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
 
     public Modifier Modifier => throw new NotImplementedException();
 
-    List<IFieldOrProperty> IMethodHolder.Members => throw new NotImplementedException();
+    List<IMember> IMethodHolder.Members => throw new NotImplementedException();
 
     BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
 
@@ -125,6 +125,11 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
     }
 
     public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
+
+    List<Method> IMethodHolder.Methods()
     {
         throw new NotImplementedException();
     }

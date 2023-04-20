@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeAnalyzation.Models.ErDiagram;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,8 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public abstract record BaseType<T>(string Name,
-    List<IFieldOrProperty> Members,
-    List<IMethod> Methods,
+    List<IMember> Members,
     Namespace? Namespace,
     Modifier TopLevelModifier,
     Modifier MemberModifier,
@@ -22,11 +22,15 @@ public abstract record BaseType<T>(string Name,
     IMethodHolder<T> where T : BaseTypeDeclarationSyntax
 {
     private ProgramModelExecutionScope? _staticScope;
+    private List<FieldModel>? _fields;
+    private List<PropertyModel>? _properties;
+    private List<Method>? _methods;
+    private List<Constructor>? _constructors;
 
-    public BaseType(string name, IEnumerable<IFieldOrProperty>? members = null, IEnumerable<IMethod>? methods = null,
+    public BaseType(string name, IEnumerable<IMember>? members = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
         Modifier memberModifier = Modifier.Public, Type? type = null)
-        : this(name, List(members), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
+        : this(name, List(members), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
     {
         InitOwner();
     }
@@ -34,46 +38,69 @@ public abstract record BaseType<T>(string Name,
     protected void InitOwner()
     {
         InitMembers();
-        foreach (var property in Members) property.Owner = this;
-        //foreach (var method in Methods) method.Owner = this;
+        foreach (var member in Members)
+        {
+            if (member is IFieldOrProperty fieldOrProperty)
+                fieldOrProperty.Owner = this;
+        }
     }
 
     private void InitMembers()
     {
-        var newMembers = new List<IFieldOrProperty>();
+        _fields ??= new List<FieldModel>();
+        _properties ??= new List<PropertyModel>();
+        _methods ??= new List<Method>();
+        _constructors ??= new List<Constructor>();
+        var newMembers = new List<IMember>();
         foreach (var member in Members)
         {
-            if (member is PropertyModel property)
+            switch (member)
             {
-                var getter = property.GetAccessor;
-                var hasGetter = getter?.Body is not null || getter?.ExpressionBody is not null;
-                var setter = property.SetAccessor ?? property.InitAccessor;
-                var hasSetter = setter?.Body is not null || setter?.ExpressionBody is not null;
-                if (!(hasGetter && hasSetter) && getter is not null)
-                {
-                    var backingField = CodeModelFactory.FieldModel(property.Type,
-                        getter.Type.GetBackingFieldName(member.Name), property.Value,
-                        member.IsStatic ? PropertyAndFieldTypes.PrivateStaticField : PropertyAndFieldTypes.PrivateField);
-
-                    if (!Members.Any(x => x.Name == backingField.Name))
+                case FieldModel field:
+                    _fields.Add(field);
+                    break;
+                case PropertyModel property:
                     {
-                        newMembers.Add(backingField);
+                        _properties.Add(property);
+                        var getter = property.GetAccessor;
+                        var hasGetter = getter?.Body is not null || getter?.ExpressionBody is not null;
+                        var setter = property.SetAccessor ?? property.InitAccessor;
+                        var hasSetter = setter?.Body is not null || setter?.ExpressionBody is not null;
+                        if (!(hasGetter && hasSetter) && getter is not null)
+                        {
+                            var backingField = CodeModelFactory.FieldModel(property.Type,
+                                getter.Type.GetBackingFieldName(member.Name), property.Value,
+                                member.IsStatic ? PropertyAndFieldTypes.PrivateStaticField : PropertyAndFieldTypes.PrivateField);
+
+                            if (!Members.Any(x => x.Name == backingField.Name))
+                            {
+                                _fields.Add(backingField);
+                                newMembers.Add(backingField);
+                            }
+                        }
+                        var getterMethod = getter?.GetMethod(property.Name);
+                        var setterMethod = setter?.GetMethod(property.Name);
+                        if (getterMethod is not null && !_methods.Any(x => ((INamedValue)x).Name == getterMethod.Name))
+                        {
+                            _methods.Add(getterMethod);
+                        }
+                        if (setterMethod is not null && !_methods.Any(x => ((INamedValue)x).Name == setterMethod.Name))
+                        {
+                            _methods.Add(setterMethod);
+                        }
+                        break;
                     }
-                }
-                var getterMethod = getter?.GetMethod(property.Name);
-                var setterMethod = setter?.GetMethod(property.Name);
-                if (getterMethod is not null && !Methods.Any(x => ((INamedValue)x).Name == getterMethod.Name))
-                {
-                    Methods.Add(getterMethod);
-                }
-                if (setterMethod is not null && !Methods.Any(x => ((INamedValue)x).Name == setterMethod.Name))
-                {
-                    Methods.Add(setterMethod);
-                }
+                case Method method:
+                    _methods.Add(method);
+
+                    break;
+                case Constructor constructor:
+                    _constructors.Add(constructor);
+                    break;
             }
         }
         Members.AddRange(newMembers);
-        foreach (var method in Methods)
+        foreach (var method in _methods)
         {
             if (((IMember)method).IsStatic) continue;
             //scope.DefineVariable(((INamedValue)method).Name);
@@ -120,11 +147,14 @@ public abstract record BaseType<T>(string Name,
     public IType Get_Type() => Type(Name);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
-    public List<IMember> AllMembers() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).Concat<IMember>(Methods).ToList();
-    public List<IFieldOrProperty> GetReadonlyMembers() => Members.Where(x => x.Modifier.IsWritable()).ToList();
-    public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
-    public List<FieldModel> GetFields() => Members.Where(x => x is FieldModel).Select(x => (x as FieldModel)!).ToList();
-    public List<PropertyModel> GetProperties() => Members.Where(x => x is PropertyModel).Select(x => (x as PropertyModel)!).ToList();
+    public List<IMember> AllMembers() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).Concat<IMember>(Methods()).ToList();
+    public List<IMember> GetReadonlyMembers() => Members.Where(x => x.Modifier.IsWritable()).ToList();
+    public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods().Select(x => x.ToMethodSyntax(MemberModifier)));
+    public List<Constructor> Constructors() => _constructors ??= new List<Constructor>();
+    public List<FieldModel> GetFields() => _fields ??= new List<FieldModel>();
+    public List<PropertyModel> GetProperties() => _properties ??= new List<PropertyModel>();
+    public List<IFieldOrProperty> GetPropertiesAndFields() => GetFields().Concat<IFieldOrProperty>(GetProperties()).ToList();
+    public List<Method> Methods() => _methods ??= new List<Method>();
     public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => SyntaxFactory.List(Members.Select(x => x.Syntax()).Concat(MethodsSyntax()));
 
     public virtual IMember GetMember(string name) => AllMembers().First(x => x.Name == name);
@@ -175,11 +205,11 @@ public abstract record BaseType<T>(string Name,
             constraintClauses: default,
             members: SyntaxFactory.List(Members.Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.SyntaxWithModifiers(removeModifier: Modifier.Public))));
 
-    public List<IFieldOrProperty> Ordered(Modifier modifier = Modifier.None) => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
+    public List<IMember> Ordered(Modifier modifier = Modifier.None) => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
 
-    public virtual IMember this[string name] => Members.FirstOrDefault(x => x.Name == name) as IMember ?? Methods.FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
-    public IFieldOrProperty GetProperty(string name) => Members.First(x => x.Name == name);
-    public IMethod GetMethod(string name) => Methods.First(x => ((IMember)x).Name == name);
+    public virtual IMember this[string name] => Members.FirstOrDefault(x => x.Name == name) ?? Methods().FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
+    public PropertyModel GetProperty(string name) => GetProperties().First(x => x.Name == name);
+    public IMethod GetMethod(string name) => Methods().First(x => ((IMember)x).Name == name);
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
@@ -190,9 +220,7 @@ public abstract record BaseType<T>(string Name,
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var member in Members) yield return member;
-        foreach (var method in Methods) yield return method;
     }
-
 
     MemberDeclarationSyntax IMember.Syntax() => ToClass();
 

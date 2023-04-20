@@ -13,14 +13,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public abstract record ClassModel2(string Name,
-    List<IFieldOrProperty> Members,
-    List<IMethod> Methods,
+    List<IMember> Members,
     ClassModel2? Parent = null,
     IType? SpecifiedType = null)
     : BaseType<ClassDeclarationSyntax>(
         Name: Name,
         Members: Members,
-        Methods: Methods,
         Namespace: null,
         TopLevelModifier: Modifier.None,
         MemberModifier: Modifier.None,
@@ -29,11 +27,10 @@ public abstract record ClassModel2(string Name,
     IMember
 {
     public static ClassModel2 Create(string name,
-    IEnumerable<IFieldOrProperty>? members = null,
-    IEnumerable<IMethod>? methods = null,
+    IEnumerable<IMember>? members = null,
     IType? specifiedType = null)
     {
-        var c = new ClassModel2Imp(name, List(members), List(methods), specifiedType);
+        var c = new ClassModel2Imp(name, List(members), specifiedType);
         c.InitOwner();
         return c;
     }
@@ -74,21 +71,20 @@ public abstract record ClassModel2(string Name,
 
     public ParameterListSyntax ToParameters() => ParameterListCustom(GetProperties().Select(x => x.ToParameter()));
     public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => x.Value.ToArgument()));
-    public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(Members.Select(x => x.Value.Syntax())));
-    public List<IFieldOrProperty> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
+    public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(GetPropertiesAndFields().Select(x => x.Value.Syntax())));
+    public List<IMember> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
     public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.SyntaxWithModifiers(modifier)));
     public List<PropertyModel> FilterValues() => GetProperties().Where(x => x.Value != null).ToList();
     public List<IExpression> ToExpressions() => GetProperties().Select(x => x.Value).ToList();
     public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
     //public override LiteralExpressionSyntax? LiteralSyntax => ToValueCollection().LiteralSyntax;
-    public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Members.Select(x => x.ExpressionSyntax!));
+    public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(GetPropertiesAndFields().Select(x => x.ExpressionSyntax!));
     //public override object? LiteralValue => ToValueCollection().LiteralValue;
 
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var member in Members) yield return member;
-        foreach (var method in Methods) yield return method;
     }
 
     //public override IExpression Evaluate(IProgramModelExecutionContext context)
@@ -125,13 +121,11 @@ public abstract record ClassModel2(string Name,
     }
 
     private record ClassModel2Imp(string Name,
-    List<IFieldOrProperty> Members,
-    List<IMethod> Methods,
+    List<IMember> Members,
     IType? SpecifiedType = null)
     : ClassModel2(
         Name: Name,
         Members: Members,
-        Methods: Methods,
         SpecifiedType: SpecifiedType);
 }
 

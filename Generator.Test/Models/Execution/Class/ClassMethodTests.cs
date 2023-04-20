@@ -35,9 +35,7 @@ public class ClassMethodTests
     {
         var method = Method("getA",
             PropertyCollection(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var c = CodeModelFactory.Class("classA",
-            new IFieldOrProperty[] { FieldModel("A", Literal(5)) },
-            new IMethod[] { method });
+        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
         method.Invoke(instance).Eval().Should().Be(5);
@@ -50,9 +48,7 @@ public class ClassMethodTests
             PropertyCollection(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
         var setter = Method("setA",
             PropertyCollection(), Type(typeof(void)), Block(Assignment(ExpressionFromQualifiedName("A"), Literal(6))));
-        var c = CodeModelFactory.Class("classA",
-            new IFieldOrProperty[] { FieldModel("A", Literal(5)) },
-            new IMethod[] { getter, setter });
+        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), getter, setter);
         var instance = c.CreateInstance();
 
         var context = new ProgramModelExecutionContext();

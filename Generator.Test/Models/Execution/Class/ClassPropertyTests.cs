@@ -27,9 +27,7 @@ public class ClassPropertyTests
     {
         var method = Method("getA",
             PropertyCollection(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var c = CodeModelFactory.Class("classA",
-            new IFieldOrProperty[] { FieldModel("A", Literal(5)) },
-            new IMethod[] { method });
+        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
         method.Invoke(instance).Eval().Should().Be(5);
