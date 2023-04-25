@@ -11,13 +11,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record MethodHolder<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
+public abstract record BaseTypeDeclaration<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
         Modifier MemberModifier, Type? ReflectedType)
     : NamedCodeModel<T>(Name),
-    IMethodHolder<T> where T : BaseTypeDeclarationSyntax
+    IBaseTypeDeclaration<T> where T : BaseTypeDeclarationSyntax
 {
-    public MethodHolder(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
+    public BaseTypeDeclaration(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
         Modifier memberModifier = Modifier.Public, Type? type = null)
         : this(name, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
@@ -25,7 +25,7 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
         foreach (var property in Properties.Properties) property.Owner = this;
     }
 
-    public IMethodHolder AddProperty(Property property)
+    public IBaseTypeDeclaration AddProperty(Property property)
     {
         Properties.Properties.Add(property);
         if (property.Owner is not null) throw new ArgumentException($"Adding already owned property '{property}' to '{Name}'.");
@@ -33,9 +33,9 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
         return this;
     }
 
-    public IMethodHolder AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
-    public IMethodHolder AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
-    public IMethodHolder AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
+    public IBaseTypeDeclaration AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
+    public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
+    public IBaseTypeDeclaration AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
     public IType Get_Type() => Type(Name);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
@@ -89,9 +89,9 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
 
     public Modifier Modifier => throw new NotImplementedException();
 
-    List<IMember> IMethodHolder.Members => throw new NotImplementedException();
+    List<IMember> IBaseTypeDeclaration.Members => throw new NotImplementedException();
 
-    BaseTypeDeclarationSyntax IMethodHolder.Syntax() => Syntax();
+    BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -129,8 +129,10 @@ public abstract record MethodHolder<T>(string Name, PropertyCollection Propertie
         throw new NotImplementedException();
     }
 
-    List<Method> IMethodHolder.Methods()
+    List<Method> IBaseTypeDeclaration.Methods()
     {
         throw new NotImplementedException();
     }
+
+    public abstract InstantiatedObject CreateInstance();
 }

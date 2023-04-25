@@ -14,7 +14,7 @@ public static class CodeModelsFromReflection
 
     public static TypeFromReflection Type(Type type) => new(type);
 
-    public static IMethodHolder MetodHolder(Type type) => type switch
+    public static IBaseTypeDeclaration MetodHolder(Type type) => type switch
     {
         { IsInterface: true } => Interface(type),
         { IsEnum: true } => Enum(type),

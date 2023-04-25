@@ -13,7 +13,7 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
 
     public bool IsLiteralExpression => false;
 
-    public LiteralExpressionSyntax? LiteralSyntax => null;
+    public LiteralExpressionSyntax? LiteralSyntax() => null;
 
     public object? LiteralValue => null;
 

@@ -4,5 +4,5 @@ namespace CodeAnalyzation.Models;
 
 public interface IToSimpleNameConvertible
 {
-     SimpleNameSyntax NameSyntax { get; }
+    SimpleNameSyntax NameSyntax();
 }

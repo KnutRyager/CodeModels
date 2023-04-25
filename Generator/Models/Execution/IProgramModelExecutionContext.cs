@@ -28,6 +28,6 @@ public interface IProgramModelExecutionContext
     void ConsoleWriteLine(string s);
     void IncreaseDisableSetPreviousValueLock();
     void DecreaseDisableSetPreviousValueLock();
-    ClassModel2 GetType(string name);
-    void AddType(ClassModel2 type);
+    ClassDeclaration GetType(string name);
+    void AddType(ClassDeclaration type);
 }

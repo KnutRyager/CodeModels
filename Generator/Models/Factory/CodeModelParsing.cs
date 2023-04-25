@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Parsing;
 using CodeAnalyzation.Reflection;
@@ -761,8 +762,11 @@ public static class CodeModelParsing
         OperatorDeclarationSyntax declaration => Parse(declaration, model),
         _ => throw new NotImplementedException($"Not implemented BaseMethodDeclaration: '{syntax}'.")
     };
-    public static Constructor Parse(ConstructorDeclarationSyntax syntax, SemanticModel? model = null)
-       => new(syntax.Identifier.ToString(), new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body, model), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model));
+    public static IConstructor Parse(ConstructorDeclarationSyntax syntax, SemanticModel? model = null)
+       => model?.GetSymbolInfo(syntax).Symbol is IObjectCreationOperation objectCreationSymbol
+        && SemanticReflection.GetConstructor(objectCreationSymbol) is ConstructorInfo constructorInfo
+        ?  new ConstructorFromReflection(constructorInfo)
+        : new Constructor(null!, new PropertyCollection(syntax), syntax.Body is null ? null : Parse(syntax.Body, model), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model));
     public static IMember Parse(ConversionOperatorDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IMember Parse(DestructorDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static Method Parse(MethodDeclarationSyntax syntax, SemanticModel? model = null)

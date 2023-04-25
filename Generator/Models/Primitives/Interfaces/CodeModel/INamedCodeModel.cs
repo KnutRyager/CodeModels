@@ -17,7 +17,7 @@ public abstract record NamedCodeModel<T>(string Name) : CodeModel<T>, INamedCode
 {
     public virtual SyntaxToken ToIdentifier() => SyntaxFactory.Identifier(Name);
 
-    public virtual SimpleNameSyntax NameSyntax => SyntaxFactory.IdentifierName(Name);
+    public virtual SimpleNameSyntax NameSyntax() => SyntaxFactory.IdentifierName(Name);
 
     public IdentifierNameSyntax IdentifierNameSyntax()
         => SyntaxFactory.IdentifierName(Name);

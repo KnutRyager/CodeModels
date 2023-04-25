@@ -31,7 +31,7 @@ public static class ModifierTypes
     public const Modifier NonPartial = ((Modifier)int.MaxValue) ^ Partial;
 }
 
-public static class MethodHolderTypes
+public static class TypeDeclarationTypes
 {
     public const Modifier PublicClass = Modifier.Public | Modifier.Class;
     public const Modifier PublicPartialClass = Modifier.Public | Modifier.Partial | Modifier.Class;
@@ -62,7 +62,7 @@ public static class PropertyAndFieldTypes
     public const Modifier PrivateProperty = Modifier.Private | Modifier.Property;
 }
 
-public static class MethodHolderTypeExtensions
+public static class TypeDeclarationTypeExtensions
 {
     public static Modifier AccessModifier(this Modifier modifier) => modifier switch
     {

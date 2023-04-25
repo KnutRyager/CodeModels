@@ -26,5 +26,5 @@ public record FieldModelExpression(FieldModel Field, IExpression? Instance = nul
 
     public override object? LiteralValue => EvaluatePlain(new ProgramModelExecutionContext());
 
-    public IMethodHolder? Owner => Field.Owner;
+    public IBaseTypeDeclaration? Owner => Field.Owner;
 }

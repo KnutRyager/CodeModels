@@ -7,18 +7,18 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record InstantiatedObject(ClassModel2 Type,
+public record InstantiatedObject(ClassDeclaration Type,
     IProgramModelExecutionScope Scope,
     IProgramModelExecutionScope StaticScope,
     IProgramModelExecutionScope? ParentScope = null) : IExpression
 {
-    public bool IsLiteralExpression => throw new NotImplementedException();
+    public bool IsLiteralExpression => false;
 
-    public LiteralExpressionSyntax? LiteralSyntax => throw new NotImplementedException();
+    public LiteralExpressionSyntax? LiteralSyntax() => default;
 
-    public object? LiteralValue => throw new NotImplementedException();
+    public object? LiteralValue => default;
 
-    public SimpleNameSyntax NameSyntax => throw new NotImplementedException();
+    public SimpleNameSyntax NameSyntax() => Type.NameSyntax();
 
     public ExpressionStatement AsStatement()
     {
@@ -63,10 +63,7 @@ public record InstantiatedObject(ClassModel2 Type,
         _ => throw new ProgramModelExecutionException($"Cannot get non-found identifier '{identifier}'")
     };
 
-    public IType Get_Type()
-    {
-        throw new NotImplementedException();
-    }
+    public IType Get_Type() => Type.Get_Type();
 
     public IdentifierNameSyntax IdentifierNameSyntax()
     {

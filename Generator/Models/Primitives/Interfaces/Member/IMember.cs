@@ -20,10 +20,10 @@ public interface IMember<T> : ICodeModel<T>, IMember where T : MemberDeclaration
     new CodeModel<T> Render(Namespace @namespace);
 }
 
-public abstract record MemberModel<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier)
-    : NamedCodeModel<T>(Name), IMember<T> where T : MemberDeclarationSyntax
+public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes, Modifier Modifier, string? Name = null)
+    : NamedCodeModel<T>(Name ?? Type.Name), IMember<T> where T : MemberDeclarationSyntax
 {
-    public IMethodHolder? Owner { get; set; }
+    public IBaseTypeDeclaration? Owner { get; set; }
     public IType Get_Type() => Type;
     public virtual bool IsStatic => Modifier.HasFlag(Modifier.Static);
 

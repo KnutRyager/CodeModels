@@ -8,5 +8,5 @@ public interface IIdentifiable
     IdentifierExpression ToIdentifierExpression();
     IdentifierNameSyntax IdentifierNameSyntax();
     SyntaxToken IdentifierSyntax();
-    SimpleNameSyntax NameSyntax { get; }
+    SimpleNameSyntax NameSyntax();
 }

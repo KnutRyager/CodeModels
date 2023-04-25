@@ -10,10 +10,10 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     : IExpression
 {
     public bool IsLiteralExpression => false;
-    public LiteralExpressionSyntax? LiteralSyntax => null;
+    public LiteralExpressionSyntax? LiteralSyntax() => null;
     public object? LiteralValue => null;
 
-    public SimpleNameSyntax NameSyntax => throw new NotImplementedException();
+    public SimpleNameSyntax NameSyntax() => throw new NotImplementedException();
 
     public virtual ExpressionStatement AsStatement() => new(Statement);
     public IEnumerable<ICodeModel> Children() => Statement.Children();

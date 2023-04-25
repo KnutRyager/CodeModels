@@ -13,5 +13,10 @@ public record StaticClass(string Identifier, PropertyCollection Properties, List
     public StaticClass(string identifier, PropertyCollection? properties = null,
         IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
     : this(identifier, PropertyCollection(properties), List(methods), @namespace) { }
+
+    public override InstantiatedObject CreateInstance()
+    {
+        throw new NotImplementedException();
+    }
 }
 public record StaticClassFromReflection(Type ReflectedType) : StaticClass(ReflectedType.Name, new(ReflectedType), Methods(ReflectedType), Namespace(ReflectedType));

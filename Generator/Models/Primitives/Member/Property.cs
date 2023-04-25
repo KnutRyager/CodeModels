@@ -13,16 +13,16 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeAnalyzation.Models;
 
 public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
-    : MemberModel<MemberDeclarationSyntax>(Name, Type, Attributes ?? new List<AttributeList>(), Modifier),
+    : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
     IMember, ITypeModel, IAssignable, INamedValue
 {
-    public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IMethodHolder? owner = null, IType? interfaceType = null)
+    public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)
     {
         Owner = owner;
     }
 
-    public Property(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, IMethodHolder? owner = null, IType? interfaceType = null)
+    public Property(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
     public Property(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null)
@@ -67,11 +67,11 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
     public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(IsRandomlyGeneratedName ? null : Name));
     public IExpression ToExpression() => Value;
 
-    public SimpleNameSyntax NameSyntax => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
+    public SimpleNameSyntax NameSyntax() => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
     public PropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(CodeModelFactory.Identifier(identifier, type, symbol));
-    public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
-        : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax);
+    public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax()
+        : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax());
 
     public ExpressionSyntax? ExpressionSyntax => Value switch
     {

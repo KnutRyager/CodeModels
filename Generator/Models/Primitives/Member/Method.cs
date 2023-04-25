@@ -14,7 +14,7 @@ namespace CodeAnalyzation.Models
 {
     public record Method(string Name, PropertyCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null,
         Modifier Modifier = Modifier.Public, List<AttributeList>? AttributesIn = null)
-        : MemberModel<MethodDeclarationSyntax>(Name, ReturnType, AttributesIn ?? new List<AttributeList>(), Modifier), IMethod
+        : MethodBase<MethodDeclarationSyntax>(ReturnType, Name, AttributesIn ?? new List<AttributeList>(), Modifier), IMethod
     {
         public Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
             : this(name, parameters, returnType, body, null, modifier) { }
@@ -37,12 +37,12 @@ namespace CodeAnalyzation.Models
         public InvocationExpression Invoke(IExpression caller, params IExpression[] arguments) => Invocation(this, caller, arguments);
         public InvocationExpression Invoke(string identifier, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier), arguments);
         public InvocationExpression Invoke(string identifier, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier), arguments);
-        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, type, symbol), arguments);
-        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, type, symbol), arguments);
-        public InvocationExpression Invoke(string identifier, IType type, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, type), arguments);
-        public InvocationExpression Invoke(string identifier, IType type, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, type), arguments);
-        public InvocationExpression Invoke(string identifier, ISymbol symbol, IEnumerable<IExpression> arguments) => Invoke(CodeModelFactory.Identifier(identifier, symbol: symbol), arguments);
-        public InvocationExpression Invoke(string identifier, ISymbol symbol, params IExpression[] arguments) => Invoke(CodeModelFactory.Identifier(identifier, symbol: symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, type, symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType? type, ISymbol? symbol, params IExpression[] arguments) => Invoke(Identifier(identifier, type, symbol), arguments);
+        public InvocationExpression Invoke(string identifier, IType type, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, type), arguments);
+        public InvocationExpression Invoke(string identifier, IType type, params IExpression[] arguments) => Invoke(Identifier(identifier, type), arguments);
+        public InvocationExpression Invoke(string identifier, ISymbol symbol, IEnumerable<IExpression> arguments) => Invoke(Identifier(identifier, symbol: symbol), arguments);
+        public InvocationExpression Invoke(string identifier, ISymbol symbol, params IExpression[] arguments) => Invoke(Identifier(identifier, symbol: symbol), arguments);
 
         public override MethodDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
             => ToMethodSyntax(modifier, removeModifier);

@@ -24,7 +24,7 @@
 //    public EqualityList<IType> GenericTypes => throw new NotImplementedException();
 //    public IType Get_Type() => this;
 //    public bool IsLiteralExpression => throw new NotImplementedException();
-//    public LiteralExpressionSyntax? LiteralSyntax => null;
+//    public LiteralExpressionSyntax? LiteralSyntax() => null;
 //    public object? LiteralValue => throw new NotImplementedException();
 
 //    public Modifier Modifier => throw new NotImplementedException();

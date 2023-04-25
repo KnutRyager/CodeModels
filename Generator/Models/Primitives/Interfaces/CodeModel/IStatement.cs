@@ -27,7 +27,7 @@ public abstract record AbstractStatement<T>(string? Name = null)
     public Modifier Modifier => Modifier.None;
     public bool IsStatic => false;
 
-    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
+    public SimpleNameSyntax NameSyntax() => throw new System.NotImplementedException();
 
     MemberDeclarationSyntax IMember.Syntax() => throw new System.NotImplementedException();
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();

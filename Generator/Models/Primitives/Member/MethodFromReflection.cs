@@ -34,7 +34,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     public ISet<IType> Dependencies(ISet<IType>? set = null) => Lookup.Dependencies(set);
     public IType Get_Type() => Lookup.Get_Type();
 
-    public virtual SimpleNameSyntax NameSyntax => throw new NotImplementedException();
+    public virtual SimpleNameSyntax NameSyntax() => throw new NotImplementedException();
 
     public MemberDeclarationSyntax Syntax() => Member.Syntax();
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
@@ -126,6 +126,16 @@ public abstract record MethodBaseFromSymbol<T, TCodeModel>(T Symbol) : MemberFro
     public object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) => Lookup.Children();
     public object Invoke(object obj, object[] parameters) => Lookup.Invoke(obj, parameters);
     public bool IsDefined(ITypeInfo attributeType, bool inherit) => Lookup.IsDefined(attributeType, inherit);
+
+    BaseMethodDeclarationSyntax IMethodBase.Syntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    BaseMethodDeclarationSyntax IMethodBase.SyntaxWithModifiers(Modifier modifier, Modifier removeModifier)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public record MethodFromSymbol(IMethodSymbol Symbol) : MethodBaseFromSymbol<IMethodSymbol, IMethod>(Symbol), IMethod
@@ -134,7 +144,7 @@ public record MethodFromSymbol(IMethodSymbol Symbol) : MethodBaseFromSymbol<IMet
     public ITypeInfo ReturnType => Lookup.ReturnType;
     public Reflection.ICustomAttributeProvider ReturnTypeCustomAttributes => Lookup.ReturnTypeCustomAttributes;
 
-    public IMethodHolder? Owner { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
+    public ITypeDeclaration? Owner { get => throw new NotImplementedException(); set => throw new NotImplementedException(); }
 
     public ExpressionSyntax? ExpressionSyntax => throw new NotImplementedException();
 
@@ -173,7 +183,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public Type? ReflectedType => Lookup.ReflectedType;
     public EqualityList<IType> GenericTypes => Lookup.GenericTypes;
     public bool IsLiteralExpression => Lookup.IsLiteralExpression;
-    public LiteralExpressionSyntax? LiteralSyntax => Lookup.LiteralSyntax;
+    public LiteralExpressionSyntax? LiteralSyntax() => Lookup.LiteralSyntax();
     public object? LiteralValue => Lookup.LiteralValue;
     public ExpressionStatement AsStatement() => Lookup.AsStatement();
     public bool Equals(IType other, IProgramModelExecutionContext context)

@@ -5,7 +5,7 @@ namespace CodeAnalyzation.Models;
 public interface IExpression : ICodeModel, IIdentifiable, IExpressionOrPattern
 {
     bool IsLiteralExpression { get; }
-    LiteralExpressionSyntax? LiteralSyntax { get; }
+    LiteralExpressionSyntax? LiteralSyntax();
     ArgumentSyntax ToArgument();
     object? LiteralValue { get; }
     EnumMemberDeclarationSyntax ToEnumValue(int? value = null);

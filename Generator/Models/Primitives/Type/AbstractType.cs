@@ -45,12 +45,12 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
 
     public IType Get_Type() => this;
     public bool IsLiteralExpression => false;
-    public LiteralExpressionSyntax? LiteralSyntax => null;
+    public LiteralExpressionSyntax? LiteralSyntax() => null;
     public object? LiteralValue => null;
 
     public Modifier Modifier => Modifier.None;
 
-    public SimpleNameSyntax NameSyntax => IdentifierName(Name);
+    public SimpleNameSyntax NameSyntax() => IdentifierName(Name);
 
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
     public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();

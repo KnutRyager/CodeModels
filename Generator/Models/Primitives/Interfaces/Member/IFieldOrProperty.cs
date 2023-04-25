@@ -9,7 +9,7 @@ namespace CodeAnalyzation.Models;
 
 public interface IFieldOrProperty : IMember, ICodeModel, ITypeModel
 {
-    IMethodHolder? Owner { get; set; }
+    ITypeDeclaration? Owner { get; set; }
     ExpressionSyntax? ExpressionSyntax { get; }
     IExpression Value { get; }
     IExpression ValueOrDefault();
@@ -25,7 +25,7 @@ public interface IFieldOrProperty<T> : IMember<T>, IFieldOrProperty where T : Me
 public abstract record FieldOrProperty<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier, IExpression Value)
     : NamedCodeModel<T>(Name), IFieldOrProperty<T> where T : MemberDeclarationSyntax
 {
-    public IMethodHolder? Owner { get; set; }
+    public ITypeDeclaration? Owner { get; set; }
     public IType Get_Type() => Type;
     public virtual bool IsStatic => Modifier.HasFlag(Modifier.Static);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
@@ -33,9 +33,9 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
     public override T Syntax() => SyntaxWithModifiers();
     MemberDeclarationSyntax IMember.Syntax() => Syntax();
 
-    public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax
+    public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax()
         : SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? SyntaxFactory.IdentifierName(Owner!.Name)
-            : SyntaxFactory.IdentifierName(instance.Syntax().ToString()), SyntaxFactory.Token(SyntaxKind.DotToken), NameSyntax);
+            : SyntaxFactory.IdentifierName(instance.Syntax().ToString()), SyntaxFactory.Token(SyntaxKind.DotToken), NameSyntax());
 
     public abstract IExpression AccessValue(IExpression? instance = null);
     public IExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null)

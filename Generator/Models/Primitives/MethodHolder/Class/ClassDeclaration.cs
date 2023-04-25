@@ -12,10 +12,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record ClassModel2(string Name,
+public abstract record ClassDeclaration(string Name,
     List<IMember> Members,
-    ClassModel2? Parent = null,
-    IType? SpecifiedType = null)
+    ClassDeclaration? Parent = null)
     : BaseType<ClassDeclarationSyntax>(
         Name: Name,
         Members: Members,
@@ -26,28 +25,27 @@ public abstract record ClassModel2(string Name,
     INamedValueCollection<IFieldOrProperty>,
     IMember
 {
-    public static ClassModel2 Create(string name,
-    IEnumerable<IMember>? members = null,
-    IType? specifiedType = null)
+    public static ClassDeclaration Create(string name,
+    IEnumerable<IMember>? members = null)
     {
-        var c = new ClassModel2Imp(name, List(members), specifiedType);
+        var c = new ClassDeclarationImp(name, List(members));
         c.InitOwner();
         return c;
     }
 
-    //public ClassModel2(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
-    //public ClassModel2(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
-    //public ClassModel2(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
-    //public ClassModel2(Type type) : this(type.GetProperties(), type.GetFields()) { }
-    //public ClassModel2(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
+    //public ClassDeclaration(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
+    //public ClassDeclaration(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
+    //public ClassDeclaration(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
+    //public ClassDeclaration(Type type) : this(type.GetProperties(), type.GetFields()) { }
+    //public ClassDeclaration(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
     //    : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
-    //public ClassModel2(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public ClassModel2(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public ClassModel2(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
-    //public ClassModel2(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public ClassModel2(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public ClassModel2(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
-    //public ClassModel2(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
+    //public ClassDeclaration(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    //public ClassDeclaration(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    //public ClassDeclaration(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
+    //public ClassDeclaration(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    //public ClassDeclaration(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    //public ClassDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
+    //public ClassDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
@@ -78,7 +76,7 @@ public abstract record ClassModel2(string Name,
     public List<IExpression> ToExpressions() => GetProperties().Select(x => x.Value).ToList();
     public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
-    //public override LiteralExpressionSyntax? LiteralSyntax => ToValueCollection().LiteralSyntax;
+    //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(GetPropertiesAndFields().Select(x => x.ExpressionSyntax!));
     //public override object? LiteralValue => ToValueCollection().LiteralValue;
 
@@ -104,7 +102,7 @@ public abstract record ClassModel2(string Name,
 
     public override ClassDeclarationSyntax Syntax() => Syntax();
 
-    public InstantiatedObject CreateInstance()
+    public override InstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
         var instance = new InstantiatedObject(this, scope, GetStaticScope(), Parent?.CreateInstanceScope());
@@ -120,12 +118,10 @@ public abstract record ClassModel2(string Name,
         return scope;
     }
 
-    private record ClassModel2Imp(string Name,
-    List<IMember> Members,
-    IType? SpecifiedType = null)
-    : ClassModel2(
+    private record ClassDeclarationImp(string Name,
+    List<IMember> Members)
+    : ClassDeclaration(
         Name: Name,
-        Members: Members,
-        SpecifiedType: SpecifiedType);
+        Members: Members);
 }
 

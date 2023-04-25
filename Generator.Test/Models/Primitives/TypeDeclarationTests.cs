@@ -5,7 +5,7 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models.Primitives.Test;
 
-public class MethodHolderTests
+public class TypeDeclarationTests
 {
     [Fact]
     public void PropertiesAndFieldsWithOrdering() => new InstanceClass("ClassA", new PropertyCollection(new Property[] {

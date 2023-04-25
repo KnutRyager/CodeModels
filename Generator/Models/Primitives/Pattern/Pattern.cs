@@ -6,7 +6,7 @@ namespace CodeAnalyzation.Models;
 public abstract record Pattern<T>() : CodeModel<T>, IPattern<T>
     where T : PatternSyntax
 {
-    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
+    public SimpleNameSyntax NameSyntax() => throw new System.NotImplementedException();
 
     public IExpression Evaluate(IProgramModelExecutionContext context)
     {

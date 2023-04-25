@@ -11,11 +11,11 @@ public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
 {
     public bool IsLiteralExpression => throw new System.NotImplementedException();
 
-    public LiteralExpressionSyntax? LiteralSyntax => throw new System.NotImplementedException();
+    public LiteralExpressionSyntax? LiteralSyntax() => throw new System.NotImplementedException();
 
     public object? LiteralValue => throw new System.NotImplementedException();
 
-    public SimpleNameSyntax NameSyntax => throw new System.NotImplementedException();
+    public SimpleNameSyntax NameSyntax() => throw new System.NotImplementedException();
 
     public ExpressionStatement AsStatement()
     {

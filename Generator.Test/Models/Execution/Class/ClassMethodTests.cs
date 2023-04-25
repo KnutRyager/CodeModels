@@ -34,7 +34,7 @@ public class ClassMethodTests
     public void ClassInstaceMethodReturnFieldValue()
     {
         var method = Method("getA",
-            PropertyCollection(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
+            Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
         var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
@@ -45,9 +45,8 @@ public class ClassMethodTests
     public void ClassInstaceMethodModifyFieldValue()
     {
         var getter = Method("getA",
-            PropertyCollection(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var setter = Method("setA",
-            PropertyCollection(), Type(typeof(void)), Block(Assignment(ExpressionFromQualifiedName("A"), Literal(6))));
+             Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
+        var setter = Method("setA", Type(typeof(void)), Block(Assignment(ExpressionFromQualifiedName("A"), Literal(6))));
         var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), getter, setter);
         var instance = c.CreateInstance();
 

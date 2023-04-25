@@ -2,6 +2,6 @@
 
 public interface IMemberAccess
 {
-    IMethodHolder? Owner { get; }
+    IBaseTypeDeclaration? Owner { get; }
     IExpression? Instance { get; }
 }

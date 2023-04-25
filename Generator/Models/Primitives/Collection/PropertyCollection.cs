@@ -17,6 +17,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     INamedValueCollection<Property>,
     IMember
 {
+    public PropertyCollection(Property property, string? name = null, IType? specifiedType = null) : this(List(property), name, specifiedType) { }
     public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
     public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
     public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
@@ -61,7 +62,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public List<IExpression> ToExpressions() => Properties.Select(x => x.Value).ToList();
     public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Type);
     public override ArrayCreationExpressionSyntax Syntax() => ToValueCollection().Syntax();
-    public override LiteralExpressionSyntax? LiteralSyntax => ToValueCollection().LiteralSyntax;
+    public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax();
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Properties.Select(x => x.ExpressionSyntax!));
     public override object? LiteralValue => ToValueCollection().LiteralValue;
 
@@ -120,6 +121,8 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
         throw new NotImplementedException();
     }
 
-    public ClassModel2 ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToFieldOrProperty()));
+    public ClassDeclaration ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToFieldOrProperty()));
+
+    public static implicit operator PropertyCollection(Property property) => new(property);
 }
 

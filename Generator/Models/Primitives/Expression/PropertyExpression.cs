@@ -6,7 +6,7 @@ namespace CodeAnalyzation.Models;
 public record PropertyExpression(Property Property, IExpression? Instance = null) 
     : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
-    public IMethodHolder? Owner => Property.Owner;
+    public IBaseTypeDeclaration? Owner => Property.Owner;
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
 

@@ -63,11 +63,11 @@ public record PropertyModel(string Name,
     public InvocationExpression Invoke(IExpression caller) => CodeModelFactory.Invocation(GetGetter() ?? throw new ArgumentException("No getter"), caller, null);
 
     public Method? GetGetter()
-        => Owner is IMethodHolder b ? b.Methods().FirstOrDefault(x => ((IMemberInfo)x).Name == $"get_{Name}") as Method
+        => Owner is ITypeDeclaration b ? b.Methods().FirstOrDefault(x => ((IMemberInfo)x).Name == $"get_{Name}") as Method
         : Accessors.FirstOrDefault(x => x.Type is AccessorType.Get)?.GetMethod(Name);
     
     public Method? GetSetter()
-        => Owner is IMethodHolder b ? b.Methods().FirstOrDefault(x => ((IMemberInfo)x).Name == $"set_{Name}") as Method
+        => Owner is ITypeDeclaration b ? b.Methods().FirstOrDefault(x => ((IMemberInfo)x).Name == $"set_{Name}") as Method
         : Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
 
 

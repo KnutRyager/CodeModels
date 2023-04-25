@@ -9,7 +9,7 @@ namespace CodeAnalyzation.Models;
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
-    private IDictionary<string, ClassModel2> _types = new Dictionary<string, ClassModel2>();
+    private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
     private IDictionary<string, IProgramModelExecutionScope> _staticScopes = new Dictionary<string, IProgramModelExecutionScope>();
 
     public IExpression PreviousExpression { get; private set; } = VoidValue;
@@ -160,9 +160,9 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         throw new ProgramModelExecutionException($"No 'this' reference found.");
     }
 
-    public ClassModel2 GetType(string name) => _types[name];
+    public ClassDeclaration GetType(string name) => _types[name];
 
-    public void AddType(ClassModel2 type)
+    public void AddType(ClassDeclaration type)
     {
         _types[type.Name] = type;
         _staticScopes[type.Name] = type.GetStaticScope();

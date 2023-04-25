@@ -57,7 +57,7 @@ public record FieldModel(string Name,
         {
             instance.EnterScopes(context);
         }
-        else if (Owner is ClassModel2 baseType)
+        else if (Owner is ClassDeclaration baseType)
         {
             context.EnterScope(baseType.GetStaticScope());
         }
@@ -72,7 +72,7 @@ public record FieldModel(string Name,
             {
                 instanceExit.ExitScopes(context);
             }
-            else if (Owner is ClassModel2)
+            else if (Owner is ClassDeclaration)
             {
                 context.ExitScope();
             }
