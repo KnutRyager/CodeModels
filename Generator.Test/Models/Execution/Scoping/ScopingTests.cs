@@ -41,7 +41,7 @@ using (reader = new System.IO.StringReader(lines))
     reader.ReadLine();
 }
 reader.ReadLine();
-}".Eval().Should().BeEquivalentTo(new ObjectDisposedException("", "Cannot read from a closed TextReader."),
+}".Eval(catchExceptions: true).Should().BeEquivalentTo(new ObjectDisposedException("", "Cannot read from a closed TextReader."),
        options => options.Excluding(x => x.TargetSite).Excluding(x => x.Source).Excluding(x => x.StackTrace));
 
     [Fact]
@@ -54,6 +54,6 @@ using (var reader2 = new System.IO.StringReader(lines))
     reader2.ReadLine();
 }
 reader.ReadLine();
-}".Eval().Should().BeEquivalentTo(new ObjectDisposedException("", "Cannot read from a closed TextReader."),
+}".Eval(catchExceptions: true).Should().BeEquivalentTo(new ObjectDisposedException("", "Cannot read from a closed TextReader."),
        options => options.Excluding(x => x.TargetSite).Excluding(x => x.Source).Excluding(x => x.StackTrace));
 }

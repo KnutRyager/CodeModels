@@ -11,6 +11,8 @@ public class ExceptionTests
     [Fact]
     public void Throw()
     {
+        Func<object?> func = () => "throw new System.ArgumentException(\"a\")".Eval(catchExceptions: true);
+        func().Should().BeEquivalentTo(new ArgumentException("a"));
         Action action = () => "throw new System.ArgumentException(\"a\")".Eval();
         action.Should().Throw<ThrowException>().WithInnerException<ArgumentException>("a");
     }

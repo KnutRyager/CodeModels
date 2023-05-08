@@ -9,7 +9,7 @@ namespace CodeAnalyzation.Models.Execution;
 
 public static class ExecuteUtil
 {
-    public static object? Eval(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
+    public static object? Eval(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular, bool catchExceptions = false)
     {
         var model = str.ParseAndKeepSemanticModel(key, kind);
         var topLevelRewriter = new TopLevelStatementRewriter();
@@ -19,6 +19,7 @@ public static class ExecuteUtil
             model = rewrittenCompilationUnit.ToString().ParseAndKeepSemanticModel(key, kind);
         }
         ProgramContext.NewContext(model.Model);
+        CodeModelParsing.Register(model.Compilation, model.Model);
         var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
         if (compilationModel.Members.Count >= 0)
         {
@@ -37,7 +38,7 @@ public static class ExecuteUtil
                         statement.Evaluate(context);
                     }
                 }
-                var previousExpression = context.PreviousExpression.EvaluatePlain(context);
+                var previousExpression = context.PreviousExpression?.EvaluatePlain(context);
 
                 return previousExpression is not Task && previousExpression is not null ? previousExpression
                     : (context.ConsoleOutput is not "" ? context.ConsoleOutput : null);
@@ -48,7 +49,8 @@ public static class ExecuteUtil
             }
             catch (ThrowException e)
             {
-                return e.InnerException;
+                if (catchExceptions) return e.InnerException;
+                throw e;
             }
         }
         return null;
