@@ -41,4 +41,28 @@ public static class TypeParsing
         }
         return innerTypes;
     }
+
+    public static List<ParsedGenericType> ParseGenericParametersOfTypeName(string identifier)
+    {
+        var genericStartIndex = identifier.IndexOf("[");
+        var innerTypes = new List<ParsedGenericType>();
+        if (genericStartIndex == -1) return innerTypes;
+        var genericEndIndex = identifier.LastIndexOf("]");
+        var inner = identifier.Substring(genericStartIndex + 1, genericEndIndex - (genericStartIndex + 1));
+        var depth = 0;
+        var innerTypeStartIndex = 0;
+        for (var i = 0; i < inner.Length + 1; i++)
+        {
+            var c = i < inner.Length ? inner[i] : '_';
+            if (c == '[') depth++;
+            else if (c == ']') depth--;
+            else if ((c == ',' && depth == 0) || i == inner.Length)
+            {
+                var subIdentifier = inner[innerTypeStartIndex..i];
+                innerTypes.Add(new ParsedGenericType(RemoveGenericPart(ReflectionSerialization.NormalizeType(subIdentifier)), ParseGenericParameters(subIdentifier)));
+                innerTypeStartIndex = i + 1;
+            }
+        }
+        return innerTypes;
+    }
 }

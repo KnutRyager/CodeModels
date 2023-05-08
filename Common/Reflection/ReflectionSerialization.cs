@@ -252,7 +252,7 @@ public static class ReflectionSerialization
 
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
-    public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type.Replace(" ", string.Empty))).ToString();
+    public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type.Replace(" ", string.Empty))).Name;
     public static ParsedGenericType NormalizeType(ParsedGenericType type) => new(GetShortHandName(type.Name), type.Parameters.Select(NormalizeType).ToList());
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
@@ -262,7 +262,7 @@ public static class ReflectionSerialization
         if (_deserializeTypeCache.ContainsKey(valueType)) return _deserializeTypeCache[valueType];
         if (string.IsNullOrEmpty(valueType) || valueType == MISSING_TYPE) return null!;
         if (valueType == "void") return typeof(void);
-        if (valueType.Contains("<")) valueType = NormalizeType(valueType);
+        if (valueType.Contains("<")) valueType = NormalizedGenericName(valueType);
         else valueType = GetShortHandName(valueType);
         valueType = valueType.Replace("/", "");
         var type = Type.GetType(valueType);
@@ -345,4 +345,28 @@ public static class ReflectionSerialization
         => assembly == null || TypePathContainsAnAssembly(pathWithOrWithoutAssembly) ? pathWithOrWithoutAssembly : $"{pathWithOrWithoutAssembly}, {SerializeAssembly(assembly!)}";
     private static bool TypePathContainsAnAssembly(string pathWithOrWithoutAssembly) => pathWithOrWithoutAssembly.Contains(' ');
     private static Assembly? GetAssemblyFromTypePath(string pathWithOrWithoutAssembly) => TypePathContainsAnAssembly(pathWithOrWithoutAssembly) ? DeserializeAssembly(pathWithOrWithoutAssembly.Split(' ')[1]) : null;
+
+    private static string NormalizedGenericName(string name)
+        => name.Contains("<") ? $"{name[..name.IndexOf("<")]}`{GenericParameterCount(name)}[{string.Join(",", TypeParsing.ParseGenericParameters(name).Select(x => x.Name))}]" : name;
+
+    private static int GenericParameterCount(string name)
+    {
+        var genericStartIndex = name.IndexOf("<");
+        if (genericStartIndex is -1) return 0;
+        var genericEndIndex = name.LastIndexOf(">");
+        var inner = name.Substring(genericStartIndex + 1, genericEndIndex - (genericStartIndex + 1));
+        var depth = 0;
+        var innerParameterCount = 0;
+        for (var i = 0; i < inner.Length + 1; i++)
+        {
+            var c = i < inner.Length ? inner[i] : '_';
+            if (c == '<') depth++;
+            else if (c == '>') depth--;
+            else if ((c == ',' && depth == 0) || i == inner.Length)
+            {
+                innerParameterCount++;
+            }
+        }
+        return innerParameterCount;
+    }
 }
