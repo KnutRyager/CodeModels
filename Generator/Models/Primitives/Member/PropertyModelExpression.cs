@@ -1,10 +1,13 @@
 ﻿using System.Collections.Generic;
+using CodeAnalyzation.Models.ErDiagram;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models;
 
-public record PropertyModelExpression(PropertyModel Property, IExpression? Instance = null) 
-    : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
+public record PropertyModelExpression(PropertyModel Property, IExpression? Instance = null, IList<IProgramModelExecutionScope>? Scopes = null, ISymbol? Symbol = null) 
+    : Expression<ExpressionSyntax>(Property.Type, Symbol),
+    IPropertyModelExpression
 {
     public ITypeDeclaration? Owner => Property.Owner;
 
@@ -18,8 +21,8 @@ public record PropertyModelExpression(PropertyModel Property, IExpression? Insta
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(context, Instance ?? Property.Owner?.ToExpression());
+    public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context) => Property.Assign(value, context);
+    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes) => Property.Assign(value, context, scopes);
 }

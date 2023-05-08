@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection.Metadata;
 
 namespace CodeAnalyzation.Models;
 
@@ -42,4 +43,6 @@ public record LocalFunctionExpression(LocalFunctionStatement Function)
 
         throw new NotImplementedException();
     }
+
+    public Method ToMethod() => Function.ToMethod();
 }

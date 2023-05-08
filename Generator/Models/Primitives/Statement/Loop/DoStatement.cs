@@ -28,7 +28,7 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
             {
                 continue;
             }
-        } while (((bool?)Condition.Evaluate(context).LiteralValue) ?? false);
+        } while (((bool?)Condition.Evaluate(context).LiteralValue()) ?? false);
         context.ExitScope();
     }
 }

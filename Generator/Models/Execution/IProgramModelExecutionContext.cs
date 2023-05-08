@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace CodeAnalyzation.Models;
 
@@ -7,6 +8,10 @@ public interface IProgramModelExecutionContext
     IExpression This();
     IExpression GetValue(string identifier);
     IExpression GetValue(IdentifierExpression identifier);
+    ICodeModel GetValueOrMember(string identifier);
+    ICodeModel GetValueOrMember(IdentifierExpression identifier);
+    ICodeModel? TryGetValueOrMember(string identifier);
+    ICodeModel? TryGetValueOrMember(IdentifierExpression identifier);
     void DefineVariable(string identifier);
     void SetValue(string identifier, IExpression valueExpression, bool allowDefine = false);
     void SetValue(IdentifierExpression identifier, IExpression value, bool allowDefine = false);
@@ -18,6 +23,8 @@ public interface IProgramModelExecutionContext
     void EnterScope(object owner);
     void EnterScope();
     void EnterScope(IProgramModelExecutionScope scope);
+    void EnterScopes(IEnumerable<IProgramModelExecutionScope>? scope);
+    void ExitScopes(IEnumerable<IProgramModelExecutionScope>? scope);
     void ExitScope(object owner);
     void ExitScope();
     IProgramModelExecutionScope CaptureScope();
@@ -28,6 +35,7 @@ public interface IProgramModelExecutionContext
     void ConsoleWriteLine(string s);
     void IncreaseDisableSetPreviousValueLock();
     void DecreaseDisableSetPreviousValueLock();
-    ClassDeclaration GetType(string name);
-    void AddType(ClassDeclaration type);
+    IMember GetMember(string? key, string? name = null);
+    IMember? TryGetMember(string? key, string? name = null);
+    void AddMember(string? key, IMember type);
 }

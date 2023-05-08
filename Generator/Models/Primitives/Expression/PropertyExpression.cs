@@ -19,5 +19,5 @@ public record PropertyExpression(Property Property, IExpression? Instance = null
     public override IExpression Evaluate(IProgramModelExecutionContext context) => Property.EvaluateAccess(context, Instance);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context) => Property.Assign(value, context);
+    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes) => Property.Assign(value, context, scopes);
 }

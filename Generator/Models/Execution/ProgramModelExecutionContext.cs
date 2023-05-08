@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeAnalyzation.Utils;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
 namespace CodeAnalyzation.Models;
@@ -9,7 +10,8 @@ namespace CodeAnalyzation.Models;
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
-    private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
+    private readonly IDictionary<string, IMember> _members = new Dictionary<string, IMember>();
+    //private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
     private IDictionary<string, IProgramModelExecutionScope> _staticScopes = new Dictionary<string, IProgramModelExecutionScope>();
 
     public IExpression PreviousExpression { get; private set; } = VoidValue;
@@ -60,11 +62,35 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         _scopes.RemoveAt(_scopes.Count - 1);
     }
 
+    public void EnterScopes(IEnumerable<IProgramModelExecutionScope>? scopes)
+    {
+        if (scopes is null) return;
+        foreach (var scope in scopes)
+        {
+            EnterScope(scope);
+        }
+    }
+
+    public void ExitScopes(IEnumerable<IProgramModelExecutionScope>? scopes)
+    {
+        if (scopes is null) return;
+        foreach (var _ in scopes)
+        {
+            ExitScope();
+        }
+    }
+
     public void DefineVariable(string identifier) => GetScope().DefineVariable(identifier);
 
     public IExpression GetValue(string identifier) => FindScopeOrCrash(identifier).GetValue(identifier);
 
     public IExpression GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
+
+    public ICodeModel GetValueOrMember(string identifier) => FindScope(identifier)?.GetValue(identifier) as ICodeModel ?? GetMember(identifier);
+
+    public ICodeModel GetValueOrMember(IdentifierExpression identifier) => GetValueOrMember(identifier.Name);
+    public ICodeModel? TryGetValueOrMember(string identifier) => FindScope(identifier)?.GetValue(identifier) as ICodeModel ?? TryGetMember(identifier);
+    public ICodeModel? TryGetValueOrMember(IdentifierExpression identifier) => TryGetValueOrMember(identifier.Name);
 
     public void SetValue(string identifier, IExpression value, bool define = false)
     {
@@ -119,7 +145,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void Throw(IExpression value)
     {
-        if (value.LiteralValue is Exception e) throw new ThrowException(e);
+        if (value.LiteralValue() is Exception e) throw new ThrowException(e);
         throw new ThrowException(value);
     }
 
@@ -160,14 +186,24 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         throw new ProgramModelExecutionException($"No 'this' reference found.");
     }
 
-    public ClassDeclaration GetType(string name) => _types[name];
-
-    public void AddType(ClassDeclaration type)
+    public IMember GetMember(string? key, string? name = null) => _members[NamespaceUtils.GetKeyAndName(key, name)];
+    public IMember? TryGetMember(string? key, string? name = null)
     {
-        _types[type.Name] = type;
-        _staticScopes[type.Name] = type.GetStaticScope();
+        _members.TryGetValue(NamespaceUtils.GetKeyAndName(key, name), out var member);
+        return member;
+    }
+
+    public void AddMember(string? key, IMember member)
+    {
+        _members[NamespaceUtils.GetKeyAndName(key, member.Name)] = member;
+        //_staticScopes[member.Name] = member.GetStaticScope();
     }
 
     public override string ToString()
         => $"ProgramModelContext. Scopes: {string.Join(Environment.NewLine, _scopes)}";
+
+    public void Register(string key, IMember type)
+    {
+        throw new NotImplementedException();
+    }
 }

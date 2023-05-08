@@ -22,7 +22,7 @@ public record Namespace(
     public IType Get_Type() => this;
     public bool IsLiteralExpression => throw new NotImplementedException();
     public LiteralExpressionSyntax? LiteralSyntax() => null;
-    public object? LiteralValue => throw new NotImplementedException();
+    public object? LiteralValue() => throw new NotImplementedException();
 
     public Modifier Modifier => throw new NotImplementedException();
 
@@ -43,11 +43,11 @@ public record Namespace(
         throw new NotImplementedException();
     }
 
-    TypeSyntax IType.Syntax() => new QuickType(Name).Syntax();
-    public TypeSyntax TypeSyntaxNonMultiWrapped() => new QuickType(Name).Syntax();
-    public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => new QuickType(Name).Syntax();
-    public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => new QuickType(Name).Syntax();
-    public TypeSyntax TypeSyntaxUnwrapped() => new QuickType(Name).Syntax();
+    TypeSyntax IType.Syntax() => CodeModelFactory.QuickType(Name).Syntax();
+    public TypeSyntax TypeSyntaxNonMultiWrapped() => CodeModelFactory.QuickType(Name).Syntax();
+    public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => CodeModelFactory.QuickType(Name).Syntax();
+    public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => CodeModelFactory.QuickType(Name).Syntax();
+    public TypeSyntax TypeSyntaxUnwrapped() => CodeModelFactory.QuickType(Name).Syntax();
     public TypeParameterSyntax ToTypeParameter() => throw new NotImplementedException();
     public Type? GetReflectedType() => throw new NotImplementedException();
     public IType ToMultiType() => throw new NotImplementedException();
@@ -102,6 +102,11 @@ public record Namespace(
     }
 
     public TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType PlainType()
     {
         throw new NotImplementedException();
     }

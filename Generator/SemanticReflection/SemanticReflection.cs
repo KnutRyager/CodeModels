@@ -86,14 +86,30 @@ public static class SemanticReflection
         //var ts = aa.GetTypes();
         //var t = aa.GetType(name);
         //var ts2 = ts.Where(x => x.FullName.Contains("Console")).ToArray();
+        var genericParametersCount = symbol is INamedTypeSymbol namedTypeSymbol ? namedTypeSymbol.TypeParameters.Count() : 0;
+        var normalizedGenericName = NormalizedGenericName(name, genericParametersCount);
         var trimmedName = TrimGenericTypeName(name);
-        return TryGetType(name)
-            ?? GetAssembly(symbol).GetTypes().FirstOrDefault(x => ReplacePlusInPath(TrimGenericTypeName(x.Name)) == trimmedName || ReplacePlusInPath(TrimGenericTypeName(x.FullName)) == trimmedName)
+        //if (symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeParameters.Count() > 0)
+        //{
+        //    var parameters = namedTypeSymbol.TypeParameters;
+        //    var parsed = parameters.Select(GetType).ToArray();
+        //}
+        //var d = typeof(System.Collections.Generic.Dictionary);
+
+        // TryGetType("System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]")
+        return TryGetType(normalizedGenericName)
+            ?? GetAssembly(symbol)?.GetTypes().FirstOrDefault(x => ReplacePlusInPath(TrimGenericTypeName(x.Name)) == trimmedName || ReplacePlusInPath(TrimGenericTypeName(x.FullName)) == trimmedName)
             ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
     }
 
     private static string TrimGenericTypeName(string name)
         => name.Contains("`") ? name[0..name.IndexOf("`")] : name;
+
+    private static string NormalizedGenericName(string name, int genericParameterCount)
+    {
+        return name.Contains("<") ? $"{name[..name.IndexOf("<")]}`{genericParameterCount}[{string.Join(",", TypeParsing.ParseGenericParameters(name).Select(x => x.Name))}]" : name;
+        //return name.Contains("<") ? name.Replace("<", $"`{genericParameterCount}[").Replace(">", "]") : name;
+    }
 
     private static string ReplacePlusInPath(string name)
         => name.Contains("+") ? name.Replace("+", ".") : name;

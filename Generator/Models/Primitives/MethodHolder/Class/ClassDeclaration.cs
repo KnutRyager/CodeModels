@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using CodeAnalyzation.Collectors;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -14,21 +12,25 @@ namespace CodeAnalyzation.Models;
 
 public abstract record ClassDeclaration(string Name,
     List<IMember> Members,
-    ClassDeclaration? Parent = null)
+    ClassDeclaration? Parent = null,
+    Namespace? Namespace = null,
+    Modifier Modifier = Modifier.Public)
     : BaseType<ClassDeclarationSyntax>(
         Name: Name,
         Members: Members,
-        Namespace: null,
-        TopLevelModifier: Modifier.None,
+        Namespace: Namespace,
+        TopLevelModifier: Modifier,
         MemberModifier: Modifier.None,
         ReflectedType: null),
     INamedValueCollection<IFieldOrProperty>,
     IMember
 {
     public static ClassDeclaration Create(string name,
-    IEnumerable<IMember>? members = null)
+    IEnumerable<IMember>? members = null,
+    Namespace? @namespace = null,
+    Modifier? modifier = null)
     {
-        var c = new ClassDeclarationImp(name, List(members));
+        var c = new ClassDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
         c.InitOwner();
         return c;
     }
@@ -78,18 +80,16 @@ public abstract record ClassDeclaration(string Name,
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
     //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(GetPropertiesAndFields().Select(x => x.ExpressionSyntax!));
-    //public override object? LiteralValue => ToValueCollection().LiteralValue;
+    //public override object? LiteralValue() => ToValueCollection().LiteralValue();
 
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var member in Members) yield return member;
     }
 
-    //public override IExpression Evaluate(IProgramModelExecutionContext context)
-    //    => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
+    public void Evaluate(IProgramModelExecutionContext context) => context.AddMember(Namespace?.Name, this);
 
-    public IType BaseType()
-        => new QuickType(Name);
+    public IType BaseType() => CodeModelFactory.QuickType(Name);
 
     public PropertyCollection ToPropertyCollection() => throw new NotImplementedException();
 
@@ -119,9 +119,13 @@ public abstract record ClassDeclaration(string Name,
     }
 
     private record ClassDeclarationImp(string Name,
-    List<IMember> Members)
+    List<IMember> Members,
+    Namespace? Namespace,
+    Modifier Modifier = Modifier.Public)
     : ClassDeclaration(
         Name: Name,
-        Members: Members);
+        Members: Members,
+        Namespace: Namespace,
+        Modifier: Modifier);
 }
 

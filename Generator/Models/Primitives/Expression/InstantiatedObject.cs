@@ -10,13 +10,13 @@ namespace CodeAnalyzation.Models;
 public record InstantiatedObject(ClassDeclaration Type,
     IProgramModelExecutionScope Scope,
     IProgramModelExecutionScope StaticScope,
-    IProgramModelExecutionScope? ParentScope = null) : IExpression
+    IProgramModelExecutionScope? ParentScope = null) : IScopeHolder, IExpression
 {
     public bool IsLiteralExpression => false;
 
     public LiteralExpressionSyntax? LiteralSyntax() => default;
 
-    public object? LiteralValue => default;
+    public object? LiteralValue() => this;
 
     public SimpleNameSyntax NameSyntax() => Type.NameSyntax();
 
@@ -39,6 +39,9 @@ public record InstantiatedObject(ClassDeclaration Type,
     {
         throw new NotImplementedException();
     }
+
+    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context)
+        => new[] { StaticScope, Scope };
 
     public void EnterScopes(IProgramModelExecutionContext context)
     {

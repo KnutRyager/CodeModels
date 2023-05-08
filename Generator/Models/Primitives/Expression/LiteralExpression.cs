@@ -21,7 +21,7 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
 
     public LiteralExpression(EnumMemberDeclarationSyntax value) : this(new TypeFromReflection(typeof(string)), value.Identifier) { }
     public override LiteralExpressionSyntax LiteralSyntax() => LiteralExpressionCustom(Value);
-    public override object? LiteralValue => Value;
+    public override object? LiteralValue() => Value;
     public override LiteralExpressionSyntax Syntax() => LiteralSyntax();
 
     public override IEnumerable<ICodeModel> Children()

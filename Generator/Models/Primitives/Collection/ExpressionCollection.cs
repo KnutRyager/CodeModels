@@ -38,9 +38,9 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
 
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        var array = Array.CreateInstance(Type.GetReflectedType(), Values.Count);
+        var array = Array.CreateInstance(Type.PlainType().GetReflectedType(), Values.Count);
         for (var i = 0; i < array.Length; i++) { array.SetValue(Values[i].EvaluatePlain(context), i); }
-        return new LiteralExpression(array);
+        return Literal(array);
     }
 
     public List<IType> AsList(IType? typeSpecifier = null) => Values.Select(x => x.Get_Type()).ToList();

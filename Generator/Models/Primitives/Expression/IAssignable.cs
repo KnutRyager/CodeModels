@@ -1,6 +1,8 @@
-﻿namespace CodeAnalyzation.Models;
+﻿using System.Collections.Generic;
+
+namespace CodeAnalyzation.Models;
 
 public interface IAssignable
 {
-    void Assign(IExpression value, IProgramModelExecutionContext context);
+    void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes);
 }

@@ -58,4 +58,10 @@ public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string
         throw new NotImplementedException();
     }
 
+    public Method ToMethod() => Method.Create(name: Name,
+        returnType: ReturnType,
+        parameters: Parameters,
+        body: Body,
+        expressionBody: ExpressionBody,
+        modifier: Modifier);
 }

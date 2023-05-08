@@ -32,8 +32,8 @@ argumentList: default,
 initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
     }
 
-    public IType ToDictionaryType() => new QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
-    public IType ToDictionaryInterfaceType() => new QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
+    public IType ToDictionaryType() => CodeModelFactory.QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
+    public IType ToDictionaryInterfaceType() => CodeModelFactory.QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
 
     public Property ToProperty(string? name = null) => new(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
     //public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType());

@@ -19,7 +19,8 @@ public abstract record BaseType<T>(string Name,
     Modifier MemberModifier,
     Type? ReflectedType)
     : NamedCodeModel<T>(Name),
-    ITypeDeclaration<T>
+    ITypeDeclaration<T>,
+    IScopeHolder
     where T : TypeDeclarationSyntax
 
 {
@@ -110,7 +111,8 @@ public abstract record BaseType<T>(string Name,
                 _methods!.Add(method);
                 break;
             case Constructor constructor:
-                constructor = constructor with { ClassType = this };
+                constructor.Owner = this;
+                //constructor = constructor with { Owner = this };
                 member = constructor;
                 _constructors!.Add(constructor);
                 break;
@@ -124,13 +126,19 @@ public abstract record BaseType<T>(string Name,
         {
             scope.DefineVariable(field.Name, field.ValueOrDefault());
         }
+        foreach (var property in GetProperties())
+        {
+            if (property.GetBackingField() is FieldModel backingField)
+                scope.DefineAlias(backingField.Name, property.Name);
+            // TODO: Methods?
+        }
     }
 
     public ProgramModelExecutionScope GetStaticScope()
     {
         if (_staticScope is null)
         {
-            _staticScope = new ProgramModelExecutionScope();
+            _staticScope = new ProgramModelExecutionScope(aliases: GetAliases());
             foreach (var field in GetFields())
             {
                 if (field.IsStatic)
@@ -143,11 +151,24 @@ public abstract record BaseType<T>(string Name,
         return _staticScope;
     }
 
+    private Dictionary<string, string> GetAliases()
+    {
+        var aliases = new Dictionary<string, string>();
+        foreach (var property in GetProperties())
+        {
+            if (property.GetBackingField() is FieldModel backingField)
+                aliases.Add(backingField.Name, property.Name);
+            // TODO: Methods?
+        }
+        return aliases;
+    }
+
     public ITypeDeclaration AddMember(IMember member)
     {
         if (member is Constructor c)
         {
-            member = c with { ClassType = this };
+            c.Owner = this;
+            //member = c with { Owner = this };
         }
         Members.Add(member);
         if (member is IFieldOrProperty fieldOrProperty)
@@ -162,7 +183,7 @@ public abstract record BaseType<T>(string Name,
     public ITypeDeclaration AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
     public ITypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
     public ITypeDeclaration AddProperty(AbstractType type, string name) => AddMember(CodeModelFactory.PropertyModel(name, type));
-    public IType Get_Type() => Type(Name);
+    public IType Get_Type() => Type(this);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
     public List<IMember> AllMembers() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).Concat<IMember>(Methods()).ToList();
@@ -172,7 +193,14 @@ public abstract record BaseType<T>(string Name,
     public List<FieldModel> GetFields() => _fields ??= new List<FieldModel>();
     public List<PropertyModel> GetProperties() => _properties ??= new List<PropertyModel>();
     public List<IFieldOrProperty> GetPropertiesAndFields() => GetFields().Concat<IFieldOrProperty>(GetProperties()).ToList();
-    public List<Method> Methods() => _methods ??= new List<Method>();
+    public List<Method> Methods()
+    {
+        if (_methods is null)
+        {
+            InitMembers();
+        }
+        return _methods!;
+    }
     public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => SyntaxFactory.List(Members.Select(x => x.Syntax()).Concat(MethodsSyntax()));
 
     public virtual IMember GetMember(string name) => AllMembers().First(x => x.Name == name);
@@ -245,7 +273,7 @@ public abstract record BaseType<T>(string Name,
 
     public LiteralExpressionSyntax? LiteralSyntax() => null;
 
-    public object? LiteralValue => null;
+    public object? LiteralValue() => null;
 
     TypeDeclarationSyntax ITypeDeclaration.Syntax() => Syntax();
 
@@ -284,4 +312,7 @@ public abstract record BaseType<T>(string Name,
     public abstract InstantiatedObject CreateInstance();
 
     BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
+
+    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context)
+        => new[] { GetStaticScope() };
 }

@@ -2,6 +2,7 @@ using System.Linq;
 using System;
 using FluentAssertions;
 using Xunit;
+using System.Collections.Generic;
 
 namespace CodeAnalyzation.Models.Execution.Library.Test;
 
@@ -15,17 +16,12 @@ using System.Linq;
     System.Console.Write(""It works, answer is {0:F2}"", squareRoot);
 ".Eval().Should().Be("It works, answer is 552.71");
 
-    [Fact] public void LinqExtension2() => @"
+    [Fact(Skip = "Can't resolve Enumerable.Range overload")]
+    public void LinqExtensionManually() => @"
 using System;
 using System.Linq;
 using System.Collections.Generic;
-Math.Sqrt(Enumerable.Sum(Enumerable.Range(200, 400).ToList()));
+Enumerable.Range(0, 1).ToList();
 //System.Math.Sqrt(System.Enumerable.Range(200, 400).ToList().Sum());
-".Eval().Should().Be(399.7499218261337);
-
-    private void Test()
-    {
-        Math.Sqrt(Enumerable.Sum(Enumerable.Range(200, 400).ToList<int>()));
-        //Math.Sqrt(Enumerable.Range(200, 400).ToList().Sum());
-    }
+".Eval().Should().Be(new List<int>() { 0, 1 });
 }

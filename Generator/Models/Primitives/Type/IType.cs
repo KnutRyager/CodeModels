@@ -11,6 +11,7 @@ public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
     bool IsMulti { get; }
     new TypeSyntax Syntax();
     Type? ReflectedType { get; }
+    IType PlainType();
     TypeSyntax TypeSyntaxNonMultiWrapped();
     TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type);
     TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type);

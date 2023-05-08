@@ -20,7 +20,7 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
 
     public override void Evaluate(IProgramModelExecutionContext context)
     {
-        if ((bool)Condition.Evaluate(context).LiteralValue)
+        if ((bool)Condition.Evaluate(context).LiteralValue())
         {
             context.EnterScope();
             Statement.Evaluate(context);
@@ -62,7 +62,7 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
         var ifWasExecuted = false;
         foreach (var statement in IfStatements)
         {
-            var ifCondition = (bool)statement.Condition.Evaluate(context).LiteralValue;
+            var ifCondition = (bool)statement.Condition.Evaluate(context).LiteralValue();
             ifWasExecuted |= ifCondition;
             if (ifCondition)
             {

@@ -125,6 +125,12 @@ public abstract record MethodBaseFromSymbol<T, TCodeModel>(T Symbol) : MemberFro
     public IParameterInfo[] GetParameters() => Lookup.GetParameters();
     public object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) => Lookup.Children();
     public object Invoke(object obj, object[] parameters) => Lookup.Invoke(obj, parameters);
+
+    public IInvocation Invoke(IExpression caller, IEnumerable<IExpression> arguments)
+    {
+        throw new NotImplementedException();
+    }
+
     public bool IsDefined(ITypeInfo attributeType, bool inherit) => Lookup.IsDefined(attributeType, inherit);
 
     BaseMethodDeclarationSyntax IMethodBase.Syntax()
@@ -184,7 +190,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public EqualityList<IType> GenericTypes => Lookup.GenericTypes;
     public bool IsLiteralExpression => Lookup.IsLiteralExpression;
     public LiteralExpressionSyntax? LiteralSyntax() => Lookup.LiteralSyntax();
-    public object? LiteralValue => Lookup.LiteralValue;
+    public object? LiteralValue() => Lookup.LiteralValue();
     public ExpressionStatement AsStatement() => Lookup.AsStatement();
     public bool Equals(IType other, IProgramModelExecutionContext context)
         => TypeName == other.TypeName; // TODO: Check assembly
@@ -210,6 +216,11 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Lookup.Syntax();
     TypeSyntax ICodeModel<TypeSyntax>.Syntax() => Lookup.Syntax();
     ExpressionSyntax IExpression.Syntax() => Lookup.Syntax();
+
+    public IType PlainType()
+    {
+        throw new NotImplementedException();
+    }
 }
 
 

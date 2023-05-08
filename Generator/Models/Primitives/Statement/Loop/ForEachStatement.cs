@@ -30,7 +30,7 @@ public record ForEachStatement(IType? Type, string Identifier, IExpression Expre
     {
         context.EnterScope();
         context.DefineVariable(Identifier);
-        if (Expression.Evaluate(context).LiteralValue is not System.Collections.IEnumerable iterator)
+        if (Expression.Evaluate(context).LiteralValue() is not System.Collections.IEnumerable iterator)
         {
             context.Throw(new NullReferenceException("null iterator"));
             return;

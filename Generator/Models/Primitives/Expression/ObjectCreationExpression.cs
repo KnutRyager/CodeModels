@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.Models.CodeModelFactory;
 using Microsoft.CodeAnalysis.Operations;
-using System.Reflection;
+using static CodeAnalyzation.Models.CodeModelFactory;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type)
+public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {
     public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(), Arguments?.ToArguments(), Initializer?.Syntax());
 
@@ -22,9 +23,26 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
 
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
-        var constructor = GetConstructor();
-        var value = constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
-            : Arguments.ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
+        IExpression? value;
+        object? valuePlain = null;
+        if (Operation is IObjectCreationOperation objectCreationOperation && SymbolUtils.IsNewDefined(objectCreationOperation))
+        {
+            // TODO: Remove static reference
+            var member = ProgramContext.Context.Get<ClassDeclaration>(objectCreationOperation.Type);
+            var constructor = member.GetConstructor();
+            var arguments = Arguments is null ? Array.Empty<IExpression>()
+               : Arguments.ToExpressions().ToArray();
+            var invocation = ConstructorInvocation(constructor, arguments);
+            value = invocation.Evaluate(context);
+            //return CodeModelFactory.ConstructorInvocation(constructor);
+        }
+        else
+        {
+            var constructor = GetConstructor();
+            value = Value(constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
+               : Arguments.ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray()));
+            valuePlain = value.LiteralValue();
+        }
         if (Initializer is not null)
         {
             context.EnterScope(value);
@@ -34,14 +52,14 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
             {
                 if (initialValues is IEnumerable<object?> initialPlainValues)
                 {
-                    if (value is System.Collections.IDictionary dictionary)
+                    if (valuePlain is System.Collections.IDictionary dictionary)
                     {
                         foreach (var v in initialPlainValues)
                         {
                             if (v is object[] array) dictionary[array[0]] = array[1];
                         }
                     }
-                    else if (value is System.Collections.IEnumerable collection)
+                    else if (valuePlain is System.Collections.IEnumerable collection)
                     {
                         var addMethod = collection.GetType().GetMethod("Add");
                         if (addMethod is null) throw new NotImplementedException($"Unhandled ienumerable: '{value}'.");
@@ -51,7 +69,7 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
             }
             context.ExitScope(value);
         }
-        return Value(value);
+        return value ?? VoidValue;
     }
 
     private ConstructorInfo GetConstructor()

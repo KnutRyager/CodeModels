@@ -9,7 +9,7 @@ public static class TypeUtil
 {
     public static IType FindCommonType(IEnumerable<IType> types)
     {
-        if (types.Count() == 0) return new QuickType("object");
+        if (types.Count() == 0) return CodeModelFactory.QuickType("object");
         var isMulti = types.Any(x => x.IsMulti);
         var isOptional = types.Any(x => !x.Required);
         var disinctTypes = types.Select(x => x.TypeName).Distinct();
@@ -19,7 +19,7 @@ public static class TypeUtil
         //    : types.Any(x => x.GetMostSpecificType() is "object") ? "object"
         //    : types.Any(x => x.GetMostSpecificType() is "string") ? "string"
         //    : "int";
-        return new QuickType(specificType, !isOptional);
+        return CodeModelFactory.QuickType(specificType, !isOptional);
         //return new QuickType(specificType, !isOptional, isMulti);
     }
     public static IType FindCommonType(IEnumerable<IExpression> expressions) => FindCommonType(expressions.Select(x => x.Get_Type()));
@@ -28,6 +28,6 @@ public static class TypeUtil
 
 
     public static EqualityList<IType> ParseGenericParameters(string identifier) => new(TypeParsing.ParseGenericParameters(identifier).Select(TypeFromParsedGenericType));
-    public static IType TypeFromParsedGenericType(ParsedGenericType parsed) => new QuickType(parsed.Name, parsed.Parameters.Select(TypeFromParsedGenericType));
+    public static IType TypeFromParsedGenericType(ParsedGenericType parsed) => CodeModelFactory.QuickType(parsed.Name, parsed.Parameters.Select(TypeFromParsedGenericType));
 
 }

@@ -64,7 +64,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
     public override ArrayCreationExpressionSyntax Syntax() => ToValueCollection().Syntax();
     public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax();
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Properties.Select(x => x.ExpressionSyntax!));
-    public override object? LiteralValue => ToValueCollection().LiteralValue;
+    public override object? LiteralValue() => ToValueCollection().LiteralValue();
 
     public Modifier Modifier => Modifier.Public;
 
@@ -80,8 +80,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
 
     public override IExpression Evaluate(IProgramModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
 
-    public IType BaseType()
-        => new QuickType(Name);
+    public IType BaseType() => CodeModelFactory.QuickType(Name);
 
     public List<IType> ConvertToList()
     => AsList().Select(x => x.ToType()).ToList();

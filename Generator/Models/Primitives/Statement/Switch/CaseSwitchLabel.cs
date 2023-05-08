@@ -13,7 +13,7 @@ public record CaseSwitchLabel(IExpression Value)
     }
 
     public override bool Match(IProgramModelExecutionContext context, IExpression condition)
-        => Equals(Value.Evaluate(context).LiteralValue, condition.LiteralValue);
+        => Equals(Value.Evaluate(context).LiteralValue(), condition.LiteralValue());
 
     public override CaseSwitchLabelSyntax Syntax()
         => SyntaxFactory.CaseSwitchLabel(Value.Syntax());

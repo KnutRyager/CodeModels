@@ -7,7 +7,7 @@ public interface IExpression : ICodeModel, IIdentifiable, IExpressionOrPattern
     bool IsLiteralExpression { get; }
     LiteralExpressionSyntax? LiteralSyntax();
     ArgumentSyntax ToArgument();
-    object? LiteralValue { get; }
+    object? LiteralValue();
     EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
     //System.Type GetReflectedType();
     ExpressionStatement AsStatement();

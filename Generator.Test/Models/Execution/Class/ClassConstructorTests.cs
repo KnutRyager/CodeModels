@@ -55,7 +55,7 @@ public class ClassConstructorTests
     public void ConstructorWithParameterInitField()
     {
         var c = CodeModelFactory.Class("classA",
-            Constructor(Property("a"), Block(Assignment(Identifier("A"),Identifier("a")))),
+            Constructor(Property("a"), Block(Assignment(Identifier("A"), Identifier("a")))),
             FieldModel("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke(Literal(3));
@@ -67,7 +67,7 @@ public class ClassConstructorTests
     public void ConstructorWithParameterDefaultValueInitField()
     {
         var c = CodeModelFactory.Class("classA",
-            Constructor(Property("a", Literal(7)), Block(Assignment(Identifier("A"),Identifier("a")))),
+            Constructor(Property("a", Literal(7)), Block(Assignment(Identifier("A"), Identifier("a")))),
             FieldModel("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();

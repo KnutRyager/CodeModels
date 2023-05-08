@@ -11,7 +11,8 @@ using static CodeAnalyzation.Models.CodeModelFactory;
 namespace CodeAnalyzation.Models;
 
 public record ConstructorInvocationExpression(Constructor Constructor, List<IExpression> Arguments)
-    : AnyArgExpression<InvocationExpressionSyntax>(Arguments.ToList(), Constructor.Type, OperationType.Invocation)
+    : AnyArgExpression<InvocationExpressionSyntax>(Arguments.ToList(), Constructor.Type, OperationType.Invocation),
+    IInvocation
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Constructor.Name, Arguments.Select(x => x.Syntax()));
 
@@ -21,7 +22,7 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
         {
             throw new NotImplementedException();
         }
-        var instance = Constructor.ClassType.CreateInstance();
+        var instance = Constructor.Owner.CreateInstance();
         try
         {
             instance.EnterScopes(context);

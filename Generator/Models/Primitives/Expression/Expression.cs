@@ -20,8 +20,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
             attributeLists: default,
             identifier: Type switch
             {
-                _ when Type.GetReflectedType() == typeof(string) && LiteralValue is string name => SyntaxFactory.Identifier(name),
-                _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue}' of type '{Type}'.")
+                _ when Type.GetReflectedType() == typeof(string) && LiteralValue() is string name => SyntaxFactory.Identifier(name),
+                _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue()}' of type '{Type}'.")
             },
             equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
 
@@ -31,7 +31,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
             expression: Syntax());
 
 
-    public virtual object? LiteralValue => null;
+    public virtual object? LiteralValue() => null;
     public bool IsLiteralExpression => LiteralSyntax() is not null;
     public virtual LiteralExpressionSyntax? LiteralSyntax() => default;
     public IType Get_Type() => Type;
@@ -42,7 +42,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
     protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax() ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
 
     public abstract IExpression Evaluate(IProgramModelExecutionContext context);
-    public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue;
+    public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue();
     public ExpressionStatement AsStatement() => new(this);
-    public new virtual IdentifierExpression ToIdentifierExpression() => new(Type.Name, Type, Symbol: Symbol);
+    public new virtual IdentifierExpression ToIdentifierExpression() => new(Type.Name, Type, Symbol: Symbol, Model: this);
 }

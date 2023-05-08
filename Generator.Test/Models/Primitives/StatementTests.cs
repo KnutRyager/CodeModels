@@ -110,16 +110,12 @@ throw 1337");
         .CodeModelEqual(@"
 switch (expr) {
     case 1:
-    {
         int a = 1337;
         break;
-    }
     case 2:
     case 3:
-    {
         string b = ""woops"";
         break;
-    }
     default:
     {
         int c = 5;

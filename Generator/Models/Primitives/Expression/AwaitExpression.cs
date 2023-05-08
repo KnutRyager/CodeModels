@@ -19,11 +19,11 @@ public record AwaitExpression(IExpression Expression) : Expression<AwaitExpressi
     public override IExpression Evaluate(IProgramModelExecutionContext context)
     {
         var value = Expression.Evaluate(context);
-        if (value.LiteralValue is Task task)
+        if (value.LiteralValue() is Task task)
         {
             if (task.GetType().IsGenericType)
             {
-                return new LiteralExpression(ReflectionUtil.ConvertTaskResult(value.LiteralValue as Task));
+                return new LiteralExpression(ReflectionUtil.ConvertTaskResult(value.LiteralValue() as Task));
             }
             task.WaitAndUnwrapException();
         }

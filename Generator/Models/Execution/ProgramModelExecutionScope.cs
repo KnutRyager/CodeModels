@@ -8,26 +8,34 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
     private HashSet<object> _variables = new HashSet<object>();
     private IDictionary<object, IExpression> _values = new Dictionary<object, IExpression>();
     private IExpression? _this;
+    private IDictionary<string, string> _aliases;
 
-    public ProgramModelExecutionScope(IExpression? thisExpression = null)
+    public ProgramModelExecutionScope(IExpression? thisExpression = null, IDictionary<string, string>? aliases = null)
     {
         _this = thisExpression;
+        _aliases = aliases ?? new Dictionary<string, string>();
     }
 
     public void DefineVariable(string identifier, IExpression? value = null)
     {
+        identifier = Unalias(identifier);
         if (_variables.Contains(identifier)) throw new ProgramModelExecutionException($"Already defined: {identifier}");
         _variables.Add(identifier);
         if (value is not null) SetValue(identifier, value);
     }
     public void DefineVariable(IdentifierExpression identifier, IExpression? value = null)
         => DefineVariable(identifier.Name, value);
+    public void DefineAlias(string identifier, string alias)
+    {
+        _aliases[alias] = identifier;
+        //_aliases[identifier] = alias;
+    }
 
-    public IExpression GetValue(string identifier) => _values[identifier];
-    public IExpression GetValue(IdentifierExpression identifier) => _values[identifier];
+    public IExpression GetValue(string identifier) => _values[Unalias(identifier)];
+    public IExpression GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
 
-    public bool HasIdentifier(string identifier) => _variables.Contains(identifier);
-    public bool HasIdentifier(IdentifierExpression identifier) => _variables.Contains(identifier);
+    public bool HasIdentifier(string identifier) => _variables.Contains(Unalias(identifier));
+    public bool HasIdentifier(IdentifierExpression identifier) => HasIdentifier(identifier.Name);
 
     public IExpression ExecuteMethod(string identifier, params IExpression[] parameters)
     {
@@ -44,8 +52,8 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
         throw new System.NotImplementedException();
     }
 
-    public void SetValue(string identifier, IExpression value) => _values[identifier] = value;
-    public void SetValue(IdentifierExpression identifier, IExpression value) => _values[identifier] = value;
+    public void SetValue(string identifier, IExpression value) => _values[Unalias(identifier)] = value;
+    public void SetValue(IdentifierExpression identifier, IExpression value) => SetValue(identifier.Name, value);
 
     public void Throw(IExpression value)
     {
@@ -59,4 +67,6 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
 
     public override string ToString()
         => $"ProgramModelScope. Values: {string.Join(Environment.NewLine, _values)}, Variables: {string.Join(Environment.NewLine, _variables)}";
+
+    private string Unalias(string identifier) => _aliases.ContainsKey(identifier) ? _aliases[identifier] : identifier;
 }

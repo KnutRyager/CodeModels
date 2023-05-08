@@ -14,7 +14,8 @@ public record FieldModel(string Name,
     List<AttributeList> Attributes,
     Modifier Modifier,
     IExpression Value)
-    : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value)
+    : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
+    IFieldModel
 {
     public static FieldModel Create(string name,
     IType type,
@@ -26,14 +27,15 @@ public record FieldModel(string Name,
     modifier,
     value ?? VoidValue);
 
-    public override IExpression AccessValue(IExpression? instance = null) => new FieldModelExpression(this, instance);
+    public override IInvocation AccessValue(IExpression? instance = null) => new FieldModelExpression(this, instance, GetScopes(instance));
 
     public MemberAccessExpression Invoke(IExpression caller) => MemberAccess(this, caller);
     public MemberAccessExpression Invoke(string identifier) => Invoke(CodeModelFactory.Identifier(identifier));
     public MemberAccessExpression Invoke(string identifier, IType? type, ISymbol? symbol) => Invoke(Identifier(identifier, type, symbol));
     public MemberAccessExpression Invoke(string identifier, IType type) => Invoke(Identifier(identifier, type));
     public MemberAccessExpression Invoke(string identifier, ISymbol symbol) => Invoke(Identifier(identifier, symbol: symbol));
-
+    public override IInvocation Invoke(IExpression? caller, IEnumerable<IExpression> _)
+        => AccessValue(caller);
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -49,45 +51,57 @@ public record FieldModel(string Name,
 
     private VariableDeclaration VariableDeclaration() => new(Type, Name, Value);
 
-    public virtual IExpression EvaluateAccess(IProgramModelExecutionContext context, IExpression expression)
+    public override IExpression EvaluateAccess(IExpression expression, IProgramModelExecutionContext context)
     {
-        //var instance = expression is ThisExpression thisExpression ?
-        //    thisExpression.Evaluate(context) as InstantiatedObject : expression is InstantiatedObject i ? i : null;
-        if (expression is InstantiatedObject instance)
-        {
-            instance.EnterScopes(context);
-        }
-        else if (Owner is ClassDeclaration baseType)
-        {
-            context.EnterScope(baseType.GetStaticScope());
-        }
+        var scopes = GetScopes(expression);
         try
         {
+            context.EnterScopes(scopes);
+            //var instance = expression is ThisExpression thisExpression ?
+            //    thisExpression.Evaluate(context) as InstantiatedObject : expression is InstantiatedObject i ? i : null;
+            //if (expression is InstantiatedObject instance)
+            //{
+            //    instance.EnterScopes(context);
+            //}
+            //else if (Owner is ClassDeclaration baseType)
+            //{
+            //    context.EnterScope(baseType.GetStaticScope());
+            //}
+            //else if (expression is IdentifierExpression identifier && identifier.Model is ClassDeclaration staticReference)
+            //{
+            //    context.EnterScope(staticReference.GetStaticScope());
+            //}
             //if (Value != VoidValue) return Value;
             return context.GetValue(Name);
         }
         finally
         {
-            if (expression is InstantiatedObject instanceExit)
-            {
-                instanceExit.ExitScopes(context);
-            }
-            else if (Owner is ClassDeclaration)
-            {
-                context.ExitScope();
-            }
+            context.ExitScopes(scopes);
         }
     }
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context)
+    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
     {
-        throw new NotImplementedException();
+        try
+        {
+            context.EnterScopes(scopes);
+            Assign(value).Evaluate(context);
+        }
+        finally
+        {
+            context.ExitScopes(scopes);
+        }
     }
 
-    public FieldModelExpression Access(IExpression? instance = null) => new(this, instance);
+    public FieldModelExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
     public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
     public AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
+
+    public override void Assign(IExpression instance, IExpression value, IProgramModelExecutionContext context)
+    {
+        throw new NotImplementedException();
+    }
 }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CodeAnalyzation.Reflection;
+using CodeAnalyzation.Utils;
 using Common.Extensions;
 using Common.Reflection;
 using Common.Util;
@@ -29,16 +30,29 @@ public static class CodeModelFactory
     public static TypeFromReflection Type(Type type) => CodeModelsFromReflection.Type(type);
     public static TypeFromReflection Type<T>() => Type(typeof(T));
     public static QuickType Type(string name, bool required = true, bool isMulti = false, Type? type = null)
-        => new(name, required, isMulti, type);
+        => QuickType(name, required, isMulti, type);
     public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
-        => new(type.TypeName, required ?? type.Required, isMulti ?? type.IsMulti);
+        => QuickType(type.TypeName, required ?? type.Required, isMulti ?? type.IsMulti);
     public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
     public static IType Type(string code) => ParseType(code);
+    public static IType Type(ITypeDeclaration declaration) => QuickType(declaration.Name, declaration: declaration);
     public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
     public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
-    public static QuickType QuickType(string name) => new(name);
+    public static QuickType QuickType(string identifier,
+        bool required = true,
+        bool isMulti = false,
+        Type? type = null,
+        ITypeDeclaration? declaration = null,
+        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, required, isMulti, type, declaration, symbol);
+    public static QuickType QuickType(string identifier,
+        IEnumerable<IType> genericTypes,
+        bool required = true,
+        bool isMulti = false,
+        Type? type = null,
+        ITypeDeclaration? declaration = null,
+        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, genericTypes, required, isMulti, type, declaration, symbol);
 
     public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, List<AttributeList>? attributes = null, List<ExternAliasDirective>? externs = null)
         => new(members, usings ?? new List<UsingDirective>(), attributes ?? new List<AttributeList>(), externs);
@@ -64,7 +78,7 @@ public static class CodeModelFactory
 
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
-    public static LiteralExpression Literal(object? value) => new(value);
+    public static IExpression Literal(object? value) => value is InstantiatedObject o ? o : value is LiteralExpression l ? l : new LiteralExpression(value);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -74,11 +88,11 @@ public static class CodeModelFactory
     public static ExpressionCollection Values(IEnumerable<object?> values) => new(values.Select(Value));
     public static ExpressionCollection Values(Array values) => new(CollectionUtil.ModernizeArray(values).Select(Value));
     public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
-    public static List<LiteralExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
-    public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
+    public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
+    public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null, IEnumerable<IProgramModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
-    public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name));
+    public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
     public static Property FieldProperty(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
     public static Property Property(IType? type = null, string? name = null, IExpression? value = null, Modifier modifier = Modifier.None) => new(type ?? value?.Get_Type() ?? TypeShorthands.NullType, name, value, modifier);
@@ -169,7 +183,10 @@ public static class CodeModelFactory
 
     public static Constructor ConstructorFull(ITypeDeclaration type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => new(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
+        => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
+    public static Constructor Constructor(IType type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
+        => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(ITypeDeclaration type, PropertyCollection parameters, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(type, parameters, null, expressionBody, Modifier, Attributes);
@@ -264,7 +281,7 @@ public static class CodeModelFactory
     public static ThrowStatement Throw(IExpression expression) => new(expression);
     public static ThrowExpression ThrowExpression(IExpression expression) => new(expression);
 
-    public static IdentifierExpression Identifier(string name, IType? type = null, ISymbol? symbol = null) => new(name, type, symbol);
+    public static IdentifierExpression Identifier(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null) => new(name, type, symbol, model);
 
     public static UnaryExpression UnaryExpression(IExpression input, OperationType operation, IType? type = null)
        => operation.IsUnaryOperator() ? new(input, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a unary operator: '{operation}'");
@@ -289,7 +306,10 @@ public static class CodeModelFactory
 
     public static ExpressionStatement Statement(IExpression expression) => new(expression);
 
-    public static ClassDeclaration Class(string name, IEnumerable<IMember>? members) => ClassDeclaration.Create(name, members);
-    public static ClassDeclaration Class(PropertyCollection collection) => collection.ToClassModel();
+    public static ClassDeclaration Class(string name,
+        IEnumerable<IMember>? members = null,
+        Namespace? @namespace = null,
+        Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
+    public static ClassDeclaration Class(PropertyCollection collection) => collection.ToClassModel();
 }

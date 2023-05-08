@@ -26,5 +26,5 @@ public abstract record NamedCodeModel<T>(string Name) : CodeModel<T>, INamedCode
         => SyntaxFactory.Identifier(Name);
 
     public virtual IdentifierExpression ToIdentifierExpression()
-        => new(Name);
+        => CodeModelFactory.Identifier(Name, model: this);
 }

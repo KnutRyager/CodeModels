@@ -6,9 +6,9 @@ namespace CodeAnalyzation.Models;
 
 public static class TypeShorthands
 {
-    public static readonly IType NullType = new QuickType("null");
-    public static readonly IType VarType = new QuickType("var");
-    public static readonly IType VoidType = new QuickType("void");
+    public static readonly IType NullType = CodeModelFactory.QuickType("null");
+    public static readonly IType VarType = CodeModelFactory.QuickType("var");
+    public static readonly IType VoidType = CodeModelFactory.QuickType("void");
 
     public static readonly IDictionary<string, SyntaxKind> PredefinedTypes = new Dictionary<string, SyntaxKind>()
         {

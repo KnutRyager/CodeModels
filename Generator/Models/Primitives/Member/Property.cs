@@ -101,7 +101,7 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
         throw new NotImplementedException();
     }
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context)
+    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
     {
         throw new NotImplementedException();
     }

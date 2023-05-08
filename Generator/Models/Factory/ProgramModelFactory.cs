@@ -7,9 +7,9 @@ namespace CodeAnalyzation.Models;
 
 public static class ProgramModelFactory
 {
-    public static ModelRegistry ModelRegistry(IEnumerable<PropertyCollection> Models, 
+    public static ModelRegistry ModelRegistry(IEnumerable<PropertyCollection> Models,
         IEnumerable<InstanceClass>? Singletons = null)
         => new(List(Models), List(Singletons));
 
-    public static IType Type(ModelModel Model) => new QuickType(Model.Name);
+    public static IType Type(ModelModel Model) => CodeModelFactory.QuickType(Model.Name);
 }

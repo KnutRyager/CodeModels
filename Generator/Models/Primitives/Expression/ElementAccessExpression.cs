@@ -12,20 +12,28 @@ public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpr
     public override ElementAccessExpressionSyntax Syntax() => ElementAccessExpression(Caller.Syntax(),
         BracketedArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))));
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context)
+    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
     {
-        var valuePlain = value.EvaluatePlain(context);
-        var callerPlain = Inputs.First().EvaluatePlain(context);
-        var args = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
-        var arguments = new object?[] { args[0], valuePlain };
-        var set_itemMethod = Type.GetReflectedType()?.GetMethod("set_Item");
-        if (set_itemMethod is not null)
+        try
         {
-            set_itemMethod.Invoke(callerPlain, arguments);
+            context.EnterScopes(scopes);
+            var valuePlain = value.EvaluatePlain(context);
+            var callerPlain = Inputs.First().EvaluatePlain(context);
+            var args = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
+            var arguments = new object?[] { args[0], valuePlain };
+            var set_itemMethod = Type.GetReflectedType()?.GetMethod("set_Item");
+            if (set_itemMethod is not null)
+            {
+                set_itemMethod.Invoke(callerPlain, arguments);
+            }
+            else
+            {
+                throw new System.NotImplementedException();
+            }
         }
-        else
+        finally
         {
-            throw new System.NotImplementedException();
+            context.ExitScopes(scopes);
         }
     }
 }
@@ -36,7 +44,7 @@ public record ImplicitElementAccessExpression(IType Type, List<IExpression> Argu
     public override ImplicitElementAccessSyntax Syntax() => ImplicitElementAccess(
         BracketedArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))));
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context)
+    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
     {
         var valuePlain = value.EvaluatePlain(context);
         var callerPlain = Inputs.First().EvaluatePlain(context);

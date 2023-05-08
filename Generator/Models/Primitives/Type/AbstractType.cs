@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeAnalyzation.Utils;
 using Common.DataStructures;
 using Common.Reflection;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -10,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public abstract record AbstractType(string TypeName, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null)
+public abstract record AbstractType(string TypeName, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null, ITypeSymbol? Symbol = null)
     : CodeModel<TypeSyntax>, IType
 {
     private Type? _cachedType;
@@ -26,16 +28,16 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
 
     public TypeSyntax TypeSyntaxUnwrapped() => Name switch
     {
-        _ when TypeShorthands.PredefinedTypes.ContainsKey(Name) => PredefinedType(Token(TypeShorthands.PredefinedTypes[Name])),
-        _ when GenericTypes.Count > 0 => GenericName(SyntaxFactory.Identifier(Name),
+        _ when TypeShorthands.PredefinedTypes.ContainsKey(NamespaceUtils.NamePart(TypeName)) => PredefinedType(Token(TypeShorthands.PredefinedTypes[NamespaceUtils.NamePart(TypeName)])),
+        _ when GenericTypes.Count > 0 => GenericName(SyntaxFactory.Identifier(TypeName),
             TypeArgumentList(SeparatedList(GenericTypes.Select(x => x.Syntax())))),
-        _ => IdentifierName(SyntaxFactory.Identifier(Name))
+        _ => IdentifierName(SyntaxFactory.Identifier(TypeName))
     };
 
     public virtual Type? GetReflectedType() => _cachedType ??= ReflectedType ??
-        (ReflectionSerialization.IsShortHandName(Name) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(Name) : default);
+        (ReflectionSerialization.IsShortHandName(TypeName) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(TypeName) : default);
 
-    public virtual string GetMostSpecificType() => Name;
+    public virtual string GetMostSpecificType() => TypeName;
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
@@ -46,14 +48,16 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     public IType Get_Type() => this;
     public bool IsLiteralExpression => false;
     public LiteralExpressionSyntax? LiteralSyntax() => null;
-    public object? LiteralValue => null;
+    public object? LiteralValue() => null;
 
     public Modifier Modifier => Modifier.None;
+
+    public abstract IType PlainType();
 
     public SimpleNameSyntax NameSyntax() => IdentifierName(Name);
 
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
-    public IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public IExpression Evaluate(IProgramModelExecutionContext context) => this;
     public object? EvaluatePlain(IProgramModelExecutionContext context) => null;
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
@@ -107,17 +111,11 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     }
 
     public IdentifierNameSyntax IdentifierNameSyntax()
-    {
-        throw new NotImplementedException();
-    }
+        => ToIdentifierExpression().Syntax();
 
     public Microsoft.CodeAnalysis.SyntaxToken IdentifierSyntax()
-    {
-        throw new NotImplementedException();
-    }
+        => ToIdentifierExpression().ToToken();
 
     public IdentifierExpression ToIdentifierExpression()
-    {
-        throw new NotImplementedException();
-    }
+        => new(Name, Model: this, Symbol: Symbol);
 }

@@ -33,7 +33,7 @@ public record UsingStatement(IStatement Statement, VariableDeclarations? Declara
                 {
                     if (declaration is VariableDeclarator declarator)
                     {
-                        var disposableCandidate = context.GetValue(declarator.Name)?.LiteralValue;
+                        var disposableCandidate = context.GetValue(declarator.Name)?.LiteralValue();
                         if (disposableCandidate is System.IDisposable disposable)
                         {
                             disposable.Dispose();
@@ -54,7 +54,7 @@ public record UsingStatement(IStatement Statement, VariableDeclarations? Declara
             {
                 if (Expression is SimpleAssignmentExpression assignment && assignment.Left is IdentifierExpression identifier)
                 {
-                    var disposableCandidate = context.GetValue(identifier.Name)?.LiteralValue;
+                    var disposableCandidate = context.GetValue(identifier.Name)?.LiteralValue();
                     if (disposableCandidate is System.IDisposable disposable)
                     {
                         disposable.Dispose();

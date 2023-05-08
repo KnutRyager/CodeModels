@@ -15,7 +15,7 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
 
     public LiteralExpressionSyntax? LiteralSyntax() => null;
 
-    public object? LiteralValue => null;
+    public object? LiteralValue() => null;
 
     public ExpressionStatement(IStatement statement)
         : this(statement is ExpressionStatement expressionStatement ? expressionStatement.Expression : new ExpressionStatement(statement)) { }

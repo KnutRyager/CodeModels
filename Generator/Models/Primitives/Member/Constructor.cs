@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using CodeAnalyzation.Models.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json.Linq;
 using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
@@ -9,14 +12,26 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeAnalyzation.Models;
 
-public record Constructor(ITypeDeclaration ClassType, PropertyCollection Parameters, Block? Body, IExpression? ExpressionBody = null,
+public record Constructor(IType ReturnType, PropertyCollection Parameters, Block? Body, IExpression? ExpressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-    : MethodBase<ConstructorDeclarationSyntax>(ClassType.Get_Type(), ClassType.Name, Attributes ?? new List<AttributeList>(), Modifier), IConstructor
+    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Attributes ?? new List<AttributeList>(), Modifier),
+    IConstructor, IInvokable<ConstructorInvocationExpression>
 {
-    public Constructor(ITypeDeclaration type, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
-        : this(type, parameters, body, null, modifier) { }
-    public Constructor(ITypeDeclaration type, PropertyCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
-        : this(type, parameters, null, body, modifier) { }
+    public static Constructor Create(IType type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
+        => new(type, parameters, body, expressionBody, modifier, attributes);
+    public static Constructor Create(ITypeDeclaration type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
+        => new(type.Get_Type(), parameters, body, expressionBody, modifier, attributes)
+        {
+            Owner = type
+        };
+    public static Constructor Create(IType returnType, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
+        => Create(returnType, parameters, body, null, modifier);
+    public static Constructor Create(IType returnType, PropertyCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
+        => Create(returnType, parameters, null, body, modifier);
+    public static Constructor Create(ITypeDeclaration type, PropertyCollection parameters, Block body, Modifier modifier = Modifier.Public)
+        => Create(type, parameters, body, null, modifier);
+    public static Constructor Create(ITypeDeclaration type, PropertyCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
+        => Create(type, parameters, null, body, modifier);
 
     public ConstructorDeclarationSyntax ToConstructorSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None)
         => ConstructorDeclarationCustom(
@@ -39,7 +54,8 @@ public record Constructor(ITypeDeclaration ClassType, PropertyCollection Paramet
     }
 
     public ConstructorInvocationExpression Invoke(IEnumerable<IExpression> arguments) => ConstructorInvocation(this, arguments);
-    public ConstructorInvocationExpression Invoke(params IExpression[] arguments) => ConstructorInvocation(this,  arguments);
+    public ConstructorInvocationExpression Invoke(params IExpression[] arguments) => ConstructorInvocation(this, arguments);
+    public override ConstructorInvocationExpression Invoke(IExpression? _, IEnumerable<IExpression> arguments) => Invoke(arguments);
     //public ConstructorInvocationExpression Invoke(IType? type, ISymbol? symbol, IEnumerable<IExpression> arguments) => Invoke(Identifier( type, symbol), arguments);
     //public ConstructorInvocationExpression Invoke(IType? type, ISymbol? symbol, params IExpression[] arguments) => Invoke(Identifier( type, symbol), arguments);
     //public ConstructorInvocationExpression Invoke(IType type, IEnumerable<IExpression> arguments) => Invoke(Identifier( type), arguments);
@@ -59,4 +75,6 @@ public record Constructor(ITypeDeclaration ClassType, PropertyCollection Paramet
     {
         throw new System.NotImplementedException();
     }
+
+    public override SyntaxToken ToIdentifier() => Identifier(Owner?.Name ?? throw new NotImplementedException());
 }

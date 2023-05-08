@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
 
 namespace CodeAnalyzation.Models.ProgramModels;
@@ -12,6 +12,8 @@ public interface IProgramContext
     bool Contains(SyntaxNode node);
     T Get<T>(ISymbol symbol) where T : class, ICodeModel;
     T Get<T>(SyntaxNode node) where T : class, ICodeModel;
+    T? TryGet<T>(ISymbol symbol) where T : class, ICodeModel;
+    T? TryGet<T>(SyntaxNode node) where T : class, ICodeModel;
     T Register<T>(ISymbol symbol, T model) where T : ICodeModel;
     T Register<T>(SyntaxNode node, T model) where T : ICodeModel;
 }
@@ -31,11 +33,16 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
     public bool Contains(SyntaxNode node)
         => Contains(GetSymbol(node));
 
-    public T Get<T>(ISymbol symbol) where T : class, ICodeModel 
+    public T Get<T>(ISymbol symbol) where T : class, ICodeModel
         => _symbols[symbol] as T ?? throw new NotImplementedException();// Register(symbol, SemanticReflection.GetMemberInfo(symbol));
 
     public T Get<T>(SyntaxNode node) where T : class, ICodeModel
     => Get<T>(GetSymbol(node));
+
+    public T? TryGet<T>(ISymbol symbol) where T : class, ICodeModel
+            => _symbols.ContainsKey(symbol) ? _symbols[symbol] as T : null;
+    public T? TryGet<T>(SyntaxNode node) where T : class, ICodeModel
+        => TryGet<T>(GetSymbol(node));
 
     public IExpression GetSingleton(IType type)
     {
@@ -44,7 +51,12 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 
     public T Register<T>(ISymbol symbol, T model) where T : ICodeModel
     {
-        throw new NotImplementedException();
+        if(symbol is IFieldSymbol f)
+        {
+
+        }
+        _symbols[symbol] = model;
+        return model;
     }
 
 
@@ -52,5 +64,7 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
         => Register(GetSymbol(node), model);
 
     private ISymbol GetSymbol(SyntaxNode node)
-        => (Model?.GetSymbolInfo(node) ?? throw new ArgumentException("No semantic model.")).Symbol ?? throw new ArgumentException("No symbol model.");
+        => Model is null ? throw new ArgumentException("No semantic model.")
+    : Model.GetSymbolInfo(node).Symbol ?? Model.GetDeclaredSymbol(node)
+         ?? throw new ArgumentException("No symbol.");
 }

@@ -40,7 +40,7 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
         {
             context.DecreaseDisableSetPreviousValueLock();
         }
-        while (((bool?)Condition.Evaluate(context).LiteralValue) ?? false)
+        while (((bool?)Condition.Evaluate(context).LiteralValue()) ?? false)
         {
             try
             {

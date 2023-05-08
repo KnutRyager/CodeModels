@@ -11,7 +11,7 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
 {
     public bool IsLiteralExpression => false;
     public LiteralExpressionSyntax? LiteralSyntax() => null;
-    public object? LiteralValue => null;
+    public object? LiteralValue() => null;
 
     public SimpleNameSyntax NameSyntax() => throw new NotImplementedException();
 

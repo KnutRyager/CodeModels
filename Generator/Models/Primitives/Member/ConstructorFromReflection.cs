@@ -5,13 +5,18 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeAnalyzation.Models;
 
 public record ConstructorFromReflection(ConstructorInfo Constructor)
-    : MethodBase<ConstructorDeclarationSyntax>(
+    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(
         new TypeFromReflection(Constructor.DeclaringType),
         Constructor.Name,
         null,   // TODO
         Modifier.Public), IConstructor
 {
     public override IEnumerable<ICodeModel> Children()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override ConstructorInvocationExpression Invoke(IExpression caller, IEnumerable<IExpression> arguments)
     {
         throw new System.NotImplementedException();
     }
