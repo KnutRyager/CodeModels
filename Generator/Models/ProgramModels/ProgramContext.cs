@@ -21,7 +21,7 @@ public interface IProgramContext
 public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 {
     public static IProgramContext? Context { get; private set; }
-    public static void NewContext(SemanticModel? model = null) => Context = new ProgramContext(model);
+    public static IProgramContext NewContext(SemanticModel? model = null) => Context = new ProgramContext(model);
 
     private Dictionary<ISymbol, ICodeModel> _symbols = new(SymbolEqualityComparer.Default);
 

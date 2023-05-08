@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeAnalyzation.Models.ProgramModels;
 using CodeAnalyzation.Utils;
 using static CodeAnalyzation.Models.CodeModelFactory;
 
@@ -9,6 +10,7 @@ namespace CodeAnalyzation.Models;
 
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {
+    public IProgramContext? ProgramContext { get; private set; }
     private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
     private readonly IDictionary<string, IMember> _members = new Dictionary<string, IMember>();
     //private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
@@ -19,8 +21,9 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
     private TextWriter Console { get; set; }
     private int previousValueLock = 0;
 
-    public ProgramModelExecutionContext(TextWriter? console = null)
+    public ProgramModelExecutionContext(IProgramContext? programContext = null, TextWriter? console = null)
     {
+        ProgramContext = programContext;
         Console = console ?? new StringWriter();
     }
 

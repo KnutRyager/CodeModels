@@ -31,7 +31,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
         {
             try
             {
-                return ResolveSymbol();
+                return ResolveSymbol(context);
             }
             catch
             { }
@@ -39,11 +39,11 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
         return context.TryGetValueOrMember(this);
     }
 
-    private IMember? ResolveSymbol()
+    private IMember? ResolveSymbol(IProgramModelExecutionContext context)
     {
         if (Symbol is not null && SymbolUtils.IsNewDefined(Symbol))
         {
-            return ProgramContext.Context.Get<IMember>(Symbol);
+            return context.ProgramContext.Get<IMember>(Symbol);
         }
         return null;
     }

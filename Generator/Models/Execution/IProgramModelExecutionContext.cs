@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeAnalyzation.Models.ProgramModels;
 
 namespace CodeAnalyzation.Models;
 
 public interface IProgramModelExecutionContext
 {
+    IProgramContext? ProgramContext { get; }
     IExpression This();
     IExpression GetValue(string identifier);
     IExpression GetValue(IdentifierExpression identifier);

@@ -18,12 +18,12 @@ public static class ExecuteUtil
         {
             model = rewrittenCompilationUnit.ToString().ParseAndKeepSemanticModel(key, kind);
         }
-        ProgramContext.NewContext(model.Model);
+        var programContext = ProgramContext.NewContext(model.Model);
         CodeModelParsing.Register(model.Compilation, model.Model);
         var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
         if (compilationModel.Members.Count >= 0)
         {
-            var context = new ProgramModelExecutionContext();
+            var context = new ProgramModelExecutionContext(programContext);
             try
             {
                 context.EnterScope();
@@ -60,8 +60,7 @@ public static class ExecuteUtil
     {
         if (context is null)
         {
-            ProgramContext.NewContext();
-            context = new ProgramModelExecutionContext();
+            context = new ProgramModelExecutionContext(ProgramContext.NewContext());
             context.EnterScope();
             if (expression is IMemberAccess memberAccess)
             {

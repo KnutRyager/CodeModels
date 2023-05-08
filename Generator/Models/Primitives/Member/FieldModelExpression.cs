@@ -11,7 +11,7 @@ public record FieldModelExpression(FieldModel Field, IExpression? Instance = nul
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public FieldModel GetField() => Field ?? ProgramContext.Context.Get<FieldModel>(Symbol);
+    public FieldModel GetField(IProgramModelExecutionContext context) => Field ?? context.ProgramContext.Get<FieldModel>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
@@ -27,7 +27,7 @@ public record FieldModelExpression(FieldModel Field, IExpression? Instance = nul
         try
         {
             context.EnterScopes(Scopes);
-            return Field.EvaluateAccess(Instance ?? GetField().Owner?.ToExpression(), context);
+            return Field.EvaluateAccess(Instance ?? GetField(context).Owner?.ToExpression(), context);
         }
         finally
         {

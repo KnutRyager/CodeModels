@@ -28,7 +28,8 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
         if (Operation is IObjectCreationOperation objectCreationOperation && SymbolUtils.IsNewDefined(objectCreationOperation))
         {
             // TODO: Remove static reference
-            var member = ProgramContext.Context.Get<ClassDeclaration>(objectCreationOperation.Type);
+            var member = context.ProgramContext.Get<ClassDeclaration>(objectCreationOperation.Type);
+            //var memberw = ProgramContext.Context.Get<ClassDeclaration>(objectCreationOperation.Type);
             var constructor = member.GetConstructor();
             var arguments = Arguments is null ? Array.Empty<IExpression>()
                : Arguments.ToExpressions().ToArray();
