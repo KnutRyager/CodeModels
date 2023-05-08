@@ -18,7 +18,7 @@ public static class ExecuteUtil
         {
             model = rewrittenCompilationUnit.ToString().ParseAndKeepSemanticModel(key, kind);
         }
-        var programContext = ProgramContext.NewContext(model.Model);
+        var programContext = ProgramContext.NewContext(model.Compilation, model.Model);
         CodeModelParsing.Register(model.Compilation, model.Model);
         var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
         if (compilationModel.Members.Count >= 0)

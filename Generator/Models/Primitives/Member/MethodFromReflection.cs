@@ -22,7 +22,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     where T : ISymbol
     where TCodeModel : class, IMember
 {
-    public IProgramContext Context => ProgramContext.Context!;
+    public IProgramContext Context => ProgramContext.GetContext(Symbol);
     public TCodeModel Lookup => Context.Get<TCodeModel>(Symbol);
     public IMember Member => Lookup;
 

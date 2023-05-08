@@ -12,6 +12,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
+using Models;
 using static CodeAnalyzation.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -19,7 +20,8 @@ namespace CodeAnalyzation.Models;
 
 public static class CodeModelParsing
 {
-    private static IProgramContext Context => ProgramContext.Context!;
+    private static IProgramContext Context(SemanticModel? model = null) => ProgramContext.GetContext(model);
+    private static IProgramContext Context(ISymbol? symbol) => ProgramContext.GetContext(symbol);
     //private static T Register<T>(SyntaxNode node, T model) where T : ICodeModel => model;
     public static void Register(CompilationUnitSyntax node, SemanticModel model)
     {
@@ -45,14 +47,14 @@ public static class CodeModelParsing
         }
         //foreach(var member in symbol.mem)
     }
-    private static T Register<T>(SyntaxNode node, T model) where T : ICodeModel => Context.Register(node, model);
-    private static T Register<T>(ISymbol node, T model) where T : ICodeModel => Context.Register(node, model);
+    private static T Register2<T>(SyntaxNode node, T model, SemanticModel semanticModel) where T : ICodeModel => Context(semanticModel).Register(node, model);
+    private static T Register<T>(ISymbol symbol, T model) where T : ICodeModel => Context(symbol).Register(symbol, model);
     private static T Register<T>(SyntaxNode node, T codeModel, SemanticModel? semanticModel = null) where T : ICodeModel
         => semanticModel is not null && SymbolUtils.GetDeclaration(node, semanticModel) is ISymbol symbol ? Register(symbol, codeModel) : codeModel;
     private static T GetModel<T>(ISymbol symbol) where T : class, ICodeModel
-        => Context.Get<T>(symbol);
+        => Context(symbol).Get<T>(symbol);
     private static T? TryGetModel<T>(ISymbol symbol) where T : class, ICodeModel
-        => Context.TryGet<T>(symbol);
+        => Context(symbol).TryGet<T>(symbol);
     public static IType Parse(SyntaxToken token, SemanticModel? model = null) => ParseType(token.ToString(), model);
     public static IType ParseType(string identifier, SemanticModel? model = null) => ParseType(ParseTypeName(identifier), model: model);
     public static IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo, SemanticModel? model = null) => typeInfo.Type is null && typeInfo.ConvertedType is null ? ParseType(typeInfo.ToString(), model) : Parse(typeInfo.Type ?? typeInfo.ConvertedType);  // TODO: Nullability
@@ -746,10 +748,10 @@ public static class CodeModelParsing
     public static LabeledStatement Parse(LabeledStatementSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString(), Parse(syntax.Statement, model));
     public static LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Declaration, model));
     public static LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax, SemanticModel? model = null)
-        => Register(syntax, new LocalFunctionStatement(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
+        => Register2(syntax, new LocalFunctionStatement(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
             ParseTypes(syntax.TypeParameterList),
             ParseProperties(syntax.ParameterList, model), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body, model),
-            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model)));
+            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model)), model);
     public static PropertyCollection ParseProperties(ParameterListSyntax syntax, SemanticModel? model = null) => new(syntax.Parameters.Select(x => Parse(x, model)));
     public static List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
     public static TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax, SemanticModel? model = null)
@@ -899,11 +901,11 @@ public static class CodeModelParsing
     public static IMember Parse(EventDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IMember Parse(IndexerDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IMember Parse(PropertyDeclarationSyntax syntax, SemanticModel? model = null)
-        => Register(syntax, new PropertyModel(syntax.Name(), ParseType(syntax.Type, model: model),
+        => Register2(syntax, new PropertyModel(syntax.Name(), ParseType(syntax.Type, model: model),
              syntax.AttributeLists.Select(x => Parse(x, model)).ToList(), syntax.ExpressionBody is not null
             ? List(Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression, model: model), modifier: ParseModifier(syntax.Modifiers)))
             : Parse(syntax.AccessorList!, model),
-            ParseModifier(syntax.Modifiers), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value, model: model)));
+            ParseModifier(syntax.Modifiers), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value, model: model)), model);
     public static List<Accessor> Parse(AccessorListSyntax syntax, SemanticModel? model = null)
         => List(syntax.Accessors.Select(x => Parse(x, model)));
     public static Accessor Parse(AccessorDeclarationSyntax syntax, SemanticModel? model = null)

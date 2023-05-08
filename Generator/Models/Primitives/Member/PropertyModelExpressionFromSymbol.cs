@@ -9,7 +9,7 @@ public record PropertyModelExpressionFromSymbol(IPropertySymbol PropertySymbol, 
     : Expression<ExpressionSyntax>(new TypeFromSymbol(PropertySymbol.Type), PropertySymbol),
     IPropertyModelExpression
 {
-    public PropertyModel Property => ProgramContext.Context.Get<PropertyModel>(PropertySymbol);
+    public PropertyModel Property => ProgramContext.GetContext(PropertySymbol).Get<PropertyModel>(PropertySymbol);
     public IBaseTypeDeclaration? Owner => Property.Owner;
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();

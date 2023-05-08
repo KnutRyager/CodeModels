@@ -9,7 +9,7 @@ public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpressi
     : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),
     IFieldModelExpression
 {
-    public FieldModel Field => ProgramContext.Context.Get<FieldModel>(FieldSymbol);
+    public FieldModel Field => ProgramContext.GetContext(FieldSymbol).Get<FieldModel>(FieldSymbol);
     public IBaseTypeDeclaration? Owner => Field.Owner;
 
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();

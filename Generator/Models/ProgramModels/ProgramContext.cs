@@ -1,7 +1,10 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeAnalyzation.Models.ProgramModels;
 
@@ -20,8 +23,23 @@ public interface IProgramContext
 
 public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 {
+    private static IDictionary<IAssemblySymbol, IProgramContext> _contexts = new ConcurrentDictionary<IAssemblySymbol, IProgramContext>(SymbolEqualityComparer.Default);
     public static IProgramContext? Context { get; private set; }
-    public static IProgramContext NewContext(SemanticModel? model = null) => Context = new ProgramContext(model);
+    public static IProgramContext NewContext(CompilationUnitSyntax? compilation = null, SemanticModel? model = null)
+    {
+        var assembly = compilation is null ? null : model?.GetDeclaredSymbol(compilation)?.ContainingAssembly;
+        var newContext = new ProgramContext(model);
+        if (assembly is not null)
+        {
+            Context = newContext;
+            _contexts[assembly] = Context;
+        }
+        return newContext;
+    }
+
+    public static IProgramContext? GetContext(ISymbol symbol) => _contexts[symbol.ContainingAssembly];
+    public static IProgramContext? GetContext(SemanticModel? model)
+        => GetContext(model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()));
 
     private Dictionary<ISymbol, ICodeModel> _symbols = new(SymbolEqualityComparer.Default);
 
@@ -51,7 +69,7 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 
     public T Register<T>(ISymbol symbol, T model) where T : ICodeModel
     {
-        if(symbol is IFieldSymbol f)
+        if (symbol is IFieldSymbol f)
         {
 
         }
