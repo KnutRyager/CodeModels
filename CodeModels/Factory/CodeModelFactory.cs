@@ -100,17 +100,18 @@ public static class CodeModelFactory
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
-    public static Property FieldProperty(string? name, IExpression value, Modifier modifier = Modifier.None) => Property(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
-    public static Property Property(IType? type = null, string? name = null, IExpression? value = null, Modifier modifier = Modifier.None) => new(type ?? value?.Get_Type() ?? TypeShorthands.NullType, name, value, modifier);
-    public static Property Property(string name, IExpression value, Modifier modifier = Modifier.None) => Property(null, name, value, modifier);
-    public static Property Property(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => Property(type, name, Expression(expression), modifier);
-    public static Property Property(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => Property(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
-    public static Property Property<T>(string? name, IExpression? value = null, Modifier modifier = Modifier.None) => Property(Type<T>(), name, value, modifier);
-    public static Property Property<T>(string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => Property(Type<T>(), name, Expression(expression), modifier);
-    public static Property Property<T>(string name, string qualifiedName, Modifier modifier = Modifier.None) => Property(Type<T>(), name, ExpressionFromQualifiedName(qualifiedName), modifier);
-    public static Property Property(string name) => Property(null, name);
-    public static Property Property(ArgumentSyntax argument) => ParseProperty(argument);
-    public static Property Property(DeclarationExpressionSyntax declaration) => ParseProperty(declaration);
+    public static AbstractProperty FieldNamedValue(string? name, IExpression value, Modifier modifier = Modifier.None) => NamedValue(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
+    public static AbstractProperty NamedValue(INamedValue value) => value is AbstractProperty a ? a : new (value.Type ?? value.Value.Get_Type() ?? TypeShorthands.NullType, value.Name, value.Value, value.Modifier);
+    public static AbstractProperty NamedValue(IType? type = null, string? name = null, IExpression? value = null, Modifier modifier = Modifier.None) => new(type ?? value?.Get_Type() ?? TypeShorthands.NullType, name, value, modifier);
+    public static AbstractProperty NamedValue(string name, IExpression value, Modifier modifier = Modifier.None) => NamedValue(null, name, value, modifier);
+    public static AbstractProperty NamedValue(IType type, string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => NamedValue(type, name, Expression(expression), modifier);
+    public static AbstractProperty NamedValue(IType type, string name, string qualifiedName, Modifier modifier = Modifier.None) => NamedValue(type, name, ExpressionFromQualifiedName(qualifiedName), modifier);
+    public static AbstractProperty NamedValue<T>(string? name, IExpression? value = null, Modifier modifier = Modifier.None) => NamedValue(Type<T>(), name, value, modifier);
+    public static AbstractProperty NamedValue<T>(string name, ExpressionSyntax expression, Modifier modifier = Modifier.None) => NamedValue(Type<T>(), name, Expression(expression), modifier);
+    public static AbstractProperty NamedValue<T>(string name, string qualifiedName, Modifier modifier = Modifier.None) => NamedValue(Type<T>(), name, ExpressionFromQualifiedName(qualifiedName), modifier);
+    public static AbstractProperty NamedValue(string name) => NamedValue(null, name);
+    public static AbstractProperty NamedValue(ArgumentSyntax argument) => ParseProperty(argument);
+    public static AbstractProperty NamedValue(DeclarationExpressionSyntax declaration) => ParseProperty(declaration);
 
     public static FieldModel FieldModel(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
         => Models.FieldModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
@@ -146,9 +147,9 @@ public static class CodeModelFactory
         Value: value ?? VoidValue);
 
     public static NamedValueCollection NamedValues(NamedValueCollection? collection) => collection ?? new();
-    public static NamedValueCollection NamedValues(IEnumerable<Property> properties, string? name = null) => new(properties, name);
-    public static NamedValueCollection NamedValues(string name, params Property[] properties) => new(properties, name);
-    public static NamedValueCollection NamedValues(params Property[] properties) => new(properties);
+    public static NamedValueCollection NamedValues(IEnumerable<INamedValue> properties, string? name = null) => new(properties.Select(x => NamedValue(x)), name);
+    public static NamedValueCollection NamedValues(string name, params AbstractProperty[] properties) => new(properties, name);
+    public static NamedValueCollection NamedValues(params AbstractProperty[] properties) => new(properties);
     public static NamedValueCollection NamedValues(Type type) => CodeModelsFromReflection.NamedValues(type);
     public static NamedValueCollection NamedValues(string code) => ParseNamedValues(code);
     public static NamedValueCollection NamedValues(GlobalStatementSyntax statement) => ParseNamedValues(statement);

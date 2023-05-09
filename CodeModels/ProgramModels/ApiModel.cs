@@ -15,7 +15,7 @@ public record ApiModel(NamedValueCollection Model, IProgramContext? Context = nu
         var dbContext = Type("Microsoft.EntityFrameworkCore.DbContext");
         var firstOrDefault = Method(ReflectionUtil.GetMethodInfo(typeof(Queryable), nameof(Queryable.FirstOrDefault), new[] { typeof(object) }));
         var invocation = null as Block ?? throw new NotImplementedException(); // firstOrDefault.Invoke(Context.GetSingleton(dbContext), Literal(0));    // TODO: ID Lambda
-        var getMethod = Method("Get", NamedValues(Property(Type("int"), "id")), Model.Type, invocation);
+        var getMethod = Method("Get", NamedValues(NamedValue(Type("int"), "id")), Model.Type, invocation);
         var model = InstanceClass($"{Model.ToIdentifier()}Api");
         return model;
     }

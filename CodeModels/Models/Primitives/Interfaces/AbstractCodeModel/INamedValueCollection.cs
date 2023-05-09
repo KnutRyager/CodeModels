@@ -7,7 +7,7 @@ public interface INamedValueCollection<T> :
     IToClassConvertible,
     IToRecordConvertible,
     IToTupleConvertible
-    where T : class, INamedValue
+    where T : class, INamed
 {
     /// <summary>
     /// Most general type.

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp;
@@ -13,12 +14,12 @@ namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 
 public record SimpleLambdaExpression(Modifier Modifier,
     bool IsAsync,
-    Property Parameter,
+    INamedValue Parameter,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)
     : LambdaExpression<SimpleLambdaExpressionSyntax>
-    (Modifier, IsAsync, new NamedValueCollection(new List<Property>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
+    (Modifier, IsAsync, CodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
 {
     public override IEnumerable<ICodeModel> Children()
     {

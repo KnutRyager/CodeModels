@@ -24,13 +24,13 @@ public class ClassMethodTests
 
     [Fact]
     public void EvaluateMethodReturnArgument() => Method("get3",
-            NamedValues(Property("value")), Type<int>(), ExpressionFromQualifiedName("value"))
+            NamedValues(NamedValue("value")), Type<int>(), ExpressionFromQualifiedName("value"))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance(), Literal(1337))
         .Eval().Should().Be(1337);
 
     [Fact]
     public void EvaluateMethodReturnTwoArguments() => Method("get3",
-            NamedValues(Property("v1"), Property("v2")), Type<int>(), BinaryExpression(ExpressionFromQualifiedName("v1"), OperationType.Plus, ExpressionFromQualifiedName("v2")))
+            NamedValues(NamedValue("v1"), NamedValue("v2")), Type<int>(), BinaryExpression(ExpressionFromQualifiedName("v1"), OperationType.Plus, ExpressionFromQualifiedName("v2")))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance(), Literal(3), Literal(7))
         .Eval().Should().Be(10);
 

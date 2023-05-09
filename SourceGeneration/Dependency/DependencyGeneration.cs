@@ -26,12 +26,12 @@ public static class DependencyGeneration
             Literals(y.Dependencies), valueType: Type("string", isMulti: true), multiValues: true)), x.Class.Name));
         foreach (var dict in dependencyDictionaries)
         {
-            staticClass.AddProperty(dict.ToProperty());
+            staticClass.AddProperty(dict.ToNamedValue());
         }
         var masterDependencyDictionary = new ExpressionMap(dependenciesWithFullPaths.Select(
             x => new ExpressionsMap(Literal(x.Class.Name),
             new PropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
-        staticClass.AddProperty(masterDependencyDictionary.ToProperty());
+        staticClass.AddProperty(masterDependencyDictionary.ToNamedValue());
 
         return staticClass.ToClass();
     }

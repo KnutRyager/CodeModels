@@ -1,46 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using CodeModels.Factory;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Extensions;
-using Common.Interfaces;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CodeModels.Factory;
-using CodeModels.Execution.Scope;
-using CodeModels.Execution.Context;
-using CodeModels.Models.Interfaces;
-using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 
-public record Property(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
+public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
     : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
     IMember, ITypeModel, IAssignable, INamedValue
 {
-    public Property(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
+    public AbstractProperty(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)
     {
         Owner = owner;
     }
 
-    public Property(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
+    public AbstractProperty(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
-    public Property(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null)
+    public AbstractProperty(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null)
         : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value, Type(property.Type)), Modifiers(property.Modifiers).SetModifiers(modifier), interfaceType: interfaceType) { }
-    public Property(TupleElementSyntax element, Modifier? modifier = null, IType? interfaceType = null)
+    public AbstractProperty(TupleElementSyntax element, Modifier? modifier = null, IType? interfaceType = null)
         : this(Type(element.Type), element.Identifier.ToString(), modifier: modifier, interfaceType: interfaceType) { }
-    public Property(ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null)
+    public AbstractProperty(ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null)
         : this(Type(parameter.Type), parameter.Identifier.ToString(), Expression(parameter.Default?.Value, Type(parameter.Type)), modifier, interfaceType: interfaceType) { }
-    public Property(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null)
+    public AbstractProperty(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null)
         : this(new TypeFromSymbol(typeSymbol), name, Expression(expression, new TypeFromSymbol(typeSymbol)), modifier, interfaceType: interfaceType) { }
-    public Property(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null)
+    public AbstractProperty(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null)
         : this(Type(type), name, Expression(expression, Type(type)), modifier, interfaceType: Type(interfaceType)) { }
-    public Property(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
+    public AbstractProperty(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
         : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier, interfaceType: interfaceType) { }
 
     public ParameterSyntax ToParameter() => Parameter(
@@ -118,5 +116,5 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
         throw new NotImplementedException();
     }
 
-    public IFieldOrProperty ToFieldOrProperty() => CodeModelFactory.PropertyModel(Name, Type);
+    public PropertyModel ToProperty() => CodeModelFactory.PropertyModel(Name, Type);
 }

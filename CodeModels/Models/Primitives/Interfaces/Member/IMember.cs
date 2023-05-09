@@ -1,13 +1,11 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public interface IMember : ICodeModel, IIdentifiable, ITypeModel, INamedValue
+public interface IMember : ICodeModel, IIdentifiable, ITypeModel, INamed
 {
     Modifier Modifier { get; }
     bool IsStatic { get; }
@@ -38,22 +36,22 @@ public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes
     ICodeModel IMember.Render(Namespace @namespace)
         => Render(@namespace);
 
-    public IType ToType()
+    public virtual IType ToType()
     {
         throw new System.NotImplementedException();
     }
 
-    public IExpression ToExpression()
+    public virtual IExpression ToExpression()
     {
         throw new System.NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public virtual ParameterSyntax ToParameter()
     {
         throw new System.NotImplementedException();
     }
 
-    public TupleElementSyntax ToTupleElement()
+    public virtual TupleElementSyntax ToTupleElement()
     {
         throw new System.NotImplementedException();
     }

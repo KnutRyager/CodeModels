@@ -1,13 +1,11 @@
-﻿using Common.Interfaces;
+﻿using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 
-public interface INamedValue :
-    IToTypeConvertible,
-    IToExpresisonConvertible,
-    IToSimpleNameConvertible,
-    IToParameterConvertible,
-    IToTupleElementConvertible
+public interface INamedValue : INamed
 {
-    string Name { get; }
+    Modifier Modifier { get; }
+    IType Type { get; }
+    IExpression Value { get; }
+    PropertyModel ToProperty();
 }

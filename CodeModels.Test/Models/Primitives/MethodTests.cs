@@ -8,7 +8,7 @@ namespace CodeModels.Models.Primitives.Test;
 public class MethodTests
 {
     [Fact]
-    public void BlockMethod() => Method("test", NamedValues(new[] { Property(Type("int"), "a") }), Type("string"),
+    public void BlockMethod() => Method("test", NamedValues(new[] { NamedValue(Type("int"), "a") }), Type("string"),
         Block(LocalDeclaration(Declaration(Type("string"), "b", Literal("test"))), Return(Identifier("a"))), Modifier.Private)
         .CodeModelEqual(@"
 private string test(int a){
@@ -17,14 +17,14 @@ private string test(int a){
 }");
 
     [Fact]
-    public void ExpressionMethod() => Method("test", NamedValues(new[] { Property(Type("int"), "a") }), Type("string"),
+    public void ExpressionMethod() => Method("test", NamedValues(new[] { NamedValue(Type("int"), "a") }), Type("string"),
          Literal("test"), Modifier.Private)
         .CodeModelEqual(@"
 private string test(int a) => ""test"";
 ");
 
     [Fact]
-    public void BodyConstructor() => Constructor("Test", NamedValues(new[] { Property(Type("int"), "a") }),
+    public void BodyConstructor() => Constructor("Test", NamedValues(new[] { NamedValue(Type("int"), "a") }),
         Block(LocalDeclaration(Declaration(Type("string"), "b", Literal("test")))), Modifier.Private)
         .CodeModelEqual(@"
 private Test(int a){

@@ -82,7 +82,7 @@ public record Accessor(AccessorType Type,
                        CodeModelFactory.NamedValues("value"),
                        CodeModelFactory.Type(typeof(void)), expression),
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-            CodeModelFactory.NamedValues(CodeModelFactory.Property("value")),
+            CodeModelFactory.NamedValues(CodeModelFactory.NamedValue("value")),
             CodeModelFactory.Type(typeof(void)), CodeModelFactory.Assignment(
                 CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)),
                 CodeModelFactory.ExpressionFromQualifiedName("value")))

@@ -8,15 +8,15 @@ namespace CodeModels.Models.Primitives.Test;
 public class StaticClassTests
 {
     [Fact]
-    public void GenerateStaticClass() => StaticClass("ClassA",  NamedValues(new Property[] {
-            Property(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
-            Property(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
-            Property(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
-            Property(Type("int"),"p1"),
-            Property(Type("string", false),"p2"),
-            Property(Type("double"),"PI",Literal(3.14), modifier: PropertyAndFieldTypes.PublicConst),
-            Property(Type("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
-            Property(Type("string"),"ThePublicStaticReadonlyField",Literal("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
+    public void GenerateStaticClass() => StaticClass("ClassA",  NamedValues(new AbstractProperty[] {
+            NamedValue(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
+            NamedValue(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
+            NamedValue(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
+            NamedValue(Type("int"),"p1"),
+            NamedValue(Type("string", false),"p2"),
+            NamedValue(Type("double"),"PI",Literal(3.14), modifier: PropertyAndFieldTypes.PublicConst),
+            NamedValue(Type("double"),"PI_private","Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
+            NamedValue(Type("string"),"ThePublicStaticReadonlyField",Literal("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField),
         }), topLevelModifier: Modifier.Partial, memberModifier: Modifier.Public).ToClass().CodeEqual(@"
 public static partial class ClassA {
     public const double PI = 3.14D;

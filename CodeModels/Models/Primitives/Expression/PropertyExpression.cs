@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null) 
+public record PropertyExpression(AbstractProperty Property, IExpression? Instance = null) 
     : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
     public IBaseTypeDeclaration? Owner => Property.Owner;

@@ -170,20 +170,20 @@ public static class CodeModelParsing
         _ => throw new ArgumentException($"Unhandled token '{syntax}'.")
     };
 
-    public static Property ParseProperty(ArgumentSyntax syntax, IType? specifiedType = null, SemanticModel? model = null) => syntax.Expression switch
+    public static AbstractProperty ParseProperty(ArgumentSyntax syntax, IType? specifiedType = null, SemanticModel? model = null) => syntax.Expression switch
     {
         TypeSyntax type => new(Parse(type, model: model), syntax.NameColon?.Name.ToString()),
         DeclarationExpressionSyntax declaration => ParseProperty(declaration, specifiedType, model: model),
         ExpressionSyntax expression => new(ParseExpression(expression, model: model)),
-        _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{syntax}'.")
+        _ => throw new ArgumentException($"Can't parse {nameof(NamedValue)} from '{syntax}'.")
     };
 
-    public static Property ParseProperty(DeclarationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+    public static AbstractProperty ParseProperty(DeclarationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
         => new(Parse(syntax.Type, model: model), syntax.Designation switch
         {
             null => default,
             SingleVariableDesignationSyntax designation => designation.Identifier.ToString(),
-            _ => throw new ArgumentException($"Can't parse {nameof(Property)} from '{syntax}'.")
+            _ => throw new ArgumentException($"Can't parse {nameof(NamedValue)} from '{syntax}'.")
         });
 
     public static NamedValueCollection ParseNamedValues(string code) => code.Parse(code).Members.FirstOrDefault() switch
@@ -208,7 +208,7 @@ public static class CodeModelParsing
     };
 
     public static NamedValueCollection ParseNamedValues(IType Type, IEnumerable<ExpressionSyntax> syntax, bool nameByIndex = false, SemanticModel? model = null)
-        => new(syntax.Select((x, i) => new Property(Type, nameByIndex ? $"Item{i + 1}" : null, ParseExpression(x, Type, model))), specifiedType: Type);
+        => new(syntax.Select((x, i) => new AbstractProperty(Type, nameByIndex ? $"Item{i + 1}" : null, ParseExpression(x, Type, model))), specifiedType: Type);
 
     public static NamedValueCollection ParseNamedValues(IEnumerable<ArgumentSyntax> arguments, bool nameByIndex = false, IType? type = null, SemanticModel? model = null)
         => new(arguments.Select((x, i) => nameByIndex ? x.NameColon is null ? x.WithNameColon(NameColon($"Item{i + 1}")) : x : x).Select(x => ParseProperty(x, type, model)), specifiedType: type);
@@ -739,9 +739,9 @@ public static class CodeModelParsing
     public static VariableDeclarations Parse(VariableDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), Parse(syntax.Variables, model));
     public static VariableDeclarator Parse(VariableDeclaratorSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value, model: model));
     public static List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x, model)).ToList();
-    public static List<Property> Parse(BracketedArgumentListSyntax syntax, SemanticModel? model = null) => syntax.Arguments.Select(x => Parse(x, model)).ToList();
-    public static Property Parse(ArgumentSyntax syntax, SemanticModel? model = null) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression, model: model));  // TODO: Semantics for type
-    public static List<Property> Parse(IEnumerable<ArgumentSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
+    public static List<AbstractProperty> Parse(BracketedArgumentListSyntax syntax, SemanticModel? model = null) => syntax.Arguments.Select(x => Parse(x, model)).ToList();
+    public static AbstractProperty Parse(ArgumentSyntax syntax, SemanticModel? model = null) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression, model: model));  // TODO: Semantics for type
+    public static List<AbstractProperty> Parse(IEnumerable<ArgumentSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
     public static AttributeList Parse(AttributeListSyntax syntax, SemanticModel? model = null) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
     public static AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString());
     public static Models.Attribute Parse(AttributeSyntax syntax)
@@ -777,7 +777,7 @@ public static class CodeModelParsing
     public static DefaultConstraint Parse(DefaultConstraintSyntax _, SemanticModel? model = null) => new();
     public static TypeConstraint Parse(TypeConstraintSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model));
     public static TypeCollection ParseTypes(TypeParameterListSyntax? syntax, SemanticModel? model = null) => syntax is null ? new() : new(syntax.Parameters.Select(x => Parse(x, model)));
-    public static Property Parse(ParameterSyntax syntax, SemanticModel? model = null) => new(syntax);
+    public static AbstractProperty Parse(ParameterSyntax syntax, SemanticModel? model = null) => new(syntax);
     public static IType Parse(TypeParameterSyntax syntax, SemanticModel? model = null) => QuickType(syntax.Identifier.ToString());    // TODO
     public static LockStatement Parse(LockStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model), Parse(syntax.Statement, model));
     public static ReturnStatement Parse(ReturnStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));

@@ -98,7 +98,7 @@ public abstract record ClassDeclaration(string Name,
     public NamedValueCollection ToNamedValues() => throw new NotImplementedException();
 
     public List<IType> ConvertToList() => ToNamedValues().ConvertToList();
-    public List<Property> AsList(Property? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
+    public List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
     public ITypeCollection ToTypeCollection() => ToNamedValues().ToTypeCollection();
 
     MemberDeclarationSyntax IMember.Syntax()

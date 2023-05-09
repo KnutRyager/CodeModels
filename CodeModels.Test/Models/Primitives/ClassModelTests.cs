@@ -9,14 +9,14 @@ public class ClassModelTests
     [Fact(Skip = "Old stuff")]
     public void GetPropertyAccessValue() => Class(
         "ClassA",
-            Property("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicField),
-            Property<int>("B")).GetProperty("A").AccessValue("abc").CodeModelEqual("abc.A");
+            NamedValue("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicField),
+            NamedValue<int>("B")).GetProperty("A").AccessValue("abc").CodeModelEqual("abc.A");
 
     [Fact(Skip = "Old stuff")]
     public void GetPropertyStaticAccessValueFromInstance() => Class(
         "ClassA",
-            Property("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicStaticField),
-            Property<int>("B")).GetProperty("A").AccessValue("abc").CodeModelEqual("abc.A");
+            NamedValue("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicStaticField),
+            NamedValue<int>("B")).GetProperty("A").AccessValue("abc").CodeModelEqual("abc.A");
 
     [Fact(Skip = "Old stuff")]
     public void GetPropertyStaticAccessValueFromStaticReference() => Class(

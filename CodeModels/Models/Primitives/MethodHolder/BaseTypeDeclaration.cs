@@ -26,7 +26,7 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
         foreach (var property in Properties.Properties) property.Owner = this;
     }
 
-    public IBaseTypeDeclaration AddProperty(Property property)
+    public IBaseTypeDeclaration AddProperty(AbstractProperty property)
     {
         Properties.Properties.Add(property);
         if (property.Owner is not null) throw new ArgumentException($"Adding already owned property '{property}' to '{Name}'.");
@@ -40,7 +40,7 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
     public IType Get_Type() => Type(Name);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
-    public List<Property> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
+    public List<AbstractProperty> GetReadonlyProperties() => Properties.Properties.Where(x => x.Modifier.IsWritable()).ToList();
     public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods.Select(x => x.ToMethodSyntax(MemberModifier)));
     public List<IMember> Members() => Properties.Ordered(MemberModifier).Concat<IMember>(Methods).ToList();
     public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => SyntaxFactory.List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
@@ -83,7 +83,7 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
             members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.SyntaxWithModifiers(removeModifier: Modifier.Public))));
 
     public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
-    public Property GetProperty(string name) => Properties[name];
+    public AbstractProperty GetProperty(string name) => Properties[name];
     public IMethod GetMethod(string name) => Methods.First(x => ((IMember)x).Name == name);
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);

@@ -102,11 +102,11 @@ public abstract record BaseType<T>(string Name,
                     }
                     var getterMethod = getter?.GetMethod(property.Name);
                     var setterMethod = setter?.GetMethod(property.Name);
-                    if (getterMethod is not null && !_methods.Any(x => ((INamedValue)x).Name == getterMethod.Name))
+                    if (getterMethod is not null && !_methods.Any(x => ((INamed)x).Name == getterMethod.Name))
                     {
                         _methods!.Add(getterMethod);
                     }
-                    if (setterMethod is not null && !_methods.Any(x => ((INamedValue)x).Name == setterMethod.Name))
+                    if (setterMethod is not null && !_methods.Any(x => ((INamed)x).Name == setterMethod.Name))
                     {
                         _methods!.Add(setterMethod);
                     }
