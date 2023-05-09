@@ -44,6 +44,8 @@ public static class AbstractCodeModelParsing
             _ => throw new ArgumentException($"Can't parse {nameof(AbstractProperty)} from '{syntax}'.")
         });
 
+    public static NamedValueCollection ParseProperties(ParameterListSyntax syntax, SemanticModel? model = null) => new(syntax.Parameters.Select(x => CodeModelParsing.Parse(x, model)));
+
     public static NamedValueCollection ParseNamedValues(IType Type, IEnumerable<ExpressionSyntax> syntax, bool nameByIndex = false, SemanticModel? model = null)
        => new(syntax.Select((x, i) => new AbstractProperty(Type, nameByIndex ? $"Item{i + 1}" : null, CodeModelParsing.ParseExpression(x, Type, model))), specifiedType: Type);
 

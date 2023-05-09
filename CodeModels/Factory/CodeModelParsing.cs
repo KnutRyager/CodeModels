@@ -582,7 +582,7 @@ public static class CodeModelParsing
 
     public static AnonymousMethodExpression Parse(AnonymousMethodExpressionSyntax syntax, SemanticModel? model = null)
          => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default, syntax.DelegateKeyword != default,
-             ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
+             AbstractCodeModelParsing.ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block, model),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody, model: model));
 
@@ -601,7 +601,7 @@ public static class CodeModelParsing
 
     public static ParenthesizedLambdaExpression Parse(ParenthesizedLambdaExpressionSyntax syntax, SemanticModel? model = null)
          => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
-             ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
+             AbstractCodeModelParsing.ParseProperties(syntax.ParameterList, model), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block, model),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody, model: model));
 
@@ -714,9 +714,8 @@ public static class CodeModelParsing
     public static LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax, SemanticModel? model = null)
         => Register2(syntax, new LocalFunctionStatement(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
             ParseTypes(syntax.TypeParameterList),
-            ParseProperties(syntax.ParameterList, model), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body, model),
+            AbstractCodeModelParsing.ParseProperties(syntax.ParameterList, model), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body, model),
             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression, model: model)), model);
-    public static NamedValueCollection ParseProperties(ParameterListSyntax syntax, SemanticModel? model = null) => new(syntax.Parameters.Select(x => Parse(x, model)));
     public static List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
     public static TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax, SemanticModel? model = null)
         => new(syntax.Name.ToString(), syntax.Constraints.Select(x => Parse(x, model)).ToList());
