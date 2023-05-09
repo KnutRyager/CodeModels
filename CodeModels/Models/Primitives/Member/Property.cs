@@ -14,7 +14,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record PropertyModel(string Name,
+public record Property(string Name,
     IType Type,
     List<AttributeList> Attributes,
     List<Accessor> Accessors,
@@ -22,7 +22,7 @@ public record PropertyModel(string Name,
     IExpression Value)
     : FieldOrProperty<PropertyDeclarationSyntax>(Name, Type, Attributes, Modifier, Value)
 {
-    public static PropertyModel Create(string name,
+    public static Property Create(string name,
     IType type,
     IEnumerable<Accessor> accessors,
     IEnumerable<AttributeList>? attributes = null,
@@ -45,7 +45,7 @@ public record PropertyModel(string Name,
     public Accessor? SetAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Set);
     public Accessor? InitAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Init);
 
-    public override IInvocation AccessValue(IExpression? instance = null) => new PropertyModelExpression(this, instance);
+    public override IInvocation AccessValue(IExpression? instance = null) => new PropertyExpression(this, instance);
 
     public override PropertyDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => PropertyDeclaration(

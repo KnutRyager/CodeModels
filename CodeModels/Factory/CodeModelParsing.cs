@@ -140,9 +140,9 @@ public static class CodeModelParsing
 
     public static IExpression Parse(IdentifierNameSyntax syntax, IPropertySymbol property, IType? type = null, SemanticModel? model = null)
          => SymbolUtils.IsNewDefined(property)
-        ? TryGetModel<PropertyModel>(property) is PropertyModel propertyModel
-            ? Register(syntax, new PropertyModelExpression(propertyModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: property), model)
-            : Register(syntax, new PropertyModelExpressionFromSymbol(property, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
+        ? TryGetModel<Property>(property) is Property propertyModel
+            ? Register(syntax, new PropertyExpression(propertyModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: property), model)
+            : Register(syntax, new PropertyExpressionFromSymbol(property, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
         : new PropertyFromReflection(property).AccessValue(syntax.ToString(), type, property);
 
     public static IExpression Parse(INamespaceSymbol namespaceSymbol)
@@ -909,7 +909,7 @@ public static class CodeModelParsing
     public static IMember Parse(EventDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IMember Parse(IndexerDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IMember Parse(PropertyDeclarationSyntax syntax, SemanticModel? model = null)
-        => Register2(syntax, new PropertyModel(syntax.Name(), ParseType(syntax.Type, model: model),
+        => Register2(syntax, new Property(syntax.Name(), ParseType(syntax.Type, model: model),
              syntax.AttributeLists.Select(x => Parse(x, model)).ToList(), syntax.ExpressionBody is not null
             ? List(Models.Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression, model: model), modifier: ParseModifier(syntax.Modifiers)))
             : Parse(syntax.AccessorList!, model),

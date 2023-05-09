@@ -103,7 +103,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
     public ICodeModel Render(Namespace @namespace)
         => this with { Name = @namespace.Name };
 
-    public List<PropertyModel> ToFieldOrProperties() => Properties.Select(x => x.ToProperty()).ToList();
+    public List<Property> ToFieldOrProperties() => Properties.Select(x => x.ToProperty()).ToList();
 
     public IType ToType()
     {
@@ -127,7 +127,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
 
     public ClassDeclaration ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToProperty()));
 
-    public PropertyModel ToProperty() => CodeModelFactory.PropertyModel(Name, Value);
+    public Property ToProperty() => CodeModelFactory.Property(Name, Value);
 
     public static implicit operator NamedValueCollection(AbstractProperty property) => new(property);
 }

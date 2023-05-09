@@ -71,8 +71,8 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     public IExpression ToExpression() => Value;
 
     public SimpleNameSyntax NameSyntax() => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
-    public PropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
-    public PropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(CodeModelFactory.Identifier(identifier, type, symbol));
+    public AbstractPropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
+    public AbstractPropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(CodeModelFactory.Identifier(identifier, type, symbol));
     public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax()
         : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax());
 
@@ -91,7 +91,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         _ => default
     };
 
-    public PropertyExpression GetAccess(IExpression? instance) => new(this, instance);
+    public PropertyExpression GetAccess(IExpression? instance) => new(ToProperty(), instance);
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -116,5 +116,5 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         throw new NotImplementedException();
     }
 
-    public PropertyModel ToProperty() => CodeModelFactory.PropertyModel(Name, Type);
+    public Property ToProperty() => CodeModelFactory.Property(Name, Type, Attributes, modifier: Modifier, value: Value);
 }

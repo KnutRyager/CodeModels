@@ -120,12 +120,12 @@ public static class CodeModelFactory
     public static Field Field<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
             => Field(Type<T>(), name, modifier: modifier, value: value);
 
-    public static PropertyModel PropertyModel(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.PropertyModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
-    public static PropertyModel PropertyModel(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
-        => PropertyModel(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
-    public static PropertyModel PropertyModel<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
-            => PropertyModel(Type<T>(), name, modifier: modifier, value: value);
+    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
+        => Models.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
+    public static Property Property(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
+        => Property(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
+    public static Property Property<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
+            => Property(Type<T>(), name, modifier: modifier, value: value);
 
     public static Accessor Accessor(AccessorType type,
     Block? body = null,
@@ -133,7 +133,7 @@ public static class CodeModelFactory
     IEnumerable<AttributeList>? attributes = null,
     Modifier modifier = Modifier.None) => Models.Accessor.Create(type, body, expressionBody, attributes, modifier);
 
-    public static PropertyModel PropertyModel(string name,
+    public static Property Property(string name,
     IType type,
     List<AttributeList>? attributes = null,
     List<Accessor>? accessors = null,

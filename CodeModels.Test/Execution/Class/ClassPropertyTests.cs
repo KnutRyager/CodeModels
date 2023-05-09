@@ -12,14 +12,14 @@ namespace CodeModels.Test.Execution.Class;
 public class ClassPropertyTests
 {
     [Fact]
-    public void EvaluateGetterBlock() => PropertyModel(Type<int>(), "get3",
+    public void EvaluateGetterBlock() => Property(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, Block(Return(3))) })
         .GetGetter()!
         .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
-    public void EvaluateGetterExpressionBody() => PropertyModel(Type<int>(), "get3",
+    public void EvaluateGetterExpressionBody() => Property(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, expressionBody: Literal(3)) })
         .GetGetter()!
         .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
@@ -39,7 +39,7 @@ public class ClassPropertyTests
     [Fact]
     public void ClassInstacePropertyModifyFieldValueAutoProperty()
     {
-        var property = PropertyModel(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) });
         var c = CodeModelFactory.Class("classA",
@@ -56,7 +56,7 @@ public class ClassPropertyTests
     [Fact]
     public void ClassInstacePropertyModifyBackingField()
     {
-        var property = PropertyModel(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) });
         var c = CodeModelFactory.Class("classA",
@@ -78,7 +78,7 @@ public class ClassPropertyTests
     [Fact]
     public void ClassInstanceStaticPropertyModifyBackingField()
     {
-        var property = PropertyModel(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
         var c = CodeModelFactory.Class("classA",
@@ -100,7 +100,7 @@ public class ClassPropertyTests
     [Fact]
     public void StaticPropertyBackingFieldIsStatic()
     {
-        var property = PropertyModel(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
         var c = CodeModelFactory.Class("classA",
@@ -112,7 +112,7 @@ public class ClassPropertyTests
     [Fact]
     public void InstancePropertyBackingFieldIsNotStatic()
     {
-        var property = PropertyModel(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicField);
         var c = CodeModelFactory.Class("classA",

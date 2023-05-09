@@ -8,7 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record PropertyExpression(AbstractProperty Property, IExpression? Instance = null) 
+public record AbstractPropertyExpression(AbstractProperty Property, IExpression? Instance = null) 
     : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
     public IBaseTypeDeclaration? Owner => Property.Owner;
@@ -23,6 +23,5 @@ public record PropertyExpression(AbstractProperty Property, IExpression? Instanc
 
     public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(context, Instance);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
-
     public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes) => Property.Assign(value, context, scopes);
 }

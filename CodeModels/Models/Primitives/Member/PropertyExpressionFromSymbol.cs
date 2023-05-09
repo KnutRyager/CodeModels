@@ -8,11 +8,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record PropertyModelExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null) 
+public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null) 
     : Expression<ExpressionSyntax>(new TypeFromSymbol(PropertySymbol.Type), PropertySymbol),
-    IPropertyModelExpression
+    IPropertyExpression
 {
-    public PropertyModel Property => ProgramContext.GetContext(PropertySymbol).Get<PropertyModel>(PropertySymbol);
+    public Property Property => ProgramContext.GetContext(PropertySymbol).Get<Property>(PropertySymbol);
     public IBaseTypeDeclaration? Owner => Property.Owner;
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();

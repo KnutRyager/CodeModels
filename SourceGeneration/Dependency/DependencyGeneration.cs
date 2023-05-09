@@ -30,7 +30,7 @@ public static class DependencyGeneration
         }
         var masterDependencyDictionary = new ExpressionMap(dependenciesWithFullPaths.Select(
             x => new ExpressionsMap(Literal(x.Class.Name),
-            new PropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
+            new AbstractPropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
         staticClass.AddProperty(masterDependencyDictionary.ToNamedValue());
 
         return staticClass.ToClass();

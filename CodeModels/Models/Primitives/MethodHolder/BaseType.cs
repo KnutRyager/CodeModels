@@ -31,7 +31,7 @@ public abstract record BaseType<T>(string Name,
 {
     private CodeModelExecutionScope? _staticScope;
     private List<Field>? _fields;
-    private List<PropertyModel>? _properties;
+    private List<Property>? _properties;
     private List<Method>? _methods;
     private List<Constructor>? _constructors;
 
@@ -56,7 +56,7 @@ public abstract record BaseType<T>(string Name,
     private void InitMembers()
     {
         _fields ??= new List<Field>();
-        _properties ??= new List<PropertyModel>();
+        _properties ??= new List<Property>();
         _methods ??= new List<Method>();
         _constructors ??= new List<Constructor>();
         var newMembers = new List<IMember>();
@@ -81,7 +81,7 @@ public abstract record BaseType<T>(string Name,
             case Field field:
                 _fields!.Add(field);
                 break;
-            case PropertyModel property:
+            case Property property:
                 {
                     _properties!.Add(property);
                     var getter = property.GetAccessor;
@@ -187,7 +187,7 @@ public abstract record BaseType<T>(string Name,
 
     public ITypeDeclaration AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
     public ITypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
-    public ITypeDeclaration AddProperty(AbstractType type, string name) => AddMember(CodeModelFactory.PropertyModel(name, type));
+    public ITypeDeclaration AddProperty(AbstractType type, string name) => AddMember(CodeModelFactory.Property(name, type));
     public IType Get_Type() => Type(this);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
 
@@ -196,7 +196,7 @@ public abstract record BaseType<T>(string Name,
     public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods().Select(x => x.ToMethodSyntax(MemberModifier)));
     public List<Constructor> GetConstructors() => _constructors is { Count: > 0 } ? _constructors : new List<Constructor>() { CodeModelFactory.ConstructorFull(this, CodeModelFactory.NamedValues(), CodeModelFactory.Block()) };
     public List<Field> GetFields() => _fields ??= new List<Field>();
-    public List<PropertyModel> GetProperties() => _properties ??= new List<PropertyModel>();
+    public List<Property> GetProperties() => _properties ??= new List<Property>();
     public List<IFieldOrProperty> GetPropertiesAndFields() => GetFields().Concat<IFieldOrProperty>(GetProperties()).ToList();
     public List<Method> Methods()
     {
@@ -212,8 +212,8 @@ public abstract record BaseType<T>(string Name,
     public virtual IMember TryGetMember(string name) => AllMembers().FirstOrDefault(x => x.Name == name);
     public virtual Field GetField(string name) => GetFields().First(x => x.Name == name);
     public virtual Field? TryGetField(string name) => GetFields().FirstOrDefault(x => x.Name == name);
-    public virtual PropertyModel GetProperty(string name) => GetProperties().First(x => x.Name == name);
-    public virtual PropertyModel? TryGetProperty(string name) => GetProperties().FirstOrDefault(x => x.Name == name);
+    public virtual Property GetProperty(string name) => GetProperties().First(x => x.Name == name);
+    public virtual Property? TryGetProperty(string name) => GetProperties().FirstOrDefault(x => x.Name == name);
     public virtual Constructor GetConstructor() => GetConstructors().First();
 
 

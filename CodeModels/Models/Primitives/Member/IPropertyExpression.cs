@@ -5,9 +5,9 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
 
-public interface IPropertyModelExpression : IInvocation, IAssignable, IMemberAccess
+public interface IPropertyExpression : IInvocation, IAssignable, IMemberAccess
 {
-    PropertyModel Property { get; }
+    Property Property { get; }
     //IExpression? Instance { get; }
     IList<ICodeModelExecutionScope>? Scopes { get; }
     ISymbol? Symbol { get; }

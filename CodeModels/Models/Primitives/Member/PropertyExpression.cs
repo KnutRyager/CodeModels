@@ -8,24 +8,24 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record PropertyModelExpression(PropertyModel Property, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null) 
+public record PropertyExpression(Property Property, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null) 
     : Expression<ExpressionSyntax>(Property.Type, Symbol),
-    IPropertyModelExpression
+    IPropertyExpression
 {
-    public ITypeDeclaration? Owner => Property.Owner;
+    public IBaseTypeDeclaration? Owner => Property.Owner;
 
     IBaseTypeDeclaration? IMemberAccess.Owner => Owner;
 
-    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();
-
+    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
+    
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance, context);
+    //public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
-
     public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes) => Property.Assign(value, context, scopes);
 }
