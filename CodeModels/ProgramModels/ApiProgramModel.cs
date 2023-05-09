@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using CodeModels.Models.ErDiagram;
+using CodeModels.ProgramModels.ErDiagram;
 //using System.ComponentModel.DataAnnotations;
 
 namespace CodeModels.ProgramModels;

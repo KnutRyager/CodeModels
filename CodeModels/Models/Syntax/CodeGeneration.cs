@@ -2,7 +2,7 @@
 using System.CodeDom;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CodeModels.Models.ErDiagram;
+using CodeModels.ProgramModels.ErDiagram;
 using CodeModels.Rewriters;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

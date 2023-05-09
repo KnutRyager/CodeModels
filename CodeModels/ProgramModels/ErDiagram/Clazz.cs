@@ -1,7 +1,7 @@
 #nullable disable
 using System.Collections.Generic;
 
-namespace CodeModels.Models.ErDiagram;
+namespace CodeModels.ProgramModels.ErDiagram;
 
 public class Clazz
 {

@@ -1,9 +1,10 @@
 using System;
 using CodeModels.Generation;
+using CodeModels.ProgramModels.ErDiagram;
 using TestCommon;
 using Xunit;
 
-namespace CodeModels.Models.ErDiagram.Test;
+namespace CodeModels.Test.ProgramModels.ErDiagram;
 
 public class PojoTests
 {

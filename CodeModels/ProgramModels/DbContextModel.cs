@@ -1,7 +1,7 @@
 //using System.ComponentModel.DataAnnotations;
 
 using System.Collections.Generic;
-using CodeModels.Models.ErDiagram;
+using CodeModels.ProgramModels.ErDiagram;
 
 namespace CodeModels.ProgramModels;
 

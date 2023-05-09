@@ -1,6 +1,8 @@
 #nullable disable
 
-namespace CodeModels.Models.ErDiagram;
+using CodeModels;
+
+namespace CodeModels.ProgramModels.ErDiagram;
 
 public class ClazzERDiagram
 {

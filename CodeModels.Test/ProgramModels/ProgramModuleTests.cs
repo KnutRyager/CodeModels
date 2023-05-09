@@ -6,7 +6,7 @@ using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Factory.ProgramModelFactory;
 
-namespace CodeModels.Generation.Test;
+namespace CodeModels.Test.ProgramModels;
 
 public class ProgramModuleTests
 {

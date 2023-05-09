@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using CodeModels.Models.ErDiagram;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Factory.CodeModelFactory;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-
-namespace CodeModels.Models;
+﻿namespace CodeModels.Models;
 
 //public record TupleModel(List<FieldModel> Fields, IType? SpecifiedType = null, Modifier Modifier = Modifier.Public)
 //    : BaseType<TupleTypeSyntax>(
