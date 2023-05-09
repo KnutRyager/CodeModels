@@ -1,6 +1,7 @@
 ﻿using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Expression.Abstract;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Interfaces;
 
 public interface IAssigner
 {

@@ -2,13 +2,15 @@
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Reference;
 
 public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Symbol = null, ICodeModel? Model = null)
     : Expression<IdentifierNameSyntax>(Type ?? (Symbol is ITypeSymbol typeSymbol ? new TypeFromSymbol(typeSymbol) : TypeShorthands.VoidType), Symbol, Name),
@@ -16,7 +18,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
 {
     public IdentifierExpression(ISymbol symbol) : this(symbol.Name, null, symbol) { }
     public override IdentifierNameSyntax Syntax() => Syntax(Name ?? Type.Name);
-    public SyntaxToken ToToken() => SyntaxFactory.Identifier(Name);
+    public SyntaxToken ToToken() => Identifier(Name);
     public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);
     public override IEnumerable<ICodeModel> Children()
     {

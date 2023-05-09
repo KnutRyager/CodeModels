@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Utils;
 using Common.DataStructures;
 using Common.Reflection;

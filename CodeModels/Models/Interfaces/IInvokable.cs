@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using CodeModels.Models.Primitives.Expression.Abstract;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Interfaces;
 
 public interface IInvokable
 {

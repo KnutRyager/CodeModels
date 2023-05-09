@@ -2,6 +2,7 @@
 using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

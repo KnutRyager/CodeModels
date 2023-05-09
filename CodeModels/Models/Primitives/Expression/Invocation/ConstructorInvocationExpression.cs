@@ -4,11 +4,14 @@ using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Models;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Invocation;
 
 public record ConstructorInvocationExpression(Constructor Constructor, List<IExpression> Arguments)
     : AnyArgExpression<InvocationExpressionSyntax>(Arguments.ToList(), Constructor.Type, OperationType.Invocation),

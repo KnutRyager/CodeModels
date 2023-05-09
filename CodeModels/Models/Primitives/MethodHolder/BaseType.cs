@@ -12,6 +12,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
 using CodeModels.Execution.Scope;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Reflection.Metadata;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 
 namespace CodeModels.Models;
 

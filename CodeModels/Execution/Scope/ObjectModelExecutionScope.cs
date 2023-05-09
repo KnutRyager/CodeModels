@@ -2,7 +2,8 @@
 using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
-using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Execution.Scope;

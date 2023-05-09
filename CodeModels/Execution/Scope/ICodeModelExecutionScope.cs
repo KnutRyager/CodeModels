@@ -1,4 +1,5 @@
-﻿using CodeModels.Models;
+﻿using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 
 namespace CodeModels.Execution.Scope;
 

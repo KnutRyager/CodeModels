@@ -1,4 +1,6 @@
 ﻿using CodeModels.Factory;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

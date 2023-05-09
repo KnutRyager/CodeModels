@@ -1,7 +1,8 @@
 ﻿using CodeModels.Execution.Context;
+using CodeModels.Models.Interfaces;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Abstract;
 
 public interface IExpressionOrPattern : ICodeModel, IIdentifiable
 {

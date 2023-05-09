@@ -1,4 +1,6 @@
-﻿namespace CodeModels.Models;
+﻿using CodeModels.Models.Primitives.Expression.Abstract;
+
+namespace CodeModels.Models;
 
 public interface IMemberAccess
 {

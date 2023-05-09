@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;
 using Common.Extensions;
 using Common.Reflection;

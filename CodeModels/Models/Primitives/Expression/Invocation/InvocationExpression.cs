@@ -6,11 +6,14 @@ using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
+using CodeModels.Models;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Invocation;
 
 public record InvocationExpression(Method Method, IExpression Caller, List<IExpression> Arguments, List<ICodeModelExecutionScope> Scopes)
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),
@@ -99,7 +102,7 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
 
         var instance = Caller.EvaluatePlain(context);
         if (instance is Delegate && instance.GetType() is Type t && (t.FullName.Contains("System.Func")
-            || (t.IsGenericType && t.FullName.Contains("System.Action"))))
+            || t.IsGenericType && t.FullName.Contains("System.Action")))
         {
             var declaringType = Method.DeclaringType;
             var genericFuncType = Method.DeclaringType.GetGenericTypeDefinition();

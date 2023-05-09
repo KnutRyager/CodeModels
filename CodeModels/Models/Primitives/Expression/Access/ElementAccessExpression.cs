@@ -2,10 +2,13 @@
 using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Access;
 
 public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpression> Arguments)
     : AnyArgExpression<ElementAccessExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Type, OperationType.Invocation), IAssignable

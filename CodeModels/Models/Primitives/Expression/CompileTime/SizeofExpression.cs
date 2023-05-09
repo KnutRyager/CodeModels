@@ -4,10 +4,11 @@ using System.Collections.Generic;
 using System.Reflection.Emit;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.CompileTime;
 
 public record SizeOfExpression(IType Type) : Expression<SizeOfExpressionSyntax>(Type)
 {

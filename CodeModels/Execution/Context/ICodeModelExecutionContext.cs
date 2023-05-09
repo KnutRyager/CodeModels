@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using CodeModels.Execution.Scope;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 
 namespace CodeModels.Execution.Context;
 

@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis;
 
 namespace CodeModels.ProgramModels;

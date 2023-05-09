@@ -2,6 +2,8 @@
 using CodeModels.Execution;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

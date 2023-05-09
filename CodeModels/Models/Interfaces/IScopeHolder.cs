@@ -2,7 +2,7 @@
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Interfaces;
 
 public interface IScopeHolder
 {

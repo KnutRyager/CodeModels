@@ -4,6 +4,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

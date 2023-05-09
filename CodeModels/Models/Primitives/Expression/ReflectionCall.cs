@@ -8,6 +8,7 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 

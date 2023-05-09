@@ -4,6 +4,9 @@ using System.IO;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Access;
+using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Utils;
 using static CodeModels.Factory.CodeModelFactory;
 

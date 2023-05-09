@@ -6,6 +6,7 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 

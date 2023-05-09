@@ -1,6 +1,7 @@
 ﻿using System;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -8,7 +9,7 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Expression.Abstract;
 
 public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string? Name = null)
     : NamedCodeModel<T>(Name ?? Type.Name), IExpression<T> where T : ExpressionSyntax
@@ -22,7 +23,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
             attributeLists: default,
             identifier: Type switch
             {
-                _ when Type.GetReflectedType() == typeof(string) && LiteralValue() is string name => SyntaxFactory.Identifier(name),
+                _ when Type.GetReflectedType() == typeof(string) && LiteralValue() is string name => Identifier(name),
                 _ => throw new ArgumentException($"Unhandled enum name: '{LiteralValue()}' of type '{Type}'.")
             },
             equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
