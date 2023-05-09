@@ -2,7 +2,7 @@
 using Common.DataStructures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
 {

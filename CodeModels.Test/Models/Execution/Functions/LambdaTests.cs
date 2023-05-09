@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Function.Test;
+namespace CodeModels.Models.Execution.Function.Test;
 
 public class LambdaTests
 {

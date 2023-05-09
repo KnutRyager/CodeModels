@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record LocalDeclarationStatement(VariableDeclaration Declaration, Modifier Modifiers = Modifier.None) : AbstractStatement<LocalDeclarationStatementSyntax>
 {

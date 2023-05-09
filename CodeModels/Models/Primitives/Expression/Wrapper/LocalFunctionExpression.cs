@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection.Metadata;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 /// <summary>
 /// Custom Expression wrapper for LocalFunctionStatement.

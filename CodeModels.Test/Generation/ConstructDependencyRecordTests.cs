@@ -1,7 +1,7 @@
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Generation.Test;
+namespace CodeModels.Generation.Test;
 
 public class ConstructDependencyRecordTests
 {

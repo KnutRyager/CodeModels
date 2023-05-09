@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record Accessor(AccessorType Type,
     Block? Body,

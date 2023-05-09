@@ -1,7 +1,7 @@
-﻿using CodeAnalyzation.Models.Reflection;
+﻿using CodeModels.Models.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IMethod : IMember, ICodeModel<MethodDeclarationSyntax>, IMethodInfo
 {

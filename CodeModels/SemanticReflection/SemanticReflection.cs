@@ -6,7 +6,7 @@ using Common.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace CodeAnalyzation.Reflection;
+namespace CodeModels.Reflection;
 
 public static class SemanticReflection
 {

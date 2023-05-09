@@ -1,9 +1,10 @@
 ﻿using System;
+using CodeModels.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Rewriters;
+namespace CodeModels.Rewriters;
 
 public class PublicOnlyRewriter : CSharpSyntaxRewriter
 {

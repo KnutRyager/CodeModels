@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Reflection;
-using CodeAnalyzation.Utils;
+using CodeModels.Reflection;
+using CodeModels.Utils;
 using Common.Extensions;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Models.CodeModelParsing;
+using static CodeModels.Models.CodeModelParsing;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class CodeModelFactory
 {

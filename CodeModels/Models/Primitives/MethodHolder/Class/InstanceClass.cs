@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record InstanceClass(string Identifier, PropertyCollection Properties, List<IMethod> Methods, Namespace? Namespace = null)
     : ClassModel(Identifier, Properties, Methods, Namespace)

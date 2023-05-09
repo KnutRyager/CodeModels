@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ExpressionFromTypeContext(IProgramContext Context, IType Type) : Expression<ExpressionSyntax>(Type)
 //public record ExpressionFromTypeContext(IProgramContext Context, IType Type) : Expression<ExpressionSyntax>(Type, Context: Context)

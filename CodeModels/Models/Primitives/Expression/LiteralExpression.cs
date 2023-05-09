@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 //using Newtonsoft.Json;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record LiteralExpression(IType Type, object? Value, string? SerializedValue) : Expression<LiteralExpressionSyntax>(Type)
 {

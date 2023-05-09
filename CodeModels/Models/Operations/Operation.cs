@@ -4,12 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Models;
+using CodeModels.Models;
 using Common.Reflection;
 using Common.Util;
 using Models;
 
-namespace CodeAnalyzation.DataTransformation;
+namespace CodeModels.DataTransformation;
 
 [Model]
 public class Operation : IOperation<Namespace, DataType, OperationPipeline>

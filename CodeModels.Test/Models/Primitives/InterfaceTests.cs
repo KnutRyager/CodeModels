@@ -1,8 +1,8 @@
-using CodeAnalyzation.Test;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using Xunit;
+using TestCommon;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 using static CodeModelFactory;
 public class InterfaceTests
 {

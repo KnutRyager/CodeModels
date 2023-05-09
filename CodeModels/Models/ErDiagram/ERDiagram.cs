@@ -4,7 +4,7 @@
 
 using System.Collections.Generic;
 
-namespace CodeAnalyzation.Models.ErDiagram;
+namespace CodeModels.Models.ErDiagram;
 
 public class ERDiagram
 {

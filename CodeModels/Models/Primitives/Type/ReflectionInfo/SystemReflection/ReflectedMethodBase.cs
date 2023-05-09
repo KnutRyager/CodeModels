@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedMethodBase<T>(T Info) : ReflectedMemberInfo<T>(Info), IMethodBase where T : MethodBase
 {

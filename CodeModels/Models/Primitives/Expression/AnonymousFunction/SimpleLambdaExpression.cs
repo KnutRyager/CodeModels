@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models;
-using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeModels.Models;
+using CodeModels.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedFieldInfo(FieldInfo Info) : ReflectedMemberInfo<FieldInfo>(Info), IFieldInfo
 {

@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Models.ProgramModels;
-using CodeAnalyzation.Reflection;
+using CodeModels.Models.ProgramModels;
+using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {

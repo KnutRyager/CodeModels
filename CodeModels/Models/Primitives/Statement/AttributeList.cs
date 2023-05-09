@@ -4,7 +4,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record AttributeList(AttributeTargetSpecifier? Target, List<Attribute> Attributes) : CodeModel<AttributeListSyntax>
 {

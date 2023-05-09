@@ -1,4 +1,4 @@
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public record PropertyModel(
     string Name,

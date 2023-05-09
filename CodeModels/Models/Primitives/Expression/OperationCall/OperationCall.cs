@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record OperationCall(IOperationPipeline Pipeline, IOperation? Operation, IEnumerable<IExpression> Inputs)
     : Expression<ExpressionSyntax>(Pipeline.Type)

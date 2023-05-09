@@ -1,12 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeAnalyzation.Models;
+using CodeModels.Extensions;
+using CodeModels.Models;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Generation;
+namespace CodeModels.Generation;
 
 public static class DependencyGeneration
 {

@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
-using CodeAnalyzation.Reflection;
+using CodeModels.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record PropertyFromField(FieldInfo Field)
     : Property(new TypeFromReflection(Field.FieldType), Field.Name, Field.IsLiteral ? new LiteralExpression(Field.GetValue(null)) : null,

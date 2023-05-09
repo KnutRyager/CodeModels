@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKind Kind) : Expression<AssignmentExpressionSyntax>(Left.Get_Type())
 {

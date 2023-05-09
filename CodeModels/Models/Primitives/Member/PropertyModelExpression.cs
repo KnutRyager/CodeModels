@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ErDiagram;
+using CodeModels.Models.ErDiagram;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record PropertyModelExpression(PropertyModel Property, IExpression? Instance = null, IList<IProgramModelExecutionScope>? Scopes = null, ISymbol? Symbol = null) 
     : Expression<ExpressionSyntax>(Property.Type, Symbol),

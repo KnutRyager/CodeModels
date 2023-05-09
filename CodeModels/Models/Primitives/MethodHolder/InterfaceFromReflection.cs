@@ -2,7 +2,7 @@
 using System.Linq;
 using Common.Reflection;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record InterfaceFromReflection(Type ReflectedType)
     : InterfaceModel(ReflectedType.Name,

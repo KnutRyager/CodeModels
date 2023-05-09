@@ -6,7 +6,7 @@ using Common.Reflection;
 using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class CodeModelsFromReflection
 {

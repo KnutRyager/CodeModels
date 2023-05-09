@@ -5,7 +5,7 @@ using System.Reflection.Emit;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record SizeOfExpression(IType Type) : Expression<SizeOfExpressionSyntax>(Type)
 {

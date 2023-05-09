@@ -5,15 +5,15 @@ using Common.DataStructures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.SyntaxNodeExtensions;
+using static CodeModels.Extensions.SyntaxNodeExtensions;
 
-namespace CodeAnalyzation;
+namespace CodeModels.Extensions;
 
 public static class SemanticExtensions
 {
     public static IDictionary<ISymbol, List<MemberDependencies>> GetDirectDependencies(this IEnumerable<ClassDeclarationSyntax> classes, SemanticModel model)
     {
-        var modelSymbols = classes.Select(x => (model.GetDeclaredSymbol(x)!)).ToList();
+        var modelSymbols = classes.Select(x => model.GetDeclaredSymbol(x)!).ToList();
         return classes.ToDictionary(x => model.GetDeclaredSymbol(x) ?? throw new ArgumentException($"No declared symbol for '{x}'."),
             x => GetDependencies(x, modelSymbols, model),
             SymbolEqualityComparer.Default)!;

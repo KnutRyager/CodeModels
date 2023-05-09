@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record RecursivePattern(IType Type)
     : Pattern<RecursivePatternSyntax>

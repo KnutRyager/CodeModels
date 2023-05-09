@@ -1,9 +1,9 @@
 using System;
-using CodeAnalyzation.Generation;
-using CodeAnalyzation.Test;
+using CodeModels.Generation;
+using TestCommon;
 using Xunit;
 
-namespace CodeAnalyzation.Models.ErDiagram.Test;
+namespace CodeModels.Models.ErDiagram.Test;
 
 public class PojoTests
 {

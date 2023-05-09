@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IIdentifiable
 {

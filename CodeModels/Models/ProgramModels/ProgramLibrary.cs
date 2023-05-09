@@ -5,7 +5,7 @@ using Common.Files;
 using Generator.Models.ProgramModels.GeneratorOptions;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public record ProgramLibrary(
     Namespace TopLevelNamespace,

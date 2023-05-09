@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 
 public record FinallyClause(IStatement Statement) : CodeModel<FinallyClauseSyntax>

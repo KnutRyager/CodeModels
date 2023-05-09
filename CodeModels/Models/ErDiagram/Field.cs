@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using Common.Reflection;
 
-namespace CodeAnalyzation.Models.ErDiagram;
+namespace CodeModels.Models.ErDiagram;
 
 public class Field
 {

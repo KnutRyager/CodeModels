@@ -1,8 +1,8 @@
-using CodeAnalyzation.Models.Execution;
+using CodeModels.Models.Execution;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.ControlFlow.Test;
+namespace CodeModels.Models.Execution.ControlFlow.Test;
 
 public class SwitchStatementTests
 {

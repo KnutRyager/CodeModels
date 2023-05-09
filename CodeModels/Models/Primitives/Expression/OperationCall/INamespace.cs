@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface INamespace
 {

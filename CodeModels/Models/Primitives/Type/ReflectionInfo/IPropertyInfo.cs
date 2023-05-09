@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public interface IPropertyInfo : IMemberInfo
 {

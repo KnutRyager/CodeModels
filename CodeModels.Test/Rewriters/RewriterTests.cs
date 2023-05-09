@@ -1,9 +1,10 @@
-using CodeAnalyzation.Parsing;
-using CodeAnalyzation.Test;
+using CodeModels.Extensions;
+using CodeModels.Parsing;
 using FluentAssertions;
+using TestCommon;
 using Xunit;
 
-namespace CodeAnalyzation.Rewriters.Test;
+namespace CodeModels.Rewriters.Test;
 
 public class RewriterTests
 {

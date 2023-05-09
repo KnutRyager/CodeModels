@@ -1,8 +1,8 @@
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ErDiagram;
+using CodeModels.Models.ErDiagram;
 //using System.ComponentModel.DataAnnotations;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public class ApiProgramModel
 {

@@ -5,7 +5,7 @@ using Common.DataStructures;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public abstract record QuickType(string Identifier, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null, ITypeDeclaration? Declaration = null, ITypeSymbol? Symbol = null)
     : AbstractType(Identifier, GenericTypes, Required, IsMulti, ReflectedType, Symbol)

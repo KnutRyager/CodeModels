@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeModels.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record InvocationExpression(Method Method, IExpression Caller, List<IExpression> Arguments, List<IProgramModelExecutionScope> Scopes)
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),

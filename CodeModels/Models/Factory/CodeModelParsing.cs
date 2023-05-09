@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeAnalyzation.Models.ProgramModels;
-using CodeAnalyzation.Parsing;
-using CodeAnalyzation.Reflection;
+using CodeModels.Extensions;
+using CodeModels.Models.ProgramModels;
+using CodeModels.Parsing;
+using CodeModels.Reflection;
 using Common.Extensions;
 using Common.Reflection;
 using Generator.Models.Primitives.Expression.AnonymousFunction;
@@ -13,10 +14,10 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using Models;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class CodeModelParsing
 {

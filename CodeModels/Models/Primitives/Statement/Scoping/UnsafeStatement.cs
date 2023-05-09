@@ -2,9 +2,9 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record UnsafeStatement(Block Block) : AbstractStatement<UnsafeStatementSyntax>
 {

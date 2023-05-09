@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record UsingDirective(string Name, bool IsStatic = false, bool IsGlobal = false, string? Alias = null) : CodeModel<UsingDirectiveSyntax>()
 {

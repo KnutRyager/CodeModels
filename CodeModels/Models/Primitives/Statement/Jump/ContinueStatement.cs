@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeModels.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ContinueStatement() : AbstractStatement<ContinueStatementSyntax>
 {

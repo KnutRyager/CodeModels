@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.DataTransformation;
+using CodeModels.DataTransformation;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IOperation
 {

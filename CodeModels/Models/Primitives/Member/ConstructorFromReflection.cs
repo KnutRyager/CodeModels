@@ -2,7 +2,7 @@
 using System.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ConstructorFromReflection(ConstructorInfo Constructor)
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(

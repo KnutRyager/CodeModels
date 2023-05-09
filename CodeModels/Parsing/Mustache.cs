@@ -2,7 +2,7 @@
 using System.Text;
 using Common.Extensions;
 
-namespace CodeAnalyzation.Parsing;
+namespace CodeModels.Parsing;
 
 public static class Mustache
 {

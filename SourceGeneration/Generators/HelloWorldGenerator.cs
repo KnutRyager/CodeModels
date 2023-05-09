@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Text;
 
-namespace CodeAnalyzation.Generators;
+namespace CodeModels.Generators;
 
 // Cookbook: https://github.com/dotnet/roslyn/blob/main/docs/features/source-generators.cookbook.md
 //[Generator]

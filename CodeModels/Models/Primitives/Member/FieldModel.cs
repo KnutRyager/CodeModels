@@ -4,10 +4,10 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record FieldModel(string Name,
     IType Type,

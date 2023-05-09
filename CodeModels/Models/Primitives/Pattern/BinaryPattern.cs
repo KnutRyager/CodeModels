@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public abstract record BinaryPattern(SyntaxKind Kind, IPattern Left, IPattern Right) 
     : Pattern<BinaryPatternSyntax>

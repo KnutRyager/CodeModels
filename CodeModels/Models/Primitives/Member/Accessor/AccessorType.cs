@@ -1,7 +1,7 @@
 ﻿using System;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public enum AccessorType
 {

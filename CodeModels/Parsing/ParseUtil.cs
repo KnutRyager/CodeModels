@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeAnalyzation.Compilation;
+using CodeModels.Compilation;
 using Common.Files;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.SyntaxNodeExtensions;
+using static CodeModels.Extensions.SyntaxNodeExtensions;
 
-namespace CodeAnalyzation.Parsing;
+namespace CodeModels.Parsing;
 
 public static class ParseUtil
 {

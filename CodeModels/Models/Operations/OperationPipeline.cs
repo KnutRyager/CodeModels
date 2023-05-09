@@ -2,11 +2,11 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using CodeAnalyzation.Models;
+using CodeModels.Models;
 using Common.Util;
 using Models;
 
-namespace CodeAnalyzation.DataTransformation;
+namespace CodeModels.DataTransformation;
 
 [Model]
 public class OperationPipeline : IOperationPipeline<OperationPipelineNode, Operation, DataType>

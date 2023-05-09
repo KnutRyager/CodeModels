@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CodeAnalyzation.Models.Syntax;
+namespace CodeModels.Models.Syntax;
 
 public abstract class MSyntaxNode
 {

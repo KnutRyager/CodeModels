@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedMethodInfo(MethodInfo Info) : ReflectedMethodBase<MethodInfo>(Info), IMethodInfo
 {

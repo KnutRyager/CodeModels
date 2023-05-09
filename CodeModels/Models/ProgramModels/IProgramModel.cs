@@ -1,4 +1,4 @@
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public interface IProgramModel : ICodeModel
 {

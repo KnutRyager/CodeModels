@@ -1,11 +1,7 @@
-﻿using System.Text;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.Text;
-using Models;
-using System;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+﻿using Microsoft.CodeAnalysis.CSharp.Syntax;
+
+namespace CodeModels.Extensions;
+
 public static class SyntaxExtensions
 {
     //[Key] public int Id  { get; set; }

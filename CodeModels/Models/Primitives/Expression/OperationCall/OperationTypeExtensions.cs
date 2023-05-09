@@ -1,12 +1,12 @@
 using System;
 using Microsoft.CodeAnalysis.CSharp;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class OperationTypeExtensions
 {

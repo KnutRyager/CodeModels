@@ -1,10 +1,9 @@
 using System.Linq;
-using CodeAnalyzation.Test;
 using FluentAssertions;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models.Execution.Class.Test;
+namespace CodeModels.Models.Execution.Class.Test;
 
 public class ClassPropertyTests
 {

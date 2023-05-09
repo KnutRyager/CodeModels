@@ -1,7 +1,7 @@
-using CodeAnalyzation.Test;
+using TestCommon;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 
 public class EnumTests
 {

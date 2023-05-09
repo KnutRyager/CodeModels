@@ -2,9 +2,9 @@ using FluentAssertions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models.Execution.Class.Test;
+namespace CodeModels.Models.Execution.Class.Test;
 
 public class ClassConstructorTests
 {

@@ -3,7 +3,7 @@ using System.Linq;
 using Common.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ClassFromReflection(Type ReflectedType) : TypeDeclaration<ClassDeclarationSyntax>(ReflectedType.Name,
     new PropertyCollection(ReflectedType),

@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using static CodeAnalyzation.SyntaxNodeExtensions;
+using static CodeModels.Extensions.SyntaxNodeExtensions;
 
-namespace CodeAnalyzation.Compilation;
+namespace CodeModels.Compilation;
 
 public static class CompilationHandling
 {

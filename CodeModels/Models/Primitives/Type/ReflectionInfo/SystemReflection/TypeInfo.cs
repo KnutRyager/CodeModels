@@ -2,9 +2,9 @@
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record TypeInfo(Type Type) : ReflectedMemberInfo<Type>(Type), ITypeInfo
 {

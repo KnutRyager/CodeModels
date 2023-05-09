@@ -3,7 +3,7 @@ using System.Linq;
 using LibraryB;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Generators;
+namespace CodeModels.Generators;
 
 //[Generator]
 public class DebuggingGenerator : ISourceGenerator

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Collectors;
+using CodeModels.Collectors;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Models;
 
-namespace CodeAnalyzation.Generation;
+namespace CodeModels.Generation;
 
 public static class GeneratorExtensions
 {

@@ -1,9 +1,10 @@
 using System.Linq;
-using CodeAnalyzation.Parsing;
+using CodeModels.Extensions;
+using CodeModels.Parsing;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Xunit;
 
-namespace CodeAnalyzation.Analysis.Test;
+namespace CodeModels.Analysis.Test;
 
 public class FindSyntaxTests
 {

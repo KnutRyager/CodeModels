@@ -1,9 +1,9 @@
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
-using static CodeAnalyzation.Models.ProgramModelFactory;
-using CodeAnalyzation.Models.ProgramModels;
+using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Models.ProgramModelFactory;
+using CodeModels.Models.ProgramModels;
 
-namespace CodeAnalyzation.Generation.Test;
+namespace CodeModels.Generation.Test;
 
 public class ModelRegistryTests
 {

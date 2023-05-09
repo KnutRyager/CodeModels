@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ThrowStatement(IExpression Expression) : AbstractStatement<ThrowStatementSyntax>
 {

@@ -2,11 +2,11 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string? Name = null)
     : NamedCodeModel<T>(Name ?? Type.Name), IExpression<T> where T : ExpressionSyntax

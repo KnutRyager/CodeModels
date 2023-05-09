@@ -1,6 +1,6 @@
-﻿using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+﻿using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedCustomAttributeProvider(System.Reflection.ICustomAttributeProvider Info) : ICustomAttributeProvider
 {

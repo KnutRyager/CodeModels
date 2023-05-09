@@ -1,7 +1,7 @@
 ﻿using System.Globalization;
 using System.Reflection;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedConstructorInfo(ConstructorInfo Info) : ReflectedMethodBase<ConstructorInfo>(Info), IConstructorInfo
 {

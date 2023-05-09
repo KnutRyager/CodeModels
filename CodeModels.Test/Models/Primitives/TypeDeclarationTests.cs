@@ -1,9 +1,9 @@
-using CodeAnalyzation.Test;
 using FluentAssertions;
+using TestCommon;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 
 public class TypeDeclarationTests
 {

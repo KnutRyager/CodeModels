@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeModels.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record CatchClause(IType Type, string? Identifier, IStatement Statement) : CodeModel<CatchClauseSyntax>
 {

@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record FixedStatement(VariableDeclarations VariableDeclarations, IStatement Statement) : AbstractStatement<FixedStatementSyntax>
 {

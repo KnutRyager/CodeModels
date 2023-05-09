@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Compilation;
+namespace CodeModels.Compilation;
 
 public class CompilationContext
 {

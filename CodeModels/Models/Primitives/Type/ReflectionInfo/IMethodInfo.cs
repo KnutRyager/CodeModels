@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public interface IMethodInfo : IMethodBase
 {

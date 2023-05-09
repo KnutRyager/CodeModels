@@ -1,7 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Collectors;
+namespace CodeModels.Collectors;
 
 public class TupleElementFilter : AbstractFilter<TupleElementSyntax>
 {

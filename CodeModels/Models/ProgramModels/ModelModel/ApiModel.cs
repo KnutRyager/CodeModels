@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ErDiagram;
-namespace CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ErDiagram;
+namespace CodeModels.Models.ProgramModels;
 
 public record ModelModel(
     string Name,

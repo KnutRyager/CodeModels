@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Thread.Test;
+namespace CodeModels.Models.Execution.Thread.Test;
 
 public class AsyncTests
 {

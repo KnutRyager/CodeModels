@@ -1,7 +1,7 @@
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Statement.Test;
+namespace CodeModels.Models.Execution.Statement.Test;
 
 public class StatementTests
 {

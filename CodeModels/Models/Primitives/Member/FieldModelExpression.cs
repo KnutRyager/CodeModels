@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record FieldModelExpression(FieldModel Field, IExpression? Instance = null, IList<IProgramModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Field.Type, Symbol),

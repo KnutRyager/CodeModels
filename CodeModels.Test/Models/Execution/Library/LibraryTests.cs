@@ -4,7 +4,7 @@ using FluentAssertions;
 using Xunit;
 using System.Collections.Generic;
 
-namespace CodeAnalyzation.Models.Execution.Library.Test;
+namespace CodeModels.Models.Execution.Library.Test;
 
 public class LibraryTests
 {

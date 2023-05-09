@@ -2,7 +2,7 @@
 //using Microsoft.CodeAnalysis.CSharp.Syntax;
 //using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-//namespace CodeAnalyzation.Models;
+//namespace CodeModels.Models;
 
 //// TODO: Determine arguments vs initializer
 //public record ArrayCreationExpression(IType Type, PropertyCollection? Arguments, InitializerExpression? Initializer) : Expression<ArrayCreationExpressionSyntax>(Type)

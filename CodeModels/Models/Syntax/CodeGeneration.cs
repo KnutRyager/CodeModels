@@ -2,15 +2,15 @@
 using System.CodeDom;
 using System.Linq;
 using System.Text.RegularExpressions;
-using CodeAnalyzation.Models.ErDiagram;
-using CodeAnalyzation.Rewriters;
+using CodeModels.Models.ErDiagram;
+using CodeModels.Rewriters;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CSharp;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Generation;
+namespace CodeModels.Generation;
 
 public static class CodeGeneration
 {

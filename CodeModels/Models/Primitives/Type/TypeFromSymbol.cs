@@ -1,9 +1,9 @@
-﻿using CodeAnalyzation.Reflection;
+﻿using CodeModels.Reflection;
 using Common.DataStructures;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMulti = false, System.Type? ReflectedType = null)   // TODO: Generics
     : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), Required, IsMulti,

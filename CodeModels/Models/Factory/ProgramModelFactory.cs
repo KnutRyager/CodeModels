@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using CodeModels.Models.ProgramModels;
+using static CodeModels.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class ProgramModelFactory
 {

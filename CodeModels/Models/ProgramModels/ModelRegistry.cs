@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public record ModelRegistry(IList<PropertyCollection> Models, IList<InstanceClass> Singletons)
 {

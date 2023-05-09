@@ -1,4 +1,4 @@
-﻿namespace CodeAnalyzation.Models;
+﻿namespace CodeModels.Models;
 
 public enum ModifierType
 {

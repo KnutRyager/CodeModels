@@ -1,9 +1,9 @@
 using System.Linq;
-using CodeAnalyzation.Test;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using Xunit;
+using TestCommon;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 
 public class StaticClassTests
 {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Common.Interfaces;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface ITypeCollection :
     ICollectionOf<IType>

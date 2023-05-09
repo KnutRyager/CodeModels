@@ -1,14 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
-using CodeAnalyzation.Reflection;
+using CodeModels.Models.ProgramModels;
+using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record MemberAccessExpression(IExpression Expression, IdentifierExpression Identifier, IType? Type = null)
     : Expression<MemberAccessExpressionSyntax>(Type ?? TypeShorthands.NullType),

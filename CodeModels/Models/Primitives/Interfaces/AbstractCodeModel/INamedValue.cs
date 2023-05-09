@@ -1,6 +1,6 @@
 ﻿using Common.Interfaces;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface INamedValue :
     IToTypeConvertible,

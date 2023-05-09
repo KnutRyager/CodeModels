@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface ICodeModel
 {

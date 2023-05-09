@@ -1,9 +1,9 @@
 //using System.ComponentModel.DataAnnotations;
 
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ErDiagram;
+using CodeModels.Models.ErDiagram;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public record DbContextModel
 {

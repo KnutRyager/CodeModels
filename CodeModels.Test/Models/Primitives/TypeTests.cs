@@ -1,10 +1,11 @@
 using Common.DataStructures;
 using FluentAssertions;
+using TestCommon;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
-using static CodeAnalyzation.Test.TestUtil;
+using static CodeModels.Models.CodeModelFactory;
+using static TestCommon.TestUtil;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 
 
 public class TypeTests

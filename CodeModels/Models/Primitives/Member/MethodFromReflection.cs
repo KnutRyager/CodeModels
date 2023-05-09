@@ -2,15 +2,15 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using CodeAnalyzation.Models.ProgramModels;
-using CodeAnalyzation.Models.Reflection;
-using CodeAnalyzation.Reflection;
+using CodeModels.Models.ProgramModels;
+using CodeModels.Models.Reflection;
+using CodeModels.Reflection;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record MethodFromReflection(MethodInfo Method)
     : Method(Method.Name, new PropertyCollection(Method.GetParameters()), new TypeFromReflection(Method.ReturnType))

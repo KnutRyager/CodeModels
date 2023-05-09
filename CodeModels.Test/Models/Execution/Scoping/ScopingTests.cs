@@ -2,9 +2,9 @@ using System.IO;
 using System;
 using FluentAssertions;
 using Xunit;
-using CodeAnalyzation.Models.Execution.ControlFlow;
+using CodeModels.Models.Execution.ControlFlow;
 
-namespace CodeAnalyzation.Models.Execution.Scoping.Test;
+namespace CodeModels.Models.Execution.Scoping.Test;
 
 public class ScopingTests
 {

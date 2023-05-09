@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeAnalyzation.Models.Execution.Expression.Test;
+namespace CodeModels.Models.Execution.Expression.Test;
 
 public class MemberAccessTests
 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IProgramModelExecutionContext
 {

@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record ReflectedMemberInfo<T>(T Info) : IMemberInfo where T : MemberInfo
 {

@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
-using CodeAnalyzation.Models.ProgramModels;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public abstract record SymbolMethodBase<T>(T Info, IProgramContext Context) : SymbolMemberInfo<T>(Info, Context), IMethodBase where T : IMethodSymbol
 {

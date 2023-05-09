@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
     : IExpression

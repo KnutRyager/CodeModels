@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public abstract record ProgramModel<T>(IProgramContext? Context) : IProgramModel<T> where T : ICodeModel
 {

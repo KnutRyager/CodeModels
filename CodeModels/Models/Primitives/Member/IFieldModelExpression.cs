@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public interface IFieldModelExpression : IInvocation, IAssignable, IMemberAccess
 {

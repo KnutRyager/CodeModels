@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record InterfaceModel(string Identifier, PropertyCollection Properties, List<IMethod> Methods,
     Namespace? Namespace = null, bool IsStatic = false)

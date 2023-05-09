@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
-using static CodeAnalyzation.Models.Reflection.TypeReflectionUtil;
+using static CodeModels.Models.Reflection.TypeReflectionUtil;
 
-namespace CodeAnalyzation.Models.Reflection;
+namespace CodeModels.Models.Reflection;
 
 public record SymbolMethodInfo(IMethodSymbol Info, IProgramContext Context) : SymbolMethodBase<IMethodSymbol>(Info, Context), IMethodInfo
 {

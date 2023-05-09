@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using CodeAnalyzation.Models.Execution.ControlFlow;
-using CodeAnalyzation.Models.ProgramModels;
-using CodeAnalyzation.Utils;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using CodeModels.Models.Execution.ControlFlow;
+using CodeModels.Models.ProgramModels;
+using CodeModels.Utils;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public class ProgramModelExecutionContext : IProgramModelExecutionContext
 {

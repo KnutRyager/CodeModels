@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Reflection;
+namespace CodeModels.Reflection;
 
 public static class SymbolUtils
 {

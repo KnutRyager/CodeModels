@@ -1,4 +1,4 @@
-﻿namespace CodeAnalyzation.Utils;
+﻿namespace CodeModels.Utils;
 
 public static class NamespaceUtils
 {

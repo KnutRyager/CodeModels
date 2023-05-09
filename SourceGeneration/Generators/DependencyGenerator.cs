@@ -1,10 +1,11 @@
 ﻿using System.Text;
-using CodeAnalyzation.Generation;
+using CodeModels.Extensions;
+using CodeModels.Generation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace CodeAnalyzation.Generators;
+namespace CodeModels.Generators;
 
 [Generator]
 public class DependencyGenerator : ISourceGenerator
@@ -14,7 +15,7 @@ public class DependencyGenerator : ISourceGenerator
     public void Execute(GeneratorExecutionContext context)
     {
         var syntaxTrees = context.Compilation.SyntaxTrees;
-        SyntaxNodeExtensions.SetCompilation(context.Compilation, syntaxTrees, "DependencyGenerator");
+        Extensions.SyntaxNodeExtensions.SetCompilation(context.Compilation, syntaxTrees, "DependencyGenerator");
         var dependencies = DependencyGeneration.GenerateDependencies(syntaxTrees, context.Compilation);
         var dependenciesCode = dependencies.NormalizeWhitespace().ToString();
         Logger.Print(context, nameof(DependencyGenerator), dependenciesCode);

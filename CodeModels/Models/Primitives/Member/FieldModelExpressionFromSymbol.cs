@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models.ProgramModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<IProgramModelExecutionScope>? Scopes = null)
     : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),

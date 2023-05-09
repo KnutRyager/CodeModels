@@ -1,9 +1,8 @@
-using CodeAnalyzation.Test;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using FluentAssertions;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace CodeModels.Models.Execution.Test;
 
 [Collection("Sequential")]
 public class StaticProgramModelExecutionScopeTests

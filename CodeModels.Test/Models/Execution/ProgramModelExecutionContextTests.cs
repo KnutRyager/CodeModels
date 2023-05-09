@@ -1,10 +1,9 @@
-using CodeAnalyzation.Test;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace CodeModels.Models.Execution.Test;
 
 public class ProgramModelExecutionContextTests
 {

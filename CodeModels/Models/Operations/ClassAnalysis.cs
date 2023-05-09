@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Common.Reflection;
 using Models;
 
-namespace CodeAnalyzation.DataTransformation;
+namespace CodeModels.DataTransformation;
 
 [Model]
 public class ClassAnalysis

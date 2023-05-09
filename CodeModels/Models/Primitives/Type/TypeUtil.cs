@@ -3,7 +3,7 @@ using System.Linq;
 using Common.DataStructures;
 using Common.Reflection;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public static class TypeUtil
 {

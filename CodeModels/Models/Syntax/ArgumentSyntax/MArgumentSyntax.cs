@@ -1,4 +1,4 @@
-﻿namespace CodeAnalyzation.Models.Syntax;
+﻿namespace CodeModels.Models.Syntax;
 
 public class MArgumentSyntax : MSyntaxNode
 {

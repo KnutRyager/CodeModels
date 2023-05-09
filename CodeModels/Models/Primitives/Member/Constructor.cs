@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models.Reflection;
+using CodeModels.Models.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json.Linq;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Models.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record Constructor(IType ReturnType, PropertyCollection Parameters, Block? Body, IExpression? ExpressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)

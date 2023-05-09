@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Common.Reflection;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
-namespace CodeAnalyzation.Models.ProgramModels;
+namespace CodeModels.Models.ProgramModels;
 
 public record ApiModel(PropertyCollection Model, IProgramContext? Context = null) : ProgramModel<ClassModel>(Context ?? new ProgramContext())
 {

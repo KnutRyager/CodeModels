@@ -1,12 +1,12 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using CodeAnalyzation.Reflection;
+using CodeModels.Reflection;
 using Common.Extensions;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record PropertyFromReflection(PropertyInfo Property)
     : Property(new TypeFromReflection(Property.PropertyType), Property.Name, ReflectionUtil.IsStatic(Property) ? new LiteralExpression(Property.GetValue(null)) : null,

@@ -1,4 +1,4 @@
-using CodeAnalyzation.Models.Execution;
+using CodeModels.Models.Execution;
 using FluentAssertions;
 using Xunit;
 

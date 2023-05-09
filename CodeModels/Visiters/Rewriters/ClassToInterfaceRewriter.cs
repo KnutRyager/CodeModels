@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Rewriters;
+namespace CodeModels.Rewriters;
 
 public class ClassToInterfaceRewriter : CSharpSyntaxRewriter
 {

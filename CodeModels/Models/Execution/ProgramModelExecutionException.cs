@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public class ProgramModelExecutionException : Exception
 {

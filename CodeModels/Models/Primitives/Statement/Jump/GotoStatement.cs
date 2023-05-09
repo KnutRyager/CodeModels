@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 // TODO
 public record GotoStatement(IExpression Expression) : AbstractStatement<GotoStatementSyntax>

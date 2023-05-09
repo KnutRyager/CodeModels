@@ -1,12 +1,12 @@
 using System.IO;
-using CodeAnalyzation.Models;
-using CodeAnalyzation.Models.ProgramModels;
+using CodeModels.Models;
+using CodeModels.Models.ProgramModels;
 using FluentAssertions;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
-using static CodeAnalyzation.Models.ProgramModelFactory;
+using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Models.ProgramModelFactory;
 
-namespace CodeAnalyzation.Generation.Test;
+namespace CodeModels.Generation.Test;
 
 public class ProgramModuleTests
 {

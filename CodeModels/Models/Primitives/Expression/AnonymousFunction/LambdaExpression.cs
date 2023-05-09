@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeAnalyzation.Models;
+using CodeModels.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Generator.Models.Primitives.Expression.AnonymousFunction;

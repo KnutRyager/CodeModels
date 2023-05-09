@@ -1,11 +1,12 @@
 using System.Linq;
-using CodeAnalyzation.Parsing;
+using CodeModels.Parsing;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using TestCommon;
 using Xunit;
-using static CodeAnalyzation.Test.TestUtil;
+using static TestCommon.TestUtil;
 
-namespace CodeAnalyzation.Models.Primitives.Test;
+namespace CodeModels.Models.Primitives.Test;
 
 public class ValueCollectionTests
 {

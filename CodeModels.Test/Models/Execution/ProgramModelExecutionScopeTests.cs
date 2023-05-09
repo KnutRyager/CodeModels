@@ -1,14 +1,14 @@
-using CodeAnalyzation.Test;
 using Xunit;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 using FluentAssertions;
 
-namespace CodeAnalyzation.Models.Execution.Test;
+namespace CodeModels.Models.Execution.Test;
 
 public class ProgramModelExecutionScopeTests
 {
     [Fact]
-    public void HasIdentifier() {
+    public void HasIdentifier()
+    {
         var context = new ProgramModelExecutionScope();
         context.HasIdentifier("test").Should().Be(false);
         context.SetValue("test", Literal("a"));
@@ -16,7 +16,8 @@ public class ProgramModelExecutionScopeTests
     }
 
     [Fact]
-    public void SetAndGetVariable() {
+    public void SetAndGetVariable()
+    {
         var context = new ProgramModelExecutionScope();
         context.SetValue("test", Literal("a"));
         context.GetValue("test").Should().Be(Literal("a"));

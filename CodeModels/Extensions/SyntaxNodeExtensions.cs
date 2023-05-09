@@ -2,12 +2,12 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using CodeAnalyzation.Compilation;
+using CodeModels.Compilation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation;
+namespace CodeModels.Extensions;
 
 public static class SyntaxNodeExtensions
 {

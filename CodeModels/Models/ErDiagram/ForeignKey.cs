@@ -1,7 +1,7 @@
 #nullable disable
 //using System.ComponentModel.DataAnnotations;
 
-namespace CodeAnalyzation.Models.ErDiagram;
+namespace CodeModels.Models.ErDiagram;
 
 public class ForeignKey
 {

@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Rewriters;
+namespace CodeModels.Rewriters;
 
 public static class WhitespaceFormatter
 {

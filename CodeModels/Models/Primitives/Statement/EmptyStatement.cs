@@ -2,10 +2,10 @@
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeAnalyzation.Generation.SyntaxFactoryCustom;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using System;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record EmptyStatement() : AbstractStatement<EmptyStatementSyntax>
 {

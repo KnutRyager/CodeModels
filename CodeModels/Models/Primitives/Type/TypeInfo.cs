@@ -4,7 +4,7 @@ using System.Reflection;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public class TypeInfo : System.Type
 {

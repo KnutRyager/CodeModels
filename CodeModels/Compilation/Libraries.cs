@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net.Http;
 using Microsoft.CodeAnalysis;
 
-namespace CodeAnalyzation.Compilation;
+namespace CodeModels.Compilation;
 
 public static class Libraries
 {

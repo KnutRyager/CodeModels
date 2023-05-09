@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CodeAnalyzation.Models.Execution.ControlFlow;
+namespace CodeModels.Models.Execution.ControlFlow;
 
 public abstract class ControlFlowException : Exception
 {

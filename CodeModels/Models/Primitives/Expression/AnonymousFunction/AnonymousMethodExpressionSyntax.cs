@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeAnalyzation.Models;
+using CodeModels.Models;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

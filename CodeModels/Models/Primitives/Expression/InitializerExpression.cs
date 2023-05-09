@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 // TODO: Determine arguments vs initializer
 public record InitializerExpression(IType Type, SyntaxKind Kind, PropertyCollection Expressions) : Expression<InitializerExpressionSyntax>(Type)

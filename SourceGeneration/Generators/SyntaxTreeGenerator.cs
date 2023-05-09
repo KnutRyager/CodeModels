@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Linq;
-using CodeAnalyzation.Collectors;
-using CodeAnalyzation.Generation;
+using CodeModels.Collectors;
+using CodeModels.Generation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Models;
 
-namespace CodeAnalyzation.Generators;
+namespace CodeModels.Generators;
 
 //[Generator]
 public class SyntaxTreeGenerator : ISourceGenerator

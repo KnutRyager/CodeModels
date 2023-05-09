@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeAnalyzation.Models.CodeModelFactory;
+using static CodeModels.Models.CodeModelFactory;
 
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, OperationType Operation) : Expression<T>(Type) where T : ExpressionSyntax
 {

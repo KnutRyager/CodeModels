@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeAnalyzation.Models;
+namespace CodeModels.Models;
 
 public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpression> Arguments)
     : AnyArgExpression<ElementAccessExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Type, OperationType.Invocation), IAssignable
