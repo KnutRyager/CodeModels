@@ -13,7 +13,7 @@ public class ClassFieldTests
     [Fact]
     public void GetStaticFieldValue() => CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField))
+            Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be("test");
 
     [Fact]
@@ -21,7 +21,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
+            Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -34,7 +34,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
+            Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -49,7 +49,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
+            Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -62,7 +62,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
+            Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -75,19 +75,19 @@ public class ClassFieldTests
     [Fact]
     public void InitStaticIntFieldDefaultValue() => CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
+            Field(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(0);
 
     [Fact]
     public void InitStaticBoolFieldDefaultValue() => CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
+            Field(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(false);
 
     [Fact]
     public void InitStaticStringFieldDefaultValue() => CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
+            Field(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(null);
 
     [Fact]
@@ -95,7 +95,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicField));
+            Field(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -108,7 +108,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicField));
+            Field(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
@@ -121,7 +121,7 @@ public class ClassFieldTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicField));
+            Field(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);

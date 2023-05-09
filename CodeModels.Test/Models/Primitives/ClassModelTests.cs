@@ -27,6 +27,6 @@ public class ClassModelTests
     [Fact(Skip = "Old stuff")]
     public void GetFieldStaticAccessValueFromStaticReference() => Class(
         "ClassA",
-            FieldModel("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicStaticField),
-            FieldModel<int>("B")).GetProperty("A").AccessValue().CodeModelEqual("ClassA.A");
+            Field("A", Literal("B"), modifier: PropertyAndFieldTypes.PublicStaticField),
+            Field<int>("B")).GetProperty("A").AccessValue().CodeModelEqual("ClassA.A");
 }

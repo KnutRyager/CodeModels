@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
@@ -9,13 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record FieldModelExpression(FieldModel Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+public record FieldExpression(Field Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Field.Type, Symbol),
     IFieldModelExpression
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public FieldModel GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<FieldModel>(Symbol);
+    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

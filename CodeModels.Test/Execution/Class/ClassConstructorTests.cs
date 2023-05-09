@@ -14,7 +14,7 @@ public class ClassConstructorTests
     {
         var c = CodeModelFactory.Class("classA",
             Constructor(),
-            FieldModel("A", Literal(5)),
+            Field("A", Literal(5)),
             Method("get3", Type<int>(), Block(Return(3))));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
@@ -27,7 +27,7 @@ public class ClassConstructorTests
     [Fact]
     public void ConstructorAdded()
     {
-        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)));
+        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)));
         Method("get3", Type<int>(), Block(Return(3)));
         var constructor = Constructor();
         c.AddMember(constructor);
@@ -42,7 +42,7 @@ public class ClassConstructorTests
     [Fact]
     public void DefaultConstructor()
     {
-        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)));
+        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)));
         Method("get3", Type<int>(), Block(Return(3)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
@@ -57,7 +57,7 @@ public class ClassConstructorTests
     {
         var c = CodeModelFactory.Class("classA",
             Constructor(NamedValue("a"), Block(Assignment(Identifier("A"), Identifier("a")))),
-            FieldModel("A", Literal(5)));
+            Field("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke(Literal(3));
         var instance = (invocation.Evaluate(new CodeModelExecutionContext()) as InstantiatedObject)!;
@@ -69,7 +69,7 @@ public class ClassConstructorTests
     {
         var c = CodeModelFactory.Class("classA",
             Constructor(NamedValue("a", Literal(7)), Block(Assignment(Identifier("A"), Identifier("a")))),
-            FieldModel("A", Literal(5)));
+            Field("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
         var instance = (invocation.Evaluate(new CodeModelExecutionContext()) as InstantiatedObject)!;

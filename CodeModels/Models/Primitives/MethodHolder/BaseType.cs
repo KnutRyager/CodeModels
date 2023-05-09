@@ -30,7 +30,7 @@ public abstract record BaseType<T>(string Name,
 
 {
     private CodeModelExecutionScope? _staticScope;
-    private List<FieldModel>? _fields;
+    private List<Field>? _fields;
     private List<PropertyModel>? _properties;
     private List<Method>? _methods;
     private List<Constructor>? _constructors;
@@ -55,7 +55,7 @@ public abstract record BaseType<T>(string Name,
 
     private void InitMembers()
     {
-        _fields ??= new List<FieldModel>();
+        _fields ??= new List<Field>();
         _properties ??= new List<PropertyModel>();
         _methods ??= new List<Method>();
         _constructors ??= new List<Constructor>();
@@ -78,7 +78,7 @@ public abstract record BaseType<T>(string Name,
         newMembers ??= Members;
         switch (member)
         {
-            case FieldModel field:
+            case Field field:
                 _fields!.Add(field);
                 break;
             case PropertyModel property:
@@ -90,7 +90,7 @@ public abstract record BaseType<T>(string Name,
                     var hasSetter = setter?.Body is not null || setter?.ExpressionBody is not null;
                     if (!(hasGetter && hasSetter) && getter is not null)
                     {
-                        var backingField = CodeModelFactory.FieldModel(property.Type,
+                        var backingField = CodeModelFactory.Field(property.Type,
                             getter.Type.GetBackingFieldName(member.Name), property.Value,
                             member.IsStatic ? PropertyAndFieldTypes.PrivateStaticField : PropertyAndFieldTypes.PrivateField);
 
@@ -133,7 +133,7 @@ public abstract record BaseType<T>(string Name,
         }
         foreach (var property in GetProperties())
         {
-            if (property.GetBackingField() is FieldModel backingField)
+            if (property.GetBackingField() is Field backingField)
                 scope.DefineAlias(backingField.Name, property.Name);
             // TODO: Methods?
         }
@@ -161,7 +161,7 @@ public abstract record BaseType<T>(string Name,
         var aliases = new Dictionary<string, string>();
         foreach (var property in GetProperties())
         {
-            if (property.GetBackingField() is FieldModel backingField)
+            if (property.GetBackingField() is Field backingField)
                 aliases.Add(backingField.Name, property.Name);
             // TODO: Methods?
         }
@@ -195,7 +195,7 @@ public abstract record BaseType<T>(string Name,
     public List<IMember> GetReadonlyMembers() => Members.Where(x => x.Modifier.IsWritable()).ToList();
     public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods().Select(x => x.ToMethodSyntax(MemberModifier)));
     public List<Constructor> GetConstructors() => _constructors is { Count: > 0 } ? _constructors : new List<Constructor>() { CodeModelFactory.ConstructorFull(this, CodeModelFactory.NamedValues(), CodeModelFactory.Block()) };
-    public List<FieldModel> GetFields() => _fields ??= new List<FieldModel>();
+    public List<Field> GetFields() => _fields ??= new List<Field>();
     public List<PropertyModel> GetProperties() => _properties ??= new List<PropertyModel>();
     public List<IFieldOrProperty> GetPropertiesAndFields() => GetFields().Concat<IFieldOrProperty>(GetProperties()).ToList();
     public List<Method> Methods()
@@ -210,8 +210,8 @@ public abstract record BaseType<T>(string Name,
 
     public virtual IMember GetMember(string name) => AllMembers().First(x => x.Name == name);
     public virtual IMember TryGetMember(string name) => AllMembers().FirstOrDefault(x => x.Name == name);
-    public virtual FieldModel GetField(string name) => GetFields().First(x => x.Name == name);
-    public virtual FieldModel? TryGetField(string name) => GetFields().FirstOrDefault(x => x.Name == name);
+    public virtual Field GetField(string name) => GetFields().First(x => x.Name == name);
+    public virtual Field? TryGetField(string name) => GetFields().FirstOrDefault(x => x.Name == name);
     public virtual PropertyModel GetProperty(string name) => GetProperties().First(x => x.Name == name);
     public virtual PropertyModel? TryGetProperty(string name) => GetProperties().FirstOrDefault(x => x.Name == name);
     public virtual Constructor GetConstructor() => GetConstructors().First();

@@ -15,15 +15,15 @@ using CodeModels.Models.Primitives.Expression.Access;
 
 namespace CodeModels.Models;
 
-public record FieldModel(string Name,
+public record Field(string Name,
     IType Type,
     List<AttributeList> Attributes,
     Modifier Modifier,
     IExpression Value)
     : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
-    IFieldModel
+    IField
 {
-    public static FieldModel Create(string name,
+    public static Field Create(string name,
     IType type,
     IEnumerable<AttributeList>? attributes = null,
     Modifier modifier = Modifier.Public,
@@ -33,7 +33,7 @@ public record FieldModel(string Name,
     modifier,
     value ?? VoidValue);
 
-    public override IInvocation AccessValue(IExpression? instance = null) => new FieldModelExpression(this, instance, GetScopes(instance));
+    public override IInvocation AccessValue(IExpression? instance = null) => new FieldExpression(this, instance, GetScopes(instance));
 
     public MemberAccessExpression Invoke(IExpression caller) => MemberAccess(this, caller);
     public MemberAccessExpression Invoke(string identifier) => Invoke(CodeModelFactory.Identifier(identifier));
@@ -99,7 +99,7 @@ public record FieldModel(string Name,
         }
     }
 
-    public FieldModelExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
+    public FieldExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
     public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
     public AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),

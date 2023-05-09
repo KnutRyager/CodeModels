@@ -46,8 +46,8 @@ public static class CodeModelParsing
                 {
                     if (memberInner is IFieldSymbol fieldSymbol)
                     {
-                        var fieldModel = Parse(fieldSymbol);
-                        Register(fieldSymbol, fieldModel);
+                        var field = Parse(fieldSymbol);
+                        Register(fieldSymbol, field);
                     }
                 }
             }
@@ -131,10 +131,10 @@ public static class CodeModelParsing
 
     public static IExpression Parse(IdentifierNameSyntax syntax, IFieldSymbol field, IType? type = null, SemanticModel? model = null)
         => SymbolUtils.IsNewDefined(field)
-        ? TryGetModel<FieldModel>(field) is FieldModel fieldModel
-            ? Register(syntax, new FieldModelExpression(fieldModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: field), model)
+        ? TryGetModel<Field>(field) is Field fieldModel
+            ? Register(syntax, new FieldExpression(fieldModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: field), model)
             //? Register(syntax, new FieldModelExpression(, Scopes: Array.Empty<IProgramModelExecutionScope>(), Symbol: field), model)
-            : Register(syntax, new FieldModelExpressionFromSymbol(field, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
+            : Register(syntax, new FieldExpressionFromSymbol(field, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
         //? new FieldModelExpression! //new FieldModelExpression() 
         : new PropertyFromField(field).AccessValue(syntax.ToString(), type, field);
 
@@ -338,7 +338,7 @@ public static class CodeModelParsing
             {
                 var fieldSymbol = fieldReferenceOperation.Field;
                 typeModel = SymbolUtils.IsNewDefined(fieldSymbol)
-                    ? GetModel<FieldModel>(fieldSymbol).Type
+                    ? GetModel<Field>(fieldSymbol).Type
                     : new TypeFromReflection(SemanticReflection.GetType(fieldSymbol));
             }
             else
@@ -831,11 +831,11 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"Not implemented BaseFieldDeclaration: '{syntax}'.")
     };
     public static IMember Parse(EventFieldDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
-    public static FieldModel Parse(FieldDeclarationSyntax syntax, SemanticModel? model = null)
-        => Register(syntax, new FieldModel(Parse(syntax.Declaration, model).First().Name,
+    public static Field Parse(FieldDeclarationSyntax syntax, SemanticModel? model = null)
+        => Register(syntax, new Field(Parse(syntax.Declaration, model).First().Name,
             ParseType(syntax.Declaration.Type, model: model), syntax.AttributeLists.Select(x => Parse(x, model)).ToList(),
             ParseModifier(syntax.Modifiers), ParseExpression(syntax.Declaration.Variables.First()?.Initializer.Value, model: model)), model);
-    public static FieldModel Parse(IFieldSymbol symbol, SemanticModel? model = null)
+    public static Field Parse(IFieldSymbol symbol, SemanticModel? model = null)
     {
 
         var x = 0;
@@ -850,7 +850,7 @@ public static class CodeModelParsing
             //}
         }
         //return null!;
-        return Register(symbol, new FieldModel(symbol.Name,
+        return Register(symbol, new Field(symbol.Name,
                 Parse(symbol.Type),
                 //symbol.GetAttributes().Select(x => Parse(x, model)).ToList(),
                 new List<AttributeList>(),  // TODO

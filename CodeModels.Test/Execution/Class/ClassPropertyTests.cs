@@ -15,14 +15,14 @@ public class ClassPropertyTests
     public void EvaluateGetterBlock() => PropertyModel(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, Block(Return(3))) })
         .GetGetter()!
-        .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance())
+        .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
     public void EvaluateGetterExpressionBody() => PropertyModel(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, expressionBody: Literal(3)) })
         .GetGetter()!
-        .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance())
+        .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
@@ -30,7 +30,7 @@ public class ClassPropertyTests
     {
         var method = Method("getA",
             NamedValues(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), method);
+        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
         method.Invoke(instance).Eval().Should().Be(5);
@@ -65,7 +65,7 @@ public class ClassPropertyTests
         var getter = property.GetGetter()!;
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.Should().NotBeNull();
-        var fieldModel = backingField.AccessValue(instance) as FieldModelExpression;
+        var field = backingField.AccessValue(instance) as FieldExpression;
         var context = new CodeModelExecutionContext();
         var fieldAccess = backingField.Access(instance);
         fieldAccess.EvaluatePlain(context).Should().Be(null);
@@ -87,7 +87,7 @@ public class ClassPropertyTests
         var getter = property.GetGetter()!;
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.Should().NotBeNull();
-        var fieldModel = backingField.AccessValue(instance) as FieldModelExpression;
+        var fieldModel = backingField.AccessValue(instance) as FieldExpression;
         var context = new CodeModelExecutionContext();
         var fieldAccess = backingField.Access(instance);
         fieldAccess.EvaluatePlain(context).Should().Be(null);

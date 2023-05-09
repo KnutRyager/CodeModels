@@ -77,7 +77,7 @@ public record PropertyModel(string Name,
         => Owner is ITypeDeclaration b ? b.Methods().FirstOrDefault(x => ((IMember)x).Name == $"set_{Name}") as Method
         : Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
 
-    public FieldModel? GetBackingField()
+    public Field? GetBackingField()
         => Owner is ClassDeclaration b ? b.GetFields().FirstOrDefault(x => ((IMember)x).Name == AccessorType.Get.GetBackingFieldName(Name)) : null;
 
     public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
@@ -137,7 +137,7 @@ public record PropertyModel(string Name,
         else
         {
             var backingField = GetBackingField()!;
-            new FieldModelExpression(backingField, instance, GetScopes(instance)).Assign(value).Evaluate(context);
+            new FieldExpression(backingField, instance, GetScopes(instance)).Assign(value).Evaluate(context);
         }
     }
 

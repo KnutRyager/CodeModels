@@ -66,7 +66,7 @@ public record InstantiatedObject(ClassDeclaration Type,
 
     public IExpression GetValue(string identifier) => Type.TryGetMember(identifier) switch
     {
-        FieldModel _ => Scope.GetValue(identifier),
+        Field _ => Scope.GetValue(identifier),
         //PropertyModel property => Literal(property.AccessValue(_object)),
         Method _ => throw new CodeModelExecutionException($"Cannot get value of method '{identifier}'"),
         _ => throw new CodeModelExecutionException($"Cannot get non-found identifier '{identifier}'")

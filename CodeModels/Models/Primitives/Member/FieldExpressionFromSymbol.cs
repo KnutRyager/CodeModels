@@ -8,16 +8,16 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
+public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
     : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),
     IFieldModelExpression
 {
-    public FieldModel Field => ProgramContext.GetContext(FieldSymbol).Get<FieldModel>(FieldSymbol);
+    public Field Field => ProgramContext.GetContext(FieldSymbol).Get<Field>(FieldSymbol);
     public IBaseTypeDeclaration? Owner => Field.Owner;
 
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public FieldModel GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<FieldModel>(Symbol);
+    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

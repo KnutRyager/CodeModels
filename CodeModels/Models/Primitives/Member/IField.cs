@@ -2,7 +2,7 @@
 
 namespace CodeModels.Models;
 
-public interface IFieldModel : IFieldOrProperty, IScopeHolder
+public interface IField : IFieldOrProperty, IScopeHolder
 {
     IType Type { get; }
 }

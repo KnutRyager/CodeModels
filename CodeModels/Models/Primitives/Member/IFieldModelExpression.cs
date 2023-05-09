@@ -7,7 +7,7 @@ namespace CodeModels.Models;
 
 public interface IFieldModelExpression : IInvocation, IAssignable, IMemberAccess
 {
-    FieldModel Field { get; }
+    Field Field { get; }
     //IExpression? Instance { get; }
     IList<ICodeModelExecutionScope>? Scopes { get; }
     ISymbol? Symbol { get; }

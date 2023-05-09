@@ -13,7 +13,7 @@ public class ClassDeclarationTests
     {
         var c = CodeModelFactory.Class(
         "ClassA",
-            FieldModel("A", Literal("test")));
+            Field("A", Literal("test")));
 
         var context = new CodeModelExecutionContext();
 
@@ -26,7 +26,7 @@ public class ClassDeclarationTests
     {
         var c = CodeModelFactory.Class(
         "SpaceA.ClassA",
-            FieldModel("A", Literal("test")));
+            Field("A", Literal("test")));
 
         var context = new CodeModelExecutionContext();
 
@@ -39,7 +39,7 @@ public class ClassDeclarationTests
     {
         var c = CodeModelFactory.Class(
         "SpaceA.ClassA",
-            FieldModel("A", Literal("test")));
+            Field("A", Literal("test")));
 
         var context = new CodeModelExecutionContext();
 

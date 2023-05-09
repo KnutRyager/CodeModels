@@ -98,7 +98,7 @@ public static class CodeModelFactory
     public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
-    public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
+    public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
     public static AbstractProperty FieldNamedValue(string? name, IExpression value, Modifier modifier = Modifier.None) => NamedValue(value.Get_Type(), name, value, Modifier.Field.SetFlags(modifier));
     public static AbstractProperty NamedValue(INamedValue value) => value is AbstractProperty a ? a : new (value.Type ?? value.Value.Get_Type() ?? TypeShorthands.NullType, value.Name, value.Value, value.Modifier);
@@ -113,12 +113,12 @@ public static class CodeModelFactory
     public static AbstractProperty NamedValue(ArgumentSyntax argument) => ParseProperty(argument);
     public static AbstractProperty NamedValue(DeclarationExpressionSyntax declaration) => ParseProperty(declaration);
 
-    public static FieldModel FieldModel(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.FieldModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
-    public static FieldModel FieldModel(string name, IExpression value, Modifier modifier = Modifier.None)
-        => FieldModel(value?.Get_Type(), name, modifier: modifier, value: value);
-    public static FieldModel FieldModel<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
-            => FieldModel(Type<T>(), name, modifier: modifier, value: value);
+    public static Field Field(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
+        => Models.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
+    public static Field Field(string name, IExpression value, Modifier modifier = Modifier.None)
+        => Field(value?.Get_Type(), name, modifier: modifier, value: value);
+    public static Field Field<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
+            => Field(Type<T>(), name, modifier: modifier, value: value);
 
     public static PropertyModel PropertyModel(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
         => Models.PropertyModel.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
