@@ -36,7 +36,7 @@ initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.T
     public IType ToDictionaryType() => CodeModelFactory.QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
     public IType ToDictionaryInterfaceType() => CodeModelFactory.QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
 
-    public AbstractProperty ToNamedValue(string? name = null) => new(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
+    public AbstractProperty ToNamedValue(string? name = null) => AbstractCodeModelParsing.AbstractProperty(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
     //public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType());
 
     public IType BaseKeyType() => Keys.BaseType();

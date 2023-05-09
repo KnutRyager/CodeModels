@@ -28,19 +28,6 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     public AbstractProperty(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
-    public AbstractProperty(PropertyDeclarationSyntax property, Modifier modifier = Modifier.None, IType? interfaceType = null)
-        : this(Type(property.Type), property.Identifier.ToString(), Expression(property.Initializer?.Value, Type(property.Type)), Modifiers(property.Modifiers).SetModifiers(modifier), interfaceType: interfaceType) { }
-    public AbstractProperty(TupleElementSyntax element, Modifier? modifier = null, IType? interfaceType = null)
-        : this(Type(element.Type), element.Identifier.ToString(), modifier: modifier, interfaceType: interfaceType) { }
-    public AbstractProperty(ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null)
-        : this(Type(parameter.Type), parameter.Identifier.ToString(), Expression(parameter.Default?.Value, Type(parameter.Type)), modifier, interfaceType: interfaceType) { }
-    public AbstractProperty(ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null)
-        : this(new TypeFromSymbol(typeSymbol), name, Expression(expression, new TypeFromSymbol(typeSymbol)), modifier, interfaceType: interfaceType) { }
-    public AbstractProperty(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null)
-        : this(Type(type), name, Expression(expression, Type(type)), modifier, interfaceType: Type(interfaceType)) { }
-    public AbstractProperty(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
-        : this(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier, interfaceType: interfaceType) { }
-
     public ParameterSyntax ToParameter() => Parameter(
             attributeLists: default,
             modifiers: default,

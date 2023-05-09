@@ -16,6 +16,7 @@ using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.AbstractCodeModelParsing;
 using static CodeModels.Factory.CodeModelParsing;
 
 namespace CodeModels.Factory;
@@ -70,8 +71,6 @@ public static class CodeModelFactory
         _ when ReflectionUtil.IsStatic(type) => StaticClass(type),
         _ => InstanceClass(type)
     };
-    public static Modifier Modifiers(SyntaxTokenList tokenList) => ParseModifier(tokenList);
-    public static Modifier SingleModifier(SyntaxToken token) => ParseSingleModifier(token);
 
     public static StaticClassFromReflection StaticClass(Type type) => CodeModelsFromReflection.StaticClass(type);
     public static StaticClass StaticClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
@@ -152,12 +151,9 @@ public static class CodeModelFactory
     public static NamedValueCollection NamedValues(params AbstractProperty[] properties) => new(properties);
     public static NamedValueCollection NamedValues(Type type) => CodeModelsFromReflection.NamedValues(type);
     public static NamedValueCollection NamedValues(string code) => ParseNamedValues(code);
-    public static NamedValueCollection NamedValues(GlobalStatementSyntax statement) => ParseNamedValues(statement);
-    public static NamedValueCollection NamedValues(ExpressionSyntax syntax) => ParseNamedValues(syntax);
 
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static IExpression Expression(ExpressionSyntax? syntax, IType? Type = null) => ParseExpression(syntax, Type);
-    public static IStatement Statement(StatementSyntax syntax) => Parse(syntax);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
     public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
@@ -235,13 +231,11 @@ public static class CodeModelFactory
     public static Constructor Constructor(Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(VoidClass, NamedValues(), body, null, Modifier, Attributes);
-    public static IConstructor Constructor(ConstructorDeclarationSyntax syntax) => Parse(syntax);
 
     public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
     public static Block Block(params IStatement[] statements) => new(List(statements));
     public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
     public static Block Block(IExpression expression) => Block(new[] { Statement(expression) });
-    public static Block Block(BlockSyntax syntax) => Parse(syntax);
 
     public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
     public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);
