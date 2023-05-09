@@ -9,7 +9,7 @@ namespace CodeModels.Factory;
 
 public static class ProgramModelFactory
 {
-    public static ModelRegistry ModelRegistry(IEnumerable<PropertyCollection> Models,
+    public static ModelRegistry ModelRegistry(IEnumerable<NamedValueCollection> Models,
         IEnumerable<InstanceClass>? Singletons = null)
         => new(List(Models), List(Singletons));
 

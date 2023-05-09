@@ -6,13 +6,13 @@ using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 
-public record StaticClass(string Identifier, PropertyCollection Properties, List<IMethod> Methods,
+public record StaticClass(string Identifier, NamedValueCollection Properties, List<IMethod> Methods,
     Namespace? Namespace = null, Modifier TopLevelModifier = Modifier.None, Modifier MemberModifier = Modifier.None)
     : ClassModel(Identifier, Properties, Methods, Namespace, TopLevelModifier.SetModifier(Modifier.Static), MemberModifier.SetModifier(Modifier.Static))
 {
-    public StaticClass(string identifier, PropertyCollection? properties = null,
+    public StaticClass(string identifier, NamedValueCollection? properties = null,
         IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
-    : this(identifier, PropertyCollection(properties), List(methods), @namespace) { }
+    : this(identifier, NamedValues(properties), List(methods), @namespace) { }
 
     public override InstantiatedObject CreateInstance()
     {

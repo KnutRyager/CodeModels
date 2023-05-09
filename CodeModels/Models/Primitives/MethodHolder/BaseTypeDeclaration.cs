@@ -12,16 +12,16 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 
-public abstract record BaseTypeDeclaration<T>(string Name, PropertyCollection Properties, List<IMethod> Methods,
+public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
         Modifier MemberModifier, Type? ReflectedType)
     : NamedCodeModel<T>(Name),
     IBaseTypeDeclaration<T> where T : BaseTypeDeclarationSyntax
 {
-    public BaseTypeDeclaration(string name, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null,
+    public BaseTypeDeclaration(string name, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
         Modifier memberModifier = Modifier.Public, Type? type = null)
-        : this(name, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
+        : this(name, NamedValues(properties), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
     {
         foreach (var property in Properties.Properties) property.Owner = this;
     }

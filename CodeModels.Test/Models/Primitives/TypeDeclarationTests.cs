@@ -8,7 +8,7 @@ namespace CodeModels.Models.Primitives.Test;
 public class TypeDeclarationTests
 {
     [Fact]
-    public void PropertiesAndFieldsWithOrdering() => new InstanceClass("ClassA", new PropertyCollection(new Property[] {
+    public void PropertiesAndFieldsWithOrdering() => new InstanceClass("ClassA", new NamedValueCollection(new Property[] {
             Property(Type<string>(),"myPrivateField", Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             Property(Type<string>(),"myPrivateReadonlyField", Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             Property(Type<string>(),"myPrivateProperty", Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),

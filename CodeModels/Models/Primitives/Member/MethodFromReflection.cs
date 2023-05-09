@@ -16,7 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeModels.Models;
 
 public record MethodFromReflection(MethodInfo Method)
-    : Method(Method.Name, new PropertyCollection(Method.GetParameters()), new TypeFromReflection(Method.ReturnType))
+    : Method(Method.Name, new NamedValueCollection(Method.GetParameters()), new TypeFromReflection(Method.ReturnType))
 {
     //public MethodFromReflection(IMethodSymbol symbol) : this(SemanticReflection.GetMethod(symbol) ?? Context.Get<MethodInfo>(symbol)) { }
 }

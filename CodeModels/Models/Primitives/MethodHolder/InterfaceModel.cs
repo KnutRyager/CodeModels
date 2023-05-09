@@ -5,15 +5,15 @@ using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 
-public record InterfaceModel(string Identifier, PropertyCollection Properties, List<IMethod> Methods,
+public record InterfaceModel(string Identifier, NamedValueCollection Properties, List<IMethod> Methods,
     Namespace? Namespace = null, bool IsStatic = false)
     : TypeDeclaration<InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
         Modifier.Public.SetFlags(IsStatic ? Modifier.Static : Modifier.None),
         IsStatic ? Modifier.Static : Modifier.None)
 {
-    public InterfaceModel(string identifier, PropertyCollection? properties = null,
+    public InterfaceModel(string identifier, NamedValueCollection? properties = null,
         IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
-    : this(identifier, PropertyCollection(properties), List(methods), @namespace) { }
+    : this(identifier, NamedValues(properties), List(methods), @namespace) { }
 
     public override InstantiatedObject CreateInstance()
     {

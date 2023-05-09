@@ -12,25 +12,25 @@ public class ClassMethodTests
 {
     [Fact]
     public void EvaluateMethodBlock() => Method("get3",
-            PropertyCollection(), Type<int>(), Block(Return(3)))
+            NamedValues(), Type<int>(), Block(Return(3)))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
     public void EvaluateMethodExpressionBody() => Method("get3",
-            PropertyCollection(), Type<int>(), Literal(3))
+            NamedValues(), Type<int>(), Literal(3))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
     public void EvaluateMethodReturnArgument() => Method("get3",
-            PropertyCollection(Property("value")), Type<int>(), ExpressionFromQualifiedName("value"))
+            NamedValues(Property("value")), Type<int>(), ExpressionFromQualifiedName("value"))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance(), Literal(1337))
         .Eval().Should().Be(1337);
 
     [Fact]
     public void EvaluateMethodReturnTwoArguments() => Method("get3",
-            PropertyCollection(Property("v1"), Property("v2")), Type<int>(), BinaryExpression(ExpressionFromQualifiedName("v1"), OperationType.Plus, ExpressionFromQualifiedName("v2")))
+            NamedValues(Property("v1"), Property("v2")), Type<int>(), BinaryExpression(ExpressionFromQualifiedName("v1"), OperationType.Plus, ExpressionFromQualifiedName("v2")))
         .Invoke(CodeModelFactory.Class("classA", FieldModel("A", Literal(5))).CreateInstance(), Literal(3), Literal(7))
         .Eval().Should().Be(10);
 

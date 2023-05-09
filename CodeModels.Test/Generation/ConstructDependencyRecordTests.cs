@@ -8,7 +8,7 @@ public class ConstructDependencyRecordTests
     [Fact]
     public void ConstructDepencyRecord()
     {
-        var c = PropertyCollection(@"
+        var c = NamedValues(@"
 [Model]
 public class ClassA {
     public int p1 { get; set; }

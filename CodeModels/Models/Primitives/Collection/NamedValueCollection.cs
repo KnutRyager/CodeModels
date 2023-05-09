@@ -15,25 +15,25 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 
-public record PropertyCollection(List<Property> Properties, string? Name = null, IType? SpecifiedType = null)
+public record NamedValueCollection(List<Property> Properties, string? Name = null, IType? SpecifiedType = null)
     : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true), Name: Name),
     INamedValueCollection<Property>,
     IMember
 {
-    public PropertyCollection(Property property, string? name = null, IType? specifiedType = null) : this(List(property), name, specifiedType) { }
-    public PropertyCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
-    public PropertyCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
-    public PropertyCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
-    public PropertyCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
-    public PropertyCollection(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
+    public NamedValueCollection(Property property, string? name = null, IType? specifiedType = null) : this(List(property), name, specifiedType) { }
+    public NamedValueCollection(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
+    public NamedValueCollection(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
+    public NamedValueCollection(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
+    public NamedValueCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
+    public NamedValueCollection(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
         : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
-    public PropertyCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    public PropertyCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    public PropertyCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
-    public PropertyCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    public PropertyCollection(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    public PropertyCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
-    public PropertyCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
+    public NamedValueCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    public NamedValueCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    public NamedValueCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
+    public NamedValueCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    public NamedValueCollection(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    public NamedValueCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
+    public NamedValueCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
@@ -125,6 +125,6 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
 
     public ClassDeclaration ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToFieldOrProperty()));
 
-    public static implicit operator PropertyCollection(Property property) => new(property);
+    public static implicit operator NamedValueCollection(Property property) => new(property);
 }
 

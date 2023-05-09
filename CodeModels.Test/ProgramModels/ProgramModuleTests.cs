@@ -18,7 +18,7 @@ public class ProgramModuleTests
             null,
             ProgramLibrary.Create(new("Library1"),
             null,
-            new PropertyCollection(new Property[] {
+            new NamedValueCollection(new Property[] {
                 new(type: Type(typeof(string)),
                 name: "Property1")
             }, "ClassA")));

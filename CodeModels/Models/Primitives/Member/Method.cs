@@ -16,17 +16,17 @@ using CodeModels.Models.Primitives.Expression.Invocation;
 
 namespace CodeModels.Models
 {
-    public record Method(string Name, PropertyCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null,
+    public record Method(string Name, NamedValueCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null,
         Modifier Modifier = Modifier.Public, List<AttributeList>? AttributesIn = null)
         : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, AttributesIn ?? new List<AttributeList>(), Modifier),
         IMethod, IInvokable<InvocationExpression>
     {
-        public static Method Create(string name, PropertyCollection parameters, IType returnType, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
+        public static Method Create(string name, NamedValueCollection parameters, IType returnType, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
             => new(name, parameters, returnType, body, expressionBody, modifier);
 
-        public Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
+        public Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
             : this(name, parameters, returnType, body, null, modifier) { }
-        public Method(string name, PropertyCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
+        public Method(string name, NamedValueCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
             : this(name, parameters, returnType, null, body, modifier) { }
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(

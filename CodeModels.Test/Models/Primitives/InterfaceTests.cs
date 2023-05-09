@@ -8,7 +8,7 @@ using static CodeModelFactory;
 public class InterfaceTests
 {
     [Fact]
-    public void GenerateInterface() => new InterfaceModel("InterfaceA", new PropertyCollection(new Property[] {
+    public void GenerateInterface() => new InterfaceModel("InterfaceA", new NamedValueCollection(new Property[] {
             Property(Type<string>(),"myPrivateField", Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             Property(Type<string>(),"myPrivateReadonlyField", Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             Property(Type<string>(),"myPrivateProperty", Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),

@@ -9,7 +9,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string Identifier, TypeCollection TypeParameters, PropertyCollection Parameters, List<TypeParameterConstraintClause> ConstraintClauses, Block? Body, IExpression? ExpressionBody)
+public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string Identifier, TypeCollection TypeParameters, NamedValueCollection Parameters, List<TypeParameterConstraintClause> ConstraintClauses, Block? Body, IExpression? ExpressionBody)
     : AbstractStatement<LocalFunctionStatementSyntax>(Identifier)
 {
     public override LocalFunctionStatementSyntax Syntax()

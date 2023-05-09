@@ -13,7 +13,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Instantiation;
 
-public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
+public record ObjectCreationExpression(IType Type, NamedValueCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {
     public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(), Arguments?.ToArguments(), Initializer?.Syntax());
 
@@ -94,7 +94,7 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
     }
 }
 
-public record ImplicitObjectCreationExpression(IType Type, PropertyCollection Arguments, InitializerExpression? Initializer) : Expression<ImplicitObjectCreationExpressionSyntax>(Type)
+public record ImplicitObjectCreationExpression(IType Type, NamedValueCollection Arguments, InitializerExpression? Initializer) : Expression<ImplicitObjectCreationExpressionSyntax>(Type)
 {
     public override ImplicitObjectCreationExpressionSyntax Syntax() => ImplicitObjectCreationExpression(Arguments.ToArguments(), Initializer?.Syntax());
     public override IEnumerable<ICodeModel> Children()

@@ -95,11 +95,11 @@ public abstract record ClassDeclaration(string Name,
 
     public IType BaseType() => CodeModelFactory.QuickType(Name);
 
-    public PropertyCollection ToPropertyCollection() => throw new NotImplementedException();
+    public NamedValueCollection ToNamedValues() => throw new NotImplementedException();
 
-    public List<IType> ConvertToList() => ToPropertyCollection().ConvertToList();
-    public List<Property> AsList(Property? typeSpecifier = null) => ToPropertyCollection().AsList(typeSpecifier);
-    public ITypeCollection ToTypeCollection() => ToPropertyCollection().ToTypeCollection();
+    public List<IType> ConvertToList() => ToNamedValues().ConvertToList();
+    public List<Property> AsList(Property? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
+    public ITypeCollection ToTypeCollection() => ToNamedValues().ToTypeCollection();
 
     MemberDeclarationSyntax IMember.Syntax()
         => ToClass();

@@ -8,7 +8,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models;
 
 // TODO: Determine arguments vs initializer
-public record InitializerExpression(IType Type, SyntaxKind Kind, PropertyCollection Expressions) : Expression<InitializerExpressionSyntax>(Type)
+public record InitializerExpression(IType Type, SyntaxKind Kind, NamedValueCollection Expressions) : Expression<InitializerExpressionSyntax>(Type)
 {
     public override InitializerExpressionSyntax Syntax() => InitializerExpression(Kind, Expressions.SyntaxList());
 

@@ -74,10 +74,10 @@ public static class CodeModelFactory
     public static Modifier SingleModifier(SyntaxToken token) => ParseSingleModifier(token);
 
     public static StaticClassFromReflection StaticClass(Type type) => CodeModelsFromReflection.StaticClass(type);
-    public static StaticClass StaticClass(string identifier, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
-        => new(identifier, PropertyCollection(properties), List(methods), @namespace, topLevelModifier, memberModifier);
+    public static StaticClass StaticClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
+        => new(identifier, NamedValues(properties), List(methods), @namespace, topLevelModifier, memberModifier);
     public static InstanceClassFromReflection InstanceClass(Type type) => CodeModelsFromReflection.InstanceClass(type);
-    public static InstanceClass InstanceClass(string identifier, PropertyCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
+    public static InstanceClass InstanceClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
         => new(identifier, properties, methods, @namespace);
     public static InterfaceFromReflection Interface(Type type) => CodeModelsFromReflection.Interface(type);
     public static EnumFromReflection Enum(Type type) => CodeModelsFromReflection.Enum(type);
@@ -145,32 +145,32 @@ public static class CodeModelFactory
         Modifier: modifier,
         Value: value ?? VoidValue);
 
-    public static PropertyCollection PropertyCollection(PropertyCollection? collection) => collection ?? new();
-    public static PropertyCollection PropertyCollection(IEnumerable<Property> properties, string? name = null) => new(properties, name);
-    public static PropertyCollection PropertyCollection(string name, params Property[] properties) => new(properties, name);
-    public static PropertyCollection PropertyCollection(params Property[] properties) => new(properties);
-    public static PropertyCollection PropertyCollection(Type type) => CodeModelsFromReflection.PropertyCollection(type);
-    public static PropertyCollection PropertyCollection(string code) => ParsePropertyCollection(code);
-    public static PropertyCollection PropertyCollection(GlobalStatementSyntax statement) => ParsePropertyCollection(statement);
-    public static PropertyCollection PropertyCollection(ExpressionSyntax syntax) => ParsePropertyCollection(syntax);
+    public static NamedValueCollection NamedValues(NamedValueCollection? collection) => collection ?? new();
+    public static NamedValueCollection NamedValues(IEnumerable<Property> properties, string? name = null) => new(properties, name);
+    public static NamedValueCollection NamedValues(string name, params Property[] properties) => new(properties, name);
+    public static NamedValueCollection NamedValues(params Property[] properties) => new(properties);
+    public static NamedValueCollection NamedValues(Type type) => CodeModelsFromReflection.NamedValues(type);
+    public static NamedValueCollection NamedValues(string code) => ParseNamedValues(code);
+    public static NamedValueCollection NamedValues(GlobalStatementSyntax statement) => ParseNamedValues(statement);
+    public static NamedValueCollection NamedValues(ExpressionSyntax syntax) => ParseNamedValues(syntax);
 
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static IExpression Expression(ExpressionSyntax? syntax, IType? Type = null) => ParseExpression(syntax, Type);
     public static IStatement Statement(StatementSyntax syntax) => Parse(syntax);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method Method(string name, PropertyCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
         => new(name, parameters, returnType, body, modifier);
-    public static Method Method(string name, PropertyCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => new(name, parameters, returnType, Block(statements), modifier);
-    public static Method Method(string name, PropertyCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => new(name, parameters, returnType, expressionBody, modifier);
     public static Method Method(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => Method(name, PropertyCollection(), returnType, body, modifier);
+        => Method(name, NamedValues(), returnType, body, modifier);
     public static Method Method(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => Method(name, PropertyCollection(), returnType, Block(statements), modifier);
+        => Method(name, NamedValues(), returnType, Block(statements), modifier);
     public static Method Method(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => Method(name, PropertyCollection(), returnType, expressionBody, modifier);
+        => Method(name, NamedValues(), returnType, expressionBody, modifier);
     public static ICodeModel Member(MemberInfo member) => member switch
     {
         Type type => new TypeFromReflection(type),
@@ -187,53 +187,53 @@ public static class CodeModelFactory
 
     public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method, model);
 
-    public static Constructor ConstructorFull(ITypeDeclaration type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null,
+    public static Constructor ConstructorFull(ITypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(IType type, PropertyCollection parameters, Block? body = null, IExpression? expressionBody = null,
+    public static Constructor Constructor(IType type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, PropertyCollection parameters, IExpression expressionBody,
+    public static Constructor Constructor(ITypeDeclaration type, NamedValueCollection parameters, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(type, parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, PropertyCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Constructor Constructor(ITypeDeclaration type, NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => ConstructorFull(type, parameters, Block(statements), null, modifier);
-    public static Constructor Constructor(string type, PropertyCollection parameters, Block? body = null,
+    public static Constructor Constructor(string type, NamedValueCollection parameters, Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(Class(type), parameters, body, null, Modifier, Attributes);
-    public static Constructor Constructor(string type, PropertyCollection parameters, IExpression? expressionBody = null,
+    public static Constructor Constructor(string type, NamedValueCollection parameters, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(Class(type), parameters, null, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(ITypeDeclaration type, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(type, PropertyCollection(), body, expressionBody, Modifier, Attributes);
+        => ConstructorFull(type, NamedValues(), body, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(ITypeDeclaration type, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(type, PropertyCollection(), null, expressionBody, Modifier, Attributes);
+        => ConstructorFull(type, NamedValues(), null, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(ITypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(type, PropertyCollection(), Block(statements), null, modifier);
+        => ConstructorFull(type, NamedValues(), Block(statements), null, modifier);
     public static Constructor Constructor(string type, Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), PropertyCollection(), body, null, Modifier, Attributes);
+        => ConstructorFull(Class(type), NamedValues(), body, null, Modifier, Attributes);
     public static Constructor Constructor(string type, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), PropertyCollection(), null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(PropertyCollection parameters, IExpression expressionBody,
+        => ConstructorFull(Class(type), NamedValues(), null, expressionBody, Modifier, Attributes);
+    public static Constructor Constructor(NamedValueCollection parameters, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(VoidClass, parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(PropertyCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Constructor Constructor(NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => ConstructorFull(VoidClass, parameters, Block(statements), null, modifier);
-    public static Constructor Constructor(PropertyCollection parameters, Block? body = null,
+    public static Constructor Constructor(NamedValueCollection parameters, Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(VoidClass, parameters, body, null, Modifier, Attributes);
     public static Constructor Constructor(IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, PropertyCollection(), null, expressionBody, Modifier, Attributes);
+        => ConstructorFull(VoidClass, NamedValues(), null, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(VoidClass, PropertyCollection(), Block(statements), null, modifier);
+        => ConstructorFull(VoidClass, NamedValues(), Block(statements), null, modifier);
     public static Constructor Constructor(Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, PropertyCollection(), body, null, Modifier, Attributes);
+        => ConstructorFull(VoidClass, NamedValues(), body, null, Modifier, Attributes);
     public static IConstructor Constructor(ConstructorDeclarationSyntax syntax) => Parse(syntax);
 
     public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
@@ -317,5 +317,5 @@ public static class CodeModelFactory
         Namespace? @namespace = null,
         Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
-    public static ClassDeclaration Class(PropertyCollection collection) => collection.ToClassModel();
+    public static ClassDeclaration Class(NamedValueCollection collection) => collection.ToClassModel();
 }

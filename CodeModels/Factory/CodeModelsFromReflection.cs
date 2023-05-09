@@ -32,7 +32,7 @@ public static class CodeModelsFromReflection
 
     public static LiteralExpression Literal(object value) => new(value);
 
-    public static PropertyCollection PropertyCollection(Type type) => new(type);
+    public static NamedValueCollection NamedValues(Type type) => new(type);
 
     public static MethodFromReflection Method(MethodInfo info) => new(info);
 

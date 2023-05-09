@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 
 public record AnonymousMethodExpression(Modifier Modifier, bool IsAsync,
-    bool IsDelegate, PropertyCollection Parameters,
+    bool IsDelegate, NamedValueCollection Parameters,
     IType Type, Block? Body, IExpression? ExpressionBody)
     : AnonymousFunctionExpression<AnonymousMethodExpressionSyntax>(Modifier, Type, Body, ExpressionBody)
 {

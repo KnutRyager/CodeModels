@@ -8,7 +8,7 @@ namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 public abstract record LambdaExpression<T>(
     Modifier Modifier,
     bool IsAsync,
-    PropertyCollection Parameters,
+    NamedValueCollection Parameters,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)

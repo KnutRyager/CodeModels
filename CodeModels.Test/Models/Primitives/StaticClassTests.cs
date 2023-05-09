@@ -8,7 +8,7 @@ namespace CodeModels.Models.Primitives.Test;
 public class StaticClassTests
 {
     [Fact]
-    public void GenerateStaticClass() => StaticClass("ClassA",  PropertyCollection(new Property[] {
+    public void GenerateStaticClass() => StaticClass("ClassA",  NamedValues(new Property[] {
             Property(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             Property(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             Property(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
@@ -31,7 +31,7 @@ public static partial class ClassA {
 
     [Fact]
     public void StaticMethodsFromReflection() => new StaticClass("Math",
-        properties: new PropertyCollection(typeof(System.Math).GetFields().Select(x => new PropertyFromField(x))),
+        properties: new NamedValueCollection(typeof(System.Math).GetFields().Select(x => new PropertyFromField(x))),
         methods: typeof(System.Math).GetMethods().Where(x => x.Name.StartsWith("B")).Select(x => new MethodFromReflection(x))).ToClass().CodeEqual(@"
 public static class Math {
     public const double E = 2.718281828459045D;

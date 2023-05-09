@@ -9,7 +9,7 @@ public class ModelRegistryTests
     [Fact]
     public void ConstructDepencyRecord()
     {
-        var model = PropertyCollection(@"
+        var model = NamedValues(@"
 [Model]
 public class ClassA {
     public int p1 { get; set; }

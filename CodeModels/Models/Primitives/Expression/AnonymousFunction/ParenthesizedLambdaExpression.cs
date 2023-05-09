@@ -14,7 +14,7 @@ namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 
 public record ParenthesizedLambdaExpression(Modifier Modifier,
     bool IsAsync,
-    PropertyCollection Parameters,
+    NamedValueCollection Parameters,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)

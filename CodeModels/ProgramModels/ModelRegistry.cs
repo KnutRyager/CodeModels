@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeModels.ProgramModels;
 
-public record ModelRegistry(IList<PropertyCollection> Models, IList<InstanceClass> Singletons)
+public record ModelRegistry(IList<NamedValueCollection> Models, IList<InstanceClass> Singletons)
 {
     public bool Contains(ISymbol symbol)
     {
