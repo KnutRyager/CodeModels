@@ -1,16 +1,17 @@
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
-using FluentAssertions;
-using CodeModels.Execution;
 
-namespace CodeModels.Test.Execution;
+namespace CodeModels.Test.Execution.Scope;
 
-public class ObjectProgramModelExecutionScopeTests
+public class ObjectCodeModelExecutionScopeTests
 {
     [Fact]
     public void HasIdentifier()
     {
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), new TestClass());
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), new TestClass());
         scope.HasIdentifier("field").Should().Be(true);
         scope.HasIdentifier("Property").Should().Be(true);
         scope.HasIdentifier("Method").Should().Be(true);
@@ -21,7 +22,7 @@ public class ObjectProgramModelExecutionScopeTests
     public void SetAndGetField()
     {
         var o = new TestClass();
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), o);
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), o);
         o.field.Should().Be(default);
         scope.SetValue("field", Literal("a"));
         scope.GetValue("field").Should().Be(Literal("a"));
@@ -32,7 +33,7 @@ public class ObjectProgramModelExecutionScopeTests
     public void SetAndGetProperty()
     {
         var o = new TestClass();
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), o);
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), o);
         o.Property.Should().Be(default);
         scope.SetValue("Property", Literal("a"));
         scope.GetValue("Property").Should().Be(Literal("a"));
@@ -43,7 +44,7 @@ public class ObjectProgramModelExecutionScopeTests
     public void GetMethodValue()
     {
         var o = new TestClass();
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), o);
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), o);
         scope.ExecuteMethod("Method").Should().Be(Literal("method result"));
     }
 
@@ -51,7 +52,7 @@ public class ObjectProgramModelExecutionScopeTests
     public void SetAndGetValueThroughMethod()
     {
         var o = new TestClass();
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), o);
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), o);
         o.field.Should().Be(default);
         scope.ExecuteMethodPlain("SetterMethod", "new_value").Should().Be("new_value");
         o.field.Should().Be("new_value");
@@ -63,7 +64,7 @@ public class ObjectProgramModelExecutionScopeTests
     public void MethodInvocation()
     {
         var o = new TestClass();
-        var scope = new ObjectModelExecutionScope(new ProgramModelExecutionContext(), o);
+        var scope = new ObjectModelExecutionScope(new CodeModelExecutionContext(), o);
         //var invocation = Invocation();
         o.field.Should().Be(default);
         scope.ExecuteMethodPlain("SetterMethod", "new_value").Should().Be("new_value");

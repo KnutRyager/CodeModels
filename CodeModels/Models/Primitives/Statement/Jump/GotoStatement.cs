@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -15,7 +15,7 @@ public record GotoStatement(IExpression Expression) : AbstractStatement<GotoStat
         yield return Expression;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         throw new NotImplementedException();
     }

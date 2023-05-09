@@ -1,11 +1,11 @@
-﻿using CodeModels.Execution;
+﻿using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
 public interface ISwitchLabel : ICodeModel
 {
-    bool Match(IProgramModelExecutionContext context, IExpression condition);
+    bool Match(ICodeModelExecutionContext context, IExpression condition);
     new SwitchLabelSyntax Syntax();
 }
 

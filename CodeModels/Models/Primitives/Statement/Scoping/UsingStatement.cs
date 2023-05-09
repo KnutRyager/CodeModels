@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -18,7 +18,7 @@ public record UsingStatement(IStatement Statement, VariableDeclarations? Declara
         yield return Statement;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         if (Declarations is not null)

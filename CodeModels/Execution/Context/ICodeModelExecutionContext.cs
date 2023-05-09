@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeModels.Execution.Scope;
 using CodeModels.Models;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Context;
 
-public interface IProgramModelExecutionContext
+public interface ICodeModelExecutionContext
 {
     IProgramContext? ProgramContext { get; }
     IExpression This();
@@ -24,12 +25,12 @@ public interface IProgramModelExecutionContext
     public void Throw(Exception exception);
     void EnterScope(object owner);
     void EnterScope();
-    void EnterScope(IProgramModelExecutionScope scope);
-    void EnterScopes(IEnumerable<IProgramModelExecutionScope>? scope);
-    void ExitScopes(IEnumerable<IProgramModelExecutionScope>? scope);
+    void EnterScope(ICodeModelExecutionScope scope);
+    void EnterScopes(IEnumerable<ICodeModelExecutionScope>? scope);
+    void ExitScopes(IEnumerable<ICodeModelExecutionScope>? scope);
     void ExitScope(object owner);
     void ExitScope();
-    IProgramModelExecutionScope CaptureScope();
+    ICodeModelExecutionScope CaptureScope();
     IExpression PreviousExpression { get; }
     IExpression SetPreviousExpression(IExpression expression);
     string ConsoleOutput { get; }

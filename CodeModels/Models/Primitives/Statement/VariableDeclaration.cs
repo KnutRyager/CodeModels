@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -20,7 +20,7 @@ public record VariableDeclaration(IType Type, string Name, IExpression? Value = 
         if (Value is not null) yield return Value;
     }
 
-    public void Evaluate(IProgramModelExecutionContext context)
+    public void Evaluate(ICodeModelExecutionContext context)
     {
         context.DefineVariable(Name);
         if (Value is not null)
@@ -48,7 +48,7 @@ public record VariableDeclarations(IType Type, List<VariableDeclarator> Value) :
         foreach (var value in Value) yield return value;
     }
 
-    public void Evaluate(IProgramModelExecutionContext context)
+    public void Evaluate(ICodeModelExecutionContext context)
     {
         foreach (var declarator in Value)
         {
@@ -65,7 +65,7 @@ public record VariableDeclarator(string Name, IExpression? Value = null) : CodeM
         if (Value is not null) yield return Value;
     }
 
-    public void Evaluate(IProgramModelExecutionContext context)
+    public void Evaluate(ICodeModelExecutionContext context)
     {
         context.DefineVariable(Name);
         if (Value is not null)

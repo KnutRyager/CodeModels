@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Extensions;
 using CodeModels.Factory;
@@ -25,7 +26,7 @@ public static class ExecuteUtil
         var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
         if (compilationModel.Members.Count >= 0)
         {
-            var context = new ProgramModelExecutionContext(programContext);
+            var context = new CodeModelExecutionContext(programContext);
             try
             {
                 context.EnterScope();
@@ -58,11 +59,11 @@ public static class ExecuteUtil
         return null;
     }
 
-    public static object? Eval(this IExpression expression, IProgramModelExecutionContext? context = null)
+    public static object? Eval(this IExpression expression, ICodeModelExecutionContext? context = null)
     {
         if (context is null)
         {
-            context = new ProgramModelExecutionContext(ProgramContext.NewContext());
+            context = new CodeModelExecutionContext(ProgramContext.NewContext());
             context.EnterScope();
             if (expression is IMemberAccess memberAccess)
             {

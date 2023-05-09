@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models.Reflection;
 using Microsoft.CodeAnalysis;
@@ -76,7 +77,7 @@ public record PropertyModel(string Name,
     public FieldModel? GetBackingField()
         => Owner is ClassDeclaration b ? b.GetFields().FirstOrDefault(x => ((IMember)x).Name == AccessorType.Get.GetBackingFieldName(Name)) : null;
 
-    public override IExpression EvaluateAccess(IExpression expression, IProgramModelExecutionContext context)
+    public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
     {
         var scopes = GetScopes(expression);
         try
@@ -123,7 +124,7 @@ public record PropertyModel(string Name,
         //}
     }
 
-    public override void Assign(IExpression instance, IExpression value, IProgramModelExecutionContext context)
+    public override void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context)
     {
         var setter = GetSetter();
         if (setter is not null)
@@ -137,7 +138,7 @@ public record PropertyModel(string Name,
         }
     }
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {

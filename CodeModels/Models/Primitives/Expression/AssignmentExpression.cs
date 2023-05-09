@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,9 +18,9 @@ public record AssignmentExpression(IExpression Left, IExpression Right, SyntaxKi
         yield return Right;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
-        var scopes = Left is IScopeHolder scopeHolder ? scopeHolder.GetScopes(context) : Array.Empty<IProgramModelExecutionScope>();
+        var scopes = Left is IScopeHolder scopeHolder ? scopeHolder.GetScopes(context) : Array.Empty<ICodeModelExecutionScope>();
         //if (Left is IInvokable invokable)
         //{
         //    invokable.Invoke(Right, context, scopes).Evaluate();

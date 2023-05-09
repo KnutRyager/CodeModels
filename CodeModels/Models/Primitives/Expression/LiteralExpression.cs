@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 //using Newtonsoft.Json;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -30,5 +30,5 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => this;
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => this;
 }

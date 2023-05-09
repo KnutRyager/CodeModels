@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Reflection;
 using CodeModels.Utils;
@@ -91,7 +91,7 @@ public static class CodeModelFactory
     public static ExpressionCollection Values(Array values) => new(CollectionUtil.ModernizeArray(values).Select(Value));
     public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
     public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
-    public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null, IEnumerable<IProgramModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
+    public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(FieldModel field, IExpression caller) => new(caller, Identifier(field.Name, model: field));

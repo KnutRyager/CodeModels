@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -59,5 +59,5 @@ public record OperationCall(IOperationPipeline Pipeline, IOperation? Operation, 
 
     public override IEnumerable<ICodeModel> Children() => Inputs; // TODO: Remaining
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => throw new NotImplementedException();
 }

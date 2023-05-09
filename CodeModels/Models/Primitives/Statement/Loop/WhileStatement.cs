@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -15,7 +15,7 @@ public record WhileStatement(IExpression Condition, IStatement Statement) : Abst
         yield return Statement;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         while (((bool?)Condition.Evaluate(context).LiteralValue()) ?? false)

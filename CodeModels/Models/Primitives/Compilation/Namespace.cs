@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
@@ -57,8 +57,8 @@ public record Namespace(
     public IType GetGenericType(int index) => throw new NotImplementedException();
     TypeSyntax ICodeModel<TypeSyntax>.Syntax() => throw new NotImplementedException();
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
-    public IExpression Evaluate(IProgramModelExecutionContext context) => this;
-    public object? EvaluatePlain(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public IExpression Evaluate(ICodeModelExecutionContext context) => this;
+    public object? EvaluatePlain(ICodeModelExecutionContext context) => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
     ExpressionSyntax IExpression.Syntax() => throw new NotImplementedException();
@@ -78,9 +78,9 @@ public record Namespace(
     {
         throw new NotImplementedException();
     }
-    public bool Equals(IType other, IProgramModelExecutionContext context)
+    public bool Equals(IType other, ICodeModelExecutionContext context)
         => TypeName == other.TypeName; // TODO: Check assembly
-    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+    public bool IsAssignableFrom(IType other, ICodeModelExecutionContext context)
         => Equals(other);
 
     public ICodeModel Render(Namespace @namespace)

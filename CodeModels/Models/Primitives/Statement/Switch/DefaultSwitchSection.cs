@@ -2,7 +2,7 @@
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -11,5 +11,5 @@ public record DefaultSwitchSection(IStatement Statement)
 {
     public override SwitchSectionSyntax Syntax() => SwitchSectionCustom(DefaultSwitchLabelCustom(), Block(Statement).Syntax());
 
-    public override bool IsMatch(IProgramModelExecutionContext _, IExpression __) => true;
+    public override bool IsMatch(ICodeModelExecutionContext _, IExpression __) => true;
 }

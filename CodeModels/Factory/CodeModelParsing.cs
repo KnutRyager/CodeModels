@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Extensions;
 using CodeModels.Models;
 using CodeModels.Parsing;
@@ -125,17 +126,17 @@ public static class CodeModelParsing
     public static IExpression Parse(IdentifierNameSyntax syntax, IFieldSymbol field, IType? type = null, SemanticModel? model = null)
         => SymbolUtils.IsNewDefined(field)
         ? TryGetModel<FieldModel>(field) is FieldModel fieldModel
-            ? Register(syntax, new FieldModelExpression(fieldModel, This(), Scopes: Array.Empty<IProgramModelExecutionScope>(), Symbol: field), model)
+            ? Register(syntax, new FieldModelExpression(fieldModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: field), model)
             //? Register(syntax, new FieldModelExpression(, Scopes: Array.Empty<IProgramModelExecutionScope>(), Symbol: field), model)
-            : Register(syntax, new FieldModelExpressionFromSymbol(field, This(), Scopes: Array.Empty<IProgramModelExecutionScope>()), model)
+            : Register(syntax, new FieldModelExpressionFromSymbol(field, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
         //? new FieldModelExpression! //new FieldModelExpression() 
         : new PropertyFromField(field).AccessValue(syntax.ToString(), type, field);
 
     public static IExpression Parse(IdentifierNameSyntax syntax, IPropertySymbol property, IType? type = null, SemanticModel? model = null)
          => SymbolUtils.IsNewDefined(property)
         ? TryGetModel<PropertyModel>(property) is PropertyModel propertyModel
-            ? Register(syntax, new PropertyModelExpression(propertyModel, This(), Scopes: Array.Empty<IProgramModelExecutionScope>(), Symbol: property), model)
-            : Register(syntax, new PropertyModelExpressionFromSymbol(property, This(), Scopes: Array.Empty<IProgramModelExecutionScope>()), model)
+            ? Register(syntax, new PropertyModelExpression(propertyModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: property), model)
+            : Register(syntax, new PropertyModelExpressionFromSymbol(property, This(), Scopes: Array.Empty<ICodeModelExecutionScope>()), model)
         : new PropertyFromReflection(property).AccessValue(syntax.ToString(), type, property);
 
     public static IExpression Parse(INamespaceSymbol namespaceSymbol)

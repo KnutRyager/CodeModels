@@ -1,4 +1,4 @@
-﻿using CodeModels.Execution;
+﻿using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -7,7 +7,7 @@ public interface IStatement : ICodeModel, IMember
 {
     new StatementSyntax Syntax();
     bool EndsInBreak();
-    void Evaluate(IProgramModelExecutionContext context);
+    void Evaluate(ICodeModelExecutionContext context);
 }
 
 public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSyntax
@@ -21,7 +21,7 @@ public abstract record AbstractStatement<T>(string? Name = null)
 
     StatementSyntax IStatement.Syntax() => Syntax();
     public virtual bool EndsInBreak() => false;
-    public abstract void Evaluate(IProgramModelExecutionContext context);
+    public abstract void Evaluate(ICodeModelExecutionContext context);
 
 
     public string Name => $"Statement";

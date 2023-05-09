@@ -1,16 +1,16 @@
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
 using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.Execution;
+namespace CodeModels.Test.Execution.Scope;
 
-public class ProgramModelExecutionScopeTests
+public class CodeModelExecutionScopeTests
 {
     [Fact]
     public void HasIdentifier()
     {
-        var context = new ProgramModelExecutionScope();
+        var context = new CodeModelExecutionScope();
         context.HasIdentifier("test").Should().Be(false);
         context.SetValue("test", Literal("a"));
         context.HasIdentifier("test").Should().Be(false);
@@ -19,7 +19,7 @@ public class ProgramModelExecutionScopeTests
     [Fact]
     public void SetAndGetVariable()
     {
-        var context = new ProgramModelExecutionScope();
+        var context = new CodeModelExecutionScope();
         context.SetValue("test", Literal("a"));
         context.GetValue("test").Should().Be(Literal("a"));
     }

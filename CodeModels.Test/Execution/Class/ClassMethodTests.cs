@@ -1,4 +1,5 @@
 using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
@@ -53,7 +54,7 @@ public class ClassMethodTests
         var c = CodeModelFactory.Class("classA", FieldModel("A", Literal(5)), getter, setter);
         var instance = c.CreateInstance();
 
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
 
         getter.Invoke(instance).Eval().Should().Be(5);
         setter.Invoke(instance).Evaluate(context);

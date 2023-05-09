@@ -1,5 +1,4 @@
-using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using FluentAssertions;
 using Xunit;
@@ -16,7 +15,7 @@ public class ClassDeclarationTests
         "ClassA",
             FieldModel("A", Literal("test")));
 
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
 
         c.Evaluate(context);
         context.GetMember("", "ClassA").Should().Be(c);
@@ -29,7 +28,7 @@ public class ClassDeclarationTests
         "SpaceA.ClassA",
             FieldModel("A", Literal("test")));
 
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
 
         c.Evaluate(context);
         context.GetMember("SpaceA", "ClassA").Should().Be(c);
@@ -42,7 +41,7 @@ public class ClassDeclarationTests
         "SpaceA.ClassA",
             FieldModel("A", Literal("test")));
 
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
 
         c.Evaluate(context);
 

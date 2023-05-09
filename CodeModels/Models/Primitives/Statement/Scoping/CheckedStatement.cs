@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -15,7 +15,7 @@ public record CheckedStatement(Block Block) : AbstractStatement<CheckedStatement
         yield return Block;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

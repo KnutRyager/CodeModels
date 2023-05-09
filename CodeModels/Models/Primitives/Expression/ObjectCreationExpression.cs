@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,7 +21,7 @@ public record ObjectCreationExpression(IType Type, PropertyCollection? Arguments
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         IExpression? value;
         object? valuePlain = null;
@@ -101,7 +101,7 @@ public record ImplicitObjectCreationExpression(IType Type, PropertyCollection Ar
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         throw new NotImplementedException();
     }

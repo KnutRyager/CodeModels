@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -13,7 +13,7 @@ public record DefaultSwitchLabel()
         yield break;
     }
 
-    public override bool Match(IProgramModelExecutionContext context, IExpression condition)
+    public override bool Match(ICodeModelExecutionContext context, IExpression condition)
         => true;
 
     public override DefaultSwitchLabelSyntax Syntax()

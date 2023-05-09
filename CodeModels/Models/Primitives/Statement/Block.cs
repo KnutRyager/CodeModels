@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -16,7 +16,7 @@ public record Block(List<IStatement> Statements) : AbstractStatement<BlockSyntax
     public override bool EndsInBreak() => Statements.LastOrDefault() is BreakStatement;
     public override IEnumerable<ICodeModel> Children() => Statements;
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         foreach (var statement in Statements) statement.Evaluate(context);

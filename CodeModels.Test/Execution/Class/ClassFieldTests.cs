@@ -1,4 +1,5 @@
 using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
@@ -37,7 +38,7 @@ public class ClassFieldTests
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         fieldAccess.Assign(Literal("test2")).Evaluate(context);
         fieldAccess.Eval(context).Should().Be("test2");
         c.GetField("A").AccessValue(instance).LiteralValue().Should().Be("test2");
@@ -65,7 +66,7 @@ public class ClassFieldTests
         var instance = c.CreateInstance();
         var fieldModel = c.GetField("A");
         var fieldAccess = fieldModel.Access(instance);
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         fieldAccess.Assign(Literal("test2")).Evaluate(context);
         fieldAccess.Eval(context).Should().Be("test2");
         c.GetField("A").AccessValue(instance).LiteralValue().Should().Be("test2");

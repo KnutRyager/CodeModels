@@ -6,7 +6,7 @@ using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
 using CodeModels.Execution.ControlFlow;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -30,7 +30,7 @@ public record ForStatement(VariableDeclarations Declaration, List<IExpression> I
         yield return Statement;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         try

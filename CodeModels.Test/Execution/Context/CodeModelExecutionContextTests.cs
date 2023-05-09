@@ -1,18 +1,19 @@
-using Xunit;
-using static CodeModels.Factory.CodeModelFactory;
+using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Models;
 using FluentAssertions;
 using Microsoft.CodeAnalysis.CSharp;
-using CodeModels.Execution;
-using CodeModels.Models;
+using Xunit;
+using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.Execution;
+namespace CodeModels.Test.Execution.Context;
 
-public class ProgramModelExecutionContextTests
+public class CodeModelExecutionContextTests
 {
     [Fact]
     public void SetAndGetVariable()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("test", Literal("a"), true);
         context.GetValue("test").Should().Be(Literal("a"));
@@ -21,7 +22,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void DefineAndAssignVariable()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.DefineVariable("test");
         var assignment = Assignment(Identifier("test"), Literal("a"));
@@ -32,7 +33,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void AddAssignment()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("test", Literal(2), true);
         var assignment = Assignment(Identifier("test"), SyntaxKind.AddAssignmentExpression, Literal(3));
@@ -43,7 +44,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void AddTwoVariables()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(2), true);
         context.SetValue("b", Literal(3), true);
@@ -54,7 +55,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void SimpleIf()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         If(Literal(true), Assignment(Identifier("a"), Literal(1337)).AsStatement()).Evaluate(context);
@@ -66,7 +67,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void MultiIfs()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.DefineVariable("a");
         var ifs = MultiIf(new[] {
@@ -92,7 +93,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void SwitchCase()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.DefineVariable("a");
         var switchCase = Switch(Identifier("a"), new[] {
@@ -118,7 +119,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void SimpleForLoop()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         var forLoop = For("i", Literal(10), Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("i")).AsStatement());
@@ -129,7 +130,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void WhileLoop()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         var whileLoop = While(BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(10)),
@@ -141,7 +142,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void DoWhileLoop()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         var doWhileLoop = Do(Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Literal(1)).AsStatement(),
@@ -153,7 +154,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void ForEachLoop()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         var forEachLoop = ForEach("b",
@@ -166,7 +167,7 @@ public class ProgramModelExecutionContextTests
     [Fact]
     public void AssignToVariableInLowerScope()
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.DefineVariable("a");
         context.EnterScope();
@@ -176,15 +177,15 @@ public class ProgramModelExecutionContextTests
     }
 
     [Fact]
-    public void SetUndefinedVariable() => Assert.Throws<ProgramModelExecutionException>(() => new ProgramModelExecutionContext().SetValue("test", Literal("a")));
+    public void SetUndefinedVariable() => Assert.Throws<CodeModelExecutionException>(() => new CodeModelExecutionContext().SetValue("test", Literal("a")));
     [Fact]
-    public void SetVariableWhenNoScope() => Assert.Throws<ProgramModelExecutionException>(() => new ProgramModelExecutionContext().SetValue("test", Literal("a"), true));
+    public void SetVariableWhenNoScope() => Assert.Throws<CodeModelExecutionException>(() => new CodeModelExecutionContext().SetValue("test", Literal("a"), true));
     [Fact]
-    public void PopWhenNoScopes() => Assert.Throws<ProgramModelExecutionException>(() => new ProgramModelExecutionContext().ExitScope());
+    public void PopWhenNoScopes() => Assert.Throws<CodeModelExecutionException>(() => new CodeModelExecutionContext().ExitScope());
     [Fact]
-    public void StackOverflow() => Assert.Throws<ProgramModelExecutionException>(() =>
+    public void StackOverflow() => Assert.Throws<CodeModelExecutionException>(() =>
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         for (var i = 0; i <= 10001; i++) context.EnterScope();
     });
 

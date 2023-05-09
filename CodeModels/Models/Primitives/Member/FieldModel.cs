@@ -7,7 +7,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 using CodeModels.Factory;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -53,7 +54,7 @@ public record FieldModel(string Name,
 
     private VariableDeclaration VariableDeclaration() => new(Type, Name, Value);
 
-    public override IExpression EvaluateAccess(IExpression expression, IProgramModelExecutionContext context)
+    public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
     {
         var scopes = GetScopes(expression);
         try
@@ -82,7 +83,7 @@ public record FieldModel(string Name,
         }
     }
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {
@@ -101,7 +102,7 @@ public record FieldModel(string Name,
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
 
-    public override void Assign(IExpression instance, IExpression value, IProgramModelExecutionContext context)
+    public override void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context)
     {
         throw new NotImplementedException();
     }

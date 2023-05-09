@@ -1,4 +1,4 @@
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
@@ -18,7 +18,7 @@ public class ClassConstructorTests
             Method("get3", Type<int>(), Block(Return(3))));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
-        var instance = invocation.Evaluate(new ProgramModelExecutionContext());
+        var instance = invocation.Evaluate(new CodeModelExecutionContext());
         instance.Should().BeEquivalentTo(new InstantiatedObject(c,
             c.CreateInstanceScope(true),
             c.GetStaticScope()));
@@ -33,7 +33,7 @@ public class ClassConstructorTests
         c.AddMember(constructor);
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
-        var instance = invocation.Evaluate(new ProgramModelExecutionContext());
+        var instance = invocation.Evaluate(new CodeModelExecutionContext());
         instance.Should().BeEquivalentTo(new InstantiatedObject(c,
             c.CreateInstanceScope(true),
             c.GetStaticScope()));
@@ -46,7 +46,7 @@ public class ClassConstructorTests
         Method("get3", Type<int>(), Block(Return(3)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
-        var instance = invocation.Evaluate(new ProgramModelExecutionContext());
+        var instance = invocation.Evaluate(new CodeModelExecutionContext());
         instance.Should().BeEquivalentTo(new InstantiatedObject(c,
             c.CreateInstanceScope(true),
             c.GetStaticScope()));
@@ -60,7 +60,7 @@ public class ClassConstructorTests
             FieldModel("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke(Literal(3));
-        var instance = (invocation.Evaluate(new ProgramModelExecutionContext()) as InstantiatedObject)!;
+        var instance = (invocation.Evaluate(new CodeModelExecutionContext()) as InstantiatedObject)!;
         instance.GetValue("A").Should().BeEquivalentTo(Literal(3));
     }
 
@@ -72,7 +72,7 @@ public class ClassConstructorTests
             FieldModel("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
-        var instance = (invocation.Evaluate(new ProgramModelExecutionContext()) as InstantiatedObject)!;
+        var instance = (invocation.Evaluate(new CodeModelExecutionContext()) as InstantiatedObject)!;
         instance.GetValue("A").Should().BeEquivalentTo(Literal(7));
     }
 }

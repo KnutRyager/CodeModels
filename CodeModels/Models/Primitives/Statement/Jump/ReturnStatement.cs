@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -15,6 +15,6 @@ public record ReturnStatement(IExpression Expression) : AbstractStatement<Return
         yield return Expression;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
         => throw new ReturnException(Expression.EvaluatePlain(context));
 }

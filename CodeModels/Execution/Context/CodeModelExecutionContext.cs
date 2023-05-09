@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.IO;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Utils;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Context;
 
-public class ProgramModelExecutionContext : IProgramModelExecutionContext
+public class CodeModelExecutionContext : ICodeModelExecutionContext
 {
     public IProgramContext? ProgramContext { get; private set; }
-    private List<IProgramModelExecutionScope> _scopes = new List<IProgramModelExecutionScope>();
+    private List<ICodeModelExecutionScope> _scopes = new List<ICodeModelExecutionScope>();
     private readonly IDictionary<string, IMember> _members = new Dictionary<string, IMember>();
     //private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
-    private IDictionary<string, IProgramModelExecutionScope> _staticScopes = new Dictionary<string, IProgramModelExecutionScope>();
+    private IDictionary<string, ICodeModelExecutionScope> _staticScopes = new Dictionary<string, ICodeModelExecutionScope>();
 
     public IExpression PreviousExpression { get; private set; } = VoidValue;
 
     private TextWriter Console { get; set; }
     private int previousValueLock = 0;
 
-    public ProgramModelExecutionContext(IProgramContext? programContext = null, TextWriter? console = null)
+    public CodeModelExecutionContext(IProgramContext? programContext = null, TextWriter? console = null)
     {
         ProgramContext = programContext;
         Console = console ?? new StringWriter();
@@ -41,31 +42,31 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void EnterScope(object owner)
     {
-        if (_scopes.Count >= 10000) throw new ProgramModelExecutionException("Stackoverflow");
+        if (_scopes.Count >= 10000) throw new CodeModelExecutionException("Stackoverflow");
         _scopes.Add(new ObjectModelExecutionScope(this, owner));
     }
 
-    public void EnterScope() => EnterScope(new ProgramModelExecutionScope());
+    public void EnterScope() => EnterScope(new CodeModelExecutionScope());
 
-    public void EnterScope(IProgramModelExecutionScope scope)
+    public void EnterScope(ICodeModelExecutionScope scope)
     {
-        if (_scopes.Count >= 10000) throw new ProgramModelExecutionException("Stackoverflow");
+        if (_scopes.Count >= 10000) throw new CodeModelExecutionException("Stackoverflow");
         _scopes.Add(scope);
     }
 
     public void ExitScope(object owner)
     {
-        if (_scopes.Count == 0) throw new ProgramModelExecutionException("Popped scope when no scopes");
+        if (_scopes.Count == 0) throw new CodeModelExecutionException("Popped scope when no scopes");
         ExitScope();    // TODO: Ensure enough scopes exited in case misaligned
     }
 
     public void ExitScope()
     {
-        if (_scopes.Count == 0) throw new ProgramModelExecutionException("Popped scope when no scopes");
+        if (_scopes.Count == 0) throw new CodeModelExecutionException("Popped scope when no scopes");
         _scopes.RemoveAt(_scopes.Count - 1);
     }
 
-    public void EnterScopes(IEnumerable<IProgramModelExecutionScope>? scopes)
+    public void EnterScopes(IEnumerable<ICodeModelExecutionScope>? scopes)
     {
         if (scopes is null) return;
         foreach (var scope in scopes)
@@ -74,7 +75,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         }
     }
 
-    public void ExitScopes(IEnumerable<IProgramModelExecutionScope>? scopes)
+    public void ExitScopes(IEnumerable<ICodeModelExecutionScope>? scopes)
     {
         if (scopes is null) return;
         foreach (var _ in scopes)
@@ -97,7 +98,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void SetValue(string identifier, IExpression value, bool define = false)
     {
-        var scope = FindScope(identifier) ?? (define ? GetScope() : throw new ProgramModelExecutionException($"Identifier not found: {identifier}"));
+        var scope = FindScope(identifier) ?? (define ? GetScope() : throw new CodeModelExecutionException($"Identifier not found: {identifier}"));
         if (define) scope.DefineVariable(identifier);
         scope.SetValue(identifier, value);
         SetPreviousExpression(value);
@@ -136,13 +137,13 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public IExpression ExecuteMethod(string identifier, params IExpression[] parameters)
     {
-        var scope = FindScope(identifier) ?? throw new ProgramModelExecutionException($"Identifier not found: {identifier}");
+        var scope = FindScope(identifier) ?? throw new CodeModelExecutionException($"Identifier not found: {identifier}");
         return scope.ExecuteMethod(identifier, parameters);
     }
 
     public object ExecuteMethodPlain(string identifier, params object?[] parameters)
     {
-        var scope = FindScope(identifier) ?? throw new ProgramModelExecutionException($"Identifier not found: {identifier}");
+        var scope = FindScope(identifier) ?? throw new CodeModelExecutionException($"Identifier not found: {identifier}");
         return scope.ExecuteMethodPlain(identifier, parameters);
     }
 
@@ -154,7 +155,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
 
     public void Throw(Exception exception) => throw new ThrowException(exception);
 
-    private IProgramModelExecutionScope? FindScope(string identifier)
+    private ICodeModelExecutionScope? FindScope(string identifier)
     {
         for (var i = 0; i < _scopes.Count; i++)
         {
@@ -164,11 +165,11 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
         return default;
     }
 
-    public IProgramModelExecutionScope CaptureScope() => GetScope(0);
+    public ICodeModelExecutionScope CaptureScope() => GetScope(0);
 
-    private IProgramModelExecutionScope FindScopeOrCrash(string identifier) => FindScope(identifier) ?? throw new ProgramModelExecutionException($"Cannot find scope of identifier: {identifier}");
+    private ICodeModelExecutionScope FindScopeOrCrash(string identifier) => FindScope(identifier) ?? throw new CodeModelExecutionException($"Cannot find scope of identifier: {identifier}");
 
-    private IProgramModelExecutionScope GetScope(int depth = 0) => depth < _scopes.Count ? _scopes[_scopes.Count - 1 - depth] : throw new ProgramModelExecutionException($"No scope at depth: {depth}");
+    private ICodeModelExecutionScope GetScope(int depth = 0) => depth < _scopes.Count ? _scopes[_scopes.Count - 1 - depth] : throw new CodeModelExecutionException($"No scope at depth: {depth}");
 
     public IExpression SetPreviousExpression(IExpression expression)
     {
@@ -186,7 +187,7 @@ public class ProgramModelExecutionContext : IProgramModelExecutionContext
             var scope = GetScope(i);
             if (scope.HasThis()) return scope.This();
         }
-        throw new ProgramModelExecutionException($"No 'this' reference found.");
+        throw new CodeModelExecutionException($"No 'this' reference found.");
     }
 
     public IMember GetMember(string? key, string? name = null) => _members[NamespaceUtils.GetKeyAndName(key, name)];

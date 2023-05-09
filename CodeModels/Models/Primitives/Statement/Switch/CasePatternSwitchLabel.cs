@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +17,7 @@ public record CasePatternSwitchLabel(IPattern Pattern, WhenClause? WhenClause)
         if (WhenClause is not null) yield return WhenClause;
     }
 
-    public override bool Match(IProgramModelExecutionContext context, IExpression condition)
+    public override bool Match(ICodeModelExecutionContext context, IExpression condition)
         => throw new NotImplementedException();
     //=> Pattern.Equals(condition);
 

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using Microsoft.CodeAnalysis.CSharp;
 using System;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -23,7 +23,7 @@ public record FieldReflection(FieldInfo Field, IExpression Caller)
     public override MemberAccessExpressionSyntax Syntax()
         => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Caller.Syntax(), IdentifierName(Field.Name));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         try
         {
@@ -46,7 +46,7 @@ public record PropertyReflection(PropertyInfo Property, IExpression Caller)
     public override MemberAccessExpressionSyntax Syntax()
         => MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Caller.Syntax(), IdentifierName(Property.Name));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope(Caller);
         var result = Property.GetValue(Caller.EvaluatePlain(context));

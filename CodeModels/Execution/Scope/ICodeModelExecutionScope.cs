@@ -1,8 +1,8 @@
 ﻿using CodeModels.Models;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Scope;
 
-public interface IProgramModelExecutionScope
+public interface ICodeModelExecutionScope
 {
     bool IsBottomScope();
     bool HasIdentifier(string identifier);

@@ -7,7 +7,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -37,7 +37,7 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
 
     public override IEnumerable<ICodeModel> Children() => Values;
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var array = Array.CreateInstance(Type.PlainType().GetReflectedType(), Values.Count);
         for (var i = 0; i < array.Length; i++) { array.SetValue(Values[i].EvaluatePlain(context), i); }

@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
@@ -14,7 +14,7 @@ public record CatchDeclaration(IType Type, string? Identifier) : CodeModel<Catch
         yield return Type;
     }
 
-    public void Evaluate(IProgramModelExecutionContext context, IExpression expression)
+    public void Evaluate(ICodeModelExecutionContext context, IExpression expression)
     {
         //context.EnterScope();
         //Statement.Evaluate(context);

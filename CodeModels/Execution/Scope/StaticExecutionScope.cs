@@ -1,17 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using CodeModels.Execution.Context;
 using CodeModels.Models;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Scope;
 
-public class StaticExecutionScope : IProgramModelExecutionScope
+public class StaticExecutionScope : ICodeModelExecutionScope
 {
     private Type _type;
-    private IProgramModelExecutionContext _context;
+    private ICodeModelExecutionContext _context;
 
-    public StaticExecutionScope(IProgramModelExecutionContext context, Type type)
+    public StaticExecutionScope(ICodeModelExecutionContext context, Type type)
     {
         _context = context;
         _type = type;
@@ -24,8 +25,8 @@ public class StaticExecutionScope : IProgramModelExecutionScope
     {
         FieldInfo field => Literal(field.GetValue(null)),
         PropertyInfo property => Literal(property.GetValue(null)),
-        MethodInfo _ => throw new ProgramModelExecutionException($"Cannot get value of method '{identifier}'"),
-        _ => throw new ProgramModelExecutionException($"Cannot get non-found identifier '{identifier}'")
+        MethodInfo _ => throw new CodeModelExecutionException($"Cannot get value of method '{identifier}'"),
+        _ => throw new CodeModelExecutionException($"Cannot get non-found identifier '{identifier}'")
     };
 
     public IExpression GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
@@ -41,7 +42,7 @@ public class StaticExecutionScope : IProgramModelExecutionScope
     public object ExecuteMethodPlain(string identifier, params object?[] parameters) => _type.GetMethod(identifier) switch
     {
         MethodInfo method => method.Invoke(null, parameters),
-        _ => throw new ProgramModelExecutionException($"Cannot get non-found method '{identifier}'")
+        _ => throw new CodeModelExecutionException($"Cannot get non-found method '{identifier}'")
     };
 
     public void SetValue(string identifier, IExpression value)
@@ -55,9 +56,9 @@ public class StaticExecutionScope : IProgramModelExecutionScope
                 property.SetValue(null, value.EvaluatePlain(_context));
                 break;
             case MethodInfo _:
-                throw new ProgramModelExecutionException($"Cannot set value of method '{identifier}'");
+                throw new CodeModelExecutionException($"Cannot set value of method '{identifier}'");
             default:
-                throw new ProgramModelExecutionException($"Cannot set non-found identifier '{identifier}'");
+                throw new CodeModelExecutionException($"Cannot set non-found identifier '{identifier}'");
         };
     }
 
@@ -66,5 +67,5 @@ public class StaticExecutionScope : IProgramModelExecutionScope
     public void Throw(IExpression value) => throw new NotImplementedException();
 
     public bool HasThis() => false;
-    public IExpression This() => throw new ProgramModelExecutionException($"No 'this' reference for static class.");
+    public IExpression This() => throw new CodeModelExecutionException($"No 'this' reference for static class.");
 }

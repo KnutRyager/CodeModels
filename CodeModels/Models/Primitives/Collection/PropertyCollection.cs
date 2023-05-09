@@ -10,7 +10,7 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -80,7 +80,7 @@ public record PropertyCollection(List<Property> Properties, string? Name = null,
         foreach (var property in Properties) yield return property;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
 
     public IType BaseType() => CodeModelFactory.QuickType(Name);
 

@@ -1,5 +1,5 @@
 ﻿using System;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -23,6 +23,6 @@ public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
     string GetMostSpecificType();
     IType GetGenericType(int index);
     EqualityList<IType> GenericTypes { get; }
-    bool Equals(IType other, IProgramModelExecutionContext context);
-    bool IsAssignableFrom(IType other, IProgramModelExecutionContext context);
+    bool Equals(IType other, ICodeModelExecutionContext context);
+    bool IsAssignableFrom(IType other, ICodeModelExecutionContext context);
 }

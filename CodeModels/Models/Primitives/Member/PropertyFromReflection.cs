@@ -1,7 +1,8 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Reflection;
 using Common.Extensions;
 using Common.Reflection;
@@ -15,7 +16,7 @@ public record PropertyFromReflection(PropertyInfo Property)
 {
     public PropertyFromReflection(IPropertySymbol symbol) : this(SemanticReflection.GetProperty(symbol)) { }
 
-    public override void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public override void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {

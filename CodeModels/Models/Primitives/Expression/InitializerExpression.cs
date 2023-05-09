@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -17,5 +17,5 @@ public record InitializerExpression(IType Type, SyntaxKind Kind, PropertyCollect
         yield return Expressions;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => Expressions.Evaluate(context);
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Expressions.Evaluate(context);
 }

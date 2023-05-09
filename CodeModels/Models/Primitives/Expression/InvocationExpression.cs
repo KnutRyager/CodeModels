@@ -3,24 +3,25 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Execution.Scope;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
 namespace CodeModels.Models;
 
-public record InvocationExpression(Method Method, IExpression Caller, List<IExpression> Arguments, List<IProgramModelExecutionScope> Scopes)
+public record InvocationExpression(Method Method, IExpression Caller, List<IExpression> Arguments, List<ICodeModelExecutionScope> Scopes)
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),
     IInvocation
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
         => Literal(EvaluatePlain(context));
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         try
         {
@@ -83,7 +84,7 @@ public record InvocationFromReflection(MethodInfo Method, IExpression Caller, Li
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var arguments = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
         if (Method is { Name: "Write" or "WriteLine" })

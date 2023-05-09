@@ -1,4 +1,4 @@
-﻿using CodeModels.Execution;
+﻿using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -6,8 +6,8 @@ namespace CodeModels.Models;
 public interface IExpressionOrPattern : ICodeModel, IIdentifiable
 {
     IType Get_Type();
-    IExpression Evaluate(IProgramModelExecutionContext context);
-    object? EvaluatePlain(IProgramModelExecutionContext context);
+    IExpression Evaluate(ICodeModelExecutionContext context);
+    object? EvaluatePlain(ICodeModelExecutionContext context);
     new ExpressionOrPatternSyntax Syntax();
 }
 

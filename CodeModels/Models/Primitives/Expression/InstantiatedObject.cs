@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,9 +11,9 @@ using static CodeModels.Factory.CodeModelFactory;
 namespace CodeModels.Models;
 
 public record InstantiatedObject(ClassDeclaration Type,
-    IProgramModelExecutionScope Scope,
-    IProgramModelExecutionScope StaticScope,
-    IProgramModelExecutionScope? ParentScope = null) : IScopeHolder, IExpression
+    ICodeModelExecutionScope Scope,
+    ICodeModelExecutionScope StaticScope,
+    ICodeModelExecutionScope? ParentScope = null) : IScopeHolder, IExpression
 {
     public bool IsLiteralExpression => false;
 
@@ -41,30 +43,30 @@ public record InstantiatedObject(ClassDeclaration Type,
         throw new NotImplementedException();
     }
 
-    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context)
+    public IList<ICodeModelExecutionScope> GetScopes(ICodeModelExecutionContext context)
         => new[] { StaticScope, Scope };
 
-    public void EnterScopes(IProgramModelExecutionContext context)
+    public void EnterScopes(ICodeModelExecutionContext context)
     {
         context.EnterScope(StaticScope);
         context.EnterScope(Scope);
     }
 
-    public void ExitScopes(IProgramModelExecutionContext context)
+    public void ExitScopes(ICodeModelExecutionContext context)
     {
         context.ExitScope(Scope);
         context.ExitScope(StaticScope);
     }
 
-    public IExpression Evaluate(IProgramModelExecutionContext context) => this;
-    public object? EvaluatePlain(IProgramModelExecutionContext context) => this;
+    public IExpression Evaluate(ICodeModelExecutionContext context) => this;
+    public object? EvaluatePlain(ICodeModelExecutionContext context) => this;
 
     public IExpression GetValue(string identifier) => Type.TryGetMember(identifier) switch
     {
         FieldModel _ => Scope.GetValue(identifier),
         //PropertyModel property => Literal(property.AccessValue(_object)),
-        Method _ => throw new ProgramModelExecutionException($"Cannot get value of method '{identifier}'"),
-        _ => throw new ProgramModelExecutionException($"Cannot get non-found identifier '{identifier}'")
+        Method _ => throw new CodeModelExecutionException($"Cannot get value of method '{identifier}'"),
+        _ => throw new CodeModelExecutionException($"Cannot get non-found identifier '{identifier}'")
     };
 
     public IType Get_Type() => Type.Get_Type();

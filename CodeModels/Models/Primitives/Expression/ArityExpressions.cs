@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 
@@ -15,7 +15,7 @@ public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, Operatio
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         switch (Operation)
         {

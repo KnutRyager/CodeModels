@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -14,7 +14,7 @@ public record ExpressionFromTypeContext(IProgramContext Context, IType Type) : E
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

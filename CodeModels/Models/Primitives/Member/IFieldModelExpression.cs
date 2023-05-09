@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
 using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
@@ -8,6 +8,6 @@ public interface IFieldModelExpression : IInvocation, IAssignable, IMemberAccess
 {
     FieldModel Field { get; }
     //IExpression? Instance { get; }
-    IList<IProgramModelExecutionScope>? Scopes { get; }
+    IList<ICodeModelExecutionScope>? Scopes { get; }
     ISymbol? Symbol { get; }
 }

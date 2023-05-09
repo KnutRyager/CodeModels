@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -33,14 +33,14 @@ public record LocalFunctionStatement(Modifier Modifier, IType ReturnType, string
         if (ExpressionBody is not null) yield return ExpressionBody;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         new LocalFunctionExpression(this).Evaluate(context);
     }
 
     public override IType Get_Type() => ReturnType;
 
-    public virtual object? EvaluatePlain(IProgramModelExecutionContext context)
+    public virtual object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         if (Parameters.Properties.Count > 0)
         {

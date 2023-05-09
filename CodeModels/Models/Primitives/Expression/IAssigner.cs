@@ -1,8 +1,8 @@
-﻿using CodeModels.Execution;
+﻿using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
 public interface IAssigner
 {
-    void Assign(IExpression instance, IExpression value, IProgramModelExecutionContext context);
+    void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context);
 }

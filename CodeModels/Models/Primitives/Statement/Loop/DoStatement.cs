@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -12,7 +12,7 @@ public record DoStatement(IStatement Statement, IExpression Condition) : Abstrac
     public override DoStatementSyntax Syntax() => DoStatementCustom(Statement.Syntax(), Condition.Syntax());
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         do

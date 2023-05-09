@@ -1,5 +1,5 @@
 ﻿using System;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -43,8 +43,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Syntax();
     protected ExpressionSyntax PlanBSyntax() => (ExpressionSyntax?)LiteralSyntax() ?? (Symbol is not null ? IdentifierName(Symbol.Name) : ReferenceEquals(this, CodeModelFactory.NullValue) ? IdentifierName("null") : throw new Exception("Expression has no syntax node or value."));
 
-    public abstract IExpression Evaluate(IProgramModelExecutionContext context);
-    public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).LiteralValue();
+    public abstract IExpression Evaluate(ICodeModelExecutionContext context);
+    public virtual object? EvaluatePlain(ICodeModelExecutionContext context) => Evaluate(context).LiteralValue();
     public ExpressionStatement AsStatement() => new(this);
     public new virtual IdentifierExpression ToIdentifierExpression() => new(Type.Name, Type, Symbol: Symbol, Model: this);
 }

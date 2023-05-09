@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -14,5 +14,5 @@ public record LabeledStatement(string Identifier, IStatement Statement) : Abstra
         yield return Statement;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context) => Statement.Evaluate(context);
+    public override void Evaluate(ICodeModelExecutionContext context) => Statement.Evaluate(context);
 }

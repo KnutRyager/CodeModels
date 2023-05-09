@@ -8,7 +8,8 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -89,7 +90,7 @@ public abstract record ClassDeclaration(string Name,
         foreach (var member in Members) yield return member;
     }
 
-    public void Evaluate(IProgramModelExecutionContext context) => context.AddMember(Namespace?.Name, this);
+    public void Evaluate(ICodeModelExecutionContext context) => context.AddMember(Namespace?.Name, this);
 
     public IType BaseType() => CodeModelFactory.QuickType(Name);
 
@@ -113,9 +114,9 @@ public abstract record ClassDeclaration(string Name,
         return instance;
     }
 
-    public ProgramModelExecutionScope CreateInstanceScope(bool init = false)
+    public CodeModelExecutionScope CreateInstanceScope(bool init = false)
     {
-        var scope = new ProgramModelExecutionScope();
+        var scope = new CodeModelExecutionScope();
         if (init) InitInstanceScope(scope);
         return scope;
     }

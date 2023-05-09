@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -17,7 +17,7 @@ public record AwaitExpression(IExpression Expression) : Expression<AwaitExpressi
         yield return Expression;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var value = Expression.Evaluate(context);
         if (value.LiteralValue() is Task task)

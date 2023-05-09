@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Generation;
 using Microsoft.CodeAnalysis;
@@ -18,7 +19,7 @@ public interface IFieldOrProperty : IMember, ICodeModel, ITypeModel, IAssigner, 
     IExpression ValueOrDefault();
     IInvocation AccessValue(string identifier, IType? type = null, ISymbol? symbol = null);
     IInvocation AccessValue(IExpression? instance = null);
-    public abstract IExpression EvaluateAccess(IExpression expression, IProgramModelExecutionContext context);
+    public abstract IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context);
 
     ExpressionSyntax? AccessSyntax(IExpression? instance = null);
 }
@@ -94,8 +95,8 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         && (Value is not null && (Type.ReflectedType?.IsValueType ?? false))
         ? CodeModelFactory.Literal(Activator.CreateInstance(Type.ReflectedType)) : Value ?? CodeModelFactory.NullValue;
 
-    public abstract IExpression EvaluateAccess(IExpression expression, IProgramModelExecutionContext context);
-    public abstract void Assign(IExpression instance, IExpression value, IProgramModelExecutionContext context);
+    public abstract IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context);
+    public abstract void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context);
     public abstract IInvocation Invoke(IExpression? caller, IEnumerable<IExpression> arguments);
 
     public ExpressionSyntax? ExpressionSyntax => Value switch
@@ -104,7 +105,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         _ => Value.Syntax()
     };
 
-    public IList<IProgramModelExecutionScope> GetScopes(IExpression? expression = null) => this switch
+    public IList<ICodeModelExecutionScope> GetScopes(IExpression? expression = null) => this switch
     {
         _ when expression is InstantiatedObject instance => instance.GetScopes(null!),
         _ when Owner is IScopeHolder scopeHolder => scopeHolder.GetScopes(null!),
@@ -112,7 +113,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         _ => throw new NotImplementedException()
     };
 
-    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context) => this switch
+    public IList<ICodeModelExecutionScope> GetScopes(ICodeModelExecutionContext context) => this switch
     {
         _ when Owner is IScopeHolder scopeHolder => scopeHolder.GetScopes(context),
         _ => throw new NotImplementedException()

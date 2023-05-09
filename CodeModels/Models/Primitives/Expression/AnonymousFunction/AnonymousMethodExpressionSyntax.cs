@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Models;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -29,12 +29,12 @@ public record AnonymousMethodExpression(Modifier Modifier, bool IsAsync,
                 ExpressionBody?.Syntax());
 
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         return this;
     }
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         return null;
     }

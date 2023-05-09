@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Models.Reflection;
 using CodeModels.Reflection;
 using Common.DataStructures;
@@ -192,14 +192,14 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public LiteralExpressionSyntax? LiteralSyntax() => Lookup.LiteralSyntax();
     public object? LiteralValue() => Lookup.LiteralValue();
     public ExpressionStatement AsStatement() => Lookup.AsStatement();
-    public bool Equals(IType other, IProgramModelExecutionContext context)
+    public bool Equals(IType other, ICodeModelExecutionContext context)
         => TypeName == other.TypeName; // TODO: Check assembly
-    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+    public bool IsAssignableFrom(IType other, ICodeModelExecutionContext context)
         => (ReflectedType is Type type && other.ReflectedType is Type otherType
             && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
 
-    public IExpression Evaluate(IProgramModelExecutionContext context) => Lookup.AsStatement();
-    public object? EvaluatePlain(IProgramModelExecutionContext context) => Lookup.AsStatement();
+    public IExpression Evaluate(ICodeModelExecutionContext context) => Lookup.AsStatement();
+    public object? EvaluatePlain(ICodeModelExecutionContext context) => Lookup.AsStatement();
     public IType GetGenericType(int index) => Lookup.GetGenericType(index);
     public IdentifierExpression ToIdentifierExpression() => new(Lookup.TypeName);
     public string GetMostSpecificType() => Lookup.GetMostSpecificType();

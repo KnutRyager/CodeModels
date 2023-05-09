@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Reflection.Metadata;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -10,7 +10,7 @@ namespace CodeModels.Models;
 public record LocalFunctionExpression(LocalFunctionStatement Function)
     : StatementExpression(Function)
 {
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var name = Identifier().ToString();
         context.DefineVariable(name);
@@ -21,7 +21,7 @@ public record LocalFunctionExpression(LocalFunctionStatement Function)
     public override IdentifierExpression Identifier()
         => new(Function.Identifier, Get_Type());
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         if (Function.Parameters.Properties.Count > 0)
         {

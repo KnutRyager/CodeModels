@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -35,9 +35,9 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
 
     public ExpressionStatement AsStatement() => Expression.AsStatement();
 
-    public override void Evaluate(IProgramModelExecutionContext context) => context.SetPreviousExpression(Expression.Evaluate(context));
+    public override void Evaluate(ICodeModelExecutionContext context) => context.SetPreviousExpression(Expression.Evaluate(context));
 
-    public object? EvaluatePlain(IProgramModelExecutionContext context)
+    public object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }
@@ -49,7 +49,7 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
 
     public IdentifierExpression Identifier() => new(Get_Type().Name, Get_Type());
 
-    IExpression IExpressionOrPattern.Evaluate(IProgramModelExecutionContext context)
+    IExpression IExpressionOrPattern.Evaluate(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

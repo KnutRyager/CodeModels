@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using CodeModels.Models;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Scope;
 
-public class ProgramModelExecutionScope : IProgramModelExecutionScope
+public class CodeModelExecutionScope : ICodeModelExecutionScope
 {
     private HashSet<object> _variables = new HashSet<object>();
     private IDictionary<object, IExpression> _values = new Dictionary<object, IExpression>();
     private IExpression? _this;
     private IDictionary<string, string> _aliases;
 
-    public ProgramModelExecutionScope(IExpression? thisExpression = null, IDictionary<string, string>? aliases = null)
+    public CodeModelExecutionScope(IExpression? thisExpression = null, IDictionary<string, string>? aliases = null)
     {
         _this = thisExpression;
         _aliases = aliases ?? new Dictionary<string, string>();
@@ -20,7 +20,7 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
     public void DefineVariable(string identifier, IExpression? value = null)
     {
         identifier = Unalias(identifier);
-        if (_variables.Contains(identifier)) throw new ProgramModelExecutionException($"Already defined: {identifier}");
+        if (_variables.Contains(identifier)) throw new CodeModelExecutionException($"Already defined: {identifier}");
         _variables.Add(identifier);
         if (value is not null) SetValue(identifier, value);
     }
@@ -64,7 +64,7 @@ public class ProgramModelExecutionScope : IProgramModelExecutionScope
     public void SetThis(IExpression thisExpression) => _this = thisExpression;
 
     public bool HasThis() => _this is not null;
-    public IExpression This() => _this ?? throw new ProgramModelExecutionException($"No 'this' reference found.");
+    public IExpression This() => _this ?? throw new CodeModelExecutionException($"No 'this' reference found.");
 
     public override string ToString()
         => $"ProgramModelScope. Values: {string.Join(Environment.NewLine, _values)}, Variables: {string.Join(Environment.NewLine, _variables)}";

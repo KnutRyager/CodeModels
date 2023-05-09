@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -16,5 +16,5 @@ public record UnsafeStatement(Block Block) : AbstractStatement<UnsafeStatementSy
         yield return Block;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context) => Block.Evaluate(context);
+    public override void Evaluate(ICodeModelExecutionContext context) => Block.Evaluate(context);
 }

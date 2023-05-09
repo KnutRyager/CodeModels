@@ -1,17 +1,18 @@
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
-using FluentAssertions;
-using CodeModels.Execution;
 
-namespace CodeModels.Test.Execution;
+namespace CodeModels.Test.Execution.Scope;
 
 [Collection("Sequential")]
-public class StaticProgramModelExecutionScopeTests
+public class StaticCodeModelExecutionScopeTests
 {
     [Fact]
     public void HasIdentifier()
     {
-        var scope = new StaticExecutionScope(new ProgramModelExecutionContext(), typeof(StaticTestClass));
+        var scope = new StaticExecutionScope(new CodeModelExecutionContext(), typeof(StaticTestClass));
         scope.HasIdentifier("field").Should().Be(true);
         scope.HasIdentifier("Property").Should().Be(true);
         scope.HasIdentifier("Method").Should().Be(true);
@@ -22,7 +23,7 @@ public class StaticProgramModelExecutionScopeTests
     public void SetAndGetField()
     {
         StaticTestClass.field = default;
-        var scope = new StaticExecutionScope(new ProgramModelExecutionContext(), typeof(StaticTestClass));
+        var scope = new StaticExecutionScope(new CodeModelExecutionContext(), typeof(StaticTestClass));
         scope.SetValue("field", Literal("a"));
         scope.GetValue("field").Should().Be(Literal("a"));
         StaticTestClass.field.Should().Be("a");
@@ -31,7 +32,7 @@ public class StaticProgramModelExecutionScopeTests
     [Fact]
     public void SetAndGetProperty()
     {
-        var scope = new StaticExecutionScope(new ProgramModelExecutionContext(), typeof(StaticTestClass));
+        var scope = new StaticExecutionScope(new CodeModelExecutionContext(), typeof(StaticTestClass));
         StaticTestClass.Property.Should().Be(default);
         scope.SetValue("Property", Literal("a"));
         scope.GetValue("Property").Should().Be(Literal("a"));
@@ -41,14 +42,14 @@ public class StaticProgramModelExecutionScopeTests
     [Fact]
     public void GetMethodValue()
     {
-        var scope = new StaticExecutionScope(new ProgramModelExecutionContext(), typeof(StaticTestClass));
+        var scope = new StaticExecutionScope(new CodeModelExecutionContext(), typeof(StaticTestClass));
         scope.ExecuteMethod("Method").Should().Be(Literal("method result"));
     }
 
     [Fact]
     public void SetAndGetValueThroughMethod()
     {
-        var scope = new StaticExecutionScope(new ProgramModelExecutionContext(), typeof(StaticTestClass));
+        var scope = new StaticExecutionScope(new CodeModelExecutionContext(), typeof(StaticTestClass));
         StaticTestClass.field.Should().Be(default);
         scope.ExecuteMethodPlain("SetterMethod", "new_value").Should().Be("new_value");
         StaticTestClass.field.Should().Be("new_value");

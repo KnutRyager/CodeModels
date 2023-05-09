@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<IProgramModelExecutionScope>? Scopes = null)
+public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
     : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),
     IFieldModelExpression
 {
@@ -14,18 +15,18 @@ public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpressi
 
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public FieldModel GetField(IProgramModelExecutionContext context) => Field ?? context.ProgramContext.Get<FieldModel>(Symbol);
+    public FieldModel GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<FieldModel>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
         if (Instance is not null) yield return Instance;
     }
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         return Evaluate(context).LiteralValue();
     }
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         try
         {
@@ -40,10 +41,10 @@ public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpressi
 
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression identifier ? identifier : base.ToIdentifierExpression();
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes) => Field.Assign(value, context, scopes);
+    public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes) => Field.Assign(value, context, scopes);
     public AssignmentExpression Assign(IExpression value)
     {
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         try
         {
             context.EnterScopes(Scopes);
@@ -55,5 +56,5 @@ public record FieldModelExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpressi
         }
     }
 
-    public override object? LiteralValue() => EvaluatePlain(new ProgramModelExecutionContext());
+    public override object? LiteralValue() => EvaluatePlain(new CodeModelExecutionContext());
 }

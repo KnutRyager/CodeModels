@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -19,7 +19,7 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
         if (Else is not null) yield return Else;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         if ((bool)Condition.Evaluate(context).LiteralValue())
         {
@@ -58,7 +58,7 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
         if (Else is not null) yield return Else;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         var ifWasExecuted = false;
         foreach (var statement in IfStatements)

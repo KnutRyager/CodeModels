@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
@@ -16,7 +16,7 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Constructor.Name, Arguments.Select(x => x.Syntax()));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         if (Constructor.Body is null && Constructor.ExpressionBody is null)
         {
@@ -46,7 +46,7 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
         return instance;
     }
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
         => Evaluate(context);
 }
 
@@ -55,7 +55,7 @@ public record ConstructorInvocationFromReflection(ConstructorInfo Constructor, I
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var arguments = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
 

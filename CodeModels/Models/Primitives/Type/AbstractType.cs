@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Utils;
 using Common.DataStructures;
 using Common.Reflection;
@@ -58,8 +58,8 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     public SimpleNameSyntax NameSyntax() => IdentifierName(Name);
 
     public ArgumentSyntax ToArgument() => throw new NotImplementedException();
-    public IExpression Evaluate(IProgramModelExecutionContext context) => this;
-    public object? EvaluatePlain(IProgramModelExecutionContext context) => null;
+    public IExpression Evaluate(ICodeModelExecutionContext context) => this;
+    public object? EvaluatePlain(ICodeModelExecutionContext context) => null;
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     public ExpressionStatement AsStatement() => throw new NotImplementedException();
     ExpressionSyntax IExpression.Syntax() => Syntax();
@@ -80,9 +80,9 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     {
         throw new NotImplementedException();
     }
-    public bool Equals(IType other, IProgramModelExecutionContext context)
+    public bool Equals(IType other, ICodeModelExecutionContext context)
         => TypeName == other.TypeName; // TODO: Check assembly
-    public bool IsAssignableFrom(IType other, IProgramModelExecutionContext context)
+    public bool IsAssignableFrom(IType other, ICodeModelExecutionContext context)
         => (ReflectedType is Type type && other.ReflectedType is Type otherType
             && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
 

@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using System;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -14,5 +14,5 @@ public record EmptyStatement() : AbstractStatement<EmptyStatementSyntax>
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
-    public override void Evaluate(IProgramModelExecutionContext context)    {   }
+    public override void Evaluate(ICodeModelExecutionContext context)    {   }
 }

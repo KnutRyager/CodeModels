@@ -10,7 +10,8 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -98,12 +99,12 @@ public record Property(IType Type, string Name, IExpression Value, Modifier Modi
         if (Value is not null) yield return Value;
     }
 
-    public virtual IExpression EvaluateAccess(IProgramModelExecutionContext context, IExpression instance)
+    public virtual IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression instance)
     {
         throw new NotImplementedException();
     }
 
-    public virtual void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         throw new NotImplementedException();
     }

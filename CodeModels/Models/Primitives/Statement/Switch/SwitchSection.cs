@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -32,10 +32,10 @@ public record SwitchSection(List<ISwitchLabel> Labels, List<IStatement> Statemen
         foreach (var label in Labels) yield return label;
     }
 
-    public virtual bool IsMatch(IProgramModelExecutionContext context, IExpression condition)
+    public virtual bool IsMatch(ICodeModelExecutionContext context, IExpression condition)
         => Labels.Any(x => x.Match(context, condition));
 
-    public void Evaluate(IProgramModelExecutionContext context)
+    public void Evaluate(ICodeModelExecutionContext context)
     {
         foreach (var statement in Statements) statement.Evaluate(context);
     }

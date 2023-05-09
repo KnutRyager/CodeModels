@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using CodeModels.Execution.Context;
 using CodeModels.Models;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Execution;
+namespace CodeModels.Execution.Scope;
 
-public class ObjectModelExecutionScope : IProgramModelExecutionScope
+public class ObjectModelExecutionScope : ICodeModelExecutionScope
 {
     private object _object;
     private Type _type;
-    private IProgramModelExecutionContext _context;
+    private ICodeModelExecutionContext _context;
 
-    public ObjectModelExecutionScope(IProgramModelExecutionContext context, object @object)
+    public ObjectModelExecutionScope(ICodeModelExecutionContext context, object @object)
     {
         _context = context;
         _object = @object;
@@ -26,8 +27,8 @@ public class ObjectModelExecutionScope : IProgramModelExecutionScope
     {
         FieldInfo field => Literal(field.GetValue(_object)),
         PropertyInfo property => Literal(property.GetValue(_object)),
-        MethodInfo _ => throw new ProgramModelExecutionException($"Cannot get value of method '{identifier}'"),
-        _ => throw new ProgramModelExecutionException($"Cannot get non-found identifier '{identifier}'")
+        MethodInfo _ => throw new CodeModelExecutionException($"Cannot get value of method '{identifier}'"),
+        _ => throw new CodeModelExecutionException($"Cannot get non-found identifier '{identifier}'")
     };
 
     public IExpression GetValue(IdentifierExpression identifier) => GetValue(identifier.Name);
@@ -43,7 +44,7 @@ public class ObjectModelExecutionScope : IProgramModelExecutionScope
     public object ExecuteMethodPlain(string identifier, params object?[] parameters) => _type.GetMethod(identifier) switch
     {
         MethodInfo method => method.Invoke(_object, parameters),
-        _ => throw new ProgramModelExecutionException($"Cannot get non-found method '{identifier}'")
+        _ => throw new CodeModelExecutionException($"Cannot get non-found method '{identifier}'")
     };
 
     public void SetValue(string identifier, IExpression value)
@@ -57,9 +58,9 @@ public class ObjectModelExecutionScope : IProgramModelExecutionScope
                 property.SetValue(_object, value.EvaluatePlain(_context));
                 break;
             case MethodInfo _:
-                throw new ProgramModelExecutionException($"Cannot set value of method '{identifier}'");
+                throw new CodeModelExecutionException($"Cannot set value of method '{identifier}'");
             default:
-                throw new ProgramModelExecutionException($"Cannot set non-found identifier '{identifier}'");
+                throw new CodeModelExecutionException($"Cannot set non-found identifier '{identifier}'");
         };
     }
 

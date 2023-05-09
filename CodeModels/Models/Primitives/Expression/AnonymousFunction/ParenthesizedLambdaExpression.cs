@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Models;
 using Common.Util;
@@ -33,12 +33,12 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         return this;
     }
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         if (Type.Name is "Action")
         {
@@ -67,7 +67,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
         };
     }
 
-    private dynamic? InnerEvaluate(dynamic[] arguments, IProgramModelExecutionContext context)
+    private dynamic? InnerEvaluate(dynamic[] arguments, ICodeModelExecutionContext context)
     {
         context.EnterScope();
         for (var i = 0; i < Parameters.Properties.Count; i++)

@@ -10,7 +10,8 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
-using CodeModels.Execution;
+using CodeModels.Execution.Scope;
+using CodeModels.Execution.Context;
 
 namespace CodeModels.Models;
 
@@ -26,7 +27,7 @@ public abstract record BaseType<T>(string Name,
     where T : TypeDeclarationSyntax
 
 {
-    private ProgramModelExecutionScope? _staticScope;
+    private CodeModelExecutionScope? _staticScope;
     private List<FieldModel>? _fields;
     private List<PropertyModel>? _properties;
     private List<Method>? _methods;
@@ -122,7 +123,7 @@ public abstract record BaseType<T>(string Name,
         return member;
     }
 
-    protected void InitInstanceScope(ProgramModelExecutionScope scope)
+    protected void InitInstanceScope(CodeModelExecutionScope scope)
     {
         foreach (var field in GetFields())
         {
@@ -136,11 +137,11 @@ public abstract record BaseType<T>(string Name,
         }
     }
 
-    public ProgramModelExecutionScope GetStaticScope()
+    public CodeModelExecutionScope GetStaticScope()
     {
         if (_staticScope is null)
         {
-            _staticScope = new ProgramModelExecutionScope(aliases: GetAliases());
+            _staticScope = new CodeModelExecutionScope(aliases: GetAliases());
             foreach (var field in GetFields())
             {
                 if (field.IsStatic)
@@ -315,6 +316,6 @@ public abstract record BaseType<T>(string Name,
 
     BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
 
-    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context)
+    public IList<ICodeModelExecutionScope> GetScopes(ICodeModelExecutionContext context)
         => new[] { GetStaticScope() };
 }

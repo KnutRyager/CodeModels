@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -13,5 +13,5 @@ public record BreakStatement() : AbstractStatement<BreakStatementSyntax>
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
-    public override void Evaluate(IProgramModelExecutionContext context) => throw new BreakException();
+    public override void Evaluate(ICodeModelExecutionContext context) => throw new BreakException();
 }

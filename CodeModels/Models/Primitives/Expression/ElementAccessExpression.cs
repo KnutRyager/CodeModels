@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -13,7 +14,7 @@ public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpr
     public override ElementAccessExpressionSyntax Syntax() => ElementAccessExpression(Caller.Syntax(),
         BracketedArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))));
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {
@@ -45,7 +46,7 @@ public record ImplicitElementAccessExpression(IType Type, List<IExpression> Argu
     public override ImplicitElementAccessSyntax Syntax() => ImplicitElementAccess(
         BracketedArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))));
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         var valuePlain = value.EvaluatePlain(context);
         var callerPlain = Inputs.First().EvaluatePlain(context);

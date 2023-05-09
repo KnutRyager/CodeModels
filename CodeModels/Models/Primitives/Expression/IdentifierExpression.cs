@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
@@ -22,9 +23,9 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
         yield return Type;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => context.GetValue(this);
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => context.GetValue(this);
 
-    public ICodeModel? Lookup(IProgramModelExecutionContext context)
+    public ICodeModel? Lookup(ICodeModelExecutionContext context)
     {
         if (Model is not null) return Model;
         if (Symbol is not null)
@@ -39,7 +40,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
         return context.TryGetValueOrMember(this);
     }
 
-    private IMember? ResolveSymbol(IProgramModelExecutionContext context)
+    private IMember? ResolveSymbol(ICodeModelExecutionContext context)
     {
         if (Symbol is not null && SymbolUtils.IsNewDefined(Symbol))
         {
@@ -48,7 +49,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
         return null;
     }
 
-    public override object? EvaluatePlain(IProgramModelExecutionContext context) => Evaluate(context).EvaluatePlain(context);
+    public override object? EvaluatePlain(ICodeModelExecutionContext context) => Evaluate(context).EvaluatePlain(context);
     public override IdentifierExpression ToIdentifierExpression() => this;
 
     public System.Type? GetReflectedType() => Type?.GetReflectedType() ?? (Symbol is ITypeSymbol typeSymbol ? SemanticReflection.GetType(typeSymbol) : null);
@@ -57,7 +58,7 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
 
     public override string ToString() => $"IdentifierExpression(Name: {Name}, Type: {Type}, Symbol: {Symbol})";
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {

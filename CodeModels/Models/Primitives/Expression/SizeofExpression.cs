@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection.Emit;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -19,7 +19,7 @@ public record SizeOfExpression(IType Type) : Expression<SizeOfExpressionSyntax>(
     }
 
     // https://stackoverflow.com/questions/8173239/c-getting-size-of-a-value-type-variable-at-runtime
-    public override IExpression Evaluate(IProgramModelExecutionContext context) => Type.GetReflectedType() is Type type ? CodeModelFactory.Literal(GetTypeSize(type)) : throw new NotImplementedException();
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Type.GetReflectedType() is Type type ? CodeModelFactory.Literal(GetTypeSize(type)) : throw new NotImplementedException();
 
     static ConcurrentDictionary<Type, int> _cache = new();
 

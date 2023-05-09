@@ -1,5 +1,6 @@
 using System.Linq;
 using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
@@ -47,7 +48,7 @@ public class ClassPropertyTests
         var getter = property.GetGetter()!;
         var setter = property.GetSetter()!;
 
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         setter.Invoke(instance, new[] { Literal(6) }).Evaluate(context);
         getter.Invoke(instance).Eval().Should().Be(6);
     }
@@ -65,7 +66,7 @@ public class ClassPropertyTests
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.Should().NotBeNull();
         var fieldModel = backingField.AccessValue(instance) as FieldModelExpression;
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         var fieldAccess = backingField.Access(instance);
         fieldAccess.EvaluatePlain(context).Should().Be(null);
         fieldAccess.Assign(Literal(5)).Evaluate(context);
@@ -87,7 +88,7 @@ public class ClassPropertyTests
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.Should().NotBeNull();
         var fieldModel = backingField.AccessValue(instance) as FieldModelExpression;
-        var context = new ProgramModelExecutionContext();
+        var context = new CodeModelExecutionContext();
         var fieldAccess = backingField.Access(instance);
         fieldAccess.EvaluatePlain(context).Should().Be(null);
         fieldAccess.Assign(Literal(5)).Evaluate(context);

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using Common.Util;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -22,7 +22,7 @@ public record SwitchStatement(IExpression Expression, List<SwitchSection> Sectio
         foreach (var section in Sections) yield return section;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         context.EnterScope();
         var condition = Expression.Evaluate(context);

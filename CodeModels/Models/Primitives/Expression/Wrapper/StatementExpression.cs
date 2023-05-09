@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -20,8 +20,8 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     public IEnumerable<ICodeModel> Children() => Statement.Children();
     public string Code() => Statement.Code();
     public ISet<IType> Dependencies(ISet<IType>? set = null) => Statement.Dependencies(set);
-    public virtual IExpression Evaluate(IProgramModelExecutionContext context) => throw new NotImplementedException();
-    public virtual object? EvaluatePlain(IProgramModelExecutionContext context) => throw new NotImplementedException();
+    public virtual IExpression Evaluate(ICodeModelExecutionContext context) => throw new NotImplementedException();
+    public virtual object? EvaluatePlain(ICodeModelExecutionContext context) => throw new NotImplementedException();
     public virtual IdentifierExpression Identifier() => throw new NotImplementedException();
     public virtual IType Get_Type() => Statement.Get_Type();
     public ExpressionSyntax Syntax() => throw new NotImplementedException();

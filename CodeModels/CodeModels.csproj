@@ -26,7 +26,6 @@
 
 	<ItemGroup>
 	  <Folder Include="Models\Primitives\Interfaces\Misc\" />
-	  <Folder Include="Syntax\" />
 	</ItemGroup>
 
 </Project>

@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
@@ -12,6 +12,6 @@ public record PropertyFromField(FieldInfo Field)
 {
     public PropertyFromField(IFieldSymbol symbol) : this(SemanticReflection.GetField(symbol)) { }
 
-    public override IExpression EvaluateAccess(IProgramModelExecutionContext context, IExpression instance)
+    public override IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression instance)
         => new LiteralExpression(Field.GetValue(instance.EvaluatePlain(context)));
 }

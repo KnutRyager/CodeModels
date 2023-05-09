@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
@@ -23,7 +24,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
         yield return Expression;
     }
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var expression = Expression.Evaluate(context);
         var instance = expression as InstantiatedObject;
@@ -114,7 +115,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
 
     public override string ToString() => $"(Expression: {Expression}, Name: {Name}, Type: {Type})";
 
-    public void Assign(IExpression value, IProgramModelExecutionContext context, IList<IProgramModelExecutionScope> scopes)
+    public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         if (scopes.Count is 0) scopes = GetScopes(context);
         try
@@ -128,7 +129,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
         }
     }
 
-    public IList<IProgramModelExecutionScope> GetScopes(IProgramModelExecutionContext context)
+    public IList<ICodeModelExecutionScope> GetScopes(ICodeModelExecutionContext context)
     {
         var expression = Expression.Evaluate(context);
         if (expression is IScopeHolder scopeHolder) return scopeHolder.GetScopes(context);

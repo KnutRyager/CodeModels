@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -38,12 +38,12 @@ public record PatternExpression(IPattern Pattern, IExpression Rhs, IType Type)
         throw new System.NotImplementedException();
     }
 
-    public IExpression Evaluate(IProgramModelExecutionContext context)
+    public IExpression Evaluate(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }
 
-    public object? EvaluatePlain(IProgramModelExecutionContext context)
+    public object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         throw new System.NotImplementedException();
     }

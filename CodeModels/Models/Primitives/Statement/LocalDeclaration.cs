@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
@@ -16,7 +16,7 @@ public record LocalDeclarationStatement(VariableDeclaration Declaration, Modifie
         yield return Declaration;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context)
+    public override void Evaluate(ICodeModelExecutionContext context)
     {
         Declaration.Evaluate(context);
     }
@@ -31,5 +31,5 @@ public record LocalDeclarationStatements(VariableDeclarations Declarations, Modi
         yield return Declarations;
     }
 
-    public override void Evaluate(IProgramModelExecutionContext context) => Declarations.Evaluate(context);
+    public override void Evaluate(ICodeModelExecutionContext context) => Declarations.Evaluate(context);
 }

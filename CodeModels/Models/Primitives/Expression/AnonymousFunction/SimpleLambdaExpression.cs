@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.Execution;
+using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -30,13 +31,13 @@ public record SimpleLambdaExpression(Modifier Modifier,
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());
 
-    public override IExpression Evaluate(IProgramModelExecutionContext context)
+    public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         return this;
     }
 
     // https://learn.microsoft.com/en-us/dotnet/api/system.reflection.emit.dynamicmethod?view=net-7.0
-    public override object? EvaluatePlain(IProgramModelExecutionContext context)
+    public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
         if (Type.Name is "Action")
         {
@@ -49,7 +50,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
         return expression.Compile();
     }
 
-    private dynamic? InnerEvaluate(dynamic argument, IProgramModelExecutionContext context, IProgramModelExecutionScope scope)
+    private dynamic? InnerEvaluate(dynamic argument, ICodeModelExecutionContext context, ICodeModelExecutionScope scope)
     {
         context.EnterScope(scope);
         context.EnterScope();
