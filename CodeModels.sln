@@ -3,15 +3,15 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestRoslynSourceGenerator", "TestRoslynSourceGenerator\TestRoslynSourceGenerator.csproj", "{FE0ABDC3-9E49-46D0-B87C-50860E839026}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SourceGenerator", "SourceGenerator\SourceGenerator.csproj", "{FE0ABDC3-9E49-46D0-B87C-50860E839026}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generator", "Generator\Generator.csproj", "{1EBA96BB-07BC-43A9-BBB3-E0924E63F2DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeModels", "CodeModels\CodeModels.csproj", "{1EBA96BB-07BC-43A9-BBB3-E0924E63F2DF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryA", "LibraryA\LibraryA.csproj", "{72833083-2430-4525-91CE-24CD59C9F2B0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LibraryB", "LibraryB\LibraryB.csproj", "{97119967-367E-43AF-AE3A-F0A46D7A3235}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Generator.Test", "Generator.Test\Generator.Test.csproj", "{6781BABF-EB6F-4E12-9136-09A989FDADFD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CodeModels.Test", "CodeModels.Test\CodeModels.Test.csproj", "{6781BABF-EB6F-4E12-9136-09A989FDADFD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Common", "Common\Common.csproj", "{5DDC512C-735B-46EE-B664-D4F8098EAFA0}"
 EndProject

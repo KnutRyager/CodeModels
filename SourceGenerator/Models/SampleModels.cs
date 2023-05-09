@@ -1,7 +1,7 @@
 ﻿#nullable disable
 using Models;
 
-namespace TestRoslynSourceGenerator.Models
+namespace CodeModels.Models
 {
     [Model]
     public class Person

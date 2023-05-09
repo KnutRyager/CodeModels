@@ -24,7 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Generator\Generator.csproj" />
+    <ProjectReference Include="..\CodeModels\CodeModels.csproj" />
   </ItemGroup>
 
 </Project>
