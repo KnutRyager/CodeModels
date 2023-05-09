@@ -89,7 +89,7 @@ public static class AbstractCodeModelParsing
     public static AbstractProperty AbstractProperty(TypeSyntax type, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, TypeSyntax? interfaceType = null)
         => new(Type(type), name, Expression(expression, Type(type)), modifier, interfaceType: Type(interfaceType));
     public static AbstractProperty AbstractProperty(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
-        => new(new TypeFromSymbol(typeSymbol), name, value is null ? null : new LiteralExpression(value), modifier, interfaceType: interfaceType);
+        => new(new TypeFromSymbol(typeSymbol), name, value is null ? null : CodeModelFactory.Literal(value), modifier, interfaceType: interfaceType);
 
 
     //public static NamedValueCollection ParseNamedValues(IType Type, IEnumerable<ExpressionSyntax> syntax, bool nameByIndex = false, SemanticModel? model = null)

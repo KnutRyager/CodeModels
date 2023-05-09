@@ -1,4 +1,5 @@
 using System.Linq;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Parsing;
 using FluentAssertions;
@@ -18,8 +19,8 @@ public enum MyEnum {
 }");
 
     [Fact] public void BaseTypeString() => new ExpressionCollection("Abc,Def,Ghi").BaseTypeSyntax().CodeEqual("string");
-    [Fact] public void BaseTypeInt() => new ExpressionCollection(new IExpression[] { new LiteralExpression(1), new LiteralExpression(2) }).BaseTypeSyntax().CodeEqual("int");
-    [Fact] public void BaseTypeObject() => new ExpressionCollection(new IExpression[] { new LiteralExpression("a"), new LiteralExpression(2) }).BaseTypeSyntax().CodeEqual("object");
+    [Fact] public void BaseTypeInt() => new ExpressionCollection(new IExpression[] { CodeModelFactory.Literal(1), CodeModelFactory.Literal(2) }).BaseTypeSyntax().CodeEqual("int");
+    [Fact] public void BaseTypeObject() => new ExpressionCollection(new IExpression[] { CodeModelFactory.Literal("a"), CodeModelFactory.Literal(2) }).BaseTypeSyntax().CodeEqual("object");
 
     [Fact]
     public void GenerateArrayInitialization() => new ExpressionCollection("Abc,Def,Ghi").ToArrayInitialization().CodeEqual(@"new string[]{""Abc"",""Def"",""Ghi""}");
@@ -28,12 +29,12 @@ public enum MyEnum {
     public void GenerateListInitialization() => new ExpressionCollection("Abc,Def,Ghi").ToListInitialization().CodeEqual(@"new List<string>{""Abc"",""Def"",""Ghi""}");
 
     [Fact]
-    public void GenerateKeyValueInitialization() => new ExpressionsMap(new LiteralExpression(1), "Abc,Def,Ghi").ToKeyValueInitialization().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
+    public void GenerateKeyValueInitialization() => new ExpressionsMap(CodeModelFactory.Literal(1), "Abc,Def,Ghi").ToKeyValueInitialization().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
 
     [Fact]
     public void GenerateDictionaryInitialization() => new ExpressionMap(new ExpressionsMap[]{
-        new (new LiteralExpression(1), "Abc,Def,Ghi"),
-        new (new LiteralExpression(2), "Jkl,Mno,Pqr")})
+        new (CodeModelFactory.Literal(1), "Abc,Def,Ghi"),
+        new (CodeModelFactory.Literal(2), "Jkl,Mno,Pqr")})
         .ToDictionary().CodeEqual(@"new Dictionary<int, string[]>(){ 
     {1, new string[]{""Abc"",""Def"",""Ghi""} },
     {2, new string[]{""Jkl"",""Mno"",""Pqr""} }

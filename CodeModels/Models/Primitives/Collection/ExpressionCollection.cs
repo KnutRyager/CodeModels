@@ -9,6 +9,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Factory;
 
 namespace CodeModels.Models;
 
@@ -17,8 +18,8 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
     IExpressionCollection
 {
     public ExpressionCollection(IEnumerable<IExpression>? values = null, IType? specifiedType = null) : this(List(values), specifiedType) { }
-    public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(x => new LiteralExpression(x))) { }
-    public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => new LiteralExpression(x.Identifier.ToString()))) { }
+    public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(CodeModelFactory.Literal)) { }
+    public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => CodeModelFactory.Literal(x.Identifier.ToString()))) { }
 
     public EnumDeclarationSyntax ToEnum(string name, bool isFlags = false, bool hasNoneValue = false) => EnumDeclaration(
             attributeLists: default,

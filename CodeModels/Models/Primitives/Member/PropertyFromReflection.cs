@@ -1,8 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;
 using Common.Extensions;
@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis;
 namespace CodeModels.Models;
 
 public record PropertyFromReflection(PropertyInfo Property)
-    : AbstractProperty(new TypeFromReflection(Property.PropertyType), Property.Name, ReflectionUtil.IsStatic(Property) ? new LiteralExpression(Property.GetValue(null)) : null,
+    : AbstractProperty(new TypeFromReflection(Property.PropertyType), Property.Name, ReflectionUtil.IsStatic(Property) ? CodeModelFactory.Literal(Property.GetValue(null)) : null,
         (!Property.CanWrite ? Modifier.Readonly : Modifier.None).SetFlags(Modifier.Public | Modifier.Property))
 {
     public PropertyFromReflection(IPropertySymbol symbol) : this(SemanticReflection.GetProperty(symbol)) { }

@@ -57,7 +57,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
         context.EnterScope(scope);
         context.EnterScope();
         context.DefineVariable(Parameter.Name);
-        context.SetValue(Parameter.Name, new LiteralExpression(argument));
+        context.SetValue(Parameter.Name, CodeModelFactory.Literal(argument));
         if (ExpressionBody is not null)
         {
             var result = ExpressionBody.EvaluatePlain(context);

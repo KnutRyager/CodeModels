@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Util;
@@ -76,7 +77,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
             var parameter = Parameters.Properties[i];
             var argument = arguments[i];
             context.DefineVariable(parameter.Name);
-            context.SetValue(parameter.Name, new LiteralExpression(argument));
+            context.SetValue(parameter.Name, CodeModelFactory.Literal(argument));
         }
         if (ExpressionBody is not null)
         {

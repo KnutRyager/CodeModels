@@ -83,7 +83,7 @@ public static class CodeModelFactory
 
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
-    public static IExpression Literal(object? value) => value is InstantiatedObject o ? o : value is LiteralExpression l ? l : new LiteralExpression(value);
+    public static IExpression Literal(object? value) => value is InstantiatedObject o ? o : value is LiteralExpression l ? l : value is null ? NullValue : new LiteralExpression(value);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,

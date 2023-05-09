@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Reflection;
 using Common.Util;
@@ -25,7 +26,7 @@ public record AwaitExpression(IExpression Expression) : Expression<AwaitExpressi
         {
             if (task.GetType().IsGenericType)
             {
-                return new LiteralExpression(ReflectionUtil.ConvertTaskResult(value.LiteralValue() as Task));
+                return CodeModelFactory.Literal(ReflectionUtil.ConvertTaskResult(value.LiteralValue() as Task));
             }
             task.WaitAndUnwrapException();
         }

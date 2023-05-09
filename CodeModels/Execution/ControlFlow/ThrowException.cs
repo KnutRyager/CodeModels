@@ -1,4 +1,5 @@
 ﻿using System;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 
@@ -15,6 +16,6 @@ public class ThrowException : ControlFlowException
 
     public ThrowException(Exception exception) : base(exception)
     {
-        Expression = new LiteralExpression(exception);
+        Expression = CodeModelFactory.Literal(exception);
     }
 }

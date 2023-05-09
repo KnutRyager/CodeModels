@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
@@ -36,7 +37,7 @@ public class CodeModelExecutionContext : ICodeModelExecutionContext
     public void ConsoleWrite(string s)
     {
         Console.Write(s);
-        SetPreviousExpression(new LiteralExpression(s));
+        SetPreviousExpression(CodeModelFactory.Literal(s));
     }
 
     public void ConsoleWriteLine(string s) => ConsoleWrite($"{s}\r\n");

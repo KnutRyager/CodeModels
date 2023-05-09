@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -16,5 +17,5 @@ public record TypeOfExpression(IType Type) : Expression<TypeOfExpressionSyntax>(
         yield return Type;
     }
 
-    public override IExpression Evaluate(ICodeModelExecutionContext context) => Type.GetReflectedType() is Type type ? new LiteralExpression(type) : throw new NotImplementedException();
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Type.GetReflectedType() is Type type ? CodeModelFactory.Literal(type) : throw new NotImplementedException();
 }
