@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 

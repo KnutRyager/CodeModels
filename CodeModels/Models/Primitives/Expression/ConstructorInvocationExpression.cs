@@ -6,7 +6,7 @@ using System.Reflection;
 using CodeModels.Models.Execution.ControlFlow;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 

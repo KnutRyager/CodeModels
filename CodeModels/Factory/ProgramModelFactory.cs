@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using CodeModels.Models;
 using CodeModels.Models.ProgramModels;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Factory;
 
 public static class ProgramModelFactory
 {
@@ -11,5 +12,5 @@ public static class ProgramModelFactory
         IEnumerable<InstanceClass>? Singletons = null)
         => new(List(Models), List(Singletons));
 
-    public static IType Type(ModelModel Model) => CodeModelFactory.QuickType(Model.Name);
+    public static IType Type(ModelModel Model) => QuickType(Model.Name);
 }

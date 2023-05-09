@@ -1,5 +1,5 @@
 using System.Linq;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using Xunit;
 using TestCommon;
 

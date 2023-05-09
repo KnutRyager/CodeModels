@@ -1,7 +1,8 @@
 using System.Linq;
+using CodeModels.Factory;
 using FluentAssertions;
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models.Execution.Class.Test;
 

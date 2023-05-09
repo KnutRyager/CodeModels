@@ -5,7 +5,7 @@ using CodeModels.Models;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Generation;
 

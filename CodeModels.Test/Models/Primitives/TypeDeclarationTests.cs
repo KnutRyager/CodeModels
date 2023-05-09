@@ -1,7 +1,7 @@
 using FluentAssertions;
 using TestCommon;
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models.Primitives.Test;
 

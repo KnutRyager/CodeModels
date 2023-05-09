@@ -4,8 +4,9 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
+using CodeModels.Factory;
 
 namespace CodeModels.Models;
 

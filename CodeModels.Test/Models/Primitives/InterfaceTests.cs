@@ -1,6 +1,7 @@
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using Xunit;
 using TestCommon;
+using CodeModels.Factory;
 
 namespace CodeModels.Models.Primitives.Test;
 using static CodeModelFactory;

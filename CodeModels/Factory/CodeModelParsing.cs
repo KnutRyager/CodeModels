@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CodeModels.Extensions;
-using CodeModels.Models.ProgramModels;
+using CodeModels.Models;
+using CodeModels.Models.Execution;
 using CodeModels.Parsing;
 using CodeModels.Reflection;
 using Common.Extensions;
@@ -13,11 +14,10 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
-using Models;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Factory;
 
 public static class CodeModelParsing
 {
@@ -85,7 +85,7 @@ public static class CodeModelParsing
         _ => throw new NotImplementedException($"TypeSyntax {syntax} not implemented.")
     };
 
-    public static IType Parse(ArrayTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => QuickType.ArrayType(ParseType(syntax.ElementType, model: model));
+    public static IType Parse(ArrayTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => Models.QuickType.ArrayType(ParseType(syntax.ElementType, model: model));
     public static IType Parse(FunctionPointerTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
     public static IExpression Parse(NameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
@@ -259,7 +259,7 @@ public static class CodeModelParsing
     };
 
     public static BinaryExpression Parse(WithExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.With, Parse(syntax.Initializer, type ?? TypeShorthands.NullType, model));
+        => BinaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.With, Parse(syntax.Initializer, type ?? TypeShorthands.NullType, model));
     public static TypeOfExpression Parse(TypeOfExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
         => new(type ?? ParseType(syntax.Type, model: model));
     public static PropertyCollection Parse(TupleExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => ParsePropertyCollection(syntax.Arguments, nameByIndex: true, model: model);
@@ -273,12 +273,12 @@ public static class CodeModelParsing
         => new(type ?? ParseType(syntax.Type, model: model));
 
     public static UnaryExpression Parse(RefValueExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Ref);
+        => UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Ref);
 
     public static UnaryExpression Parse(RefTypeExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
     public static IExpression Parse(RefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Ref);
+        => UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Ref);
 
     public static IExpression Parse(RangeExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();    // TODO
 
@@ -286,28 +286,28 @@ public static class CodeModelParsing
 
     public static UnaryExpression Parse(PrefixUnaryExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.UnaryPlusExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAdd),
-        SyntaxKind.UnaryMinusExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtract),
-        SyntaxKind.BitwiseNotExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Complement),
-        SyntaxKind.LogicalNotExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Not),
-        SyntaxKind.PreIncrementExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAddBefore),
-        SyntaxKind.PreDecrementExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtractBefore),
-        SyntaxKind.AddressOfExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.AddressOf),
-        SyntaxKind.PointerIndirectionExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.PointerIndirection),
-        SyntaxKind.IndexExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Index),
+        SyntaxKind.UnaryPlusExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAdd),
+        SyntaxKind.UnaryMinusExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtract),
+        SyntaxKind.BitwiseNotExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Complement),
+        SyntaxKind.LogicalNotExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Not),
+        SyntaxKind.PreIncrementExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAddBefore),
+        SyntaxKind.PreDecrementExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtractBefore),
+        SyntaxKind.AddressOfExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.AddressOf),
+        SyntaxKind.PointerIndirectionExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.PointerIndirection),
+        SyntaxKind.IndexExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.Index),
         _ => throw new NotImplementedException()
     };
 
     public static UnaryExpression Parse(PostfixUnaryExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.PostIncrementExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAddAfter),
-        SyntaxKind.PostDecrementExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtractAfter),
-        SyntaxKind.SuppressNullableWarningExpression => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.SuppressNullableWarning),
+        SyntaxKind.PostIncrementExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnaryAddAfter),
+        SyntaxKind.PostDecrementExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.UnarySubtractAfter),
+        SyntaxKind.SuppressNullableWarningExpression => UnaryExpression(ParseExpression(syntax.Operand, model: model), OperationType.SuppressNullableWarning),
         _ => throw new NotImplementedException()
     };
 
     public static UnaryExpression Parse(ParenthesizedExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Parenthesis);
+        => UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Parenthesis);
     public static IExpression Parse(OmittedArraySizeExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
     public static IExpression Parse(MemberBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
@@ -358,7 +358,7 @@ public static class CodeModelParsing
         => throw new NotImplementedException();    // TODO
 
     public static PatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.PatternExpression(Parse(syntax.Pattern, model), ParseExpression(syntax.Expression, model: model));
+        => PatternExpression(Parse(syntax.Pattern, model), ParseExpression(syntax.Expression, model: model));
 
     public static IPattern Parse(PatternSyntax syntax, SemanticModel? model = null) => syntax switch
     {
@@ -443,7 +443,7 @@ public static class CodeModelParsing
             var arguments = syntax.ArgumentList.Arguments.Select(x => model.GetSymbolInfo(x)).ToArray();
             var argaumentTypes = syntax.ArgumentList.Arguments.Select(x => model.GetTypeInfo(x)).ToArray();
             //methodSymbol = (symbol.CandidateSymbols).FirstOrDefault(x => (x as IParameterSymbol).Parameters) as IMethodSymbol;
-            methodSymbol = (symbol.CandidateSymbols).FirstOrDefault() as IMethodSymbol;
+            methodSymbol = symbol.CandidateSymbols.FirstOrDefault() as IMethodSymbol;
         }
         if (methodSymbol is null)
         {
@@ -519,44 +519,44 @@ public static class CodeModelParsing
         => AnyArgExpression(List(ParseExpression(syntax.Expression, model: model)).Concat(Parse(syntax.ArgumentList).Select(x => x.Value)).ToList(), OperationType.Bracket);
 
     public static UnaryExpression Parse(DefaultExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.UnaryExpression(Parse(syntax.Type, model: model), OperationType.Default);
+        => UnaryExpression(Parse(syntax.Type, model: model), OperationType.Default);
 
     public static IExpression Parse(DeclarationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
     public static TernaryExpression Parse(ConditionalExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.TernaryExpression(ParseExpression(syntax.Condition, model: model), ParseExpression(syntax.WhenTrue, model: model), ParseExpression(syntax.WhenFalse, model: model));
+        => TernaryExpression(ParseExpression(syntax.Condition, model: model), ParseExpression(syntax.WhenTrue, model: model), ParseExpression(syntax.WhenFalse, model: model));
 
     public static BinaryExpression Parse(ConditionalAccessExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.ConditionalAccess, ParseExpression(syntax.WhenNotNull, model: model));
+        => BinaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.ConditionalAccess, ParseExpression(syntax.WhenNotNull, model: model));
 
     public static IExpression Parse(CheckedExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
     public static UnaryExpression Parse(CastExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => CodeModelFactory.UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Cast);
+        => UnaryExpression(ParseExpression(syntax.Expression, model: model), OperationType.Cast);
 
     public static BinaryExpression Parse(BinaryExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax.Kind() switch
     {
-        SyntaxKind.AddExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Plus, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.SubtractExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Subtract, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.MultiplyExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Multiply, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.DivideExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Divide, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.ModuloExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Modulo, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.LeftShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LeftShift, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.RightShiftExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.RightShift, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.LogicalOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalOr, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.LogicalAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalAnd, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.BitwiseOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseOr, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.BitwiseAndExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseAnd, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.ExclusiveOrExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.ExclusiveOr, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.EqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Equals, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.NotEqualsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.NotEquals, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.LessThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThan, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.LessThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThanOrEqual, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.GreaterThanExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThan, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.GreaterThanOrEqualExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThanOrEqual, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.IsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Is, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.AsExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.As, ParseExpression(syntax.Right, model: model)),
-        SyntaxKind.CoalesceExpression => CodeModelFactory.BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Coalesce, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.AddExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Plus, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.SubtractExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Subtract, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.MultiplyExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Multiply, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.DivideExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Divide, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ModuloExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Modulo, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LeftShiftExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LeftShift, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.RightShiftExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.RightShift, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LogicalOrExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LogicalAndExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LogicalAnd, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.BitwiseOrExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.BitwiseAndExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.BitwiseAnd, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.ExclusiveOrExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.ExclusiveOr, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.EqualsExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Equals, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.NotEqualsExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.NotEquals, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LessThanExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThan, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.LessThanOrEqualExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.LessThanOrEqual, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.GreaterThanExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThan, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.GreaterThanOrEqualExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.GreaterThanOrEqual, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.IsExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Is, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.AsExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.As, ParseExpression(syntax.Right, model: model)),
+        SyntaxKind.CoalesceExpression => BinaryExpression(ParseExpression(syntax.Left, model: model), OperationType.Coalesce, ParseExpression(syntax.Right, model: model)),
         _ => throw new NotImplementedException()
     };
 
@@ -667,17 +667,17 @@ public static class CodeModelParsing
         string when token.Parent?.ToString().StartsWith("-") ?? false => decimal.Parse(token.Token.ValueText) switch
         {
             // CASTS ARE NEEDED
-            > long.MaxValue => (object)decimal.Parse(token.Token.ValueText),
-            > int.MaxValue => (object)long.Parse(token.Token.ValueText),
+            > long.MaxValue => decimal.Parse(token.Token.ValueText),
+            > int.MaxValue => long.Parse(token.Token.ValueText),
             _ => (object)int.Parse(token.Token.ValueText),
         },
         _ => decimal.Parse(token.Token.ValueText) switch
         {
             // CASTS ARE NEEDED
-            > ulong.MaxValue => (object)decimal.Parse(token.Token.ValueText),
-            > long.MaxValue => (object)ulong.Parse(token.Token.ValueText),
-            > uint.MaxValue => (object)long.Parse(token.Token.ValueText),
-            > int.MaxValue => (object)uint.Parse(token.Token.ValueText),
+            > ulong.MaxValue => decimal.Parse(token.Token.ValueText),
+            > long.MaxValue => ulong.Parse(token.Token.ValueText),
+            > uint.MaxValue => long.Parse(token.Token.ValueText),
+            > int.MaxValue => uint.Parse(token.Token.ValueText),
             _ => (object)int.Parse(token.Token.ValueText),
         },
     };
@@ -737,7 +737,7 @@ public static class CodeModelParsing
     public static List<Property> Parse(IEnumerable<ArgumentSyntax> syntax, SemanticModel? model = null) => syntax.Select(x => Parse(x)).ToList();
     public static AttributeList Parse(AttributeListSyntax syntax, SemanticModel? model = null) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
     public static AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax, SemanticModel? model = null) => new(syntax.Identifier.ToString());
-    public static Attribute Parse(AttributeSyntax syntax)
+    public static Models.Attribute Parse(AttributeSyntax syntax)
         => new(syntax.Name.ToString(), new(syntax.ArgumentList is null ? new List<AttributeArgument>() : syntax.ArgumentList.Arguments.Select(Parse).ToList()));
     public static AttributeArgument Parse(AttributeArgumentSyntax syntax) => new(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
     public static ForStatement Parse(ForStatementSyntax syntax, SemanticModel? model = null)
@@ -904,13 +904,13 @@ public static class CodeModelParsing
     public static IMember Parse(PropertyDeclarationSyntax syntax, SemanticModel? model = null)
         => Register2(syntax, new PropertyModel(syntax.Name(), ParseType(syntax.Type, model: model),
              syntax.AttributeLists.Select(x => Parse(x, model)).ToList(), syntax.ExpressionBody is not null
-            ? List(Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression, model: model), modifier: ParseModifier(syntax.Modifiers)))
+            ? List(Models.Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression, model: model), modifier: ParseModifier(syntax.Modifiers)))
             : Parse(syntax.AccessorList!, model),
             ParseModifier(syntax.Modifiers), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value, model: model)), model);
     public static List<Accessor> Parse(AccessorListSyntax syntax, SemanticModel? model = null)
         => List(syntax.Accessors.Select(x => Parse(x, model)));
     public static Accessor Parse(AccessorDeclarationSyntax syntax, SemanticModel? model = null)
-        => Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body, model),
+        => Models.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body, model),
            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody?.Expression, model: model), modifier: ParseModifier(syntax.Modifiers));
     public static IMember Parse(BaseTypeDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 

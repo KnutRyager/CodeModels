@@ -1,5 +1,5 @@
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using FluentAssertions;
 
 namespace CodeModels.Models.Execution.Test;

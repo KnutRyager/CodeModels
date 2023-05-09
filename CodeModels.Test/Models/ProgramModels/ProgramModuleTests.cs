@@ -3,8 +3,8 @@ using CodeModels.Models;
 using CodeModels.Models.ProgramModels;
 using FluentAssertions;
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
-using static CodeModels.Models.ProgramModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Factory.ProgramModelFactory;
 
 namespace CodeModels.Generation.Test;
 

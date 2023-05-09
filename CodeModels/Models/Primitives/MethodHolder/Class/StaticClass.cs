@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Common.Util;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 

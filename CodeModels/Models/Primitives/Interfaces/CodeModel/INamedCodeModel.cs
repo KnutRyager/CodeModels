@@ -1,4 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
+﻿using CodeModels.Factory;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

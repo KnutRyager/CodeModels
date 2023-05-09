@@ -5,8 +5,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using CodeModels.Factory;
 
 namespace CodeModels.Models;
 

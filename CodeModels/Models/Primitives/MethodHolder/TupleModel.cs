@@ -4,7 +4,7 @@ using System.Linq;
 using CodeModels.Models.ErDiagram;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;

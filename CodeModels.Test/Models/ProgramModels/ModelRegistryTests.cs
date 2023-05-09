@@ -1,6 +1,6 @@
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
-using static CodeModels.Models.ProgramModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Factory.ProgramModelFactory;
 using CodeModels.Models.ProgramModels;
 
 namespace CodeModels.Generation.Test;

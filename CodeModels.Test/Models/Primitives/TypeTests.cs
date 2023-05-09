@@ -2,7 +2,7 @@ using Common.DataStructures;
 using FluentAssertions;
 using TestCommon;
 using Xunit;
-using static CodeModels.Models.CodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 using static TestCommon.TestUtil;
 
 namespace CodeModels.Models.Primitives.Test;

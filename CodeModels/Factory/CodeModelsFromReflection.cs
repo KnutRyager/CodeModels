@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CodeModels.Models;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.Factory;
 
 public static class CodeModelsFromReflection
 {
