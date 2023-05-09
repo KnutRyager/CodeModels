@@ -7,6 +7,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 using CodeModels.Factory;
+using CodeModels.Execution;
 
 namespace CodeModels.Models;
 

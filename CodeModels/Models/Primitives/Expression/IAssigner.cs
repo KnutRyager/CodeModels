@@ -1,4 +1,6 @@
-﻿namespace CodeModels.Models;
+﻿using CodeModels.Execution;
+
+namespace CodeModels.Models;
 
 public interface IAssigner
 {

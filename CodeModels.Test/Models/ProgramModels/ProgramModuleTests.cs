@@ -1,6 +1,6 @@
 using System.IO;
 using CodeModels.Models;
-using CodeModels.Models.ProgramModels;
+using CodeModels.ProgramModels;
 using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;

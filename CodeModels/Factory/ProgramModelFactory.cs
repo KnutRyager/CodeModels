@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Models;
-using CodeModels.Models.ProgramModels;
+using CodeModels.ProgramModels;
+using CodeModels.ProgramModels.ModelModel;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
