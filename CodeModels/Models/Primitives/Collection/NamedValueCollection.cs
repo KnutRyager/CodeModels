@@ -73,7 +73,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
 
     public bool IsStatic => false;
 
-    public IExpression Value => throw new NotImplementedException();
+    public IExpression Value => VoidValue;
 
     public AbstractProperty this[string name] => Properties.First(x => x.Name == name);
     public INamed? TryFindNamedValue(string name) => Properties.FirstOrDefault(x => x.Name == name);
