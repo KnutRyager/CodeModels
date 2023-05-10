@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Factory;
+using CodeModels.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Collection;
 
 public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollection Keys, ExpressionCollection Values, string? Name)
 {
@@ -41,7 +41,7 @@ initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.T
 
     public IType BaseKeyType() => Keys.BaseType();
     public TypeSyntax BaseKeyTypeSyntax() => BaseKeyType().Syntax();
-    public IType BaseValueType() => (_valueType ?? TypeUtil.FindCommonType(KeyVaulePairs.Select(x => x.BaseType())));
+    public IType BaseValueType() => _valueType ?? TypeUtil.FindCommonType(KeyVaulePairs.Select(x => x.BaseType()));
     public TypeSyntax BaseValueTypeSyntax() => BaseValueType().Syntax();
 
 }

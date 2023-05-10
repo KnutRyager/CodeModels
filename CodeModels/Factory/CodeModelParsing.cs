@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CodeModels.AbstractCodeModels;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Extensions;

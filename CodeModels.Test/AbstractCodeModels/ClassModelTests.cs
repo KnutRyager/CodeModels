@@ -1,8 +1,10 @@
+using CodeModels.Models;
 using TestCommon;
 using Xunit;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Models.Primitives.Test;
+namespace CodeModels.Test.AbstractCodeModels;
 
 public class ClassModelTests
 {

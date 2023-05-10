@@ -2,11 +2,12 @@
 using System.Linq;
 using Common.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 
 namespace CodeModels.Models;
 
 public record ClassFromReflection(Type ReflectedType) : TypeDeclaration<ClassDeclarationSyntax>(ReflectedType.Name,
-    new NamedValueCollection(ReflectedType),
+     NamedValues(ReflectedType),
     ReflectedType.GetMethods().Select(x => new MethodFromReflection(x)).ToList<IMethod>(),
     new Namespace(ReflectedType.Namespace),
         ReflectionUtil.IsStatic(ReflectedType) ? Modifier.Static : Modifier.None,

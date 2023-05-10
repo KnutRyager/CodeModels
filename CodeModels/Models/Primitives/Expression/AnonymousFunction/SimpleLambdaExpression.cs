@@ -19,7 +19,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
     Block? Body,
     IExpression? ExpressionBody)
     : LambdaExpression<SimpleLambdaExpressionSyntax>
-    (Modifier, IsAsync, CodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
+    (Modifier, IsAsync, AbstractCodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
 {
     public override IEnumerable<ICodeModel> Children()
     {

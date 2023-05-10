@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
-using CodeModels.Factory;
+using CodeModels.Models;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Extensions;
@@ -13,7 +13,7 @@ using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels;
 
 public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
     : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
@@ -43,7 +43,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
             explicitInterfaceSpecifier: default,
             identifier: IdentifierSyntax(),
             accessorList: AccessorListCustom(new AccessorDeclarationSyntax[] { }).
-                AddAccessors(!(modifiers.SetModifiers(Modifier)).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
+                AddAccessors(!modifiers.SetModifiers(Modifier).IsField() ? new[] {AccessorDeclarationGetCustom(attributeLists: default,
                         modifiers: default,
                         body: default,
                         expressionBody: default) } : new AccessorDeclarationSyntax[] { })
@@ -59,7 +59,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
 
     public SimpleNameSyntax NameSyntax() => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public AbstractPropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
-    public AbstractPropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(CodeModelFactory.Identifier(identifier, type, symbol));
+    public AbstractPropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(Identifier(identifier, type, symbol));
     public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax()
         : MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, instance is null ? IdentifierName(Owner!.Name) : IdentifierName(instance.Syntax().ToString()), Token(SyntaxKind.DotToken), NameSyntax());
 
@@ -103,5 +103,5 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         throw new NotImplementedException();
     }
 
-    public Property ToProperty() => CodeModelFactory.Property(Name, Type, Attributes, modifier: Modifier, value: Value);
+    public Property ToProperty() => Property(Name, Type, Attributes, modifier: Modifier, value: Value);
 }

@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Reflection;
-using CodeModels.Reflection;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;

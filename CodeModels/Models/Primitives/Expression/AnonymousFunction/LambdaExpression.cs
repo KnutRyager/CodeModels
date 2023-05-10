@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

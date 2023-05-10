@@ -1,10 +1,8 @@
 using System.IO;
-using CodeModels.Models;
 using CodeModels.ProgramModels;
 using FluentAssertions;
 using Xunit;
-using static CodeModels.Factory.CodeModelFactory;
-using static CodeModels.Factory.ProgramModelFactory;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 
 namespace CodeModels.Test.ProgramModels;
 
@@ -18,10 +16,9 @@ public class ProgramModuleTests
             null,
             ProgramLibrary.Create(new("Library1"),
             null,
-            new NamedValueCollection(new AbstractProperty[] {
-                new(type: Type(typeof(string)),
-                name: "Property1")
-            }, "ClassA")));
+            NamedValues("ClassA",
+                NamedValue<string>("Property1")
+            )));
         var folder = model.ToFolder();
         folder.Save("BasicProgramModelTest");
 

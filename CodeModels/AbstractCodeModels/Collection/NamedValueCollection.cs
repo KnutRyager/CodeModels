@@ -12,8 +12,9 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using CodeModels.Factory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Collection;
 
 public record NamedValueCollection(List<AbstractProperty> Properties, string? Name = null, IType? SpecifiedType = null)
     : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true), Name: Name),
@@ -85,7 +86,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
 
     public override IExpression Evaluate(ICodeModelExecutionContext context) => Literal(ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray());
 
-    public IType BaseType() => CodeModelFactory.QuickType(Name);
+    public IType BaseType() => QuickType(Name);
 
     public List<IType> ConvertToList()
     => AsList().Select(x => x.ToType()).ToList();
@@ -127,7 +128,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
 
     public ClassDeclaration ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToProperty()));
 
-    public Property ToProperty() => CodeModelFactory.Property(Name, Value);
+    public Property ToProperty() => Property(Name, Value);
 
     public static implicit operator NamedValueCollection(AbstractProperty property) => new(property);
 }

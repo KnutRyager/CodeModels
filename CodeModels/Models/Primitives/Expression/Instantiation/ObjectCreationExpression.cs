@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;

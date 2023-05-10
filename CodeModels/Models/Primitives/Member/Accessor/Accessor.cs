@@ -63,26 +63,26 @@ public record Accessor(AccessorType Type,
     private Method GetGetMethod(string name) => this switch
     {
         _ when Body is Block block => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       CodeModelFactory.NamedValues(),
+                       AbstractCodeModelFactory.NamedValues(),
                        CodeModelFactory.Type(typeof(void)), block),
         _ when ExpressionBody is IExpression expression => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       CodeModelFactory.NamedValues(),
+                       AbstractCodeModelFactory.NamedValues(),
                        CodeModelFactory.Type(typeof(void)), expression),
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name), 
-            CodeModelFactory.NamedValues(),
+            AbstractCodeModelFactory.NamedValues(),
             CodeModelFactory.Type(typeof(void)), CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)))
     };
 
     private Method GetSetMethod(string name) => this switch
     {
         _ when Body is Block block => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       CodeModelFactory.NamedValues("value"),
+                       AbstractCodeModelFactory.NamedValues("value"),
                        CodeModelFactory.Type(typeof(void)), block),
         _ when ExpressionBody is IExpression expression => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       CodeModelFactory.NamedValues("value"),
+                       AbstractCodeModelFactory.NamedValues("value"),
                        CodeModelFactory.Type(typeof(void)), expression),
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-            CodeModelFactory.NamedValues(CodeModelFactory.NamedValue("value")),
+            AbstractCodeModelFactory.NamedValues(AbstractCodeModelFactory.NamedValue("value")),
             CodeModelFactory.Type(typeof(void)), CodeModelFactory.Assignment(
                 CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)),
                 CodeModelFactory.ExpressionFromQualifiedName("value")))

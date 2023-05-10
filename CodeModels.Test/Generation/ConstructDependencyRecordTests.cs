@@ -1,5 +1,5 @@
 using Xunit;
-using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 
 namespace CodeModels.Generation.Test;
 

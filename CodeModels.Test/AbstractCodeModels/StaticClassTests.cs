@@ -1,14 +1,18 @@
 using System.Linq;
-using static CodeModels.Factory.CodeModelFactory;
-using Xunit;
+using CodeModels.AbstractCodeModels;
+using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Models;
 using TestCommon;
+using Xunit;
+using static CodeModels.Factory.AbstractCodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Models.Primitives.Test;
+namespace CodeModels.Test.AbstractCodeModels;
 
 public class StaticClassTests
 {
     [Fact]
-    public void GenerateStaticClass() => StaticClass("ClassA",  NamedValues(new AbstractProperty[] {
+    public void GenerateStaticClass() => StaticClass("ClassA", NamedValues(new AbstractProperty[] {
             NamedValue(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             NamedValue(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             NamedValue(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
@@ -30,7 +34,7 @@ public static partial class ClassA {
 }");
 
     [Fact]
-    public void StaticMethodsFromReflection() => new StaticClass("Math",
+    public void StaticMethodsFromReflection() => StaticClass("Math",
         properties: new NamedValueCollection(typeof(System.Math).GetFields().Select(x => new PropertyFromField(x))),
         methods: typeof(System.Math).GetMethods().Where(x => x.Name.StartsWith("B")).Select(x => new MethodFromReflection(x))).ToClass().CodeEqual(@"
 public static class Math {

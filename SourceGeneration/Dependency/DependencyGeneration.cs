@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Extensions;
 using CodeModels.Models;
 using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Generation;
@@ -20,7 +22,7 @@ public static class DependencyGeneration
         var dependenciesWithFullPaths = dependencies.Select(x => (Class: x.Key, Properties: x.Value.Select(x => (x.Member, Dependencies: x.Dependencies.SelectMany(y => y.Transform(z => z.Name)
             .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())))).ToList();
 
-        var staticClass = new StaticClass("ModelDependencies", @namespace: Namespace("Dependencies"));
+        var staticClass = StaticClass("ModelDependencies", @namespace: Namespace("Dependencies"));
         var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionMap(x.Properties.Select(
             y => new ExpressionsMap(Literal(y.Member.Name),
             Literals(y.Dependencies), valueType: Type("string", isMulti: true), multiValues: true)), x.Class.Name));

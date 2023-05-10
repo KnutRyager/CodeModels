@@ -6,6 +6,7 @@ using CodeModels.Models;
 using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 
 namespace CodeModels.Test.Execution.Class;
 

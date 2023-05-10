@@ -1,7 +1,7 @@
-using System.Linq;
-using static CodeModels.Factory.CodeModelFactory;
-using Xunit;
 using TestCommon;
+using Xunit;
+using static CodeModels.Factory.AbstractCodeModelFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models.Primitives.Test;
 

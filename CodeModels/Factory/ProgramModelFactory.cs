@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
 using CodeModels.ProgramModels;
 using CodeModels.ProgramModels.ModelModel;

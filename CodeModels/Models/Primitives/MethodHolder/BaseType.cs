@@ -194,7 +194,7 @@ public abstract record BaseType<T>(string Name,
     public List<IMember> AllMembers() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).Concat<IMember>(Methods()).ToList();
     public List<IMember> GetReadonlyMembers() => Members.Where(x => x.Modifier.IsWritable()).ToList();
     public SyntaxList<MemberDeclarationSyntax> MethodsSyntax() => SyntaxFactory.List<MemberDeclarationSyntax>(Methods().Select(x => x.ToMethodSyntax(MemberModifier)));
-    public List<Constructor> GetConstructors() => _constructors is { Count: > 0 } ? _constructors : new List<Constructor>() { CodeModelFactory.ConstructorFull(this, CodeModelFactory.NamedValues(), CodeModelFactory.Block()) };
+    public List<Constructor> GetConstructors() => _constructors is { Count: > 0 } ? _constructors : new List<Constructor>() { CodeModelFactory.ConstructorFull(this, AbstractCodeModelFactory.NamedValues(), CodeModelFactory.Block()) };
     public List<Field> GetFields() => _fields ??= new List<Field>();
     public List<Property> GetProperties() => _properties ??= new List<Property>();
     public List<IFieldOrProperty> GetPropertiesAndFields() => GetFields().Concat<IFieldOrProperty>(GetProperties()).ToList();

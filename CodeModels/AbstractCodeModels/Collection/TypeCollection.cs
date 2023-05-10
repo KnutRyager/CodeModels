@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Factory;
+using CodeModels.Models;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Collection;
 
 public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyntax>,
     ITypeCollection

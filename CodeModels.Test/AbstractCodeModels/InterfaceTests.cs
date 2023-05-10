@@ -1,14 +1,16 @@
-using static CodeModels.Factory.CodeModelFactory;
-using Xunit;
-using TestCommon;
+using CodeModels.AbstractCodeModels;
 using CodeModels.Factory;
+using CodeModels.Models;
+using TestCommon;
+using Xunit;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 
-namespace CodeModels.Models.Primitives.Test;
+namespace CodeModels.Test.AbstractCodeModels;
 using static CodeModelFactory;
 public class InterfaceTests
 {
     [Fact]
-    public void GenerateInterface() => new InterfaceModel("InterfaceA", new NamedValueCollection(new AbstractProperty[] {
+    public void GenerateInterface() => new InterfaceModel("InterfaceA", NamedValues(new AbstractProperty[] {
             NamedValue(Type<string>(),"myPrivateField", Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             NamedValue(Type<string>(),"myPrivateReadonlyField", Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             NamedValue(Type<string>(),"myPrivateProperty", Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),

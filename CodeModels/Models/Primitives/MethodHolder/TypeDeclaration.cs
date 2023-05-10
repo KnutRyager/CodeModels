@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using Common.Extensions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
+using CodeModels.AbstractCodeModels.Collection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 

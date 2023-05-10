@@ -1,4 +1,5 @@
 using System.Linq;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Parsing;
@@ -8,7 +9,7 @@ using TestCommon;
 using Xunit;
 using static TestCommon.TestUtil;
 
-namespace CodeModels.Models.Primitives.Test;
+namespace CodeModels.Test.AbstractCodeModels;
 
 public class ValueCollectionTests
 {

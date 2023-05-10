@@ -3,6 +3,7 @@ using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
 using Xunit;
+using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Test.Execution.Class;

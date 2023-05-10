@@ -10,8 +10,9 @@ using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Factory;
+using CodeModels.Models;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Collection;
 
 public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedType = null)
     : Expression<ArrayCreationExpressionSyntax>(Type(SpecifiedType ?? TypeUtil.FindCommonType(Values), isMulti: true)),
