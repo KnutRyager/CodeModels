@@ -347,10 +347,22 @@ public static class ReflectionUtil
     public static Type GetUnderlyingTypeOrBase(Type type) => GetUnderlyingType(type) ?? type;
 
     public static bool IsNullable(Type type) => NullableChecking.IsNullable(type);
+    public static bool IsNullableValueType(Type type) => type.IsValueType && IsNullable(type);
     public static bool IsNullable<T>() => IsNullable(typeof(T));
     public static bool IsNullable(PropertyInfo property) => NullableChecking.IsNullable(property);
     public static bool IsNullable(FieldInfo field) => NullableChecking.IsNullable(field);
     public static bool IsNullable(ParameterInfo parameter) => NullableChecking.IsNullable(parameter);
+
+    public static Type GetNullableType(Type type)
+    {
+        type = GetUnderlyingTypeOrBase(type);
+        return type.IsValueType ? typeof(Nullable<>).MakeGenericType(type) : type;
+    }
+    public static bool IsSimplyfiableNullableType(Type type, bool required) => IsNullableValueType(type) && required;
+    public static Type SimplifyNullableType(Type type, bool required) => IsSimplyfiableNullableType(type, required) ? type.GetGenericArguments().First() : type;
+
+    public static bool IsSimplyfiableArrayType(Type type, bool isArray) => !type.IsArray && isArray;
+    public static Type SimplifyArrayType(Type type, bool isArray) => IsSimplyfiableArrayType(type, isArray) ? type.MakeArrayType() : type;
 
     public static List<Type> GetMemberTypes<T>() => GetMemberTypes(typeof(T));
     public static List<Type> GetMemberTypes(Type type)

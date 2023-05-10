@@ -1,14 +1,14 @@
-using Common.Reflection;
 using System.Collections;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using Common.Reflection;
+using FluentAssertions;
 using Xunit;
 
 namespace Common.Tests
 {
     public class ReflectionUtilTests
     {
-
         public class A
         {
             [DisplayName("Prop 1")]
@@ -52,5 +52,18 @@ namespace Common.Tests
 
         [Fact] public void IsNullableValueTypeTrue() => Assert.True(ReflectionUtil.IsNullable<int?>());
         [Fact] public void IsNullableValueTypeFalse() => Assert.False(ReflectionUtil.IsNullable<int>());
+
+        [Fact] public void IsSimplyfiableNullableTypeTrue() => Assert.True(ReflectionUtil.IsSimplyfiableNullableType(typeof(int?), true));
+        [Fact] public void IsSimplyfiableNullableTypeNotNullable() => Assert.False(ReflectionUtil.IsSimplyfiableNullableType(typeof(int), true));
+        [Fact] public void IsSimplyfiableNullableTypeAlreadyNullable() => Assert.False(ReflectionUtil.IsSimplyfiableNullableType(typeof(int?), false));
+        [Fact] public void SimplifyNullableTypeTrue() => ReflectionUtil.SimplifyNullableType(typeof(int?), true).Should().Be(typeof(int));
+        [Fact] public void SimplifyNullableTypeNotNullable() => ReflectionUtil.SimplifyNullableType(typeof(int), true).Should().Be(typeof(int));
+        [Fact] public void SimplifyNullableTypeAlreadyNullable() => ReflectionUtil.SimplifyNullableType(typeof(int?), false).Should().Be(typeof(int?));
+        [Fact] public void IsSimplyfiableArrayTypeTrue() => Assert.True(ReflectionUtil.IsSimplyfiableArrayType(typeof(int), true));
+        [Fact] public void IsSimplyfiableArrayTypeNotArray() => Assert.False(ReflectionUtil.IsSimplyfiableArrayType(typeof(int), false));
+        [Fact] public void IsSimplyfiableArrayTypeAlreadyArray() => Assert.False(ReflectionUtil.IsSimplyfiableArrayType(typeof(int[]), true));
+        [Fact] public void SimplifyArrayTypeTrue() => ReflectionUtil.SimplifyArrayType(typeof(int), true).Should().Be(typeof(int[]));
+        [Fact] public void SimplifyArrayTypeAlreadyArray() => ReflectionUtil.SimplifyArrayType(typeof(int[]), true).Should().Be(typeof(int[]));
+        [Fact] public void SimplifyArrayTypeNotArray() => ReflectionUtil.SimplifyArrayType(typeof(int), false).Should().Be(typeof(int));
     }
 }
