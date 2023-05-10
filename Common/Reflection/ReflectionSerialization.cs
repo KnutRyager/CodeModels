@@ -253,6 +253,7 @@ public static class ReflectionSerialization
     public static string SerializeType<T>() => SerializeType(typeof(T));
 
     public static string NormalizeType(string type) => NormalizeType(TypeParsing.ParseGenericType(type.Replace(" ", string.Empty))).Name;
+    public static string NormalizeTypeOfTypeName(string type) => NormalizeType(TypeParsing.ParseGenericTypeOfTypeName(TypeParsing.RemoveEnclosingBrackets(type).Replace(" ", string.Empty))).Name;
     public static ParsedGenericType NormalizeType(ParsedGenericType type) => new(GetShortHandName(type.Name), type.Parameters.Select(NormalizeType).ToList());
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
@@ -326,13 +327,16 @@ public static class ReflectionSerialization
     public static Type DeserializeTypeLookAtShortNames(string type, bool isNullable = false)
         => isNullable ? GetNullableType(DeserializeType(GetShortHandName(type))) : DeserializeType(GetShortHandName(type));
 
-    public static bool IsShortHandName(string typeName) => _typeShorthands.ContainsKey(typeName);
+    public static bool IsShortHandName(string typeName, bool allowArray = false) => _typeShorthands.ContainsKey(allowArray ? typeName.Contains("[") ? typeName[..typeName.IndexOf("[")] : typeName  : typeName);
     public static string GetShortHandName(string typeName) => typeName.Contains("[")
             ? $"{GetShortHandName(typeName[..typeName.IndexOf('[')])}{typeName[typeName.IndexOf('[')..]}"
             : _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
 
     public static string GetToShortHandName(string typeName) => _toTypeShorthands.ContainsKey(GetShortHandName(typeName)) ? _toTypeShorthands[GetShortHandName(typeName)] : typeName;
-    
+
+    public static string SimplifyGenericName(string typeName)
+        => TypeParsing.ParseGenericType(typeName).ToSimplifiedString(true);
+
     private static readonly IDictionary<string, Assembly> _typeToAssemblyCache = new Dictionary<string, Assembly>();
     public static Assembly DeserializeAssembly(string name)
     {
@@ -343,6 +347,7 @@ public static class ReflectionSerialization
     }
 
     public static string SerializeAssembly(Assembly assembly) => assembly.GetName().FullName;
+
     private static string AddAssemblyToTypePath(string pathWithOrWithoutAssembly, Assembly? assembly = null)
         => assembly == null || TypePathContainsAnAssembly(pathWithOrWithoutAssembly) ? pathWithOrWithoutAssembly : $"{pathWithOrWithoutAssembly}, {SerializeAssembly(assembly!)}";
     private static bool TypePathContainsAnAssembly(string pathWithOrWithoutAssembly) => pathWithOrWithoutAssembly.Contains(' ');

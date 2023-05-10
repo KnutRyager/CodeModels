@@ -379,6 +379,13 @@ public class ReflectionSerializationTests
         Assert.Equal(listType, deserialized);
     }
 
+    [Fact]
+    public void SimplifyGenericName()
+    {
+        var listType = typeof(List<IDictionary<int, string>>);
+        Assert.Equal("List<IDictionary<int,string>>", ReflectionSerialization.SimplifyGenericName(listType.FullName));
+    }
+
     private static void Compare(string s1, string s2) => Clean(s1).Should().Be(Clean(s2));
     private static string Clean(string s) => s.Replace(SystemLib, "{SystemLib}").Replace(CommonLib, "{CommonLib}").Replace(TestPath, "{TestPath}");
 }

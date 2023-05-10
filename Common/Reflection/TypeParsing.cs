@@ -1,22 +1,26 @@
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Common.Reflection;
 
-public record ParsedGenericType(string Name, List<ParsedGenericType> Parameters)
-{
-    public override string ToString() => Parameters.Count == 0 ? Name : $"{Name}`{Parameters.Count}[{string.Join(",", Parameters.Select(x => x.ToString()))}]";
-}
-
 public static class TypeParsing
 {
+    public static bool IsMemberAccess(string s) => s.Contains(".");
+    public static string NamePart(string s) => IsMemberAccess(s) ? s[(s.LastIndexOf(".") + 1)..] : s;
+    public static string PathPart(string s) => IsMemberAccess(s) ? s[..s.LastIndexOf(".")] : "";
     public static bool IsArrayIdentifier(string identifier) => identifier.EndsWith("[]");
     public static bool IsGenericIdentifier(string identifier) => identifier.Contains("<");
+    public static bool IsGenericIdentifierOfTypeName(string identifier) => identifier.Contains("`");
     public static string RemoveGenericAndArrayPart(string identifier) => RemoveGenericPart(RemoveArrayPart(identifier));
     public static string RemoveGenericPart(string identifier) => IsGenericIdentifier(identifier) ? identifier[..identifier.IndexOf('<')] : identifier;
+    public static string RemoveGenericPartOfTypeName(string identifier) => IsGenericIdentifierOfTypeName(identifier) ? identifier[..identifier.IndexOf('`')] : identifier;
     public static string RemoveArrayPart(string identifier) => IsArrayIdentifier(identifier) ? identifier[..identifier.LastIndexOf('[')] : identifier;
+    public static string RemoveEnclosingBrackets(string type) => type.StartsWith("[") && type.EndsWith("]") ? type[1..(type.Length - 1)] : type;
+    public static string RemoveAssemblyInfo(string type) => type.IndexOf(",") > 0 && (type.IndexOf("]") < 0 || type.IndexOf(",") > type.IndexOf("]")) ? type[..type.IndexOf(",")] : type;
 
-    public static ParsedGenericType ParseGenericType(string identifier) => new(RemoveGenericPart(identifier), ParseGenericParameters(identifier));
+    public static ParsedGenericType ParseGenericType(string identifier) => identifier.Contains("`")
+        ? ParseGenericTypeOfTypeName(identifier)
+        : new(RemoveGenericPart(identifier), ParseGenericParameters(identifier));
+    public static ParsedGenericType ParseGenericTypeOfTypeName(string identifier) => new(RemoveGenericPartOfTypeName(identifier), ParseGenericParametersOfTypeName(identifier));
 
     public static List<ParsedGenericType> ParseGenericParameters(string identifier)
     {
@@ -58,8 +62,11 @@ public static class TypeParsing
             else if (c == ']') depth--;
             else if ((c == ',' && depth == 0) || i == inner.Length)
             {
-                var subIdentifier = inner[innerTypeStartIndex..i];
-                innerTypes.Add(new ParsedGenericType(RemoveGenericPart(ReflectionSerialization.NormalizeType(subIdentifier)), ParseGenericParameters(subIdentifier)));
+                var subIdentifier = RemoveEnclosingBrackets(inner[innerTypeStartIndex..i]);
+                subIdentifier = RemoveAssemblyInfo(subIdentifier);
+                innerTypes.Add(new ParsedGenericType(RemoveGenericPartOfTypeName(
+                    ReflectionSerialization.NormalizeTypeOfTypeName(subIdentifier)),
+                    ParseGenericParametersOfTypeName(subIdentifier)));
                 innerTypeStartIndex = i + 1;
             }
         }
