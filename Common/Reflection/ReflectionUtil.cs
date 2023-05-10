@@ -358,8 +358,8 @@ public static class ReflectionUtil
         type = GetUnderlyingTypeOrBase(type);
         return type.IsValueType ? typeof(Nullable<>).MakeGenericType(type) : type;
     }
-    public static bool IsSimplyfiableNullableType(Type type, bool required) => IsNullableValueType(type) && required;
-    public static Type SimplifyNullableType(Type type, bool required) => IsSimplyfiableNullableType(type, required) ? type.GetGenericArguments().First() : type;
+    public static bool IsSimplyfiableNullableType(Type type, bool required) => !IsNullableValueType(type) && !required;
+    public static Type SimplifyNullableType(Type type, bool required) => IsSimplyfiableNullableType(type, required) ? GetNullableType(type) : type;
 
     public static bool IsSimplyfiableArrayType(Type type, bool isArray) => !type.IsArray && isArray;
     public static Type SimplifyArrayType(Type type, bool isArray) => IsSimplyfiableArrayType(type, isArray) ? type.MakeArrayType() : type;

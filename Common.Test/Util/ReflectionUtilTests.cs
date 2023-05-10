@@ -53,10 +53,10 @@ namespace Common.Tests
         [Fact] public void IsNullableValueTypeTrue() => Assert.True(ReflectionUtil.IsNullable<int?>());
         [Fact] public void IsNullableValueTypeFalse() => Assert.False(ReflectionUtil.IsNullable<int>());
 
-        [Fact] public void IsSimplyfiableNullableTypeTrue() => Assert.True(ReflectionUtil.IsSimplyfiableNullableType(typeof(int?), true));
+        [Fact] public void IsSimplyfiableNullableTypeTrue() => Assert.True(ReflectionUtil.IsSimplyfiableNullableType(typeof(int), false));
         [Fact] public void IsSimplyfiableNullableTypeNotNullable() => Assert.False(ReflectionUtil.IsSimplyfiableNullableType(typeof(int), true));
         [Fact] public void IsSimplyfiableNullableTypeAlreadyNullable() => Assert.False(ReflectionUtil.IsSimplyfiableNullableType(typeof(int?), false));
-        [Fact] public void SimplifyNullableTypeTrue() => ReflectionUtil.SimplifyNullableType(typeof(int?), true).Should().Be(typeof(int));
+        [Fact] public void SimplifyNullableTypeTrue() => ReflectionUtil.SimplifyNullableType(typeof(int), false).Should().Be(typeof(int?));
         [Fact] public void SimplifyNullableTypeNotNullable() => ReflectionUtil.SimplifyNullableType(typeof(int), true).Should().Be(typeof(int));
         [Fact] public void SimplifyNullableTypeAlreadyNullable() => ReflectionUtil.SimplifyNullableType(typeof(int?), false).Should().Be(typeof(int?));
         [Fact] public void IsSimplyfiableArrayTypeTrue() => Assert.True(ReflectionUtil.IsSimplyfiableArrayType(typeof(int), true));
