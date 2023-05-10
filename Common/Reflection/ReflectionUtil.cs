@@ -346,11 +346,11 @@ public static class ReflectionUtil
     }
     public static Type GetUnderlyingTypeOrBase(Type type) => GetUnderlyingType(type) ?? type;
 
-    //public static bool IsNullable(PropertyInfo property) => IsNullable(property.PropertyType, property);
-    //public static bool IsNullable(Type type, PropertyInfo? property = null)
-    //{
-    //    return GetUnderlyingType(type) != null || (type == typeof(string) && (property == null || property.GetCustomAttribute<RequiredAttribute>() == null));
-    //}
+    public static bool IsNullable(Type type) => NullableChecking.IsNullable(type);
+    public static bool IsNullable<T>() => IsNullable(typeof(T));
+    public static bool IsNullable(PropertyInfo property) => NullableChecking.IsNullable(property);
+    public static bool IsNullable(FieldInfo field) => NullableChecking.IsNullable(field);
+    public static bool IsNullable(ParameterInfo parameter) => NullableChecking.IsNullable(parameter);
 
     public static List<Type> GetMemberTypes<T>() => GetMemberTypes(typeof(T));
     public static List<Type> GetMemberTypes(Type type)

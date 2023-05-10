@@ -49,5 +49,8 @@ namespace Common.Tests
             Assert.Contains(collectionsAssembly, allDependencies);
             Assert.Contains(collectionsAssembly, directDependencies);
         }
+
+        [Fact] public void IsNullableValueTypeTrue() => Assert.True(ReflectionUtil.IsNullable<int?>());
+        [Fact] public void IsNullableValueTypeFalse() => Assert.False(ReflectionUtil.IsNullable<int>());
     }
 }
