@@ -8,10 +8,7 @@ namespace Common.Reflection;
 
 internal static class NullableChecking
 {
-    internal static bool IsNullable(Type type)
-        => type.IsValueType
-        ? ReflectionUtil.GetUnderlyingTypeOrBase(type) != type
-        : true;
+    internal static bool IsNullable(Type type) => ReflectionUtil.GetUnderlyingTypeOrBase(type) != type;
 
     public static bool IsNullable(PropertyInfo property) =>
     IsNullableHelper(property.PropertyType, property.DeclaringType, property.CustomAttributes);

@@ -265,8 +265,9 @@ public static class ReflectionSerialization
         if (valueType == "void") return typeof(void);
         if (valueType.Contains("<")) valueType = NormalizedGenericName(valueType);
         else valueType = GetShortHandName(valueType);
+        if (valueType.LastOrDefault() is '?') valueType = $"System.Nullable`1[[{valueType[..(valueType.Length - 1)]}]]";
         valueType = valueType.Replace("/", "");
-        var type = Type.GetType(valueType);
+        var type = TryGetTypeOrNonNullable(valueType);
         if (type != null) return type;
 
         assemblyIn ??= GetAssemblyFromTypePath(valueType);
@@ -279,7 +280,7 @@ public static class ReflectionSerialization
             //To speed things up, we check first in the already loaded assemblies.
             foreach (var assembly in assemblies)
             {
-                type = assembly.GetType(valueType);
+                type = TryGetTypeOrNonNullable(valueType, assembly);
                 if (type != null)
                     break;
             }
@@ -324,15 +325,45 @@ public static class ReflectionSerialization
         return type!;
     }
 
+    private static Type? TryGetTypeOrNonNullable(string typeName, Assembly? assembly = null)
+    {
+        try
+        {
+            return assembly is null ? Type.GetType(typeName) : assembly.GetType(typeName);
+        }
+        catch (ArgumentException e) when ((e.InnerException is TypeLoadException) && typeName.StartsWith("System.Nullable"))
+        {
+            return TryGetTypeOrNonNullable(typeName[(typeName.IndexOf("[[") + 2)..typeName.LastIndexOf("]]")]);
+        }
+    }
+
     public static Type DeserializeTypeLookAtShortNames(string type, bool isNullable = false)
         => isNullable ? GetNullableType(DeserializeType(GetShortHandName(type))) : DeserializeType(GetShortHandName(type));
 
-    public static bool IsShortHandName(string typeName, bool allowArray = false) => _typeShorthands.ContainsKey(allowArray ? typeName.Contains("[") ? typeName[..typeName.IndexOf("[")] : typeName  : typeName);
-    public static string GetShortHandName(string typeName) => typeName.Contains("[")
-            ? $"{GetShortHandName(typeName[..typeName.IndexOf('[')])}{typeName[typeName.IndexOf('[')..]}"
+    public static bool IsShortHandName(string typeName, bool allowArray = false, bool allowNullable = false)
+    {
+        var withArrayFixed = allowArray ? TypeParsing.RemoveArrayPart(typeName) : typeName;
+        var withNullableFixed = allowNullable ? TypeParsing.RemoveNullableEnd(withArrayFixed) : withArrayFixed;
+        return _typeShorthands.ContainsKey(withNullableFixed);
+    }
+
+    public static string GetShortHandName(string typeName)
+    {
+        var isNullable = typeName.LastOrDefault() is '?';
+        var s = isNullable ? TypeParsing.RemoveNullableEnd(typeName) : typeName;
+        var nullableChar = isNullable ? "?" : "";
+        return $"{(s.Contains("[") ? $"{GetShortHandName(s[..s.IndexOf('[')])}{s[s.IndexOf('[')..]}" : _typeShorthands.ContainsKey(s) ? _typeShorthands[s] : s)}{nullableChar}";
+    }
+    public static string GetShortHandNameLegacy(string typeName)
+    => typeName.Contains("[")
+            ? $"{GetShortHandNameLegacy(typeName[..typeName.IndexOf('[')])}{typeName[typeName.IndexOf('[')..]}"
             : _typeShorthands.ContainsKey(typeName) ? _typeShorthands[typeName] : typeName;
 
-    public static string GetToShortHandName(string typeName) => _toTypeShorthands.ContainsKey(GetShortHandName(typeName)) ? _toTypeShorthands[GetShortHandName(typeName)] : typeName;
+    public static string GetToShortHandName(string typeName)
+    {
+        var shortHandName = GetShortHandName(typeName);
+        return _toTypeShorthands.ContainsKey(TypeParsing.RemoveArrayPart(shortHandName)) ? _toTypeShorthands[TypeParsing.RemoveArrayPart(shortHandName)] : typeName;
+    }
 
     public static string SimplifyGenericName(string typeName)
         => TypeParsing.ParseGenericType(typeName).ToSimplifiedString(true);

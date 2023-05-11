@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Common.Reflection;
 
@@ -11,11 +12,14 @@ public static class TypeParsing
     public static bool IsGenericIdentifier(string identifier) => identifier.Contains("<");
     public static bool IsGenericIdentifierOfTypeName(string identifier) => identifier.Contains("`");
     public static string RemoveGenericAndArrayPart(string identifier) => RemoveGenericPart(RemoveArrayPart(identifier));
+    public static string RemoveNullablePart(string identifier) => identifier.LastOrDefault() is '?' ? identifier[..(identifier.Length - 1)] : identifier;
     public static string RemoveGenericPart(string identifier) => IsGenericIdentifier(identifier) ? identifier[..identifier.IndexOf('<')] : identifier;
     public static string RemoveGenericPartOfTypeName(string identifier) => IsGenericIdentifierOfTypeName(identifier) ? identifier[..identifier.IndexOf('`')] : identifier;
     public static string RemoveArrayPart(string identifier) => IsArrayIdentifier(identifier) ? identifier[..identifier.LastIndexOf('[')] : identifier;
+    public static string RemoveNullableEnd(string identifier) => identifier.LastOrDefault() is '?' ? identifier[..(identifier.Length - 1)] : identifier;
     public static string RemoveEnclosingBrackets(string type) => type.StartsWith("[") && type.EndsWith("]") ? type[1..(type.Length - 1)] : type;
     public static string RemoveAssemblyInfo(string type) => type.IndexOf(",") > 0 && (type.IndexOf("]") < 0 || type.IndexOf(",") > type.IndexOf("]")) ? type[..type.IndexOf(",")] : type;
+    public static string SimplifyNullableType(string type) => type.StartsWith("Nullable<") ? $"{type[(type.IndexOf("<") + 1)..type.IndexOf(">")]}?" : type;
 
     public static ParsedGenericType ParseGenericType(string identifier) => identifier.Contains("`")
         ? ParseGenericTypeOfTypeName(identifier)
