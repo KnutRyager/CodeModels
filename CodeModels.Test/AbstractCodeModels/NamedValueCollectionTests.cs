@@ -30,9 +30,9 @@ public record RecordA(
     object? p4 = null,
     A p5 = A.Instance
 );").Should().BeEquivalentTo(NamedValues(new[] {
-            NamedValue(Type("int"),"p1", modifier: Modifier.Public),
-            NamedValue(Type("string"),"p2", modifier: Modifier.Public),
-            NamedValue(Type("long?"),"p3", modifier: Modifier.Public),
+            NamedValue<int>("p1", modifier: Modifier.Public),
+            NamedValue<string>("p2", modifier: Modifier.Public),
+            NamedValue<long?>("p3", modifier: Modifier.Public),
             NamedValue(Type("object?"),"p4", "null".ExpressionTree(), modifier: Modifier.Public),
             NamedValue(Type("A"),"p5", "A.Instance".ExpressionTree(), modifier: Modifier.Public),
         }, "RecordA"), o => o.Excluding(x => x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
@@ -77,8 +77,8 @@ public class ClassA {
             NamedValue<long?>("p3"),
             NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
-            NamedValue(Type("int[]"), "p6"),
-            NamedValue(Type("List<int>"), "p7"))
+            NamedValue<int[]>("p6"),
+            NamedValue<List<int>>("p7"))
         .ToClass().CodeEqual(@"
 public class ClassA {
     public int p1 { get; set; }
@@ -92,25 +92,25 @@ public class ClassA {
 
     [Fact]
     public void GenerateRecord() => NamedValues("RecordA",
-            NamedValue(Type("int"), "p1"),
-            NamedValue(Type("string"), "p2"),
-            NamedValue(Type("long?"), "p3"),
+            NamedValue<int>("p1"),
+            NamedValue<string>("p2"),
+            NamedValue<long?>("p3"),
             NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
-            NamedValue(Type("int[]"), "p6"),
-            NamedValue(Type("List<int>"), "p7"))
+            NamedValue<int[]>("p6"),
+            NamedValue<List<int>>("p7"))
         .ToRecord().CodeEqual("public record RecordA(int p1, string p2, long? p3, object? p4 = null, A p5 = A.Instance, int[] p6, List<int> p7);");
 
     [Fact]
     public void GenerateTuple() => NamedValues(
-            NamedValue(Type("int"), "p1"),
-            NamedValue(Type("string"), "p2"),
-            NamedValue(Type("long?"), "p3"),
+            NamedValue<int>("p1"),
+            NamedValue<string>("p2"),
+            NamedValue<long?>("p3"),
             NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
-            NamedValue(Type("uint"), "Item6"),
-            NamedValue(Type("float"), default),
-            NamedValue(Type("int[]"), "p6"),
-            NamedValue(Type("List<int>"), "p7"))
+            NamedValue<uint>("Item6"),
+            NamedValue<float>(default),
+            NamedValue<int[]>("p6"),
+            NamedValue<List<int>>("p7"))
         .ToTupleType().CodeEqual("(int p1, string p2, long? p3, object? p4, A p5, uint, float, int[] p6, List<int> p7)");
 }
