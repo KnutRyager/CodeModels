@@ -54,7 +54,7 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
 }
 
 public record ConstructorInvocationFromReflection(ConstructorInfo Constructor, IExpression Caller, List<IExpression> Arguments)
-    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), new TypeFromReflection(Constructor.DeclaringType), OperationType.Invocation)
+    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), TypeFromReflection.Create(Constructor), OperationType.Invocation)
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 

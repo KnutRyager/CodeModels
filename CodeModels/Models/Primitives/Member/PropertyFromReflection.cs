@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 namespace CodeModels.Models;
 
 public record PropertyFromReflection(PropertyInfo Property)
-    : AbstractProperty(new TypeFromReflection(Property.PropertyType), Property.Name, ReflectionUtil.IsStatic(Property) ? CodeModelFactory.Literal(Property.GetValue(null)) : null,
+    : AbstractProperty(TypeFromReflection.Create(Property), Property.Name, ReflectionUtil.IsStatic(Property) ? CodeModelFactory.Literal(Property.GetValue(null)) : null,
         (!Property.CanWrite ? Modifier.Readonly : Modifier.None).SetFlags(Modifier.Public | Modifier.Property))
 {
     public PropertyFromReflection(IPropertySymbol symbol) : this(SemanticReflection.GetProperty(symbol)) { }

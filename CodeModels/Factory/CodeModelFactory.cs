@@ -38,30 +38,24 @@ public static class CodeModelFactory
 
     public static TypeFromReflection Type(Type type) => CodeModelsFromReflection.Type(type);
     public static TypeFromReflection Type<T>() => Type(typeof(T));
-    public static QuickType Type(string name, bool required = true, bool isMulti = false, Type? type = null)
-        => QuickType(name, required, isMulti, type);
-    public static QuickType Type(IType type, bool? required = null, bool? isMulti = null)
-        => QuickType(type.TypeName, required ?? type.Required, isMulti ?? type.IsMulti);
+    public static QuickType Type(string name, Type? type = null)
+        => QuickType(name, type);
+    public static QuickType Type(IType type)
+        => QuickType(type.TypeName);
     public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
     public static IType Type(string code) => ParseType(code);
-    public static IType Type(ITypeDeclaration declaration) => QuickType(declaration.Name, declaration: declaration);
+    public static IType Type(ITypeDeclaration declaration) => QuickType(declaration.Name);
     public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
     public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
     public static QuickType QuickType(string identifier,
-        bool required = true,
-        bool isMulti = false,
         Type? type = null,
-        ITypeDeclaration? declaration = null,
-        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, required, isMulti, type, declaration, symbol);
+        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, type, symbol);
     public static QuickType QuickType(string identifier,
         IEnumerable<IType> genericTypes,
-        bool required = true,
-        bool isMulti = false,
         Type? type = null,
-        ITypeDeclaration? declaration = null,
-        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, genericTypes, required, isMulti, type, declaration, symbol);
+        ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, genericTypes, type, symbol);
 
     public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, List<AttributeList>? attributes = null, List<ExternAliasDirective>? externs = null)
         => new(members, usings ?? new List<UsingDirective>(), attributes ?? new List<AttributeList>(), externs);
@@ -148,7 +142,7 @@ public static class CodeModelFactory
         => Method(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody, modifier);
     public static ICodeModel Member(MemberInfo member) => member switch
     {
-        Type type => new TypeFromReflection(type),
+        Type type => TypeFromReflection.Create(type),
         //FieldInfo field => Property(field),
         MethodBase @base => Method(@base),
         _ => throw new NotImplementedException($"Unhandled member: {member}")

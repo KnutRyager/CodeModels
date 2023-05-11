@@ -185,7 +185,7 @@ public abstract record BaseType<T>(string Name,
         return this;
     }
 
-    public ITypeDeclaration AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
+    public ITypeDeclaration AddProperty(Type type, string name) => AddProperty(TypeFromReflection.Create(type), name);
     public ITypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
     public ITypeDeclaration AddProperty(AbstractType type, string name) => AddMember(CodeModelFactory.Property(name, type));
     public IType Get_Type() => Type(this);

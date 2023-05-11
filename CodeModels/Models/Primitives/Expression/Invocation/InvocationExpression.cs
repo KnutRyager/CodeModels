@@ -83,7 +83,7 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
 
 
 public record InvocationFromReflection(MethodInfo Method, IExpression Caller, List<IExpression> Arguments)
-    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), new TypeFromReflection(Method.ReturnType), OperationType.Invocation)
+    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), TypeFromReflection.Create(Method), OperationType.Invocation)
 {
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
 

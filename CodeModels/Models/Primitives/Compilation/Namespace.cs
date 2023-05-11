@@ -113,4 +113,9 @@ public record Namespace(
     {
         throw new NotImplementedException();
     }
+
+    public IType ToOptionalType()
+    {
+        throw new NotImplementedException();
+    }
 }

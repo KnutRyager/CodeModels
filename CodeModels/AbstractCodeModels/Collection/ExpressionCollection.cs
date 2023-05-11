@@ -15,7 +15,7 @@ using CodeModels.Models;
 namespace CodeModels.AbstractCodeModels.Collection;
 
 public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedType = null)
-    : Expression<ArrayCreationExpressionSyntax>(Type(SpecifiedType ?? TypeUtil.FindCommonType(Values), isMulti: true)),
+    : Expression<ArrayCreationExpressionSyntax>((Type(SpecifiedType ?? TypeUtil.FindCommonType(Values)).ToMultiType())),
     IExpressionCollection
 {
     public ExpressionCollection(IEnumerable<IExpression>? values = null, IType? specifiedType = null) : this(List(values), specifiedType) { }

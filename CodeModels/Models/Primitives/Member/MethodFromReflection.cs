@@ -16,7 +16,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeModels.Models;
 
 public record MethodFromReflection(MethodInfo Method)
-    : Method(Method.Name, new NamedValueCollection(Method.GetParameters()), new TypeFromReflection(Method.ReturnType))
+    : Method(Method.Name, new NamedValueCollection(Method.GetParameters()), TypeFromReflection.Create(Method.ReturnType))
 {
     //public MethodFromReflection(IMethodSymbol symbol) : this(SemanticReflection.GetMethod(symbol) ?? Context.Get<MethodInfo>(symbol)) { }
 }
@@ -221,6 +221,11 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     ExpressionSyntax IExpression.Syntax() => Lookup.Syntax();
 
     public IType PlainType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IType ToOptionalType()
     {
         throw new NotImplementedException();
     }

@@ -25,7 +25,7 @@ public static class DependencyGeneration
         var staticClass = StaticClass("ModelDependencies", @namespace: Namespace("Dependencies"));
         var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionMap(x.Properties.Select(
             y => new ExpressionsMap(Literal(y.Member.Name),
-            Literals(y.Dependencies), valueType: Type("string", isMulti: true), multiValues: true)), x.Class.Name));
+            Literals(y.Dependencies), valueType: Type("string[]"), multiValues: true)), x.Class.Name));
         foreach (var dict in dependencyDictionaries)
         {
             staticClass.AddProperty(dict.ToNamedValue());

@@ -37,7 +37,7 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
         return this;
     }
 
-    public IBaseTypeDeclaration AddProperty(Type type, string name) => AddProperty(new TypeFromReflection(type), name);
+    public IBaseTypeDeclaration AddProperty(Type type, string name) => AddProperty(TypeFromReflection.Create(type), name);
     public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
     public IBaseTypeDeclaration AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
     public IType Get_Type() => Type(Name);

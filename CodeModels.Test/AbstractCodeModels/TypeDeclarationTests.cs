@@ -16,7 +16,7 @@ public class TypeDeclarationTests
             NamedValue(Type<string>(), "myPrivateReadonlyField", Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             NamedValue(Type<string>(), "myPrivateProperty", Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),
             new(Type<int>(), "p1"),
-            new(QuickType("string", false), "p2"),   // TODO: Type<string?>()
+            new(QuickType("string?"), "p2"),   // TODO: Type<string?>()
             NamedValue(Type<double>(), "PI", Literal(3.14), modifier: PropertyAndFieldTypes.PublicConst),
             NamedValue(Type<double>(), "PI_private", "Math.PI", modifier: PropertyAndFieldTypes.PrivateConst),
             NamedValue(Type<string>(), "ThePublicStaticReadonlyField", Literal("abc"), modifier: PropertyAndFieldTypes.PublicStaticReadonlyField)))

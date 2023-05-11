@@ -14,7 +14,7 @@ public static class CodeModelsFromReflection
 {
     public static Namespace Namespace(Type type) => new(type.Namespace);
 
-    public static TypeFromReflection Type(Type type) => new(type);
+    public static TypeFromReflection Type(Type type) => TypeFromReflection.Create(type);
 
     public static IBaseTypeDeclaration MetodHolder(Type type) => type switch
     {

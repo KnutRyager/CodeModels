@@ -17,7 +17,7 @@ using CodeModels.Models;
 namespace CodeModels.AbstractCodeModels.Collection;
 
 public record NamedValueCollection(List<AbstractProperty> Properties, string? Name = null, IType? SpecifiedType = null)
-    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value)), isMulti: true), Name: Name),
+    : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value))).ToMultiType(), Name: Name),
     INamedValueCollection<AbstractProperty>,
     IMember
 {

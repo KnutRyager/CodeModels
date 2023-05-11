@@ -21,7 +21,10 @@ public static class TypeUtil
         //    : types.Any(x => x.GetMostSpecificType() is "object") ? "object"
         //    : types.Any(x => x.GetMostSpecificType() is "string") ? "string"
         //    : "int";
-        return CodeModelFactory.QuickType(specificType, !isOptional);
+        // TODO TYPE FIX
+        var type = CodeModelFactory.QuickType(specificType);
+        return isOptional ? type.ToOptionalType() : type;
+        //return CodeModelFactory.QuickType(specificType, !isOptional);
         //return new QuickType(specificType, !isOptional, isMulti);
     }
     public static IType FindCommonType(IEnumerable<IExpression> expressions) => FindCommonType(expressions.Select(x => x.Get_Type()));
@@ -29,7 +32,9 @@ public static class TypeUtil
     //? expressions.First().Type : Type(typeof(object));
 
 
-    public static EqualityList<IType> ParseGenericParameters(string identifier) => new(TypeParsing.ParseGenericParameters(identifier).Select(TypeFromParsedGenericType));
+    public static EqualityList<IType> ParseGenericParameters(string identifier) => identifier.LastOrDefault() is '?'
+        ? new EqualityList<IType>() { CodeModelParsing.ParseType(identifier[..^1]) }
+        : new(TypeParsing.ParseGenericParameters(identifier).Select(TypeFromParsedGenericType));
     public static IType TypeFromParsedGenericType(ParsedGenericType parsed) => CodeModelFactory.QuickType(parsed.Name, parsed.Parameters.Select(TypeFromParsedGenericType));
 
 }

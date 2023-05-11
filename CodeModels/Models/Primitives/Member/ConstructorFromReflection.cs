@@ -8,7 +8,7 @@ namespace CodeModels.Models;
 
 public record ConstructorFromReflection(ConstructorInfo Constructor)
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(
-        new TypeFromReflection(Constructor.DeclaringType),
+        TypeFromReflection.Create(Constructor),
         Constructor.Name,
         null,   // TODO
         Modifier.Public), IConstructor

@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
 
-public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMulti = false, System.Type? ReflectedType = null)   // TODO: Generics
-    : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), Required, IsMulti,
+public record TypeFromSymbol(ITypeSymbol Symbol, System.Type? ReflectedType = null)   // TODO: Generics, required, isMulti
+    : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), true, false,
         ReflectedType ?? (SymbolUtils.IsNewDefined(Symbol) ? null : SemanticReflection.GetType(Symbol)))
 {
     public override System.Type? GetReflectedType() => SemanticReflection.GetType(Symbol);
@@ -35,6 +35,16 @@ public record TypeFromSymbol(ITypeSymbol Symbol, bool Required = true, bool IsMu
     }
 
     public override IType PlainType()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override IType ToMultiType()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public override IType ToOptionalType()
     {
         throw new System.NotImplementedException();
     }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using CodeModels.Models;
 using CodeModels.Parsing;
 using FluentAssertions;
@@ -21,12 +22,18 @@ object[] a = new object[]{ };
 ");
 
     [Fact]
-    public void ParseNamedValueCollectionFromRecord() => NamedValues("public record RecordA(int p1, string p2, long? p3, object? p4 = null, A p5 = A.Instance);")
-        .Should().BeEquivalentTo(NamedValues(new[] {
+    public void ParseNamedValueCollectionFromRecord() => NamedValues(@"
+public record RecordA(
+    int p1,
+    string p2,
+    long? p3,
+    object? p4 = null,
+    A p5 = A.Instance
+);").Should().BeEquivalentTo(NamedValues(new[] {
             NamedValue(Type("int"),"p1", modifier: Modifier.Public),
             NamedValue(Type("string"),"p2", modifier: Modifier.Public),
-            NamedValue(Type("long", false),"p3", modifier: Modifier.Public),
-            NamedValue(Type("object", false),"p4", "null".ExpressionTree(), modifier: Modifier.Public),
+            NamedValue(Type("long?"),"p3", modifier: Modifier.Public),
+            NamedValue(Type("object?"),"p4", "null".ExpressionTree(), modifier: Modifier.Public),
             NamedValue(Type("A"),"p5", "A.Instance".ExpressionTree(), modifier: Modifier.Public),
         }, "RecordA"), o => o.Excluding(x => x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
 
@@ -54,21 +61,21 @@ public class ClassA {
     public int[] p6 { get; set; }
     public List<int> p7 { get; set; }
 }").Should().BeEquivalentTo(NamedValues("ClassA",
-            NamedValue(Type("int"), "p1", modifier: Modifier.Public),
-            NamedValue(Type("string"), "p2", modifier: Modifier.Private),
-            NamedValue(Type("long", false), "p3", modifier: Modifier.Protected),
-            NamedValue(Type("object", false), "p4", "null".ExpressionTree(), modifier: Modifier.Internal),
+            NamedValue<int>("p1", modifier: Modifier.Public),
+            NamedValue<string>("p2", modifier: Modifier.Private),
+            NamedValue<long?>("p3", modifier: Modifier.Protected),
+            NamedValue(Type("object?"), "p4", "null".ExpressionTree(), modifier: Modifier.Internal),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree(), modifier: Modifier.Public),
-            NamedValue(Type("int[]"), "p6", modifier: Modifier.Public),
-            NamedValue(Type("List<int>"), "p7", modifier: Modifier.Public)),
-        o => o.Excluding(x => x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
+            NamedValue<int[]>("p6", modifier: Modifier.Public),
+            NamedValue<List<int>>("p7", modifier: Modifier.Public)),
+        o => o.Excluding(x => x.Path.Contains("ReflectedType") || x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
 
     [Fact]
     public void GenerateClass() => NamedValues("ClassA",
-            NamedValue(Type("int"), "p1"),
-            NamedValue(Type("string"), "p2"),
-            NamedValue(Type("long", false), "p3"),
-            NamedValue(Type("object", false), "p4", "null".ExpressionTree()),
+            NamedValue<int>("p1"),
+            NamedValue<string>("p2"),
+            NamedValue<long?>("p3"),
+            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
             NamedValue(Type("int[]"), "p6"),
             NamedValue(Type("List<int>"), "p7"))
@@ -87,8 +94,8 @@ public class ClassA {
     public void GenerateRecord() => NamedValues("RecordA",
             NamedValue(Type("int"), "p1"),
             NamedValue(Type("string"), "p2"),
-            NamedValue(Type("long", false), "p3"),
-            NamedValue(Type("object", false), "p4", "null".ExpressionTree()),
+            NamedValue(Type("long?"), "p3"),
+            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
             NamedValue(Type("int[]"), "p6"),
             NamedValue(Type("List<int>"), "p7"))
@@ -98,8 +105,8 @@ public class ClassA {
     public void GenerateTuple() => NamedValues(
             NamedValue(Type("int"), "p1"),
             NamedValue(Type("string"), "p2"),
-            NamedValue(Type("long", false), "p3"),
-            NamedValue(Type("object", false), "p4", "null".ExpressionTree()),
+            NamedValue(Type("long?"), "p3"),
+            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
             NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
             NamedValue(Type("uint"), "Item6"),
             NamedValue(Type("float"), default),

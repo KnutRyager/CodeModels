@@ -99,7 +99,7 @@ public static class SemanticReflection
         // TryGetType("System.Collections.Generic.List`1[[System.Int32, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]")
         return TryGetType(normalizedGenericName)
             ?? GetAssembly(symbol)?.GetTypes().FirstOrDefault(x => ReplacePlusInPath(TrimGenericTypeName(x.Name)) == trimmedName || ReplacePlusInPath(TrimGenericTypeName(x.FullName)) == trimmedName)
-            ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
+            ?? throw new Exception($"Type not found: '{ReflectionSerialization.GetShortHandNameLegacy(ReflectionSerialization.NormalizeType(name.Replace("?", "")))}'.");
     }
 
     private static string TrimGenericTypeName(string name)
@@ -114,7 +114,8 @@ public static class SemanticReflection
     private static string ReplacePlusInPath(string name)
         => name.Contains("+") ? name.Replace("+", ".") : name;
 
-    public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandName(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
+    public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandNameLegacy(name.Replace("?", "")));
+    //public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandNameRealOld(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
 
     public static Microsoft.CodeAnalysis.TypeInfo GetTypeInfo(SyntaxNode node, SemanticModel model) => model.GetTypeInfo(node);
     public static Type? GetType(SyntaxNode node, SemanticModel model) => GetType(GetTypeInfo(node, model).Type);

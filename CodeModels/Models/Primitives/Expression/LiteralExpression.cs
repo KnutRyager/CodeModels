@@ -12,7 +12,7 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
     public LiteralExpression(IType type, object? value = null) : this(type, value, "missing_json_serializer") { }
     //public LiteralExpression(IType type, object? value = null) : this(type, value, JsonConvert.SerializeObject(value)) { }
 
-    public LiteralExpression(object value) : this(new TypeFromReflection(value?.GetType() ?? typeof(object)), value) { }
+    public LiteralExpression(object value) : this(TypeFromReflection.Create(value?.GetType() ?? typeof(object)), value) { }
 
     public LiteralExpression(AbstractType type, string serializedValue) : this(type, null, serializedValue)
     {
@@ -21,7 +21,7 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
         //    Value = JsonConvert.DeserializeObject(SerializedValue!, reflectedType);
     }
 
-    public LiteralExpression(EnumMemberDeclarationSyntax value) : this(new TypeFromReflection(typeof(string)), value.Identifier) { }
+    public LiteralExpression(EnumMemberDeclarationSyntax value) : this(TypeFromReflection.Create(typeof(string)), value.Identifier) { }
     public override LiteralExpressionSyntax LiteralSyntax() => LiteralExpressionCustom(Value);
     public override object? LiteralValue() => Value;
     public override LiteralExpressionSyntax Syntax() => LiteralSyntax();

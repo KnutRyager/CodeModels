@@ -16,12 +16,18 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models;
 
 public abstract record AbstractType(string TypeName, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null, ITypeSymbol? Symbol = null)
+
+//public abstract record AbstractType(string TypeName, EqualityList<IType> GenericTypes, Type? ReflectedType = null, ITypeSymbol? Symbol = null)
     : CodeModel<TypeSyntax>, IType
 {
     private Type? _cachedType;
 
-    public IType ToMultiType() => this with { IsMulti = true };
-    public string Name => $"{TypeName}{(GenericTypes.Count > 0 ? "<" : "")}{string.Join(",", GenericTypes.Select(x => x.Name))}{(GenericTypes.Count > 0 ? ">" : "")}{(IsMulti ? "[]" : "")}";
+    public abstract IType ToMultiType();
+    public abstract IType ToOptionalType();
+    //public IType ToMultiType() => this with { IsMulti = true };
+    //public bool Required => TypeName.EndsWith("?");
+    //public bool IsMulti => TypeName.EndsWith("[]");
+    public string Name => $"{TypeName}{(PrintAsGeneric() ? "<" : "")}{(PrintAsGeneric() ? string.Join(",", GenericTypes.Select(x => x.Name)) : "")}{(PrintAsGeneric() ? ">" : "")}{(IsMulti ? "[]" : "")}{(Required ? "" : "?")}";
     public bool IsStatic => ReflectedType is not null && ReflectionUtil.IsStatic(ReflectedType);
 
     public override TypeSyntax Syntax() => TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));
@@ -32,13 +38,13 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     public TypeSyntax TypeSyntaxUnwrapped() => Name switch
     {
         _ when TypeShorthands.PredefinedTypes.ContainsKey(NamespaceUtils.NamePart(TypeName)) => PredefinedType(Token(TypeShorthands.PredefinedTypes[NamespaceUtils.NamePart(TypeName)])),
-        _ when GenericTypes.Count > 0 => GenericName(SyntaxFactory.Identifier(TypeName),
+        _ when PrintAsGeneric() => GenericName(Identifier(TypeName),
             TypeArgumentList(SeparatedList(GenericTypes.Select(x => x.Syntax())))),
-        _ => IdentifierName(SyntaxFactory.Identifier(TypeName))
+        _ => IdentifierName(Identifier(TypeName))
     };
 
     public virtual Type? GetReflectedType() => _cachedType ??= ReflectedType ??
-        (ReflectionSerialization.IsShortHandName(TypeName) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(TypeName) : default);
+        (ReflectionSerialization.IsShortHandName(TypeName, true) ? ReflectionSerialization.DeserializeTypeLookAtShortNames(TypeName) : default);
 
     public virtual string GetMostSpecificType() => TypeName;
 
@@ -121,4 +127,6 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
 
     public IdentifierExpression ToIdentifierExpression()
         => new(Name, Model: this, Symbol: Symbol);
+
+    private bool PrintAsGeneric() => Required && GenericTypes.Count > 0 && !TypeName.StartsWith("Nullable") && (!ReflectedType?.Name.StartsWith("Nullable") ?? true);
 }

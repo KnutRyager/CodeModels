@@ -1,41 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
+using CodeModels.Factory;
 using Common.DataStructures;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
 
-public abstract record QuickType(string Identifier, EqualityList<IType> GenericTypes, bool Required = true, bool IsMulti = false, Type? ReflectedType = null, ITypeDeclaration? Declaration = null, ITypeSymbol? Symbol = null)
-    : AbstractType(Identifier, GenericTypes, Required, IsMulti, ReflectedType, Symbol)
+public abstract record QuickType(string TypeName, bool Required, bool IsMulti, EqualityList<IType> GenericTypes, Type? ReflectedType = null, ITypeSymbol? Symbol = null)
+    : AbstractType(TypeName, GenericTypes, Required, IsMulti, ReflectedType, Symbol)
 {
     public static QuickType Create(string identifier,
-        bool required = true,
-        bool isMulti = false,
         Type? type = null,
-        ITypeDeclaration? declaration = null,
         ITypeSymbol? symbol = null)
-            => Create(identifier, TypeUtil.ParseGenericParameters(identifier), required, isMulti, type, declaration, symbol);
+            => Create(identifier, TypeUtil.ParseGenericParameters(identifier), type, symbol);
 
     public static QuickType Create(string identifier,
         IEnumerable<IType> genericTypes,
-        bool required = true,
-        bool isMulti = false,
         Type? type = null,
-        ITypeDeclaration? declaration = null,
         ITypeSymbol? symbol = null)
-        => new QuickTypeImp(ReflectionSerialization.GetToShortHandName(TypeParsing.RemoveGenericAndArrayPart(identifier)), genericTypes.ToEqualityList(), required, isMulti || TypeParsing.IsArrayIdentifier(identifier), type, declaration, symbol);
+    {
+        var name = ReflectionSerialization.SimplifyGenericName(identifier);
+        name = TypeParsing.RemoveGenericAndArrayPart(name);
+        //var name = ReflectionSerialization.GetToShortHandName(TypeParsing.RemoveGenericAndArrayPart(identifier));
+        name = TypeParsing.RemoveNullablePart(name);
+        var shouldLookUpReflectedType = type is null && ReflectionSerialization.IsShortHandName(name, true, true);
+        //name = isMulti ? $"{name}[]" : name;
+        if (shouldLookUpReflectedType) type = ReflectionSerialization.DeserializeType(identifier);
 
-    //public QuickType(string identifier, bool required = true, bool isMulti = false, Type? type = null, ITypeDeclaration? declaration = null, ITypeSymbol? symbol = null)
-    //    : this(TypeParsing.RemoveGenericAndArrayPart(identifier), TypeUtil.ParseGenericParameters(identifier), required, isMulti || TypeParsing.IsArrayIdentifier(identifier), type, declaration, symbol) { }
-    //public QuickType(string identifier, IEnumerable<IType> genericTypes, bool required = true, bool isMulti = false, Type? type = null, ITypeDeclaration? declaration = null, ITypeSymbol? symbol = null)
-    //    : this(TypeParsing.RemoveGenericAndArrayPart(identifier), genericTypes.ToEqualityList(), required, isMulti || TypeParsing.IsArrayIdentifier(identifier), type, declaration, symbol) { }
+        var isMulti = identifier.EndsWith("[]");
+        var required = !identifier.EndsWith("?");
 
-    public static QuickType ArrayType(IType type) => Create(type.TypeName, type.GenericTypes, type.Required, true, type.ReflectedType?.MakeArrayType());
+        return new QuickTypeImp(name, genericTypes.ToEqualityList(), required, isMulti, type, symbol);
+    }
 
-    public override IType PlainType()
-        => this with { IsMulti = false };
+    public static IType ArrayType(IType type) => type.ToMultiType();
+
+    public override IType PlainType() => RemoveNullable().RemoveMulti();
+
+    public override IType ToMultiType() => Create(
+            identifier: $"{TypeName}[]",
+            type: ReflectedType?.MakeArrayType(),
+            symbol: Symbol);
+
+    public override IType ToOptionalType() => Create(
+            identifier: $"{TypeName}?",
+            //genericTypes: new[] { this },
+            type: ReflectedType is null ? null : ReflectionUtil.GetNullableType(ReflectedType),
+            symbol: Symbol);
+
+    public QuickType RemoveMulti()
+        => IsMulti ? Create(
+            identifier: TypeName,
+            type: ReflectedType is null ? null : ReflectedType.GetElementType(),
+            symbol: Symbol) : this;
+
+    public QuickType RemoveNullable()
+        => !Required ? Create(
+            identifier: TypeName[..TypeName.LastIndexOf("?")],
+            type: ReflectedType?.GenericTypeArguments.First(),
+            symbol: Symbol) : this;
 
     public override string ToString() => $"(Identifier: {TypeName}, GenericTypes: {GenericTypes}, Required: {Required}, IsMulti: {IsMulti}, ReflectedType: {ReflectedType})";
     private record QuickTypeImp(string Identifier,
@@ -43,14 +69,12 @@ public abstract record QuickType(string Identifier, EqualityList<IType> GenericT
         bool Required = true,
         bool IsMulti = false,
         Type? ReflectedType = null,
-        ITypeDeclaration? Declaration = null,
         ITypeSymbol? Symbol = null)
     : QuickType(
-        Identifier: Identifier,
+        TypeName: Identifier,
         GenericTypes: GenericTypes,
         Required: Required,
         IsMulti: IsMulti,
         ReflectedType: ReflectedType,
-        Declaration: Declaration,
         Symbol: Symbol);
 }

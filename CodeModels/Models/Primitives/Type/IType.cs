@@ -14,13 +14,14 @@ public interface IType : ICodeModel<TypeSyntax>, IExpression, IMember
     new TypeSyntax Syntax();
     Type? ReflectedType { get; }
     IType PlainType();
+    IType ToMultiType();
+    IType ToOptionalType();
     TypeSyntax TypeSyntaxNonMultiWrapped();
     TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type);
     TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type);
     TypeSyntax TypeSyntaxUnwrapped();
     TypeParameterSyntax ToTypeParameter();
     Type? GetReflectedType();
-    IType ToMultiType();
     string GetMostSpecificType();
     IType GetGenericType(int index);
     EqualityList<IType> GenericTypes { get; }

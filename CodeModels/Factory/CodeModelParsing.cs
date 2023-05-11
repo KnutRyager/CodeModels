@@ -72,14 +72,17 @@ public static class CodeModelParsing
 
     public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
     {
-        var expression = Parse(syntax, required, knownType, model);
-        return (expression is IType type ? type
+        var expression = Parse(syntax, knownType, model);
+        return (expression is IType type ? (required ? type : type.ToOptionalType())
             : expression is IdentifierExpression identifier
-                ? QuickType(identifier.Name) : expression.Get_Type()) ??
+                ? QuickType(required ? identifier.Name : $"{identifier.Name}?", type: ReflectionSerialization.IsShortHandName(identifier.Name)
+                    ? ReflectionSerialization.DeserializeTypeLookAtShortNames(identifier.Name, !required)
+                    : null)
+                : expression.Get_Type()) ??
              //? Identifier(identifier.Name, symbol: SymbolUtils.GetSymbol(syntax, model), model: expression) : expression.Get_Type()) ??
              throw new NotImplementedException($"No type for: '{syntax}'.");
     }
-    public static IExpression Parse(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null) => syntax switch
+    public static IExpression Parse(TypeSyntax? syntax, IType? knownType = null, SemanticModel? model = null) => syntax switch
     {
         ArrayTypeSyntax type => Parse(type, knownType, model),
         FunctionPointerTypeSyntax type => Parse(type, knownType, model),
@@ -87,7 +90,7 @@ public static class CodeModelParsing
         NullableTypeSyntax type => Parse(type, knownType, model),
         OmittedTypeArgumentSyntax type => Parse(type, model),
         PointerTypeSyntax type => Parse(type, knownType, model),
-        PredefinedTypeSyntax type => Parse(type, required, knownType, model),
+        PredefinedTypeSyntax type => Parse(type, knownType, model),
         RefTypeSyntax type => Parse(type, knownType, model),
         TupleTypeSyntax type => Parse(type, knownType, model),
         null => TypeShorthands.NullType,
@@ -105,7 +108,7 @@ public static class CodeModelParsing
     };
     public static IType Parse(AliasQualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
     public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => new TypeFromReflection(model is null
+        => TypeFromReflection.Create(model is null
             ? System.Type.GetType(syntax.ToString())
             : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type));
     public static IExpression Parse(SimpleNameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
@@ -153,8 +156,8 @@ public static class CodeModelParsing
     public static IType Parse(NullableTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => ParseType(syntax.ElementType, false);
     public static IType Parse(OmittedTypeArgumentSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static IType Parse(PointerTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
-    public static IType Parse(PredefinedTypeSyntax syntax, bool required, IType? type = null, SemanticModel? model = null)
-        => QuickType(syntax.Keyword.ToString(), required);
+    public static IType Parse(PredefinedTypeSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => QuickType(syntax.Keyword.ToString(), type: ReflectionSerialization.DeserializeTypeLookAtShortNames(syntax.Keyword.ToString()));
     public static IType Parse(RefTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
     public static IType Parse(TupleTypeSyntax syntax, IType? type = null, SemanticModel? model = null) => throw new NotImplementedException();
 
@@ -219,7 +222,7 @@ public static class CodeModelParsing
         ThrowExpressionSyntax expression => Parse(expression, type, model),
         TupleExpressionSyntax expression => AbstractCodeModelParsing.Parse(expression, type, model),
         TypeOfExpressionSyntax expression => Parse(expression, type, model),
-        TypeSyntax expression => Parse(expression, true, type, model),
+        TypeSyntax expression => Parse(expression, type, model),
         WithExpressionSyntax expression => Parse(expression, type, model),
         _ => throw new NotImplementedException()
     };
@@ -297,14 +300,14 @@ public static class CodeModelParsing
                 var fieldSymbol = fieldReferenceOperation.Field;
                 typeModel = SymbolUtils.IsNewDefined(fieldSymbol)
                     ? GetModel<Field>(fieldSymbol).Type
-                    : new TypeFromReflection(SemanticReflection.GetType(fieldSymbol));
+                    : TypeFromReflection.Create(SemanticReflection.GetType(fieldSymbol));
             }
             else
             {
                 var deserializedType = ReflectionSerialization.DeserializeType(syntax.Expression.ToString());
                 if (deserializedType is not null)
                 {
-                    typeModel = new TypeFromReflection(deserializedType);
+                    typeModel = TypeFromReflection.Create(deserializedType);
                 }
             }
         }
