@@ -6,14 +6,14 @@ using Xunit;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.Execution.Class;
+namespace CodeModels.Test.Execution.Classes;
 
 public class ClassConstructorTests
 {
     [Fact]
     public void ConstructorInitiedInline()
     {
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             Constructor(),
             Field("A", Literal(5)),
             Method("get3", Type<int>(), Block(Return(3))));
@@ -28,7 +28,7 @@ public class ClassConstructorTests
     [Fact]
     public void ConstructorAdded()
     {
-        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)));
+        var c = Class("classA", Field("A", Literal(5)));
         Method("get3", Type<int>(), Block(Return(3)));
         var constructor = Constructor();
         c.AddMember(constructor);
@@ -43,7 +43,7 @@ public class ClassConstructorTests
     [Fact]
     public void DefaultConstructor()
     {
-        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)));
+        var c = Class("classA", Field("A", Literal(5)));
         Method("get3", Type<int>(), Block(Return(3)));
         var constructorFromClass = c.GetConstructor();
         var invocation = constructorFromClass.Invoke();
@@ -56,7 +56,7 @@ public class ClassConstructorTests
     [Fact]
     public void ConstructorWithParameterInitField()
     {
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             Constructor(NamedValue("a"), Block(Assignment(Identifier("A"), Identifier("a")))),
             Field("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();
@@ -68,7 +68,7 @@ public class ClassConstructorTests
     [Fact]
     public void ConstructorWithParameterDefaultValueInitField()
     {
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             Constructor(NamedValue("a", Literal(7)), Block(Assignment(Identifier("A"), Identifier("a")))),
             Field("A", Literal(5)));
         var constructorFromClass = c.GetConstructor();

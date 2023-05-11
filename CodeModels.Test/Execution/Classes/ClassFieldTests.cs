@@ -6,12 +6,12 @@ using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.Execution.Class;
+namespace CodeModels.Test.Execution.Classes;
 
 public class ClassFieldTests
 {
     [Fact]
-    public void GetStaticFieldValue() => CodeModelFactory.Class(
+    public void GetStaticFieldValue() => Class(
         "ClassA",
             Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be("test");
@@ -19,7 +19,7 @@ public class ClassFieldTests
     [Fact]
     public void GetInstanceFieldValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
@@ -32,7 +32,7 @@ public class ClassFieldTests
     [Fact]
     public void SetInstanceFieldValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
@@ -47,7 +47,7 @@ public class ClassFieldTests
     [Fact]
     public void GetInstanceStaticFieldValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
         var instance = c.CreateInstance();
@@ -60,7 +60,7 @@ public class ClassFieldTests
     [Fact]
     public void SetInstanceStaticFieldValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field("A", Literal("test"), modifier: PropertyAndFieldTypes.PublicStaticField));
         var instance = c.CreateInstance();
@@ -73,19 +73,19 @@ public class ClassFieldTests
     }
 
     [Fact]
-    public void InitStaticIntFieldDefaultValue() => CodeModelFactory.Class(
+    public void InitStaticIntFieldDefaultValue() => Class(
         "ClassA",
             Field(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(0);
 
     [Fact]
-    public void InitStaticBoolFieldDefaultValue() => CodeModelFactory.Class(
+    public void InitStaticBoolFieldDefaultValue() => Class(
         "ClassA",
             Field(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(false);
 
     [Fact]
-    public void InitStaticStringFieldDefaultValue() => CodeModelFactory.Class(
+    public void InitStaticStringFieldDefaultValue() => Class(
         "ClassA",
             Field(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicStaticField))
             .GetField("A").AccessValue().LiteralValue().Should().Be(null);
@@ -93,7 +93,7 @@ public class ClassFieldTests
     [Fact]
     public void InitInstanceIntFieldDefaultValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field(Type<int>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
@@ -106,7 +106,7 @@ public class ClassFieldTests
     [Fact]
     public void InitInstanceBoolFieldDefaultValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field(Type<bool>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();
@@ -119,7 +119,7 @@ public class ClassFieldTests
     [Fact]
     public void InitInstanceStringFieldDefaultValue()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field(Type<string>(), "A", modifier: PropertyAndFieldTypes.PublicField));
         var instance = c.CreateInstance();

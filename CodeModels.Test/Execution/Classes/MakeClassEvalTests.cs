@@ -2,7 +2,7 @@ using CodeModels.Execution;
 using FluentAssertions;
 using Xunit;
 
-namespace CodeModels.Test.Execution.Class;
+namespace CodeModels.Test.Execution.Classes;
 
 public class MakeClassEvalTests
 {

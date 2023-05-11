@@ -4,14 +4,14 @@ using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.Execution.Class;
+namespace CodeModels.Test.Execution.Classes;
 
 public class ClassDeclarationTests
 {
     [Fact]
     public void EvaluateClassDeclaration()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "ClassA",
             Field("A", Literal("test")));
 
@@ -24,7 +24,7 @@ public class ClassDeclarationTests
     [Fact]
     public void EvaluateClassDeclarationWithNamespace()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "SpaceA.ClassA",
             Field("A", Literal("test")));
 
@@ -37,7 +37,7 @@ public class ClassDeclarationTests
     [Fact]
     public void ResolveAndExecuteConstructorFromDeclaration()
     {
-        var c = CodeModelFactory.Class(
+        var c = Class(
         "SpaceA.ClassA",
             Field("A", Literal("test")));
 

@@ -8,7 +8,7 @@ using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 
-namespace CodeModels.Test.Execution.Class;
+namespace CodeModels.Test.Execution.Classes;
 
 public class ClassPropertyTests
 {
@@ -16,14 +16,14 @@ public class ClassPropertyTests
     public void EvaluateGetterBlock() => Property(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, Block(Return(3))) })
         .GetGetter()!
-        .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
+        .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
     public void EvaluateGetterExpressionBody() => Property(Type<int>(), "get3",
         new Accessor[] { Accessor(AccessorType.Get, expressionBody: Literal(3)) })
         .GetGetter()!
-        .Invoke(CodeModelFactory.Class("classA", Field("A", Literal(5))).CreateInstance())
+        .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
@@ -31,7 +31,7 @@ public class ClassPropertyTests
     {
         var method = Method("getA",
             NamedValues(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var c = CodeModelFactory.Class("classA", Field("A", Literal(5)), method);
+        var c = Class("classA", Field("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
         method.Invoke(instance).Eval().Should().Be(5);
@@ -43,7 +43,7 @@ public class ClassPropertyTests
         var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) });
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
         var getter = property.GetGetter()!;
@@ -60,7 +60,7 @@ public class ClassPropertyTests
         var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) });
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
         var getter = property.GetGetter()!;
@@ -82,7 +82,7 @@ public class ClassPropertyTests
         var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
         var getter = property.GetGetter()!;
@@ -104,7 +104,7 @@ public class ClassPropertyTests
         var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             new IFieldOrProperty[] { property });
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.IsStatic.Should().Be(true);
@@ -116,7 +116,7 @@ public class ClassPropertyTests
         var property = Property(Type<string>(), "A", new[] {
             Accessor(AccessorType.Get),
             Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicField);
-        var c = CodeModelFactory.Class("classA",
+        var c = Class("classA",
             new IFieldOrProperty[] { property });
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
         backingField.IsStatic.Should().Be(false);
