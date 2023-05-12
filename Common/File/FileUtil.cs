@@ -12,7 +12,7 @@ public static class FileUtil
 
     public static string DefaultAzureBlobAccount = "";
     public static string ProjectResourcePath = Constants.DEFAULT_RESOURCE_LOCATION;
-    public static string RootInFolder = ProjectResourcePath;
+    public static string RootInFolder = "";
     public static string RootOutFolder = $@"{Constants.DEFAULT_RESOURCE_LOCATION}Out\";
 
     // Read

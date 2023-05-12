@@ -1,4 +1,6 @@
-﻿namespace Common.Util;
+﻿using System;
+
+namespace Common.Util;
 
 public static class Constants
 {
@@ -8,6 +10,6 @@ public static class Constants
     public static readonly string DEFAULT_PROGRAM_LOCATION = $@"{DEFAULT_USER_FOLDER}source\repos\TheEverythingAPI\";
     public static readonly string DEFAULT_RESOURCE_LOCATION = $@"{DEFAULT_PROGRAM_LOCATION}resources\";
     public const string DEFAULT_SEPARATOR = ";";
-    public const string FILE_NEW_LINE = "\r\n";
+    public static readonly string FILE_NEW_LINE = Environment.NewLine;
     public const string DEFAULT_SHEET_NAME = "Ark 1";
 }
