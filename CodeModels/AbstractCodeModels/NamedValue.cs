@@ -5,6 +5,7 @@ using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -19,7 +20,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
     IMember, ITypeModel, IAssignable, INamedValue
 {
-    public AbstractProperty(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
+    public AbstractProperty(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IBaseTypeDeclaration? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)
     {
         Owner = owner;

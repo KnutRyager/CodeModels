@@ -120,7 +120,7 @@ public class CodeModelExecutionContext : ICodeModelExecutionContext
             case IdentifierExpression identifier: SetValue(identifier, value, allowDefine); break;
             case MemberAccessExpression memberAccess:
                 {
-                    if (memberAccess.Expression is InstantiatedObject instance)
+                    if (memberAccess.Expression is IInstantiatedObject instance)
                     {
                         try
                         {

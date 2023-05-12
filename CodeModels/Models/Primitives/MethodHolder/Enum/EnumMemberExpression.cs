@@ -6,15 +6,15 @@ using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.MethodHolder.Enum;
 
-public record FieldExpression(Field Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+public record EnumMemberExpression(EnumMember Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Field.Type, Symbol),
-    IFieldModelExpression
+    IEnumMemberExpression
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
+    public EnumMember GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<EnumMember>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
@@ -58,4 +58,5 @@ public record FieldExpression(Field Field, IExpression? Instance = null, IList<I
     public override object? LiteralValue() => EvaluatePlain(new CodeModelExecutionContext());
 
     public IBaseTypeDeclaration? Owner => Field.Owner;
+    IField IFieldExpression.Field => Field;
 }

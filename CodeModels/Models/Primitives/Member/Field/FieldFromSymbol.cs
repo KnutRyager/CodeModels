@@ -9,15 +9,15 @@
 
 //namespace CodeModels.Models;
 
-//public record FieldModelFromSymbol(string Name,
+//public record FieldFromSymbol(string Name,
 //    IType Type,
 //    List<AttributeList> Attributes,
 //    Modifier Modifier,
 //    IExpression Value)
 //    : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
-//    IFieldModel
+//    IField
 //{
-//    public static FieldModel Create(string name,
+//    public static Field Create(string name,
 //    IType type,
 //    IEnumerable<AttributeList>? attributes = null,
 //    Modifier modifier = Modifier.Public,
@@ -27,7 +27,7 @@
 //    modifier,
 //    value ?? VoidValue);
 
-//    public override IInvocation AccessValue(IExpression? instance = null) => new FieldModelExpression(this, instance, GetScopes(instance));
+//    public override IInvocation AccessValue(IExpression? instance = null) => new FieldExpression(this, instance, GetScopes(instance));
 
 //    public MemberAccessExpression Invoke(IExpression caller) => MemberAccess(this, caller);
 //    public MemberAccessExpression Invoke(string identifier) => Invoke(CodeModelFactory.Identifier(identifier));
@@ -85,7 +85,7 @@
 //        throw new NotImplementedException();
 //    }
 
-//    public FieldModelExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
+//    public FieldExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
 //    public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
 //    public AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
 //        MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),

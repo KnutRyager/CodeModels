@@ -14,6 +14,7 @@ using CodeModels.Models.Primitives.Expression.CompileTime;
 using CodeModels.Models.Primitives.Expression.Instantiation;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Common.Extensions;
 using Common.Reflection;
@@ -839,7 +840,7 @@ public class CodeModelParser
     public IConstructor Parse(ConstructorDeclarationSyntax syntax)
        => model?.GetSymbolInfo(syntax).Symbol is IObjectCreationOperation objectCreationSymbol
         && SemanticReflection.GetConstructor(objectCreationSymbol) is ConstructorInfo constructorInfo
-        ? new ConstructorFromReflection(constructorInfo)
+        ? CodeModelsFromReflection.Constructor(constructorInfo)
         : CodeModelFactory.Constructor(Parse(SymbolUtils.GetType(syntax)), new NamedValueCollection(syntax),
             syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
     public IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
@@ -869,13 +870,13 @@ public class CodeModelParser
     public IMember Parse(PropertyDeclarationSyntax syntax)
         => Register2(syntax, new Property(syntax.Name(), ParseType(syntax.Type),
              syntax.AttributeLists.Select(x => Parse(x)).ToList(), syntax.ExpressionBody is not null
-            ? List(Models.Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression), modifier: ParseModifier(syntax.Modifiers)))
+            ? List( Models.Primitives.Member.Accessor.Create(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression), modifier: ParseModifier(syntax.Modifiers)))
             : Parse(syntax.AccessorList!),
             ParseModifier(syntax.Modifiers), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value)));
     public List<Accessor> Parse(AccessorListSyntax syntax)
         => List(syntax.Accessors.Select(x => Parse(x)));
     public Accessor Parse(AccessorDeclarationSyntax syntax)
-        => Models.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body),
+        =>  Models.Primitives.Member.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body),
            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody?.Expression), modifier: ParseModifier(syntax.Modifiers));
     public IMember Parse(BaseTypeDeclarationSyntax syntax) => syntax switch
     {

@@ -12,7 +12,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+
+namespace CodeModels.Models.Primitives.Member;
 
 public record Property(string Name,
     IType Type,
@@ -78,7 +79,7 @@ public record Property(string Name,
         : Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
 
     public Field? GetBackingField()
-        => Owner is ClassDeclaration b ? b.GetFields().FirstOrDefault(x => ((IMember)x).Name == AccessorType.Get.GetBackingFieldName(Name)) : null;
+        => Owner is ClassDeclaration b ? b.GetFields().FirstOrDefault(x => x.Name == AccessorType.Get.GetBackingFieldName(Name)) as Field : null;
 
     public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
     {

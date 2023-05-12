@@ -1,4 +1,5 @@
 ﻿using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 

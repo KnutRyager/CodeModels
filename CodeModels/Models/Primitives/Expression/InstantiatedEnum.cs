@@ -7,16 +7,16 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
 using CodeModels.Models.Primitives.Member;
+using CodeModels.Models.Primitives.MethodHolder.Enum;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record InstantiatedObject(ClassDeclaration Type,
+public record InstantiatedEnum(EnumDeclaration Type,
     ICodeModelExecutionScope Scope,
-    ICodeModelExecutionScope StaticScope,
-    ICodeModelExecutionScope? ParentScope = null) : IInstantiatedObject
+    ICodeModelExecutionScope StaticScope) : IInstantiatedObject
 {
     public bool IsLiteralExpression => false;
     IBaseTypeDeclaration IInstantiatedObject.Type => Type;

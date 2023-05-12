@@ -6,9 +6,9 @@ using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Scope;
-using CodeModels.Models;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -29,7 +29,7 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
         try
         {
             context.EnterScopes(Scopes);
-            if (Caller is InstantiatedObject instance)
+            if (Caller is IInstantiatedObject instance)
             {
                 instance.EnterScopes(context);
             }
@@ -67,7 +67,7 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
         }
         finally
         {
-            if (Caller is InstantiatedObject instance)
+            if (Caller is IInstantiatedObject instance)
             {
                 instance.ExitScopes(context);
             }

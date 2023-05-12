@@ -13,7 +13,7 @@ using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
 public record Field(string Name,
     IType Type,
@@ -21,7 +21,7 @@ public record Field(string Name,
     Modifier Modifier,
     IExpression Value)
     : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
-    IField
+    IField<FieldExpression>
 {
     public static Field Create(string name,
     IType type,
@@ -100,6 +100,8 @@ public record Field(string Name,
     }
 
     public FieldExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
+    IFieldExpression IField.Access(IExpression? instance) => Access(instance);
+
     public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
     public AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),

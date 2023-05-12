@@ -7,7 +7,7 @@ using Xunit;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.AbstractCodeModels;
+namespace CodeModels.Test.AbstractCodeModels.Collection;
 
 public class NamedValueCollectionTests
 {

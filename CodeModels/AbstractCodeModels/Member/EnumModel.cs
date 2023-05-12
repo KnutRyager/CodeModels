@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Models;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Member;
 
 public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
     : BaseTypeDeclaration<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => NamedValue((x.LiteralValue() as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
@@ -31,7 +32,7 @@ public record EnumModel(string Identifier, ExpressionCollection Values, Namespac
         return values.ToList();
     }
 
-    public override InstantiatedObject CreateInstance()
+    public override IInstantiatedObject CreateInstance()
     {
         throw new NotImplementedException();
     }

@@ -7,7 +7,7 @@ using CodeModels.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
 public record PropertyFromField(FieldInfo Field)
     : AbstractProperty(TypeFromReflection.Create(Field), Field.Name, Field.IsLiteral ? CodeModelFactory.Literal(Field.GetValue(null)) : null,

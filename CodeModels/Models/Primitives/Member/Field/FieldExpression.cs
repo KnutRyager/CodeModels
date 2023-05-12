@@ -6,15 +6,12 @@ using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
-public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
-    : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),
-    IFieldModelExpression
+public record FieldExpression(Field Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+    : Expression<ExpressionSyntax>(Field.Type, Symbol),
+    IFieldExpression<Field>
 {
-    public Field Field => ProgramContext.GetContext(FieldSymbol).Get<Field>(FieldSymbol);
-    public IBaseTypeDeclaration? Owner => Field.Owner;
-
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
     public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
@@ -59,4 +56,7 @@ public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? I
     }
 
     public override object? LiteralValue() => EvaluatePlain(new CodeModelExecutionContext());
+
+    public IBaseTypeDeclaration? Owner => Field.Owner;
+    IField IFieldExpression.Field => Field;
 }

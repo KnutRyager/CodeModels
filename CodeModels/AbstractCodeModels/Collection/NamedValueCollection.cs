@@ -13,6 +13,7 @@ using CodeModels.Factory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 

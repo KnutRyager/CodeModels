@@ -68,7 +68,7 @@ public static class ExecuteUtil
             context.EnterScope();
             if (expression is IMemberAccess memberAccess)
             {
-                if (memberAccess.Instance is InstantiatedObject instance)
+                if (memberAccess.Instance is IInstantiatedObject instance)
                     instance.EnterScopes(context);
                 else if (memberAccess.Owner is ClassDeclaration c)
                     context.EnterScope(c.GetStaticScope());

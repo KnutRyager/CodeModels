@@ -13,7 +13,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
 public record MethodFromReflection(MethodInfo Method)
     : Method(Method.Name, new NamedValueCollection(Method.GetParameters()), TypeFromReflection.Create(Method.ReturnType))
@@ -198,8 +198,8 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public bool Equals(IType other, ICodeModelExecutionContext context)
         => TypeName == other.TypeName; // TODO: Check assembly
     public bool IsAssignableFrom(IType other, ICodeModelExecutionContext context)
-        => (ReflectedType is Type type && other.ReflectedType is Type otherType
-            && type.IsAssignableFrom(otherType)) || Equals(other, context); // TODO: Check for non-reflected
+        => ReflectedType is Type type && other.ReflectedType is Type otherType
+            && type.IsAssignableFrom(otherType) || Equals(other, context); // TODO: Check for non-reflected
 
     public IExpression Evaluate(ICodeModelExecutionContext context) => Lookup.AsStatement();
     public object? EvaluatePlain(ICodeModelExecutionContext context) => Lookup.AsStatement();

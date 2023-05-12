@@ -3,6 +3,7 @@ using System.Reflection.Metadata;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 

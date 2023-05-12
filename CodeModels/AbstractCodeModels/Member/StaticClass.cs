@@ -15,7 +15,7 @@ public record StaticClass(string Identifier, NamedValueCollection Properties, Li
         IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
     : this(identifier, NamedValues(properties), List(methods), @namespace) { }
 
-    public override InstantiatedObject CreateInstance()
+    public override IInstantiatedObject CreateInstance()
     {
         throw new NotImplementedException();
     }

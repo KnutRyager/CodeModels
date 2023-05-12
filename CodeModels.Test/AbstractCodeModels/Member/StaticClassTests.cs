@@ -1,13 +1,15 @@
 using System.Linq;
 using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Factory;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member;
 using TestCommon;
 using Xunit;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Test.AbstractCodeModels;
+namespace CodeModels.Test.AbstractCodeModels.Member;
 
 public class StaticClassTests
 {
@@ -35,8 +37,8 @@ public static partial class ClassA {
 
     [Fact(Skip = "&/out Not supported")]
     public void StaticMethodsFromReflection() => StaticClass("Math",
-        properties: new NamedValueCollection(typeof(System.Math).GetFields().Select(x => new PropertyFromField(x))),
-        methods: typeof(System.Math).GetMethods().Where(x => x.Name.StartsWith("B")).Select(x => new MethodFromReflection(x))).ToClass().CodeEqual(@"
+        properties: new NamedValueCollection(typeof(System.Math).GetFields().Select(x => CodeModelsFromReflection.Field(x))),
+        methods: typeof(System.Math).GetMethods().Where(x => x.Name.StartsWith("B")).Select(x => CodeModelsFromReflection.Method(x))).ToClass().CodeEqual(@"
 public static class Math {
     public const double E = 2.718281828459045D;
     public const double PI = 3.141592653589793D;

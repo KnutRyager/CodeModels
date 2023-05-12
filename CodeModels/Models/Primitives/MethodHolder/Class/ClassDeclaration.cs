@@ -13,6 +13,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 
@@ -36,9 +37,9 @@ public abstract record ClassDeclaration(string Name,
     Namespace? @namespace = null,
     Modifier? modifier = null)
     {
-        var c = new ClassDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
-        c.InitOwner();
-        return c;
+        var declaration = new ClassDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
+        declaration.InitOwner();
+        return declaration;
     }
 
     //public ClassDeclaration(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
@@ -108,7 +109,7 @@ public abstract record ClassDeclaration(string Name,
 
     public override ClassDeclarationSyntax Syntax() => Syntax();
 
-    public override InstantiatedObject CreateInstance()
+    public override IInstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
         var instance = new InstantiatedObject(this, scope, GetStaticScope(), Parent?.CreateInstanceScope());

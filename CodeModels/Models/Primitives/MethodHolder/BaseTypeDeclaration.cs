@@ -4,6 +4,7 @@ using System.Linq;
 using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -93,7 +94,9 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
 
     public Modifier Modifier => throw new NotImplementedException();
 
-    List<IMember> IBaseTypeDeclaration.Members => throw new NotImplementedException();
+    //List<IMember> IBaseTypeDeclaration.Members => Members.Select(x => x as IMember).ToList();
+    List<IMember> IBaseTypeDeclaration.Members => Members();
+    List<IMember> IBaseTypeDeclaration<T>.Members => Members();
 
     BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
 
@@ -138,5 +141,5 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
         throw new NotImplementedException();
     }
 
-    public abstract InstantiatedObject CreateInstance();
+    public abstract IInstantiatedObject CreateInstance();
 }

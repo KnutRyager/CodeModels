@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using System;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 

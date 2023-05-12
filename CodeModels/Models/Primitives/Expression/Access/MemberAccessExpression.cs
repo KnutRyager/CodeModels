@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
-using CodeModels.Models;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -31,7 +31,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
     public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
         var expression = Expression.Evaluate(context);
-        var instance = expression as InstantiatedObject;
+        var instance = expression as IInstantiatedObject;
         //var instance = expression as InstantiatedObject ?? (Expression is IdentifierExpression i ? i.Model as InstantiatedObject : null);
         var lookup = Identifier.Lookup(context);
         var declaration = instance?.Type ?? lookup as IMember;

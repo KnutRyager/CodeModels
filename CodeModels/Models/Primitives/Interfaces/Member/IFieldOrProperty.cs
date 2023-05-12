@@ -16,7 +16,7 @@ namespace CodeModels.Models;
 
 public interface IFieldOrProperty : IMember, ICodeModel, ITypeModel, IAssigner, IInvokable
 {
-    ITypeDeclaration? Owner { get; set; }
+    IBaseTypeDeclaration? Owner { get; set; }
     ExpressionSyntax? ExpressionSyntax { get; }
     IExpression Value { get; }
     IExpression ValueOrDefault();
@@ -37,7 +37,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
     IScopeHolder
     where T : MemberDeclarationSyntax
 {
-    public ITypeDeclaration? Owner { get; set; }
+    public IBaseTypeDeclaration? Owner { get; set; }
     public IType Get_Type() => Type;
     public virtual bool IsStatic => Modifier.HasFlag(Modifier.Static);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();
@@ -110,7 +110,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
 
     public IList<ICodeModelExecutionScope> GetScopes(IExpression? expression = null) => this switch
     {
-        _ when expression is InstantiatedObject instance => instance.GetScopes(null!),
+        _ when expression is IInstantiatedObject instance => instance.GetScopes(null!),
         _ when Owner is IScopeHolder scopeHolder => scopeHolder.GetScopes(null!),
         _ when expression is IdentifierExpression identifier && identifier.Model is IScopeHolder staticReference => staticReference.GetScopes(null!),
         _ => throw new NotImplementedException()

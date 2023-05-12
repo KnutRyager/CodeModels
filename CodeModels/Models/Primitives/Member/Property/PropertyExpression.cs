@@ -6,16 +6,17 @@ using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
-public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null) 
-    : Expression<ExpressionSyntax>(new TypeFromSymbol(PropertySymbol.Type), PropertySymbol),
+public record PropertyExpression(Property Property, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+    : Expression<ExpressionSyntax>(Property.Type, Symbol),
     IPropertyExpression
 {
-    public Property Property => ProgramContext.GetContext(PropertySymbol).Get<Property>(PropertySymbol);
     public IBaseTypeDeclaration? Owner => Property.Owner;
 
-    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();
+    IBaseTypeDeclaration? IMemberAccess.Owner => Owner;
+
+    public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -23,8 +24,8 @@ public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpr
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance, context);
+    //public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
-
     public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes) => Property.Assign(value, context, scopes);
 }

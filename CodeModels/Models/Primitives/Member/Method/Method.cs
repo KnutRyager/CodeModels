@@ -2,20 +2,20 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
-using CodeModels.Models.Reflection;
-using Common.Extensions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
-using static CodeModels.Factory.CodeModelFactory;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
-using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Models.Reflection;
+using Common.Extensions;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models
+namespace CodeModels.Models.Primitives.Member
 {
     public record Method(string Name, NamedValueCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null,
         Modifier Modifier = Modifier.Public, List<AttributeList>? AttributesIn = null)

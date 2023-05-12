@@ -5,6 +5,9 @@ using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member;
+using CodeModels.Models.Primitives.Member;
+using CodeModels.Models.Primitives.Member;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 
@@ -13,8 +16,11 @@ namespace CodeModels.Factory;
 public static class CodeModelsFromReflection
 {
     public static Namespace Namespace(Type type) => new(type.Namespace);
-
     public static TypeFromReflection Type(Type type) => TypeFromReflection.Create(type);
+    public static ConstructorFromReflection Constructor(ConstructorInfo info) => new(info);
+    public static MethodFromReflection Method(MethodInfo info) => new(info);
+    public static PropertyFromField Field(FieldInfo info) => new(info);
+    public static PropertyFromReflection Property(PropertyInfo info) => new(info);
 
     public static IBaseTypeDeclaration MetodHolder(Type type) => type switch
     {
@@ -34,7 +40,5 @@ public static class CodeModelsFromReflection
     public static LiteralExpression Literal(object value) => new(value);
 
     public static NamedValueCollection NamedValues(Type type) => new(type);
-
-    public static MethodFromReflection Method(MethodInfo info) => new(info);
 
 }

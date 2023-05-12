@@ -7,6 +7,7 @@ using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Factory.AbstractCodeModelFactory;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Test.Execution.Classes;
 

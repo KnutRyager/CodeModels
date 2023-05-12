@@ -14,7 +14,7 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.AbstractCodeModels.Collection;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
 public record Constructor(IType ReturnType, NamedValueCollection Parameters, Block? Body, IExpression? ExpressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
@@ -23,7 +23,7 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
 {
     public static Constructor Create(IType type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
         => new(type, parameters, body, expressionBody, modifier, attributes);
-    public static Constructor Create(ITypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
+    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
         => new(type.Get_Type(), parameters, body, expressionBody, modifier, attributes)
         {
             Owner = type
@@ -32,9 +32,9 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
         => Create(returnType, parameters, body, null, modifier);
     public static Constructor Create(IType returnType, NamedValueCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
         => Create(returnType, parameters, null, body, modifier);
-    public static Constructor Create(ITypeDeclaration type, NamedValueCollection parameters, Block body, Modifier modifier = Modifier.Public)
+    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, Block body, Modifier modifier = Modifier.Public)
         => Create(type, parameters, body, null, modifier);
-    public static Constructor Create(ITypeDeclaration type, NamedValueCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
+    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
         => Create(type, parameters, null, body, modifier);
 
     public ConstructorDeclarationSyntax ToConstructorSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None)
@@ -77,7 +77,7 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
 
     public override CodeModel<ConstructorDeclarationSyntax> Render(Namespace @namespace)
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public override SyntaxToken ToIdentifier() => Identifier(Owner?.Name ?? throw new NotImplementedException());

@@ -13,7 +13,7 @@ public record InstanceClass(string Identifier, NamedValueCollection Properties, 
     public InstanceClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
     : this(identifier, NamedValues(properties), List(methods), @namespace) { }
 
-    public override InstantiatedObject CreateInstance()
+    public override IInstantiatedObject CreateInstance()
     {
         throw new NotImplementedException();
     }

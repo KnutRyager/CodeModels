@@ -10,9 +10,10 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
+using CodeModels.Models.Primitives.MethodHolder.Enum;
 using CodeModels.Reflection;
 using CodeModels.Utils;
-using Common.Extensions;
 using Common.Reflection;
 using Common.Util;
 using Microsoft.CodeAnalysis;
@@ -44,7 +45,7 @@ public static class CodeModelFactory
         => QuickType(type.TypeName);
     public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
     public static IType Type(string code) => ParseType(code);
-    public static IType Type(ITypeDeclaration declaration) => QuickType(declaration.Name);
+    public static IType Type(IBaseTypeDeclaration declaration) => QuickType(declaration.Name);
     public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
     public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
@@ -75,7 +76,7 @@ public static class CodeModelFactory
 
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
-    public static IExpression Literal(object? value) => value is InstantiatedObject o ? o : value is LiteralExpression l ? l : new LiteralExpression(value);
+    public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : new LiteralExpression(value);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -90,16 +91,20 @@ public static class CodeModelFactory
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
+    public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
     public static Field Field(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
+        => Models.Primitives.Member.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
     public static Field Field(string name, IExpression value, Modifier modifier = Modifier.None)
         => Field(value?.Get_Type(), name, modifier: modifier, value: value);
     public static Field Field<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
             => Field(Type<T>(), name, modifier: modifier, value: value);
 
+    public static EnumMember EnumField(string name, IExpression? value = null) => EnumMember.Create(name, value: value);
+    public static EnumMember EnumField(string name, int value) => EnumField(name, Literal(value));
+
     public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
+        => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
     public static Property Property(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
         => Property(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
     public static Property Property<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
@@ -109,7 +114,7 @@ public static class CodeModelFactory
     Block? body = null,
     IExpression? expressionBody = null,
     IEnumerable<AttributeList>? attributes = null,
-    Modifier modifier = Modifier.None) => Models.Accessor.Create(type, body, expressionBody, attributes, modifier);
+    Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
 
     public static Property Property(string name,
     IType type,
@@ -156,16 +161,16 @@ public static class CodeModelFactory
 
     public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method, model);
 
-    public static Constructor ConstructorFull(ITypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
+    public static Constructor ConstructorFull(IBaseTypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
+        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
     public static Constructor Constructor(IType type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => Models.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, NamedValueCollection parameters, IExpression expressionBody,
+        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
+    public static Constructor Constructor(IBaseTypeDeclaration type, NamedValueCollection parameters, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(type, parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Constructor Constructor(IBaseTypeDeclaration type, NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => ConstructorFull(type, parameters, Block(statements), null, modifier);
     public static Constructor Constructor(string type, NamedValueCollection parameters, Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
@@ -173,13 +178,13 @@ public static class CodeModelFactory
     public static Constructor Constructor(string type, NamedValueCollection parameters, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(Class(type), parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, Block? body = null, IExpression? expressionBody = null,
+    public static Constructor Constructor(IBaseTypeDeclaration type, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, IExpression expressionBody,
+    public static Constructor Constructor(IBaseTypeDeclaration type, IExpression expressionBody,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(ITypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Constructor Constructor(IBaseTypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier);
     public static Constructor Constructor(string type, Block? body = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
@@ -284,4 +289,11 @@ public static class CodeModelFactory
         Namespace? @namespace = null,
         Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
+
+    public static EnumDeclaration Enum(string name,
+        IEnumerable<IEnumMember>? members = null,
+        Namespace? @namespace = null,
+        Modifier? modifier = null) => EnumDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+    public static EnumDeclaration Enum(string name, params IEnumMember[] membersArray) => Enum(name, members: membersArray);
+    public static EnumDeclaration Enum(string name, params string[] memberNames) => Enum(name, members: memberNames.Select(x => EnumField(x)).ToArray());
 }

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
