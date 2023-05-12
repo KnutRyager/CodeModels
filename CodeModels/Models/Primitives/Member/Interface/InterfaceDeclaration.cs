@@ -103,10 +103,8 @@ public abstract record InterfaceDeclaration(string Name,
     public List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
     public ITypeCollection ToTypeCollection() => ToNamedValues().ToTypeCollection();
 
-    MemberDeclarationSyntax IMember.Syntax()
-        => ToClass();
-
-    public override InterfaceDeclarationSyntax Syntax() => Syntax();
+    public override InterfaceDeclarationSyntax Syntax() => ToInterface();
+    MemberDeclarationSyntax IMember.Syntax() => Syntax();
 
     public override IInstantiatedObject CreateInstance()
     {

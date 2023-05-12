@@ -103,10 +103,8 @@ public abstract record ClassDeclaration(string Name,
     public List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
     public ITypeCollection ToTypeCollection() => ToNamedValues().ToTypeCollection();
 
-    MemberDeclarationSyntax IMember.Syntax()
-        => ToClass();
-
-    public override ClassDeclarationSyntax Syntax() => Syntax();
+    public override ClassDeclarationSyntax Syntax() => ToClass();
+    MemberDeclarationSyntax IMember.Syntax() => Syntax();
 
     public override IInstantiatedObject CreateInstance()
     {
