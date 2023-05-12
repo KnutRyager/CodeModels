@@ -16,12 +16,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public abstract record ClassDeclaration(string Name,
+public abstract record InterfaceDeclaration(string Name,
     List<IMember> Members,
-    IClassDeclaration? Parent = null,
+    IInterfaceDeclaration? Parent = null,
     Namespace? Namespace = null,
     Modifier Modifier = Modifier.Public)
-    : TypeDeclaration<ClassDeclarationSyntax>(
+    : TypeDeclaration<InterfaceDeclarationSyntax>(
         Name: Name,
         Members: Members,
         Namespace: Namespace,
@@ -29,31 +29,31 @@ public abstract record ClassDeclaration(string Name,
         MemberModifier: Modifier.None,
         ReflectedType: null),
     INamedValueCollection<IFieldOrProperty>,
-    IMember, IClassDeclaration
+    IMember, IInterfaceDeclaration
 {
-    public static ClassDeclaration Create(string name,
+    public static InterfaceDeclaration Create(string name,
     IEnumerable<IMember>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null)
     {
-        var declaration = new ClassDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new InterfaceDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
 
-    //public ClassDeclaration(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
-    //public ClassDeclaration(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
-    //public ClassDeclaration(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
-    //public ClassDeclaration(Type type) : this(type.GetProperties(), type.GetFields()) { }
-    //public ClassDeclaration(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
+    //public InterfaceDeclaration(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
+    //public InterfaceDeclaration(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
+    //public InterfaceDeclaration(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
+    //public InterfaceDeclaration(Type type) : this(type.GetProperties(), type.GetFields()) { }
+    //public InterfaceDeclaration(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
     //    : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
-    //public ClassDeclaration(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public ClassDeclaration(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public ClassDeclaration(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
-    //public ClassDeclaration(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public ClassDeclaration(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public ClassDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
-    //public ClassDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
+    //public InterfaceDeclaration(InterfaceDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    //public InterfaceDeclaration(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
+    //public InterfaceDeclaration(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
+    //public InterfaceDeclaration(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    //public InterfaceDeclaration(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
+    //public InterfaceDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
+    //public InterfaceDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
@@ -106,12 +106,12 @@ public abstract record ClassDeclaration(string Name,
     MemberDeclarationSyntax IMember.Syntax()
         => ToClass();
 
-    public override ClassDeclarationSyntax Syntax() => Syntax();
+    public override InterfaceDeclarationSyntax Syntax() => Syntax();
 
     public override IInstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
-        var instance = new InstantiatedObject(this, scope, GetStaticScope(), Parent?.CreateInstanceScope());
+        var instance = new InstantiatedInterface(this, scope, GetStaticScope(), Parent?.CreateInstanceScope());
         scope.SetThis(instance);
         InitInstanceScope(scope);
         return instance;
@@ -124,11 +124,11 @@ public abstract record ClassDeclaration(string Name,
         return scope;
     }
 
-    private record ClassDeclarationImp(string Name,
+    private record InterfaceDeclarationImp(string Name,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier Modifier = Modifier.Public)
-    : ClassDeclaration(
+    : InterfaceDeclaration(
         Name: Name,
         Members: Members,
         Namespace: Namespace,

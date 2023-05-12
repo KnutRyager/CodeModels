@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Factory;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member.Enum;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
@@ -10,7 +12,7 @@ using static CodeModels.Factory.CodeModelFactory;
 namespace CodeModels.AbstractCodeModels.Member;
 
 public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
-    : AbstractBaseTypeDeclaration<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => NamedValue((x.LiteralValue() as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
+    : AbstractBaseTypeDeclaration<EnumDeclaration, EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => NamedValue((x.LiteralValue() as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
 {
     public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 
@@ -24,7 +26,6 @@ public record EnumModel(string Identifier, ExpressionCollection Values, Namespac
     }
 
     new public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
-    public override EnumDeclarationSyntax Syntax() => ToEnum();
 
     private static List<string> AddNoneValue(IEnumerable<string> values, bool hasNoneValue)
     {
@@ -36,6 +37,9 @@ public record EnumModel(string Identifier, ExpressionCollection Values, Namespac
     {
         throw new NotImplementedException();
     }
+
+    protected override EnumDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
+        => Enum(Name, GetEnumMembers());
 }
 
 //public record EnumFromReflection(Type ReflectedType) : EnumModel(ReflectedType.Name, ReflectedType.GetFields().Select(x => x.Name), Namespace(ReflectedType));

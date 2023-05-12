@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Factory;
 using Common.Reflection;
@@ -8,7 +9,7 @@ using static CodeModels.Factory.AbstractCodeModelFactory;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public record ClassFromReflection(Type ReflectedType) : AbstractTypeDeclaration<ClassDeclarationSyntax>(ReflectedType.Name,
+public record ClassFromReflection(Type ReflectedType) : AbstractTypeDeclaration<ClassDeclaration, ClassDeclarationSyntax>(ReflectedType.Name,
      NamedValues(ReflectedType),
     ReflectedType.GetMethods().Select(x => CodeModelsFromReflection.Method(x)).ToList<IMethod>(),
     new Namespace(ReflectedType.Namespace),
@@ -20,5 +21,6 @@ public record ClassFromReflection(Type ReflectedType) : AbstractTypeDeclaration<
         throw new NotImplementedException();
     }
 
-    public override ClassDeclarationSyntax Syntax() => ToClass();
+    protected override ClassDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
+        => CodeModelFactory.Class(Name, Members());
 }

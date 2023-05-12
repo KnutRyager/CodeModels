@@ -6,6 +6,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
 using Common.DataStructures;
 using Common.Extensions;
@@ -19,11 +20,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.AbstractCodeModels.Member;
 
-public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
+public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
         Modifier MemberModifier, Type? ReflectedType)
-    : NamedCodeModel<T>(Name),
-    IBaseTypeDeclaration<T> where T : BaseTypeDeclarationSyntax
+    : AbstractAbstractCodeModel<T, TSyntax>(),
+    IBaseTypeDeclaration<TSyntax>,
+    IAbstractCodeModel<T, TSyntax> where T : ICodeModel<TSyntax>
+    where TSyntax : BaseTypeDeclarationSyntax
 {
     public AbstractBaseTypeDeclaration(string name, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
@@ -119,8 +122,6 @@ public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCol
 
     public string TypeName => throw new NotImplementedException();
 
-    BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
-
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var property in Properties.Properties) yield return property;
@@ -130,7 +131,7 @@ public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCol
     MemberDeclarationSyntax IMember.Syntax() => ToClass();
 
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
-        => (this with { TopLevelModifier = Modifier.SetModifiers(modifier).SetFlags(removeModifier, false) }).Syntax();
+        => (this with { TopLevelModifier = Modifier.SetModifiers(modifier).SetFlags(removeModifier, false) }).Syntax() as TSyntax;
 
     public ICodeModel Render(Namespace @namespace)
     {
@@ -265,6 +266,33 @@ public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCol
     }
 
     public Property? TryGetProperty(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    TSyntax IBaseTypeDeclaration<TSyntax>.Syntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierExpression ToIdentifierExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IdentifierNameSyntax IdentifierNameSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public SyntaxToken IdentifierSyntax() => Identifier(Name);
+
+    public SimpleNameSyntax NameSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax()
     {
         throw new NotImplementedException();
     }

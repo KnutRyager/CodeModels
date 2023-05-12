@@ -10,9 +10,9 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models
 {
-    public interface IClassDeclaration : ITypeDeclaration<ClassDeclarationSyntax>
+    public interface IInterfaceDeclaration : ITypeDeclaration<InterfaceDeclarationSyntax>
     {
-        IClassDeclaration? Parent { get; }
+        IInterfaceDeclaration? Parent { get; }
         List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null);
         IType BaseType();
         List<IType> ConvertToList();

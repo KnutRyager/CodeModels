@@ -14,6 +14,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Member;
+using CodeModels.AbstractCodeModels.Member;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 

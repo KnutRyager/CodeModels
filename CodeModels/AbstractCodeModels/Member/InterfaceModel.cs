@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Factory;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member;
 using Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.AbstractCodeModelFactory;
@@ -10,7 +12,7 @@ namespace CodeModels.AbstractCodeModels.Member;
 
 public record InterfaceModel(string Identifier, NamedValueCollection Properties, List<IMethod> Methods,
     Namespace? Namespace = null, bool IsStatic = false)
-    : AbstractTypeDeclaration<InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
+    : AbstractTypeDeclaration<InterfaceDeclaration, InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
         Modifier.Public.SetFlags(IsStatic ? Modifier.Static : Modifier.None),
         IsStatic ? Modifier.Static : Modifier.None)
 {
@@ -23,5 +25,6 @@ public record InterfaceModel(string Identifier, NamedValueCollection Properties,
         throw new System.NotImplementedException();
     }
 
-    public override InterfaceDeclarationSyntax Syntax() => ToInterface();
+    protected override InterfaceDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
+        => Interface(Identifier, Members(), Namespace, TopLevelModifier);
 }

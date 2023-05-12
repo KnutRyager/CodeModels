@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
 using CodeModels.Parsing;
 using Microsoft.CodeAnalysis;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Member;

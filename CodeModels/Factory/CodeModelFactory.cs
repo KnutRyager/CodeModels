@@ -290,6 +290,12 @@ public static class CodeModelFactory
         Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
 
+    public static InterfaceDeclaration Interface(string name,
+        IEnumerable<IMember>? members = null,
+        Namespace? @namespace = null,
+        Modifier? modifier = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+    public static InterfaceDeclaration Interface(string name, params IMember[] membersArray) => Interface(name, members: membersArray);
+
     public static EnumDeclaration Enum(string name,
         IEnumerable<IEnumMember>? members = null,
         Namespace? @namespace = null,

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Member;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 

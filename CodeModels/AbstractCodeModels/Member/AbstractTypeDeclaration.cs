@@ -9,11 +9,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.AbstractCodeModels.Member;
 
-public abstract record AbstractTypeDeclaration<T>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
+public abstract record AbstractTypeDeclaration<T, TSyntax>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
         Modifier MemberModifier, Type? ReflectedType)
-    : AbstractBaseTypeDeclaration<T>(Name, Properties, Methods, Namespace, TopLevelModifier, MemberModifier, ReflectedType),
-    ITypeDeclaration<T> where T : TypeDeclarationSyntax
+    : AbstractBaseTypeDeclaration<T, TSyntax>(Name, Properties, Methods, Namespace, TopLevelModifier, MemberModifier, ReflectedType),
+    ITypeDeclaration<TSyntax>
+    where T : ICodeModel<TSyntax>
+    where TSyntax : TypeDeclarationSyntax
 {
     public AbstractTypeDeclaration(string name, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
@@ -23,7 +25,6 @@ public abstract record AbstractTypeDeclaration<T>(string Name, NamedValueCollect
         foreach (var property in Properties.Properties) property.Owner = this;
     }
 
+    TSyntax ITypeDeclaration<TSyntax>.Syntax() => Syntax();
     TypeDeclarationSyntax ITypeDeclaration.Syntax() => Syntax();
-
-    T ITypeDeclaration<T>.Syntax() => Syntax();
 }

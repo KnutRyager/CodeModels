@@ -1,5 +1,4 @@
 using System.Linq;
-using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models;
@@ -13,7 +12,7 @@ namespace CodeModels.Test.AbstractCodeModels.Member;
 public class StaticClassTests
 {
     [Fact]
-    public void GenerateStaticClass() => StaticClass("ClassA", NamedValues(new AbstractProperty[] {
+    public void GenerateStaticClass() => StaticClass("ClassA", NamedValues(new[] {
             NamedValue(Type("string"),"myPrivateField",Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             NamedValue(Type("string"),"myPrivateReadonlyField",Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             NamedValue(Type("string"),"myPrivateProperty",Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),

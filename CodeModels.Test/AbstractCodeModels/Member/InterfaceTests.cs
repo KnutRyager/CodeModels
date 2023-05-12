@@ -1,4 +1,3 @@
-using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Factory;
 using CodeModels.Models;
@@ -11,7 +10,7 @@ using static CodeModelFactory;
 public class InterfaceTests
 {
     [Fact]
-    public void GenerateInterface() => new InterfaceModel("InterfaceA", NamedValues(new AbstractProperty[] {
+    public void GenerateInterface() => new InterfaceModel("InterfaceA", NamedValues(new[] {
             NamedValue<string>("myPrivateField", Literal("myPrivateFieldValue"), modifier: PropertyAndFieldTypes.PrivateField),
             NamedValue<string>("myPrivateReadonlyField", Literal("myPrivateReadonlyFieldValue"), modifier: PropertyAndFieldTypes.PrivateReadonlyField),
             NamedValue<string>("myPrivateProperty", Literal("myPrivatePropertyValue"), modifier: PropertyAndFieldTypes.PrivateProperty),

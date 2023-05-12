@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Factory;
 using CodeModels.Models;
 using Microsoft.CodeAnalysis;
