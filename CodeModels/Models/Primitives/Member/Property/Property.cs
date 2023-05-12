@@ -79,7 +79,7 @@ public record Property(string Name,
         : Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
 
     public Field? GetBackingField()
-        => Owner is ClassDeclaration b ? b.GetFields().FirstOrDefault(x => x.Name == AccessorType.Get.GetBackingFieldName(Name)) as Field : null;
+        => Owner is IClassDeclaration b ? b.GetFields().FirstOrDefault(x => x.Name == AccessorType.Get.GetBackingFieldName(Name)) as Field : null;
 
     public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
     {

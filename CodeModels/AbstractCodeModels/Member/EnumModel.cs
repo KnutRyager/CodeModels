@@ -23,7 +23,7 @@ public record EnumModel(string Identifier, ExpressionCollection Values, Namespac
         ValueCategories = valueCategories;
     }
 
-    public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
+    new public EnumDeclarationSyntax ToEnum() => Values.ToEnum(Name, IsFlags, HasNoneValue);
     public override EnumDeclarationSyntax Syntax() => ToEnum();
 
     private static List<string> AddNoneValue(IEnumerable<string> values, bool hasNoneValue)
@@ -38,4 +38,4 @@ public record EnumModel(string Identifier, ExpressionCollection Values, Namespac
     }
 }
 
-public record EnumFromReflection(Type ReflectedType) : EnumModel(ReflectedType.Name, ReflectedType.GetFields().Select(x => x.Name), Namespace(ReflectedType));
+//public record EnumFromReflection(Type ReflectedType) : EnumModel(ReflectedType.Name, ReflectedType.GetFields().Select(x => x.Name), Namespace(ReflectedType));

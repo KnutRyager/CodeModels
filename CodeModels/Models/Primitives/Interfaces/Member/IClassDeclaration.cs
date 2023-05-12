@@ -12,15 +12,11 @@ namespace CodeModels.Models
 {
     public interface IClassDeclaration : ITypeDeclaration<ClassDeclarationSyntax>
     {
-        ClassDeclaration? Parent { get; }
+        IClassDeclaration? Parent { get; }
         List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null);
         IType BaseType();
         List<IType> ConvertToList();
         CodeModelExecutionScope CreateInstanceScope(bool init = false);
-        void Deconstruct(out string Name, out List<IMember> Members, out ClassDeclaration? Parent, out Namespace? Namespace, out Modifier Modifier);
-        bool Equals(TypeDeclaration<ClassDeclarationSyntax>? other);
-        bool Equals(ClassDeclaration? other);
-        bool Equals(object? obj);
         void Evaluate(ICodeModelExecutionContext context);
         List<Property> FilterValues();
         List<IMember> Ordered();

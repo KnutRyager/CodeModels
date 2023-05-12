@@ -47,7 +47,7 @@ public static class AbstractCodeModelFactory
     public static InstanceClass InstanceClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
             => new(identifier, properties, methods, @namespace);
 
-    public static ClassDeclaration Class(NamedValueCollection collection) => collection.ToClassModel();
+    public static IClassDeclaration Class(NamedValueCollection collection) => collection.ToClassModel();
 
 
 }

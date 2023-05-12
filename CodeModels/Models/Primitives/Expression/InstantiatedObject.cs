@@ -12,7 +12,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record InstantiatedObject(ClassDeclaration Type,
+public record InstantiatedObject(IClassDeclaration Type,
     ICodeModelExecutionScope Scope,
     ICodeModelExecutionScope StaticScope,
     ICodeModelExecutionScope? ParentScope = null) : IInstantiatedObject

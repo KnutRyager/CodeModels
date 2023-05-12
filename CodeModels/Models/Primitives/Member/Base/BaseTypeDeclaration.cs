@@ -45,7 +45,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     protected void InitOwner()
     {
-        IniIMembers();
+        InitMembers();
         foreach (var member in Members)
         {
             if (member is IFieldOrProperty fieldOrProperty)
@@ -53,7 +53,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
         }
     }
 
-    private void IniIMembers()
+    private void InitMembers()
     {
         _fields ??= new List<IField>();
         _properties ??= new List<Property>();
@@ -62,7 +62,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
         var newMembers = new List<IMember>();
         foreach (var member in Members)
         {
-            IniIMember(member, newMembers);
+            InitMember(member, newMembers);
         }
         Members.AddRange(newMembers);
         foreach (var method in _methods)
@@ -73,7 +73,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
         }
     }
 
-    private IMember IniIMember(IMember member, List<IMember>? newMembers = null)
+    private IMember InitMember(IMember member, List<IMember>? newMembers = null)
     {
         newMembers ??= Members;
         switch (member)
@@ -180,7 +180,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
             if (fieldOrProperty.Owner is not null) throw new ArgumentException($"Adding already owned property '{member}' to '{Name}'.");
             fieldOrProperty.Owner = this;
         }
-        //IniIMember(member);
+        //InitMember(member);
         return this;
     }
 
@@ -201,7 +201,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
     {
         if (_methods is null)
         {
-            IniIMembers();
+            InitMembers();
         }
         return _methods!;
     }

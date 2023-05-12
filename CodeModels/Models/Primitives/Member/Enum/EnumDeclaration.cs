@@ -34,17 +34,17 @@ public abstract record EnumDeclaration(string Name,
     }
 
     public EnumDeclarationSyntax ToEnum() => SyntaxFactory.EnumDeclaration(
-            attributeLists: default,
-            modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
-            identifier: SyntaxFactory.Identifier(Name),
-            baseList: default,
-            members: SyntaxFactory.SeparatedList(GetEnumMembers().Select(x => x.EnumSyntax()))
-        );
+        attributeLists: default,
+        modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
+        identifier: SyntaxFactory.Identifier(Name),
+        baseList: default,
+        members: SyntaxFactory.SeparatedList(GetEnumMembers().Select(x => x.EnumSyntax())));
+
+    public List<IEnumMember> GetEnumMembers() => Members.Select(x => (x as IEnumMember)!).Where(x => x is not null).ToList();
+
     public override EnumDeclarationSyntax Syntax() => ToEnum();
 
-    public List<IEnumMember> GetEnumMembers() => Members.Select(x => x as IEnumMember).ToList();
-
-    public override IInstantiatedObject CreateInstance()
+   public override IInstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
         var instance = new InstantiatedEnum(this, scope, GetStaticScope());

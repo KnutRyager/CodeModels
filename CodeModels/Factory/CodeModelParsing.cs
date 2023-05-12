@@ -68,7 +68,7 @@ public static class CodeModelParsing
     public static IType Parse(SyntaxToken token, SemanticModel? model = null) => ParseType(token.ToString(), model);
     public static IType ParseType(string identifier, SemanticModel? model = null) => ParseType(ParseTypeName(identifier), model: model);
     public static IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo, SemanticModel? model = null) => typeInfo.Type is null && typeInfo.ConvertedType is null ? ParseType(typeInfo.ToString(), model) : Parse(typeInfo.Type ?? typeInfo.ConvertedType);  // TODO: Nullability
-    public static IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<ClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
+    public static IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
 
     public static IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null, SemanticModel? model = null)
     {
@@ -531,7 +531,7 @@ public static class CodeModelParsing
     public static IExpression Parse(BaseObjectCreationExpressionSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
         ImplicitObjectCreationExpressionSyntax expression => Parse(expression, type ?? Type(model.GetTypeInfo(syntax)), model),
-        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? (SymbolUtils.GetDeclaration(syntax, model) is ISymbol symbol && SymbolUtils.IsNewDefined(symbol) ? GetModel<ClassDeclaration>(symbol).Get_Type() : Type(model.GetTypeInfo(syntax))), model),
+        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? (SymbolUtils.GetDeclaration(syntax, model) is ISymbol symbol && SymbolUtils.IsNewDefined(symbol) ? GetModel<IClassDeclaration>(symbol).Get_Type() : Type(model.GetTypeInfo(syntax))), model),
         _ => throw new NotImplementedException()
     };
 

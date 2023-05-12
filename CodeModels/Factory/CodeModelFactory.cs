@@ -29,7 +29,7 @@ public static class CodeModelFactory
     public static readonly LiteralExpression VoidValue = new(TypeShorthands.VoidType);
     public static readonly LiteralExpression NullValue = new(TypeShorthands.NullType);
     public static readonly LiteralExpression DefaultValue = new(TypeShorthands.NullType);
-    public static readonly ClassDeclaration VoidClass = Class("_VoidClass");
+    public static readonly IClassDeclaration VoidClass = Class("_VoidClass");
 
     public static List<T> List<T>(IEnumerable<T>? objects) => objects?.ToList() ?? new List<T>();
     public static List<T> List<T>(params T[] objects) => objects?.ToList() ?? new List<T>();

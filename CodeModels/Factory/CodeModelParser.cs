@@ -74,7 +74,7 @@ public class CodeModelParser
     public IType Parse(SyntaxToken token) => ParseType(token.ToString());
     public IType ParseType(string identifier) => ParseType(ParseTypeName(identifier));
     public IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null && typeInfo.ConvertedType is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type ?? typeInfo.ConvertedType);  // TODO: Nullability
-    public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<ClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
+    public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
 
     public IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null)
     {
@@ -531,7 +531,7 @@ public class CodeModelParser
     public IExpression Parse(BaseObjectCreationExpressionSyntax syntax, IType? type = null) => syntax switch
     {
         ImplicitObjectCreationExpressionSyntax expression => Parse(expression, type ?? Type(model.GetTypeInfo(syntax))),
-        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? (SymbolUtils.GetDeclaration(syntax) is ISymbol symbol && SymbolUtils.IsNewDefined(symbol) ? GetModel<ClassDeclaration>(symbol).Get_Type() : Type(model.GetTypeInfo(syntax)))),
+        ObjectCreationExpressionSyntax expression => Parse(expression, type ?? (SymbolUtils.GetDeclaration(syntax) is ISymbol symbol && SymbolUtils.IsNewDefined(symbol) ? GetModel<IClassDeclaration>(symbol).Get_Type() : Type(model.GetTypeInfo(syntax)))),
         _ => throw new NotImplementedException()
     };
 

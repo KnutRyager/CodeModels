@@ -89,6 +89,15 @@ public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCol
             constraintClauses: default,
             members: SyntaxFactory.List(Members().Where(x => x.Modifier.HasFlag(Modifier.Public)).Select(x => x.SyntaxWithModifiers(removeModifier: Modifier.Public))));
 
+    public EnumDeclarationSyntax ToEnum() => EnumDeclaration(
+            attributeLists: default,
+            modifiers: TopLevelModifier.Syntax(),
+            identifier: Identifier(Name),
+            baseList: default,
+            members: SeparatedList(GetEnumMembers().Select(x => x.EnumSyntax())));
+
+    public List<IEnumMember> GetEnumMembers() => Members().Select(x => (x as IEnumMember)!).Where(x => x is not null).ToList();
+
     public IMember this[string name] => (IMember)Properties[name] ?? Methods.FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
     public AbstractProperty GetProperty(string name) => Properties[name];
     public IMethod GetMethod(string name) => Methods.First(x => ((IMember)x).Name == name);

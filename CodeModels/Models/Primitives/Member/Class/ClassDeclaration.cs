@@ -18,7 +18,7 @@ namespace CodeModels.Models.Primitives.Member;
 
 public abstract record ClassDeclaration(string Name,
     List<IMember> Members,
-    ClassDeclaration? Parent = null,
+    IClassDeclaration? Parent = null,
     Namespace? Namespace = null,
     Modifier Modifier = Modifier.Public)
     : TypeDeclaration<ClassDeclarationSyntax>(

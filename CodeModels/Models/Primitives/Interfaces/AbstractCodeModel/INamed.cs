@@ -4,7 +4,6 @@ public interface INamed :
     ICodeModel,
     IToTypeConvertible,
     IToExpresisonConvertible,
-    IToSimpleNameConvertible,
     IToParameterConvertible,
     IToTupleElementConvertible
 {

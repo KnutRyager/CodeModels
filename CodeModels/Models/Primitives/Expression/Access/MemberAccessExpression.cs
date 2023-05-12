@@ -35,7 +35,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
         //var instance = expression as InstantiatedObject ?? (Expression is IdentifierExpression i ? i.Model as InstantiatedObject : null);
         var lookup = Identifier.Lookup(context);
         var declaration = instance?.Type ?? lookup as IMember;
-        if (declaration is ClassDeclaration classDeclaration)
+        if (declaration is IClassDeclaration classDeclaration)
         {
             var access = classDeclaration.GetMember(Identifier.Name);
             if (access is IInvokable invokable)
@@ -66,7 +66,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
                 {
                     if (Identifier.Symbol is IFieldSymbol)
                     {
-                        return ((declaration as Field).Owner as ClassDeclaration).GetStaticScope().GetValue(Identifier.Name);
+                        return ((declaration as IField).Owner as IClassDeclaration).GetStaticScope().GetValue(Identifier.Name);
                     }
                 }
                 return Identifier.Symbol switch
