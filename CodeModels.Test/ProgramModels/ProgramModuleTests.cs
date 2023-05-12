@@ -8,7 +8,7 @@ namespace CodeModels.Test.ProgramModels;
 
 public class ProgramModuleTests
 {
-    [Fact]
+    [Fact(Skip ="Can only be run locally")]
     public void SaveFiles()
     {
         var model = ProgramModule.Create(

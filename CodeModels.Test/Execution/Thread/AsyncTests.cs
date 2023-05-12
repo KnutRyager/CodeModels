@@ -57,7 +57,7 @@ var title = html.Split(""<title>"")[1].Split(""</title>"")[0];
 Console.Write(title);
 ".Eval().Should().Be("Example Domain");
 
-    [Fact] public void GetCertificates() => (@"
+    [Fact(Skip = "Can only be run locally")] public void GetCertificates() => (@"
 using System.Security.Cryptography.X509Certificates;
 X509Store store = new X509Store(StoreName.My,StoreLocation.LocalMachine);
 store.Open(OpenFlags.ReadOnly);
