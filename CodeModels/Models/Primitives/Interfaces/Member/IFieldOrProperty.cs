@@ -17,7 +17,7 @@ public interface IFieldOrProperty : IMember, ICodeModel, ITypeModel, IAssigner, 
 {
     IBaseTypeDeclaration? Owner { get; set; }
     ExpressionSyntax? ExpressionSyntax { get; }
-    IExpression Value { get; }
+    IExpression? Value { get; }
     IExpression ValueOrDefault();
     IInvocation AccessValue(string identifier, IType? type = null, ISymbol? symbol = null);
     IInvocation AccessValue(IExpression? instance = null);

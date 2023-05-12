@@ -1,4 +1,5 @@
 ﻿using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -24,17 +25,13 @@ public abstract record AbstractStatement<T>(string? Name = null)
     public virtual bool EndsInBreak() => false;
     public abstract void Evaluate(ICodeModelExecutionContext context);
 
-
-    public string Name => $"Statement";
     public Modifier Modifier => Modifier.None;
     public bool IsStatic => false;
 
-    public SimpleNameSyntax NameSyntax() => throw new System.NotImplementedException();
-
-    MemberDeclarationSyntax IMember.Syntax() => throw new System.NotImplementedException();
-    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();
-    public TypeSyntax TypeSyntax() => throw new System.NotImplementedException();
-    public virtual IType Get_Type() => throw new System.NotImplementedException();
+    MemberDeclarationSyntax IMember.Syntax() => new GlobalStatement(this).Syntax();
+    public virtual MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();
+    public virtual TypeSyntax TypeSyntax() => throw new System.NotImplementedException();
+    public virtual IType Get_Type() => TypeShorthands.VoidType;
 
     public ICodeModel Render(Namespace @namespace)
     {

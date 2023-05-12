@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 //using Newtonsoft.Json;
@@ -22,7 +23,7 @@ public record LiteralExpression(IType Type, object? Value, string? SerializedVal
     }
 
     public LiteralExpression(EnumMemberDeclarationSyntax value) : this(TypeFromReflection.Create(typeof(string)), value.Identifier) { }
-    public override LiteralExpressionSyntax LiteralSyntax() => LiteralExpressionCustom(Value);
+    public override LiteralExpressionSyntax LiteralSyntax() => ReferenceEquals(this, CodeModelFactory.VoidValue) ? null! : LiteralExpressionCustom(Value);
     public override object? LiteralValue() => Value;
     public override LiteralExpressionSyntax Syntax() => LiteralSyntax();
 

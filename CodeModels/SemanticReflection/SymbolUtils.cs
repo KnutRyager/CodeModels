@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Reflection;
@@ -22,6 +23,12 @@ public static class SymbolUtils
         IFieldSymbol field => field,
         _ => symbol
     };
+
+    public static IAssemblySymbol? GetAssembly(CompilationUnitSyntax node, SemanticModel model)
+        => model?.GetDeclaredSymbol(node)?.ContainingAssembly ?? (node.Members.Count > 0 ? GetAssembly(node.Members[0], model) : null);
+
+    public static IAssemblySymbol GetAssembly(MemberDeclarationSyntax node, SemanticModel model)
+        => model?.GetDeclaredSymbol(node)?.ContainingAssembly;
 
     public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel? model = null) => node switch
     {

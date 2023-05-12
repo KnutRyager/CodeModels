@@ -10,7 +10,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models
 {
-    public interface IInterfaceDeclaration : ITypeDeclaration<InterfaceDeclarationSyntax>
+    public interface IInterfaceDeclaration : ITypeDeclaration<InterfaceDeclarationSyntax>,
+        IToClassConvertible, IToRecordConvertible
     {
         IInterfaceDeclaration? Parent { get; }
         List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null);
@@ -23,13 +24,11 @@ namespace CodeModels.Models
         SeparatedSyntaxList<ExpressionSyntax> SyntaxList();
         ArgumentListSyntax ToArguments();
         ArrayCreationExpressionSyntax ToArrayCreationSyntax();
-        ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public);
         List<IExpression> ToExpressions();
         InitializerExpressionSyntax ToInitializer();
         SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None);
         NamedValueCollection ToNamedValues();
         ParameterListSyntax ToParameters();
-        RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public);
         ITypeCollection ToTypeCollection();
         ExpressionCollection ToValueCollection();
     }

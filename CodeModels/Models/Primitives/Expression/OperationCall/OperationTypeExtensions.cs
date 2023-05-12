@@ -177,7 +177,7 @@ public static class OperationTypeExtensions
         OperationType.Multiply => SyntaxKind.MultiplyExpression,
         OperationType.Divide => SyntaxKind.DivideExpression,
         OperationType.Modulo => SyntaxKind.ModuloExpression,
-        OperationType.Equals => SyntaxKind.EqualsEqualsToken,
+        OperationType.Equals => SyntaxKind.EqualsExpression,
         OperationType.NotEquals => SyntaxKind.NotEqualsExpression,
         OperationType.GreaterThan => SyntaxKind.GreaterThanExpression,
         OperationType.GreaterThanOrEqual => SyntaxKind.GreaterThanOrEqualExpression,

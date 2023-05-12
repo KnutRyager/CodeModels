@@ -7,6 +7,9 @@ namespace CodeModels.Test.Execution.Classes;
 public class MakeClassEvalTests
 {
     [Fact]
+    public void MakeClass()
+        => "class A { }".Eval().Should().Be(null);
+    [Fact]
     public void MakeStaticClassGetField()
         => "public static class A { public static int B = 1337; } A.B;".Eval().Should().Be(1337);
     [Fact]

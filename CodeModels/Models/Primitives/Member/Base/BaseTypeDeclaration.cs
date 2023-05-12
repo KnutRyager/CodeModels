@@ -92,7 +92,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
                     {
                         var backingField = CodeModelFactory.Field(property.Type,
                             getter.Type.GetBackingFieldName(member.Name), property.Value,
-                            member.IsStatic ? PropertyAndFieldTypes.PrivateStaticField : PropertyAndFieldTypes.PrivateField);
+                            modifier: member.IsStatic ? PropertyAndFieldTypes.PrivateStaticField : PropertyAndFieldTypes.PrivateField);
 
                         if (!Members.Any(x => x.Name == backingField.Name))
                         {

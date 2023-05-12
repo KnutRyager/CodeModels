@@ -93,9 +93,9 @@ public static class CodeModelFactory
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
     public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
-    public static Field Field(IType? type, string name, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.Primitives.Member.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, modifier: modifier, value: value);
-    public static Field Field(string name, IExpression value, Modifier modifier = Modifier.None)
+    public static Field Field(IType? type, string name, IExpression? value = null, IEnumerable<AttributeList>? attributes = null, Modifier modifier = Modifier.None)
+        => Models.Primitives.Member.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, attributes, modifier, value);
+    public static Field Field(string name, IExpression? value, Modifier modifier = Modifier.None)
         => Field(value?.Get_Type(), name, modifier: modifier, value: value);
     public static Field Field<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
             => Field(Type<T>(), name, modifier: modifier, value: value);

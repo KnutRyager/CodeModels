@@ -29,4 +29,8 @@
 		<ProjectReference Include="..\TestCommon\TestCommon.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Generation\FromSource\ControlFlow\" />
+	</ItemGroup>
+
 </Project>

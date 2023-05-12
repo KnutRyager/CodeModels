@@ -631,7 +631,7 @@ public static class CodeModelParsing
         string s when s.LastOrDefault() is 'F' && !s.Contains("X") => float.Parse(token.Token.ValueText),
         string s when s.LastOrDefault() is 'D' => double.Parse(token.Token.ValueText),
         string s when s.LastOrDefault() is 'M' => decimal.Parse(token.Token.ValueText),
-        string s when s.Contains('.') => decimal.Parse(token.Token.ValueText),
+        string s when s.Contains('.') => double.Parse(token.Token.ValueText),
         string when token.Parent?.ToString().StartsWith("-") ?? false => decimal.Parse(token.Token.ValueText) switch
         {
             // CASTS ARE NEEDED
@@ -792,13 +792,13 @@ public static class CodeModelParsing
     };
     public static IMember Parse(EventFieldDeclarationSyntax syntax, SemanticModel? model = null) => throw new NotImplementedException();
     public static Field Parse(FieldDeclarationSyntax syntax, SemanticModel? model = null)
-        => Register(syntax, new Field(Parse(syntax.Declaration, model).First().Name,
-            ParseType(syntax.Declaration.Type, model: model), syntax.AttributeLists.Select(x => Parse(x, model)).ToList(),
-            ParseModifier(syntax.Modifiers), ParseExpression(syntax.Declaration.Variables.First()?.Initializer.Value, model: model)), model);
+        => Register(syntax, CodeModelFactory.Field(ParseType(syntax.Declaration.Type, model: model),
+            Parse(syntax.Declaration, model).First().Name,
+            syntax.Declaration.Variables.FirstOrDefault()?.Initializer is null ? null : ParseExpression(syntax.Declaration.Variables.First().Initializer!.Value, model: model),
+            syntax.AttributeLists.Select(x => Parse(x, model)).ToList(),
+            ParseModifier(syntax.Modifiers)), model);
     public static Field Parse(IFieldSymbol symbol, SemanticModel? model = null)
     {
-
-        var x = 0;
         VariableDeclaratorSyntax? variableDeclaratorSyntax = null;
         //VariableDeclarations? declarations = null;
         foreach (var declaring in symbol.DeclaringSyntaxReferences)
@@ -810,12 +810,11 @@ public static class CodeModelParsing
             //}
         }
         //return null!;
-        return Register(symbol, new Field(symbol.Name,
-                Parse(symbol.Type),
-                //symbol.GetAttributes().Select(x => Parse(x, model)).ToList(),
-                new List<AttributeList>(),  // TODO
-                ParseModifier(symbol),
-                variableDeclaratorSyntax is null ? null : ParseExpression(variableDeclaratorSyntax.Initializer.Value, model: model)));
+        return Register(symbol, CodeModelFactory.Field(Parse(symbol.Type),
+            symbol.Name,
+            //symbol.GetAttributes().Select(x => Parse(x, model)).ToList(),
+            variableDeclaratorSyntax?.Initializer is null ? null : ParseExpression(variableDeclaratorSyntax.Initializer.Value, model: model),
+            modifier: ParseModifier(symbol)));
     }
 
     public static Modifier ParseModifier(ISymbol symbol) => Modifier.None.SetFlags(
@@ -877,7 +876,7 @@ public static class CodeModelParsing
     public static List<Accessor> Parse(AccessorListSyntax syntax, SemanticModel? model = null)
         => List(syntax.Accessors.Select(x => Parse(x, model)));
     public static Accessor Parse(AccessorDeclarationSyntax syntax, SemanticModel? model = null)
-        =>  Models.Primitives.Member.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body, model),
+        => Models.Primitives.Member.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body, model),
            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody?.Expression, model: model), modifier: ParseModifier(syntax.Modifiers));
     public static IMember Parse(BaseTypeDeclarationSyntax syntax, SemanticModel? model = null) => syntax switch
     {

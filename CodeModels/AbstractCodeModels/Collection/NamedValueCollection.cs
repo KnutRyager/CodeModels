@@ -38,9 +38,9 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
     public NamedValueCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => AbstractCodeModelParsing.AbstractProperty(x))) { }
     public NamedValueCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
-    public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
+    public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? Modifier).Syntax(),
             identifier: name is null ? IdentifierSyntax() : CodeModelFactory.Identifier(name).ToToken(),
             typeParameterList: default,
             baseList: default,
@@ -48,9 +48,9 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
             members: ToMembers(memberModifiers)
         );
 
-    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
+    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? Modifier).Syntax(),
             identifier: name is null ? IdentifierSyntax() : CodeModelFactory.Identifier(name).ToToken(),
             typeParameterList: default,
             parameterList: ToParameters(),

@@ -7,12 +7,10 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record ExpressionStatement(IExpression Expression) : AbstractStatement<ExpressionStatementSyntax>, IExpression, IMember
+public record ExpressionStatement(IExpression Expression)
+    : AbstractStatement<ExpressionStatementSyntax>, IExpression, IMember
 {
-    public string Name => "None";
-    public Modifier Modifier => Modifier.None;
-    public bool IsStatic => false;
-    public IType Get_Type() => Expression.Get_Type();
+    public override IType Get_Type() => Expression.Get_Type();
 
     public bool IsLiteralExpression => false;
 
@@ -27,8 +25,8 @@ public record ExpressionStatement(IExpression Expression) : AbstractStatement<Ex
     ExpressionSyntax IExpression.Syntax() => Expression.Syntax();
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => Expression.Syntax();
     MemberDeclarationSyntax IMember.Syntax() => GlobalStatement(Syntax());
-    public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => GlobalStatement(Syntax());
-    public TypeSyntax TypeSyntax() => Get_Type().Syntax();
+    public override MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => GlobalStatement(Syntax());
+    public override TypeSyntax TypeSyntax() => Get_Type().Syntax();
     public ArgumentSyntax ToArgument() => Argument(Expression.Syntax());
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null)
     {

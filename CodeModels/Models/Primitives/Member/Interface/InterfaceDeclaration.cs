@@ -55,9 +55,9 @@ public abstract record InterfaceDeclaration(string Name,
     //public InterfaceDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
     //public InterfaceDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
-    public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
+    public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
             identifier: ToIdentifier(),
             typeParameterList: default,
             baseList: default,
@@ -65,9 +65,9 @@ public abstract record InterfaceDeclaration(string Name,
             members: ToMembers(memberModifiers)
         );
 
-    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
+    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
             identifier: name != null ? Identifier(name) : ToIdentifier(),
             typeParameterList: default,
             parameterList: ToParameters(),

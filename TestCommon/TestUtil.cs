@@ -2,10 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CodeModels.Execution.Context;
+using CodeModels.Extensions;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Parsing;
 using FluentAssertions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace TestCommon;
 
@@ -39,5 +43,27 @@ public static class TestUtil
     {
         int c = str.TakeWhile(c => char.IsWhiteSpace(c)).Count();
         return c == str.Length ? -1 : c;
+    }
+
+    public static string ParseAndRegenerateCode(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
+    {
+        var model = str.ParseAndKeepSemanticModel(key, kind);
+        var topLevelRewriter = new TopLevelStatementRewriter();
+        var rewrittenCompilationUnit = (CompilationUnitSyntax)model.Compilation.GetVisit(topLevelRewriter);
+        if (rewrittenCompilationUnit != model.Compilation)
+        {
+            model = rewrittenCompilationUnit.ToString().ParseAndKeepSemanticModel(key, kind);
+        }
+        ProgramContext.NewContext(model.Compilation, model.Model);
+        CodeModelParsing.Register(model.Compilation, model.Model);
+        var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
+        var code = FormatSyntaxNode(compilationModel.Syntax());
+        return code;
+    }
+
+    public static void AssertParsedAndGeneratedEqual(this string code)
+    {
+        var generatedCode = code.ParseAndRegenerateCode();
+        generatedCode.Trim().Should().Be(code.Trim());
     }
 }

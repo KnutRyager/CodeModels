@@ -4,5 +4,5 @@ namespace CodeModels.Models;
 
 public interface IToRecordConvertible
 {
-    RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public);
+    RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null);
 }

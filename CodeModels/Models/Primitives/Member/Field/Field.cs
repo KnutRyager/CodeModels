@@ -19,7 +19,7 @@ public record Field(string Name,
     IType Type,
     List<AttributeList> Attributes,
     Modifier Modifier,
-    IExpression Value)
+    IExpression? Value)
     : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
     IField<FieldExpression>
 {

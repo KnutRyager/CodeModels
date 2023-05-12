@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,7 +16,7 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
     public static IProgramContext? Context { get; private set; }
     public static IProgramContext NewContext(CompilationUnitSyntax? compilation = null, SemanticModel? model = null)
     {
-        var assembly = compilation is null ? null : model?.GetDeclaredSymbol(compilation)?.ContainingAssembly;
+        var assembly = compilation is null || model is null ? null : SymbolUtils.GetAssembly(compilation, model);
         var newContext = new ProgramContext(model);
         if (assembly is not null)
         {

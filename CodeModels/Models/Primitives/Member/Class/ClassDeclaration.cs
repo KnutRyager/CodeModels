@@ -55,19 +55,18 @@ public abstract record ClassDeclaration(string Name,
     //public ClassDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
     //public ClassDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
-    public ClassDeclarationSyntax ToClass(string? name = null, Modifier modifiers = Modifier.Public, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
+    public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
             identifier: ToIdentifier(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,
-            members: ToMembers(memberModifiers)
-        );
+            members: ToMembers(memberModifiers));
 
-    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
+    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
             attributeLists: default,
-            modifiers: modifiers.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
             identifier: name != null ? Identifier(name) : ToIdentifier(),
             typeParameterList: default,
             parameterList: ToParameters(),
