@@ -37,18 +37,14 @@ public class CodeModelExecutionContext : ICodeModelExecutionContext
     public void ConsoleWrite(string s)
     {
         Console.Write(s);
-        SetPreviousExpression(CodeModelFactory.Literal(s));
+        SetPreviousExpression(Literal(s));
     }
 
     public void ConsoleWriteLine(string s) => ConsoleWrite($"{s}\r\n");
     public void IncreaseDisableSetPreviousValueLock() => previousValueLock++;
     public void DecreaseDisableSetPreviousValueLock() => previousValueLock--;
 
-    public void EnterScope(object owner)
-    {
-        if (_scopes.Count >= 10000) throw new CodeModelExecutionException("Stackoverflow");
-        _scopes.Add(new ObjectModelExecutionScope(this, owner));
-    }
+    public void EnterScope(object owner) => EnterScope(new ObjectModelExecutionScope(this, owner));
 
     public void EnterScope() => EnterScope(new CodeModelExecutionScope());
 
