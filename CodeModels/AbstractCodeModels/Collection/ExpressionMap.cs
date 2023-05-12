@@ -20,25 +20,16 @@ public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollec
         _valueType = valueType;
     }
 
-    public ObjectCreationExpressionSyntax ToDictionary()
-    {
-        var fuk = DictionaryCreationExpressionCustom(
-keyType: BaseKeyTypeSyntax(),
-valueType: BaseValueTypeSyntax(),
-argumentList: default,
-initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
-        return DictionaryCreationExpressionCustom(
-keyType: BaseKeyTypeSyntax(),
-valueType: BaseValueTypeSyntax(),
-argumentList: default,
-initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
-    }
+    public ObjectCreationExpressionSyntax ToDictionary() => DictionaryCreationExpressionCustom(
+        keyType: BaseKeyTypeSyntax(),
+        valueType: BaseValueTypeSyntax(),
+        argumentList: default,
+        initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
 
     public IType ToDictionaryType() => CodeModelFactory.QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
     public IType ToDictionaryInterfaceType() => CodeModelFactory.QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
 
     public AbstractProperty ToNamedValue(string? name = null) => AbstractCodeModelParsing.AbstractProperty(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
-    //public Property ToProperty(string? name = null) => new(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType());
 
     public IType BaseKeyType() => Keys.BaseType();
     public TypeSyntax BaseKeyTypeSyntax() => BaseKeyType().Syntax();
