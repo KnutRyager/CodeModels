@@ -13,7 +13,7 @@ using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 
-namespace CodeModels.Models.Primitives.MethodHolder.Enum;
+namespace CodeModels.Models.Primitives.Member.Enum;
 
 public record EnumMember(string Name,
     List<AttributeList> Attributes,

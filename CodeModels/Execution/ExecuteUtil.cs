@@ -70,7 +70,7 @@ public static class ExecuteUtil
             {
                 if (memberAccess.Instance is IInstantiatedObject instance)
                     instance.EnterScopes(context);
-                else if (memberAccess.Owner is ClassDeclaration c)
+                else if (memberAccess.Owner is IClassDeclaration c)
                     context.EnterScope(c.GetStaticScope());
             }
         }

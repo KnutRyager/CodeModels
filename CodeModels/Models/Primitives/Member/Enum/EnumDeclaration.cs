@@ -7,14 +7,14 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Models.Primitives.MethodHolder.Enum;
+namespace CodeModels.Models.Primitives.Member.Enum;
 
 public abstract record EnumDeclaration(string Name,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier Modifier,
     Type? ReflectedType = null)
-    : BaseBaseType<EnumDeclarationSyntax>(Name,
+    : BaseTypeDeclaration<EnumDeclarationSyntax>(Name,
         Members: Members,
         Namespace: Namespace,
         TopLevelModifier: Modifier,

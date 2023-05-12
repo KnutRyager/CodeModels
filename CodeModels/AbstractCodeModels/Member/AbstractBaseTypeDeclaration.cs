@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
+using Common.DataStructures;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -14,15 +17,15 @@ using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Member;
 
-public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
+public abstract record AbstractBaseTypeDeclaration<T>(string Name, NamedValueCollection Properties, List<IMethod> Methods,
         Namespace? Namespace, Modifier TopLevelModifier,
         Modifier MemberModifier, Type? ReflectedType)
     : NamedCodeModel<T>(Name),
     IBaseTypeDeclaration<T> where T : BaseTypeDeclarationSyntax
 {
-    public BaseTypeDeclaration(string name, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null,
+    public AbstractBaseTypeDeclaration(string name, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
         Modifier memberModifier = Modifier.Public, Type? type = null)
         : this(name, NamedValues(properties), List(methods), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
@@ -96,7 +99,16 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
 
     //List<IMember> IBaseTypeDeclaration.Members => Members.Select(x => x as IMember).ToList();
     List<IMember> IBaseTypeDeclaration.Members => Members();
-    List<IMember> IBaseTypeDeclaration<T>.Members => Members();
+
+    public EqualityList<IType> GenericTypes => throw new NotImplementedException();
+
+    public bool IsLiteralExpression => throw new NotImplementedException();
+
+    public bool IsMulti => throw new NotImplementedException();
+
+    public bool Required => throw new NotImplementedException();
+
+    public string TypeName => throw new NotImplementedException();
 
     BaseTypeDeclarationSyntax IBaseTypeDeclaration.Syntax() => Syntax();
 
@@ -142,4 +154,109 @@ public abstract record BaseTypeDeclaration<T>(string Name, NamedValueCollection 
     }
 
     public abstract IInstantiatedObject CreateInstance();
+
+    public IBaseTypeDeclaration AddMember(IMember member)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IMember> AllMembers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Deconstruct(out string Name, out List<IMember> Members, out Namespace? Namespace, out Modifier TopLevelModifier, out Modifier MemberModifier, out Type? ReflectedType)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Constructor GetConstructor()
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<Constructor> GetConstructors()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IField GetField(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IField> GetFields()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IMember GetMember(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<Property> GetProperties()
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IFieldOrProperty> GetPropertiesAndFields()
+    {
+        throw new NotImplementedException();
+    }
+
+    Property IBaseTypeDeclaration.GetProperty(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IMember> GetReadonlyMembers()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IList<ICodeModelExecutionScope> GetScopes(ICodeModelExecutionContext context)
+    {
+        throw new NotImplementedException();
+    }
+
+    public CodeModelExecutionScope GetStaticScope()
+    {
+        throw new NotImplementedException();
+    }
+
+    public LiteralExpressionSyntax? LiteralSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public object? LiteralValue()
+    {
+        throw new NotImplementedException();
+    }
+
+    public List<IMember> Ordered(Modifier modifier = Modifier.None)
+    {
+        throw new NotImplementedException();
+    }
+
+    public TupleTypeSyntax ToTupleType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public IField? TryGetField(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public IMember TryGetMember(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Property? TryGetProperty(string name)
+    {
+        throw new NotImplementedException();
+    }
 }

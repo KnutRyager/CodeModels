@@ -11,7 +11,7 @@ using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.MethodHolder.Enum;
+using CodeModels.Models.Primitives.Member.Enum;
 using CodeModels.Reflection;
 using CodeModels.Utils;
 using Common.Reflection;

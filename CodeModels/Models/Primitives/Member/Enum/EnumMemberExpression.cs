@@ -6,7 +6,7 @@ using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace CodeModels.Models.Primitives.MethodHolder.Enum;
+namespace CodeModels.Models.Primitives.Member.Enum;
 
 public record EnumMemberExpression(EnumMember Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Field.Type, Symbol),

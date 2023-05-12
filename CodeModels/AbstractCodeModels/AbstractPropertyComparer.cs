@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CodeModels.AbstractCodeModels;
+using CodeModels.Models;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels;
 
 public record AbstractPropertyComparer(Modifier Modifier = Modifier.None) : IComparer<AbstractProperty>
 {

@@ -10,7 +10,7 @@ using static CodeModels.Factory.CodeModelFactory;
 namespace CodeModels.AbstractCodeModels.Member;
 
 public record EnumModel(string Identifier, ExpressionCollection Values, Namespace? Namespace, bool IsFlags, bool HasNoneValue)
-    : BaseTypeDeclaration<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => NamedValue((x.LiteralValue() as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
+    : AbstractBaseTypeDeclaration<EnumDeclarationSyntax>(Identifier, new(Values.Values.Select(x => NamedValue((x.LiteralValue() as string)!))), null, Namespace, topLevelModifier: Modifier.Static)
 {
     public IEnumerable<IEnumerable<string>>? ValueCategories { get; set; }
 

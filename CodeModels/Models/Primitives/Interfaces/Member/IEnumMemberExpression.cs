@@ -1,4 +1,4 @@
-﻿using CodeModels.Models.Primitives.MethodHolder.Enum;
+﻿using CodeModels.Models.Primitives.Member.Enum;
 
 namespace CodeModels.Models;
 

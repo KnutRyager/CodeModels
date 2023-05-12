@@ -7,7 +7,7 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
 using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.MethodHolder.Enum;
+using CodeModels.Models.Primitives.Member.Enum;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

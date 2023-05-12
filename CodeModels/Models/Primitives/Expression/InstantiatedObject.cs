@@ -6,7 +6,6 @@ using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

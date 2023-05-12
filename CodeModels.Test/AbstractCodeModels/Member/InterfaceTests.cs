@@ -1,4 +1,5 @@
 using CodeModels.AbstractCodeModels;
+using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Factory;
 using CodeModels.Models;
 using TestCommon;

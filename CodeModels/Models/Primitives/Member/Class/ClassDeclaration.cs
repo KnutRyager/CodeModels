@@ -1,28 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeModels.AbstractCodeModels;
+using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CodeModels.Factory;
-using CodeModels.Execution.Scope;
-using CodeModels.Execution.Context;
-using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.AbstractCodeModels.Collection;
-using CodeModels.AbstractCodeModels;
-using CodeModels.Models.Primitives.Member;
 
-namespace CodeModels.Models;
+namespace CodeModels.Models.Primitives.Member;
 
 public abstract record ClassDeclaration(string Name,
     List<IMember> Members,
     ClassDeclaration? Parent = null,
     Namespace? Namespace = null,
     Modifier Modifier = Modifier.Public)
-    : BaseType<ClassDeclarationSyntax>(
+    : TypeDeclaration<ClassDeclarationSyntax>(
         Name: Name,
         Members: Members,
         Namespace: Namespace,
@@ -30,7 +29,7 @@ public abstract record ClassDeclaration(string Name,
         MemberModifier: Modifier.None,
         ReflectedType: null),
     INamedValueCollection<IFieldOrProperty>,
-    IMember
+    IMember, IClassDeclaration
 {
     public static ClassDeclaration Create(string name,
     IEnumerable<IMember>? members = null,
@@ -69,7 +68,7 @@ public abstract record ClassDeclaration(string Name,
     public RecordDeclarationSyntax ToRecord(string? name = null, Modifier modifiers = Modifier.Public) => RecordDeclarationCustom(
             attributeLists: default,
             modifiers: modifiers.Syntax(),
-            identifier: name != null ? SyntaxFactory.Identifier(name) : ToIdentifier(),
+            identifier: name != null ? Identifier(name) : ToIdentifier(),
             typeParameterList: default,
             parameterList: ToParameters(),
             baseList: default,

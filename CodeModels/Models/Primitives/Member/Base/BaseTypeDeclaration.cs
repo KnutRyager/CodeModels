@@ -1,27 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using CodeModels.Execution.Context;
+using CodeModels.Execution.Scope;
+using CodeModels.Factory;
+using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.DataStructures;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CodeModels.Factory;
-using CodeModels.Execution.Scope;
-using CodeModels.Execution.Context;
-using CodeModels.Models.Interfaces;
-using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 
-public abstract record BaseBaseType<T>(string Name,
+public abstract record BaseTypeDeclaration<T>(string Name,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier TopLevelModifier,
@@ -29,8 +26,7 @@ public abstract record BaseBaseType<T>(string Name,
     Type? ReflectedType)
     : NamedCodeModel<T>(Name),
     IBaseTypeDeclaration<T>,
-    IScopeHolder
-    where T : BaseTypeDeclarationSyntax
+    IScopeHolder where T : BaseTypeDeclarationSyntax
 
 {
     private CodeModelExecutionScope? _staticScope;
@@ -39,7 +35,7 @@ public abstract record BaseBaseType<T>(string Name,
     private List<Method>? _methods;
     private List<Constructor>? _constructors;
 
-    public BaseBaseType(string name, IEnumerable<IMember>? members = null,
+    public BaseTypeDeclaration(string name, IEnumerable<IMember>? members = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
         Modifier memberModifier = Modifier.Public, Type? type = null)
         : this(name, List(members), @namespace, topLevelModifier, memberModifier, ReflectedType: type)

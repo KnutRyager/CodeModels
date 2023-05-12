@@ -1,15 +1,16 @@
 ﻿using System.Collections.Generic;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Models;
 using Common.Extensions;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
 
-namespace CodeModels.Models;
+namespace CodeModels.AbstractCodeModels.Member;
 
 public record InterfaceModel(string Identifier, NamedValueCollection Properties, List<IMethod> Methods,
     Namespace? Namespace = null, bool IsStatic = false)
-    : TypeDeclaration<InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
+    : AbstractTypeDeclaration<InterfaceDeclarationSyntax>(Identifier, Properties, Methods, Namespace,
         Modifier.Public.SetFlags(IsStatic ? Modifier.Static : Modifier.None),
         IsStatic ? Modifier.Static : Modifier.None)
 {

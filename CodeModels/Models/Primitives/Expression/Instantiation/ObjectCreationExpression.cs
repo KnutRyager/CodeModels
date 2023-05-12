@@ -5,6 +5,7 @@ using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
