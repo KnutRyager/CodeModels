@@ -3,7 +3,6 @@ using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models;
-using CodeModels.Models.Primitives.Member;
 using TestCommon;
 using Xunit;
 using static CodeModels.Factory.AbstractCodeModelFactory;

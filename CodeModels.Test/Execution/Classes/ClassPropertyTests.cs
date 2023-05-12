@@ -1,7 +1,6 @@
 using System.Linq;
 using CodeModels.Execution;
 using CodeModels.Execution.Context;
-using CodeModels.Factory;
 using CodeModels.Models;
 using FluentAssertions;
 using Xunit;

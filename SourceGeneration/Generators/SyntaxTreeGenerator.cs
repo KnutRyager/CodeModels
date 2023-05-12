@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Linq;
 using CodeModels.Collectors;
-using CodeModels.Generation;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Models;
 
 namespace CodeModels.Generators;

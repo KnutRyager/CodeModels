@@ -1,5 +1,3 @@
-using System.Linq;
-using System;
 using FluentAssertions;
 using Xunit;
 using System.Collections.Generic;

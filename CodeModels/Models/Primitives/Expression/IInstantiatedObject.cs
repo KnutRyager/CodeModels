@@ -1,15 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using CodeModels.Execution;
-using CodeModels.Execution.Context;
-using CodeModels.Execution.Scope;
+﻿using CodeModels.Execution.Context;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.Models.Primitives.Expression.Reference;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 

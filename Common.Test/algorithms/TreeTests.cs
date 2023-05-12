@@ -1,4 +1,3 @@
-using System.Linq;
 using Common.DataStructures;
 using Xunit;
 

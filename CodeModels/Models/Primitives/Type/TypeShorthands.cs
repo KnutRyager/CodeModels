@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Factory;
 using Microsoft.CodeAnalysis.CSharp;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 

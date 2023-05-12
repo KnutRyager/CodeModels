@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using CodeModels.DataTransformation;
-
-namespace CodeModels.Models;
+﻿namespace CodeModels.Models;
 
 public interface IOperation
 {

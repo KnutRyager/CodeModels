@@ -1,6 +1,5 @@
 #nullable disable
 
-using CodeModels;
 
 namespace CodeModels.ProgramModels.ErDiagram;
 

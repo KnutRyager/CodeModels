@@ -1,6 +1,4 @@
-﻿using CodeModels.Models.Primitives.Expression.Abstract;
-
-namespace CodeModels.Models;
+﻿namespace CodeModels.Models;
 
 public interface INamed :
     ICodeModel,

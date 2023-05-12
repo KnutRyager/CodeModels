@@ -1,4 +1,3 @@
-using CodeModels.AbstractCodeModels;
 using CodeModels.Models;
 using FluentAssertions;
 using TestCommon;

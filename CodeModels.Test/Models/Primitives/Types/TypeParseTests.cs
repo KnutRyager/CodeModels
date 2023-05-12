@@ -1,4 +1,3 @@
-using System;
 using CodeModels.Models;
 using Common.DataStructures;
 using FluentAssertions;

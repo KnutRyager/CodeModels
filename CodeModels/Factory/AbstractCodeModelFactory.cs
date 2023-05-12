@@ -1,27 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using CodeModels.AbstractCodeModels;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
-using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.Models.Primitives.Expression.Access;
-using CodeModels.Models.Primitives.Expression.Invocation;
-using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
-using CodeModels.Reflection;
-using CodeModels.Utils;
 using Common.Extensions;
-using Common.Reflection;
-using Common.Util;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.AbstractCodeModelParsing;
-using static CodeModels.Factory.CodeModelParsing;
 
 namespace CodeModels.Factory;
 

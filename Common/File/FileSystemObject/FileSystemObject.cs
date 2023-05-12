@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Common.Files;
+﻿namespace Common.Files;
 
 public abstract record FileSystemObject(string Name)
 {

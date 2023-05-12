@@ -6,7 +6,6 @@ using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 

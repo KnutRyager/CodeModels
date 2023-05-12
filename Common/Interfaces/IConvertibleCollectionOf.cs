@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Common.Interfaces;
+﻿namespace Common.Interfaces;
 
 public interface IConvertibleCollectionOf<T, TTo>
     : ICollectionOf<T>

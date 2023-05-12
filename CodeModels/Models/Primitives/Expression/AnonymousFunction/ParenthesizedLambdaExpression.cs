@@ -9,7 +9,6 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Util;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Operations;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Generator.Models.Primitives.Expression.AnonymousFunction;

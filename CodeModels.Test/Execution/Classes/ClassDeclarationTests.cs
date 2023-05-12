@@ -1,5 +1,4 @@
 using CodeModels.Execution.Context;
-using CodeModels.Factory;
 using FluentAssertions;
 using Xunit;
 using static CodeModels.Factory.CodeModelFactory;

@@ -3,7 +3,6 @@ using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;

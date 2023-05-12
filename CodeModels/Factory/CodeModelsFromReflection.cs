@@ -6,8 +6,6 @@ using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
-using CodeModels.Models.Primitives.Member;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
 

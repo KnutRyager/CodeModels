@@ -1,8 +1,6 @@
 using CodeModels.AbstractCodeModels.Member;
 using TestCommon;
 using Xunit;
-using static CodeModels.Factory.AbstractCodeModelFactory;
-using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Test.AbstractCodeModels;
 

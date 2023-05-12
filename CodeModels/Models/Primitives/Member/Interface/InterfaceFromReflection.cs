@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using static CodeModels.Factory.AbstractCodeModelFactory;
 using Common.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
