@@ -8,6 +8,7 @@ using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Parsing;
 using FluentAssertions;
+using FluentAssertions.Equivalency;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -64,6 +65,10 @@ public static class TestUtil
     public static void AssertParsedAndGeneratedEqual(this string code)
     {
         var generatedCode = code.ParseAndRegenerateCode();
+        generatedCode = FixNewlines(generatedCode);
+        code = FixNewlines(code);
         generatedCode.Trim().Should().Be(code.Trim());
     }
+
+    private static string FixNewlines(string s) => s.Replace("\r\n", Environment.NewLine).Replace("\n", Environment.NewLine);
 }
