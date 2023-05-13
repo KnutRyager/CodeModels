@@ -5,13 +5,17 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeModels.Models;
 
 public record IfStatement(IExpression Condition, IStatement Statement, IStatement? Else = null) : AbstractStatement<IfStatementSyntax>
 {
-    public override IfStatementSyntax Syntax() => IfStatementCustom(
-        Condition.Syntax(), Block(Statement).Syntax(), Else is null ? null : ElseClauseCustom(Block(Else).Syntax()));
+    public override IfStatementSyntax Syntax() => SyntaxFactory.IfStatement(
+     SyntaxFactory.List<AttributeListSyntax>(),
+     Condition.Syntax(),
+     Block(Statement).Syntax(),
+     Else is null ? null : ElseClauseCustom((Else is IfStatement or MultiIfStatement ? Else : Block(Else)).Syntax()));
 
     public override IEnumerable<ICodeModel> Children()
     {
