@@ -325,8 +325,8 @@ public static class CodeModelParsing
     public static IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
         => throw new NotImplementedException();    // TODO
 
-    public static PatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
-        => PatternExpression(Parse(syntax.Pattern, model), ParseExpression(syntax.Expression, model: model));
+    public static IsPatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null, SemanticModel? model = null)
+        => IsPatternExpression(ParseExpression(syntax.Expression, model: model), Parse(syntax.Pattern, model));
 
     public static IPattern Parse(PatternSyntax syntax, SemanticModel? model = null) => syntax switch
     {

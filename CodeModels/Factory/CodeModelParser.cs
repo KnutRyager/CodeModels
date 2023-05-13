@@ -325,8 +325,8 @@ public class CodeModelParser
     public IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null)
         => throw new NotImplementedException();    // TODO
 
-    public PatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null)
-        => PatternExpression(Parse(syntax.Pattern), ParseExpression(syntax.Expression));
+    public IsPatternExpression Parse(IsPatternExpressionSyntax syntax, IType? type = null)
+        => IsPatternExpression(ParseExpression(syntax.Expression), Parse(syntax.Pattern));
 
     public IPattern Parse(PatternSyntax syntax) => syntax switch
     {

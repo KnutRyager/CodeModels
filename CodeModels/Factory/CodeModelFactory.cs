@@ -267,8 +267,8 @@ public static class CodeModelFactory
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
 
-    public static PatternExpression PatternExpression(IPattern pattern, IExpression rhs, IType? type = null)
-        => new(pattern, rhs, type ?? TypeShorthands.NullType);
+    public static IsPatternExpression IsPatternExpression(IExpression lhs, IPattern pattern, IType? type = null)
+        => new(lhs, pattern, type ?? TypeShorthands.NullType);
 
     public static MemberAccessExpression MemberAccess(IExpression lhs, IdentifierExpression property, IType? type = null)
         => new(lhs, property, type);
