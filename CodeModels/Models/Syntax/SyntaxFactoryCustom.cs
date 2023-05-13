@@ -411,7 +411,7 @@ public static class SyntaxFactoryCustom
 
     public static TryStatementSyntax TryStatementCustom(
        BlockSyntax block, IEnumerable<CatchClauseSyntax> catches, FinallyClauseSyntax? @finally)
-        => TryStatement(block, List(catches), @finally ?? FinallyClause());
+        => TryStatement(List<AttributeListSyntax>(), block, List(catches), @finally);
     public static CatchClauseSyntax CatchClauseCustom(CatchDeclarationSyntax? declaration,
         BlockSyntax block,
         CatchFilterClauseSyntax? filter = null)

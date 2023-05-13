@@ -1,16 +1,20 @@
 ﻿using System.Collections.Generic;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
-using static CodeModels.Factory.CodeModelFactory;
-using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Context;
+using CodeModels.Execution.ControlFlow;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 
 namespace CodeModels.Models;
 
-public record CatchClause(IType Type, string? Identifier, IStatement Statement) : CodeModel<CatchClauseSyntax>
+public record CatchClause(IType Type, string? Identifier, IStatement Statement, CatchFilterClause? Filter) : CodeModel<CatchClauseSyntax>
 {
+    public static CatchClause Create(IType type, string? identifier, IStatement statement, CatchFilterClause? filter = null)
+        => new(type, identifier, statement, filter);
+
     public override CatchClauseSyntax Syntax() => CatchClauseCustom(
-        CatchDeclarationCustom(Type.Syntax(), Identifier), Block(Statement).Syntax());
+        CatchDeclarationCustom(Type.Syntax(), Identifier), Block(Statement).Syntax(), Filter?.Syntax());
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

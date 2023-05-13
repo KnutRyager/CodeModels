@@ -754,9 +754,11 @@ public static class CodeModelParsing
     };
     public static ThrowStatement Parse(ThrowStatementSyntax syntax, SemanticModel? model = null) => new(ParseExpression(syntax.Expression, model: model));
     public static TryStatement Parse(TryStatementSyntax syntax, SemanticModel? model = null)
-        => new(Parse(syntax.Block, model), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
+        => TryStatement(Parse(syntax.Block, model), List(syntax.Catches.Select(x => Parse(x, model))), syntax.Finally is null ? null : Parse(syntax.Finally, model));
     public static CatchClause Parse(CatchClauseSyntax syntax, SemanticModel? model = null)
-        => new(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type, model: model), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model));
+        => Catch(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type, model: model), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block, model), syntax.Filter is null ? null : Parse(syntax.Filter, model));
+    public static CatchFilterClause Parse(CatchFilterClauseSyntax syntax, SemanticModel? model = null)
+        => CatchFilter(ParseExpression(syntax.FilterExpression, model: model));
     public static CatchDeclaration Parse(CatchDeclarationSyntax syntax, SemanticModel? model = null) => new(ParseType(syntax.Type, model: model), syntax.Identifier.ToString());
     public static FinallyClause Parse(FinallyClauseSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));
     public static UnsafeStatement Parse(UnsafeStatementSyntax syntax, SemanticModel? model = null) => new(Parse(syntax.Block, model));

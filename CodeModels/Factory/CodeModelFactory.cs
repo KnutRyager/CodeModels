@@ -253,8 +253,11 @@ public static class CodeModelFactory
         => new(statement, List(catchClauses), @finally);
     public static TryStatement Try(IStatement statement, CatchClause catchClause, FinallyClause? @finally = null)
         => new(statement, List(catchClause), @finally);
-    public static CatchClause Catch(IType type, string identifier, IStatement statement) => new(type, identifier, statement);
-    public static CatchClause Catch(IType type, IStatement statement) => new(type, null, statement);
+    public static CatchClause Catch(IType type, string? identifier, IStatement statement, CatchFilterClause? filter = null)
+        => CatchClause.Create(type, identifier, statement, filter);
+    public static CatchClause Catch(IType type, IStatement statement, CatchFilterClause? filter = null)
+        => Catch(type, null, statement, filter);
+    public static CatchFilterClause CatchFilter(IExpression expression) => CatchFilterClause.Create(expression);
     public static FinallyClause Finally(IStatement statement) => new(statement);
     public static ThrowStatement Throw(IExpression expression) => new(expression);
     public static ThrowExpression ThrowExpression(IExpression expression) => new(expression);
@@ -302,4 +305,7 @@ public static class CodeModelFactory
         Modifier? modifier = null) => EnumDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static EnumDeclaration Enum(string name, params IEnumMember[] membersArray) => Enum(name, members: membersArray);
     public static EnumDeclaration Enum(string name, params string[] memberNames) => Enum(name, members: memberNames.Select(x => EnumField(x)).ToArray());
+
+    public static TryStatement TryStatement(IStatement statement, IEnumerable<CatchClause>? catchClauses, FinallyClause? @finally = null)
+        => Models.TryStatement.Create(statement, catchClauses, @finally);
 }

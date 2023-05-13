@@ -5,13 +5,17 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Execution.Context;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeModels.Models;
 
 public record TryStatement(IStatement Statement, List<CatchClause> CatchClauses, FinallyClause? Finally = null) : AbstractStatement<TryStatementSyntax>
 {
+    public static TryStatement Create(IStatement statement, IEnumerable<CatchClause>? catchClauses, FinallyClause? @finally = null)
+        => new(statement, List(catchClauses), @finally);
+
     public override TryStatementSyntax Syntax() => TryStatementCustom(
-         Block(Statement).Syntax(), CatchClauses.Select(x => x.Syntax()), Finally?.Syntax());
+          Block(Statement).Syntax(), CatchClauses.Select(x => x.Syntax()), Finally?.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
