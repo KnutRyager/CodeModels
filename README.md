@@ -54,12 +54,11 @@ A C# C# emulator is also included, to execute the code models. This is handy for
 ## Contribute
 The codebase is a bit messy for now. However it's very simple to contribute by making unit tests, especially for the emulator when parsing from source, as it's completely independent on how the project is implemented. See: https://github.com/KnutRyager/CodeModels/blob/master/CodeModels.Test/Execution/Classes/MakeClassEvalTests.cs
 
-This tests builds CodeModels directly:
-https://github.com/KnutRyager/CodeModels/blob/master/CodeModels.Test/Execution/Classes/ClassPropertyTests.cs
+For source generation test, they can be written simply by writing the source, which is parsed to Code Models, and then the source is regenerated. See:
+https://github.com/KnutRyager/CodeModels/blob/master/CodeModels.Test/Generation/FromSource/Class/ClassFieldDeclarationFromSourceTests.cs
 
-A third important test type is source generation tests, done mostly from code models:
+Enumator and source generation tests can also be written with Code Models:
 https://github.com/KnutRyager/CodeModels/blob/master/CodeModels.Test/Models/Primitives/MethodTests.cs
-
-What's also planned is source -> CodeModel -> source tests, which would test both parsing and source generation, without requiring any knowledge to write.
+https://github.com/KnutRyager/CodeModels/blob/master/CodeModels.Test/Execution/Classes/ClassPropertyTests.cs
 
 You can make tests for unsupported features and simply skip them with [Fact(Skip = "Not implemented")], although look at the roadmap on what's most realistic to be supported.
