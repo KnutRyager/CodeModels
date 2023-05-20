@@ -33,7 +33,7 @@ public static class TypeUtil
 
 
     public static EqualityList<IType> ParseGenericParameters(string identifier) => identifier.LastOrDefault() is '?'
-        ? new EqualityList<IType>() { CodeModelParsing.ParseType(identifier[..^1]) }
+        ? new EqualityList<IType>() { CodeModelTypeParsing.Parse(identifier[..^1]) }
         : new(TypeParsing.ParseGenericParameters(identifier).Select(TypeFromParsedGenericType));
     public static IType TypeFromParsedGenericType(ParsedGenericType parsed) => CodeModelFactory.QuickType(parsed.Name, parsed.Parameters.Select(TypeFromParsedGenericType));
 

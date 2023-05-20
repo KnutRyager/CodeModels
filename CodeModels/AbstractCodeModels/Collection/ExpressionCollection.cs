@@ -11,6 +11,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Factory;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Instantiation;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 
@@ -33,8 +34,14 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
     public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
     public TypeSyntax BaseTypeSyntax() => BaseType().Syntax();
     public virtual IType BaseType() => SpecifiedType ?? TypeUtil.FindCommonType(Values);
-    public ArrayCreationExpressionSyntax ToArrayInitialization() => ArrayInitializationCustom(BaseType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
-    public ObjectCreationExpressionSyntax ToListInitialization() => ListInitializationCustom(BaseTypeSyntax(), Values.Select(x => x.Syntax()));
+    public ArrayCreationExpressionSyntax ToArrayInitialization() 
+        => ArrayInitializationCustom(BaseType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
+    public ObjectCreationExpression ToArrayInitialization2()
+        => new ObjectCreationExpression(BaseType(), null, ArrayInitializer(Values));
+    public ObjectCreationExpressionSyntax ToListInitialization() 
+        => ListInitializationCustom(BaseTypeSyntax(), Values.Select(x => x.Syntax()));
+    public ObjectCreationExpression ToListInitialization2() 
+        => new ObjectCreationExpression(BaseType(), null, CollectionInitializer(Values));
 
     public override ArrayCreationExpressionSyntax Syntax() => ToArrayInitialization();
 

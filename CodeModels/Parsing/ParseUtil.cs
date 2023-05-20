@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Compilation;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Files;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -28,6 +30,8 @@ public static class ParseUtil
 
     public static (CompilationUnitSyntax Compilation, SemanticModel Model) ParseAndKeepSemanticModel(this string str, string? key = null, SourceCodeKind kind = SourceCodeKind.Regular)
         => (Compilation: str.Parse(key, kind), GetSemanticModel(key: str));
+
+    public static IExpression ParseExpression(this string code) => CodeModelParsing.ParseExpression(code);
 
     public static IEnumerable<CompilationUnitSyntax> Parse(this IEnumerable<string> strs, string? key = null)
     {

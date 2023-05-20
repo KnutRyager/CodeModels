@@ -2,6 +2,7 @@
 using System.Linq;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Instantiation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
@@ -19,8 +20,11 @@ public record ExpressionsMap(IExpression Key, List<IExpression> Values, bool Mul
 
     public ExpressionsMap(IExpression key, string commaSeparatedValues) : this(key, commaSeparatedValues.Trim().Split(',').Select(Literal)) { }
     public ExpressionsMap(IExpression key, EnumDeclarationSyntax declaration) : this(key, declaration.Members.Select(Literal)) { }
-    public InitializerExpressionSyntax ToKeyValueInitialization() => ComplexElemementExpressionCustom(
+    public InitializerExpressionSyntax ToKeyValueInitializationSyntax() => ComplexElemementExpressionCustom(
         new ExpressionSyntax[] { Key.Syntax(), MultiValues ? ToArrayInitialization() : Values.First().Syntax() });
+
+    public InitializerExpression ToKeyValueInitialization() => ComplexElementInitializer(new IExpression[] { Key }
+        .Concat(new IExpression[] { MultiValues ? new ObjectCreationExpression(Type, null, ArrayInitializer(Values, Type)) : Values.First() }), ValueType);
 
     public override IType BaseType() => ValueType ?? (MultiValues ? base.BaseType().ToMultiType() : base.BaseType());
 }

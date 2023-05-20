@@ -5,7 +5,6 @@ using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -15,13 +14,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Instantiation;
 
-public record ObjectCreationExpression(IType Type, NamedValueCollection? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
+public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {
-    public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(), Arguments?.ToArguments(), Initializer?.Syntax());
+    public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(),
+        Arguments is null ? null : ArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))), Initializer?.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
+        if (Arguments is not null) foreach (var argument in Arguments) yield return argument;
     }
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
@@ -35,7 +36,7 @@ public record ObjectCreationExpression(IType Type, NamedValueCollection? Argumen
             //var memberw = ProgramContext.Context.Get<ClassDeclaration>(objectCreationOperation.Type);
             var constructor = member.GetConstructor();
             var arguments = Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.ToExpressions().ToArray();
+               : Arguments.ToArray();
             var invocation = ConstructorInvocation(constructor, arguments);
             value = invocation.Evaluate(context);
             //return CodeModelFactory.ConstructorInvocation(constructor);
@@ -44,14 +45,14 @@ public record ObjectCreationExpression(IType Type, NamedValueCollection? Argumen
         {
             var constructor = GetConstructor();
             value = Value(constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.ToExpressions().Select(x => x.EvaluatePlain(context)).ToArray()));
+               : Arguments.Select(x => x.EvaluatePlain(context)).ToArray()));
             valuePlain = value.LiteralValue();
         }
         if (Initializer is not null)
         {
             context.EnterScope(value);
             var initialValues = Initializer.EvaluatePlain(context);
-            var isAssignmentInInitializer = Initializer.Expressions.Properties.FirstOrDefault()?.ToExpression() is AssignmentExpression;
+            var isAssignmentInInitializer = Initializer.Expressions.FirstOrDefault() is AssignmentExpression;
             if (!isAssignmentInInitializer)
             {
                 if (initialValues is IEnumerable<object?> initialPlainValues)
@@ -85,7 +86,7 @@ public record ObjectCreationExpression(IType Type, NamedValueCollection? Argumen
         else
         {
             var type = Type.ReflectedType;
-            var parameters = Arguments?.Properties.Select(x => x.Get_Type().ReflectedType).ToArray();
+            var parameters = Arguments?.Select(x => x.Get_Type().ReflectedType).ToArray();
             var constructor = type.GetConstructor(parameters);
             if (constructor is not null)
             {

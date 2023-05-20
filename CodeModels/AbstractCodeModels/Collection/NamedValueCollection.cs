@@ -2,19 +2,18 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.Collectors;
+using CodeModels.AbstractCodeModels.Member;
+using CodeModels.Execution.Context;
+using CodeModels.Factory;
+using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
 using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using CodeModels.Factory;
-using CodeModels.Execution.Context;
-using CodeModels.Models.Primitives.Expression.Abstract;
-using CodeModels.Models;
-using CodeModels.Models.Primitives.Member;
-using CodeModels.AbstractCodeModels.Member;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 
@@ -30,12 +29,6 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
     public NamedValueCollection(Type type) : this(type.GetProperties(), type.GetFields()) { }
     public NamedValueCollection(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
         : this(properties.Select(x => new PropertyFromReflection(x)).ToList<AbstractProperty>().Concat(fields.Select(x => new FieldFromReflection(x)))) { }
-    public NamedValueCollection(ClassDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => AbstractCodeModelParsing.AbstractProperty(x)), declaration.Identifier.ToString()) { }
-    public NamedValueCollection(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => AbstractCodeModelParsing.AbstractProperty(x)), declaration.Identifier.ToString()) { }
-    public NamedValueCollection(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => AbstractCodeModelParsing.AbstractProperty(x))) { }
-    public NamedValueCollection(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    public NamedValueCollection(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    public NamedValueCollection(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => AbstractCodeModelParsing.AbstractProperty(x))) { }
     public NamedValueCollection(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(

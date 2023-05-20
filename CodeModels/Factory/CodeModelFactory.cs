@@ -19,8 +19,6 @@ using Common.Util;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Factory.AbstractCodeModelParsing;
-using static CodeModels.Factory.CodeModelParsing;
 
 namespace CodeModels.Factory;
 
@@ -43,11 +41,11 @@ public static class CodeModelFactory
         => QuickType(name, type);
     public static QuickType Type(IType type)
         => QuickType(type.TypeName);
-    public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => ParseType(identifier.ToString(), model);
-    public static IType Type(string code) => ParseType(code);
+    //public static IType Type(IdentifierExpression identifier, SemanticModel? model = null) => CodeModelParsing2.ParseType(identifier.ToString(), model);
+    public static IType Type(string code) => CodeModelTypeParsing.Parse(code);
     public static IType Type(IBaseTypeDeclaration declaration) => QuickType(declaration.Name);
-    public static IType Type(SyntaxToken token, SemanticModel? model = null) => Parse(token, model);
-    public static IType Type(TypeSyntax? type, bool required = true) => ParseType(type, required);
+    public static IType Type(SyntaxToken token, SemanticModel? model = null) => CodeModelTypeParsing.Parse(token, model);
+    public static IType Type(TypeSyntax? type, bool required = true) => CodeModelTypeParsing.ParseType(type, required);
     public static IType Type(Microsoft.CodeAnalysis.TypeInfo typeInfo) => Type(typeInfo.Type!);
     public static IType Type(ITypeSymbol symbol) => Type(SemanticReflection.GetType(symbol));
     public static QuickType QuickType(string identifier,
@@ -117,7 +115,6 @@ public static class CodeModelFactory
     Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
 
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
-    public static IExpression Expression(ExpressionSyntax? syntax, IType? Type = null) => ParseExpression(syntax, Type);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
     public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
@@ -145,8 +142,6 @@ public static class CodeModelFactory
         MethodInfo method => new MethodFromReflection(method),
         _ => throw new NotImplementedException($"Unhandled base: {@base}")
     };
-
-    public static Method Method(MethodDeclarationSyntax method, SemanticModel? model = null) => Parse(method, model);
 
     public static Constructor ConstructorFull(IBaseTypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
@@ -295,4 +290,17 @@ public static class CodeModelFactory
 
     public static TryStatement TryStatement(IStatement statement, IEnumerable<CatchClause>? catchClauses, FinallyClause? @finally = null)
         => Models.TryStatement.Create(statement, catchClauses, @finally);
+
+    public static InitializerExpression ArrayInitializer(IEnumerable<IExpression> expressions, IType? type = null)
+        => Initializer(expressions, SyntaxKind.ArrayInitializerExpression, type);
+    public static InitializerExpression ObjectInitializer(IEnumerable<IExpression> expressions, IType? type = null)
+        => Initializer(expressions, SyntaxKind.ObjectInitializerExpression, type);
+    public static InitializerExpression CollectionInitializer(IEnumerable<IExpression> expressions, IType? type = null)
+        => Initializer(expressions, SyntaxKind.CollectionInitializerExpression, type);
+    public static InitializerExpression ComplexElementInitializer(IEnumerable<IExpression> expressions, IType? type = null)
+        => Initializer(expressions, SyntaxKind.ComplexElementInitializerExpression, type);
+    public static InitializerExpression WithInitializer(IEnumerable<IExpression> expressions, IType? type = null)
+        => Initializer(expressions, SyntaxKind.WithInitializerExpression, type);
+    public static InitializerExpression Initializer(IEnumerable<IExpression> expressions, SyntaxKind kind, IType? type = null)
+        => new(type ?? TypeUtil.FindCommonType(expressions.Select(x => x.Get_Type())), kind, List(expressions));
 }

@@ -4,6 +4,8 @@ using System.Linq;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Factory;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Expression.Instantiation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -24,12 +26,19 @@ public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollec
         keyType: BaseKeyTypeSyntax(),
         valueType: BaseValueTypeSyntax(),
         argumentList: default,
-        initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList()));
+        initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitializationSyntax()).ToList()));
+
+    public ObjectCreationExpression ToDictionary2()
+        => new ObjectCreationExpression(ToDictionaryType(),
+            Arguments: new List<IExpression>(),
+            Initializer: CodeModelFactory.CollectionInitializer(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList(), BaseValueType()));
 
     public IType ToDictionaryType() => CodeModelFactory.QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
     public IType ToDictionaryInterfaceType() => CodeModelFactory.QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });
 
-    public AbstractProperty ToNamedValue(string? name = null) => AbstractCodeModelParsing.AbstractProperty(ToDictionaryType().Syntax(), name ?? Name ?? throw new ArgumentException($"No name for property"), ToDictionary(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType().Syntax());
+    public AbstractProperty ToNamedValue(string? name = null)
+        => AbstractCodeModelParsing.AbstractProperty(ToDictionaryType(), name ?? Name ?? throw new ArgumentException($"No name for property"),
+            ToDictionary2(), modifier: Modifier.Readonly | Modifier.Public, interfaceType: ToDictionaryInterfaceType());
 
     public IType BaseKeyType() => Keys.BaseType();
     public TypeSyntax BaseKeyTypeSyntax() => BaseKeyType().Syntax();

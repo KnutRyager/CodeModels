@@ -13,7 +13,7 @@ namespace CodeModels.Execution.Context;
 public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 {
     private static IDictionary<SemanticModel, IProgramContext> _contexts = new ConcurrentDictionary<SemanticModel, IProgramContext>();
-    private static IDictionary<ISymbol, IProgramContext> _symbolSontexts = new ConcurrentDictionary<ISymbol, IProgramContext>(SymbolEqualityComparer.Default);
+    private static IDictionary<ISymbol, IProgramContext> _symbolContexts = new ConcurrentDictionary<ISymbol, IProgramContext>(SymbolEqualityComparer.Default);
     public static IProgramContext? Context { get; private set; }
     public static IProgramContext NewContext(CompilationUnitSyntax? compilation = null, SemanticModel? model = null)
     {
@@ -22,7 +22,7 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
         if (assembly is not null)
         {
             Context = newContext;
-            _symbolSontexts[assembly] = Context;
+            _symbolContexts[assembly] = Context;
         }
         if (model is not null)
         {
@@ -32,7 +32,8 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
         return newContext;
     }
 
-    public static IProgramContext? GetContext(ISymbol symbol) => _symbolSontexts[symbol.ContainingAssembly];
+    public static IProgramContext? GetContext(ISymbol symbol) => _symbolContexts[symbol.ContainingAssembly];
+    public static IProgramContext? GetContext(SemanticModel model) => _contexts[model];
     public static IProgramContext? GetContext(SemanticModel model, ISymbol symbol) => _contexts[model] ??
         GetContext(symbol ?? model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()));
 

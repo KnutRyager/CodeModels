@@ -12,11 +12,11 @@ public record ExpressionStatement(IExpression Expression)
 {
     public override IType Get_Type() => Expression.Get_Type();
 
-    public bool IsLiteralExpression => false;
+    public bool IsLiteralExpression => Expression.IsLiteralExpression;
 
-    public LiteralExpressionSyntax? LiteralSyntax() => null;
+    public LiteralExpressionSyntax? LiteralSyntax() => Expression.LiteralSyntax();
 
-    public object? LiteralValue() => null;
+    public object? LiteralValue() => Expression.LiteralValue();
 
     public ExpressionStatement(IStatement statement)
         : this(statement is ExpressionStatement expressionStatement ? expressionStatement.Expression : new ExpressionStatement(statement)) { }

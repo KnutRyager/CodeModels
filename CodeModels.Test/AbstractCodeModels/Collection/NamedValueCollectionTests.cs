@@ -33,8 +33,8 @@ public record RecordA(
             NamedValue<int>("p1", modifier: Modifier.Public),
             NamedValue<string>("p2", modifier: Modifier.Public),
             NamedValue<long?>("p3", modifier: Modifier.Public),
-            NamedValue(Type("object?"),"p4", "null".ExpressionTree(), modifier: Modifier.Public),
-            NamedValue(Type("A"),"p5", "A.Instance".ExpressionTree(), modifier: Modifier.Public),
+            NamedValue(Type("object?"),"p4", "null".ParseExpression(), modifier: Modifier.Public),
+            NamedValue(Type("A"),"p5", "A.Instance".ParseExpression(), modifier: Modifier.Public),
         }, "RecordA"), o => o.Excluding(x => x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
 
     // TODO: Parse without SemanticModel(?)
@@ -64,8 +64,8 @@ public class ClassA {
             NamedValue<int>("p1", modifier: Modifier.Public),
             NamedValue<string>("p2", modifier: Modifier.Private),
             NamedValue<long?>("p3", modifier: Modifier.Protected),
-            NamedValue(Type("object?"), "p4", "null".ExpressionTree(), modifier: Modifier.Internal),
-            NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree(), modifier: Modifier.Public),
+            NamedValue(Type("object?"), "p4", "null".ParseExpression(), modifier: Modifier.Internal),
+            NamedValue(Type("A"), "p5", "A.Instance".ParseExpression(), modifier: Modifier.Public),
             NamedValue<int[]>("p6", modifier: Modifier.Public),
             NamedValue<List<int>>("p7", modifier: Modifier.Public)),
         o => o.Excluding(x => x.Path.Contains("ReflectedType") || x.Path.Contains("Identifier") || x.Path.Contains("Type.SourceSyntax") || x.Path.Contains("NameSyntax") || x.Path.Contains("ExpressionSyntax")));
@@ -75,8 +75,8 @@ public class ClassA {
             NamedValue<int>("p1"),
             NamedValue<string>("p2"),
             NamedValue<long?>("p3"),
-            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
-            NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
+            NamedValue(Type("object?"), "p4", "null".ParseExpression()),
+            NamedValue(Type("A"), "p5", "A.Instance".ParseExpression()),
             NamedValue<int[]>("p6"),
             NamedValue<List<int>>("p7"))
         .ToClass().CodeEqual(@"
@@ -95,8 +95,8 @@ public class ClassA {
             NamedValue<int>("p1"),
             NamedValue<string>("p2"),
             NamedValue<long?>("p3"),
-            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
-            NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
+            NamedValue(Type("object?"), "p4", "null".ParseExpression()),
+            NamedValue(Type("A"), "p5", "A.Instance".ParseExpression()),
             NamedValue<int[]>("p6"),
             NamedValue<List<int>>("p7"))
         .ToRecord().CodeEqual("public record RecordA(int p1, string p2, long? p3, object? p4 = null, A p5 = A.Instance, int[] p6, List<int> p7);");
@@ -106,8 +106,8 @@ public class ClassA {
             NamedValue<int>("p1"),
             NamedValue<string>("p2"),
             NamedValue<long?>("p3"),
-            NamedValue(Type("object?"), "p4", "null".ExpressionTree()),
-            NamedValue(Type("A"), "p5", "A.Instance".ExpressionTree()),
+            NamedValue(Type("object?"), "p4", "null".ParseExpression()),
+            NamedValue(Type("A"), "p5", "A.Instance".ParseExpression()),
             NamedValue<uint>("Item6"),
             NamedValue<float>(default),
             NamedValue<int[]>("p6"),

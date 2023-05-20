@@ -55,9 +55,9 @@ public static class TestUtil
         {
             model = rewrittenCompilationUnit.ToString().ParseAndKeepSemanticModel(key, kind);
         }
-        ProgramContext.NewContext(model.Compilation, model.Model);
-        CodeModelParsing.Register(model.Compilation, model.Model);
-        var compilationModel = CodeModelParsing.Parse(model.Compilation, model.Model);
+        var programContext = ProgramContext.NewContext(model.Compilation, model.Model);
+        var parser = new CodeModelParser(model.Model, model.Compilation, programContext);
+        var compilationModel = parser.Parse();
         var code = FormatSyntaxNode(compilationModel.Syntax());
         return code;
     }

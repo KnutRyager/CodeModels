@@ -9,14 +9,14 @@ public static class SymbolUtils
 {
     public static bool IsNewDefined(ISymbol symbol) => symbol.ContainingAssembly?.Name.StartsWith("MyCompilation") ?? false;
     public static bool IsNewDefined(IOperation symbol) => IsNewDefined(symbol.Type);
-    public static ISymbol? GetSymbol(SyntaxNode node, SemanticModel? model = null) => model?.GetSymbolInfo(node).Symbol;
-    public static INamedTypeSymbol? GetType(SyntaxNode node, SemanticModel? model = null)
+    public static ISymbol? GetSymbol(SyntaxNode node, SemanticModel model) => model?.GetSymbolInfo(node).Symbol;
+    public static INamedTypeSymbol? GetType(SyntaxNode node, SemanticModel model)
     {
         var declaredSymbol = GetDeclaredSymbol(node, model);
         return declaredSymbol.ContainingType;
     }
 
-    public static ISymbol? GetDeclaredSymbol(SyntaxNode node, SemanticModel? model = null) => model?.GetDeclaredSymbol(node);
+    public static ISymbol? GetDeclaredSymbol(SyntaxNode node, SemanticModel model) => model?.GetDeclaredSymbol(node);
 
     public static ISymbol GetMember(ISymbol symbol) => symbol switch
     {
@@ -30,7 +30,7 @@ public static class SymbolUtils
     public static IAssemblySymbol GetAssembly(MemberDeclarationSyntax node, SemanticModel model)
         => model?.GetDeclaredSymbol(node)?.ContainingAssembly;
 
-    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel? model = null) => node switch
+    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel model) => node switch
     {
         FieldDeclarationSyntax field => GetDeclaration(field, model),
         PropertyDeclarationSyntax property => GetDeclaration(property, model),
@@ -44,10 +44,10 @@ public static class SymbolUtils
         _ => throw new NotImplementedException()
     };
 
-    public static ISymbol? GetDeclaration(FieldDeclarationSyntax node, SemanticModel? model = null)
+    public static ISymbol? GetDeclaration(FieldDeclarationSyntax node, SemanticModel model)
         => GetDeclaredSymbol(node.Declaration.Variables.FirstOrDefault(), model);
-    public static ISymbol? GetDeclaration(PropertyDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
-    public static ISymbol? GetDeclaration(MethodDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
-    public static ISymbol? GetDeclaration(ConstructorDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
-    public static ISymbol? GetDeclaration(ObjectCreationExpressionSyntax node, SemanticModel? model = null) => GetDeclaration(node.Type, model);
+    public static ISymbol? GetDeclaration(PropertyDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);
+    public static ISymbol? GetDeclaration(MethodDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);
+    public static ISymbol? GetDeclaration(ConstructorDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);
+    public static ISymbol? GetDeclaration(ObjectCreationExpressionSyntax node, SemanticModel model) => GetDeclaration(node.Type, model);
 }
