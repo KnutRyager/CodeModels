@@ -58,7 +58,7 @@ public class CodeModelParser
 
     private T Register<T>(ISymbol symbol, T model) where T : ICodeModel
         => Context.Register(symbol, model);
-    private T Register<T>(SyntaxNode node, T codeModel, SemanticModel? semanticModel = null) where T : ICodeModel
+    private T Register<T>(SyntaxNode node, T codeModel) where T : ICodeModel
         => Context.Register(node, codeModel);
     private T GetModel<T>(ISymbol symbol) where T : class, ICodeModel
         => Context.Get<T>(symbol);
@@ -859,8 +859,7 @@ public class CodeModelParser
     public IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
     public Method Parse(MethodDeclarationSyntax syntax)
          => Register(syntax,
-             new Method(syntax.GetName(), AbstractCodeModelParsing.NamedValues(this, syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)),
-             model);
+             new Method(syntax.GetName(), AbstractCodeModelParsing.NamedValues(this, syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
     public IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
     {
@@ -917,7 +916,7 @@ public class CodeModelParser
         => Register(syntax, Interface(syntax.Identifier.ValueText,
            syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : new(@namespace),
-           modifier: ParseModifier(syntax.Modifiers)), model);
+           modifier: ParseModifier(syntax.Modifiers)));
 
     public IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
     {
