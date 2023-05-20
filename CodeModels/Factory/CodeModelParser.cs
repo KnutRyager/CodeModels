@@ -378,7 +378,7 @@ public class CodeModelParser
     public SingleVariableDesignation Parse(SingleVariableDesignationSyntax syntax)
         => new(syntax.Identifier.ToString());
     public ParenthesizedVariableDesignation Parse(ParenthesizedVariableDesignationSyntax syntax)
-        => new(syntax.Variables.Select(x => Parse(x)).ToList());
+        => new(syntax.Variables.Select(Parse).ToList());
 
     public CasePatternSwitchLabel Parse(CasePatternSwitchLabelSyntax syntax)
         => new(Parse(syntax.Pattern), syntax.WhenClause is null ? null : Parse(syntax.WhenClause));
@@ -683,7 +683,7 @@ public class CodeModelParser
         _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
     };
 
-    public Block Parse(BlockSyntax syntax) => new(List(syntax.Statements.Select(x => Parse(x))));
+    public Block Parse(BlockSyntax syntax) => new(List(syntax.Statements.Select(Parse)));
     public BreakStatement Parse(BreakStatementSyntax _) => new();
     public CheckedStatement Parse(CheckedStatementSyntax syntax) => new(Parse(syntax.Block));
     public ForEachStatement Parse(CommonForEachStatementSyntax syntax) => syntax switch
@@ -704,12 +704,12 @@ public class CodeModelParser
     public FixedStatement Parse(FixedStatementSyntax syntax) => new(Parse(syntax.Declaration), Parse(syntax.Statement));
     public VariableDeclarations Parse(VariableDeclarationSyntax syntax) => new(ParseType(syntax.Type), Parse(syntax.Variables));
     public VariableDeclarator Parse(VariableDeclaratorSyntax syntax) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value));
-    public List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(x => Parse(x)).ToList();
-    public List<AbstractProperty> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(x => Parse(x)).ToList();
+    public List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(Parse).ToList();
+    public List<AbstractProperty> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(Parse).ToList();
     public AbstractProperty Parse(ArgumentSyntax syntax) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));  // TODO: Semantics for type
     public Argument ParseToArgument(ArgumentSyntax syntax) => new Argument(syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));
-    public List<Argument> Parse(ArgumentListSyntax syntax) => syntax.Arguments.Select(x => ParseToArgument(x)).ToList();
-    public List<AbstractProperty> Parse(IEnumerable<ArgumentSyntax> syntax) => syntax.Select(x => Parse(x)).ToList();
+    public List<Argument> Parse(ArgumentListSyntax syntax) => syntax.Arguments.Select(ParseToArgument).ToList();
+    public List<AbstractProperty> Parse(IEnumerable<ArgumentSyntax> syntax) => syntax.Select(Parse).ToList();
     public AttributeList Parse(AttributeListSyntax syntax) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
     public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax) => new(syntax.Identifier.ToString());
     public Models.Attribute Parse(AttributeSyntax syntax)
@@ -728,9 +728,9 @@ public class CodeModelParser
             ParseTypes(syntax.TypeParameterList),
             AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body),
             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
-    public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(x => Parse(x)).ToList();
+    public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
-        => new(syntax.Name.ToString(), syntax.Constraints.Select(x => Parse(x)).ToList());
+        => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
     public ITypeParameterConstraint Parse(TypeParameterConstraintSyntax syntax) => syntax switch
     {
         ClassOrStructConstraintSyntax constraint => Parse(constraint),
@@ -743,15 +743,15 @@ public class CodeModelParser
     public ConstructorConstraint Parse(ConstructorConstraintSyntax _) => new();
     public DefaultConstraint Parse(DefaultConstraintSyntax _) => new();
     public TypeConstraint Parse(TypeConstraintSyntax syntax) => new(ParseType(syntax.Type));
-    public TypeCollection ParseTypes(TypeParameterListSyntax? syntax) => syntax is null ? new() : new(syntax.Parameters.Select(x => Parse(x)));
+    public TypeCollection ParseTypes(TypeParameterListSyntax? syntax) => syntax is null ? new() : new(syntax.Parameters.Select(Parse));
     public AbstractProperty Parse(ParameterSyntax syntax) => AbstractCodeModelParsing.AbstractProperty(this, syntax);
     public IType Parse(TypeParameterSyntax syntax) => QuickType(syntax.Identifier.ToString());    // TODO
     public LockStatement Parse(LockStatementSyntax syntax) => new(ParseExpression(syntax.Expression), Parse(syntax.Statement));
     public ReturnStatement Parse(ReturnStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
-    public SwitchStatement Parse(SwitchStatementSyntax syntax) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(x => Parse(x))));
+    public SwitchStatement Parse(SwitchStatementSyntax syntax) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
     public SwitchSection Parse(SwitchSectionSyntax syntax)
-        => new(syntax.Labels.Select(x => Parse(x)).ToList(),
-           syntax.Statements.Select(x => Parse(x)).ToList());
+        => new(syntax.Labels.Select(Parse).ToList(),
+           syntax.Statements.Select(Parse).ToList());
     public ISwitchLabel Parse(SwitchLabelSyntax syntax) => syntax switch
     {
         CasePatternSwitchLabelSyntax label => Parse(label),
@@ -761,7 +761,7 @@ public class CodeModelParser
     };
     public ThrowStatement Parse(ThrowStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
     public TryStatement Parse(TryStatementSyntax syntax)
-        => TryStatement(Parse(syntax.Block), List(syntax.Catches.Select(x => Parse(x))), syntax.Finally is null ? null : Parse(syntax.Finally));
+        => TryStatement(Parse(syntax.Block), List(syntax.Catches.Select(Parse)), syntax.Finally is null ? null : Parse(syntax.Finally));
     public CatchClause Parse(CatchClauseSyntax syntax)
         => Catch(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block), syntax.Filter is null ? null : Parse(syntax.Filter));
     public CatchFilterClause Parse(CatchFilterClauseSyntax syntax)
@@ -777,7 +777,7 @@ public class CodeModelParser
 
     public CompilationUnit Parse() => Parse(CompilationUnit);
     public CompilationUnit Parse(CompilationUnitSyntax syntax)
-        => new(syntax.Members.Select(x => Parse(x)).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(x => Parse(x)).ToList());
+        => new(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
     public UsingDirective Parse(UsingDirectiveSyntax syntax)
             => new(syntax.Name.ToString(), IsGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword), IsStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword), Alias: syntax.Alias?.ToString());
 
@@ -805,7 +805,7 @@ public class CodeModelParser
         => Register(syntax, CodeModelFactory.Field(ParseType(syntax.Declaration.Type),
             Parse(syntax.Declaration).First().Name,
             syntax.Declaration.Variables.FirstOrDefault()?.Initializer is null ? null : ParseExpression(syntax.Declaration.Variables.First().Initializer!.Value),
-            syntax.AttributeLists.Select(x => Parse(x)).ToList(),
+            syntax.AttributeLists.Select(Parse).ToList(),
             ParseModifier(syntax.Modifiers)));
 
     public Field Parse(IFieldSymbol symbol)
@@ -886,9 +886,9 @@ public class CodeModelParser
                 : Parse(syntax.AccessorList!),
             syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value),
             ParseModifier(syntax.Modifiers),
-            syntax.AttributeLists.Select(x => Parse(x)).ToList()));
+            syntax.AttributeLists.Select(Parse).ToList()));
     public List<Accessor> Parse(AccessorListSyntax syntax)
-        => List(syntax.Accessors.Select(x => Parse(x)));
+        => List(syntax.Accessors.Select(Parse));
     public Accessor Parse(AccessorDeclarationSyntax syntax)
         => Models.Primitives.Member.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body),
            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody?.Expression), modifier: ParseModifier(syntax.Modifiers));
@@ -909,13 +909,13 @@ public class CodeModelParser
     };
     public ClassDeclaration Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null) =>
        Register(@class, Class(@class.Identifier.ValueText,
-           @class.GetMembers().Select(x => Parse(x)).ToArray(),
+           @class.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : new(@namespace),
            modifier: ParseModifier(@class.Modifiers)));
 
     public IMember Parse(InterfaceDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
         => Register(syntax, Interface(syntax.Identifier.ValueText,
-           syntax.GetMembers().Select(x => Parse(x)).ToArray(),
+           syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : new(@namespace),
            modifier: ParseModifier(syntax.Modifiers)), model);
 
