@@ -913,13 +913,19 @@ public class CodeModelParser
            @namespace: @namespace == default ? default : new(@namespace),
            modifier: ParseModifier(@class.Modifiers)));
 
-    public IMember Parse(InterfaceDeclarationSyntax syntax) => throw new NotImplementedException();
+    public IMember Parse(InterfaceDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
+        => Register(syntax, Interface(syntax.Identifier.ValueText,
+           syntax.GetMembers().Select(x => Parse(x)).ToArray(),
+           @namespace: @namespace == default ? default : new(@namespace),
+           modifier: ParseModifier(syntax.Modifiers)), model);
+
     public IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
     {
         _ when syntax.IsKind(SyntaxKind.RecordDeclaration) => ParseRecordNonStruct(syntax),
         _ when syntax.IsKind(SyntaxKind.RecordStructDeclaration) => ParseRecordStruct(syntax),
         _ => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.")
     };
+
     public IMember ParseRecordNonStruct(RecordDeclarationSyntax syntax)
         => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
     public IMember ParseRecordStruct(RecordDeclarationSyntax syntax)

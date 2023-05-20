@@ -30,17 +30,19 @@ public static class SymbolUtils
     public static IAssemblySymbol GetAssembly(MemberDeclarationSyntax node, SemanticModel model)
         => model?.GetDeclaredSymbol(node)?.ContainingAssembly;
 
-    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel model) => node switch
+    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel? model = null) => node switch
     {
         FieldDeclarationSyntax field => GetDeclaration(field, model),
         PropertyDeclarationSyntax property => GetDeclaration(property, model),
         MethodDeclarationSyntax method => GetDeclaration(method, model),
         ConstructorDeclarationSyntax constructor => GetDeclaration(constructor, model),
         ClassDeclarationSyntax @class => GetDeclaredSymbol(@class, model),
+        RecordDeclarationSyntax recordDeclaration => GetDeclaredSymbol(recordDeclaration, model),
+        StructDeclarationSyntax structDeclaration => GetDeclaredSymbol(structDeclaration, model),
+        InterfaceDeclarationSyntax interfaceDeclaration => GetDeclaredSymbol(interfaceDeclaration, model),
         IdentifierNameSyntax identifier => GetDeclaredSymbol(identifier, model) ?? GetSymbol(identifier, model),
         QualifiedNameSyntax qualifiedName => GetDeclaredSymbol(qualifiedName, model) ?? GetSymbol(qualifiedName, model),
         ObjectCreationExpressionSyntax objectCreation => GetDeclaration(objectCreation, model),
-        LocalFunctionStatementSyntax localFunctionStatement => GetDeclaredSymbol(localFunctionStatement, model),
         _ => throw new NotImplementedException()
     };
 
