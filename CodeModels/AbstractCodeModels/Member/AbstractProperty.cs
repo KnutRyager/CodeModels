@@ -104,5 +104,5 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         throw new NotImplementedException();
     }
 
-    public Property ToProperty() => Property(Name, Type, Attributes, modifier: Modifier, value: Value);
+    public Property ToProperty() => Property(Type, Name, null, Value, Modifier, Attributes);
 }

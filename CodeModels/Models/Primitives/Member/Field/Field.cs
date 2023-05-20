@@ -86,7 +86,7 @@ public record Field(string Name,
         }
     }
 
-    public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
+    public override void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {
@@ -103,7 +103,7 @@ public record Field(string Name,
     IFieldExpression IField.Access(IExpression? instance) => Access(instance);
 
     public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
-    public AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
+    public override AssignmentExpression Assign(IExpression? caller, IExpression value) => Assignment(
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
 

@@ -22,7 +22,8 @@ public record Property(string Name,
     List<Accessor> Accessors,
     Modifier Modifier,
     IExpression Value)
-    : FieldOrProperty<PropertyDeclarationSyntax>(Name, Type, Attributes, Modifier, Value)
+    : FieldOrProperty<PropertyDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
+    IProperty<PropertyExpression>
 {
     public static Property Create(string name,
     IType type,
@@ -146,7 +147,7 @@ public record Property(string Name,
         }
     }
 
-    public virtual void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
+    public override void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
         try
         {
@@ -160,8 +161,11 @@ public record Property(string Name,
     }
 
     public AssignmentExpression Assign(IExpression value) => ToIdentifierExpression().Assign(value);
-    public AssignmentExpression Assign(IExpression? caller, IExpression value) => CodeModelFactory.Assignment(
+    public override AssignmentExpression Assign(IExpression? caller, IExpression value) => CodeModelFactory.Assignment(
         CodeModelFactory.MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
+
+    public PropertyExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
+    IPropertyExpression IProperty.Access(IExpression? instance) => Access(instance);
 }
 

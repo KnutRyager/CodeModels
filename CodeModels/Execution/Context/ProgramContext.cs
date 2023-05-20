@@ -12,7 +12,8 @@ namespace CodeModels.Execution.Context;
 
 public record ProgramContext(SemanticModel? Model = null) : IProgramContext
 {
-    private static IDictionary<IAssemblySymbol, IProgramContext> _contexts = new ConcurrentDictionary<IAssemblySymbol, IProgramContext>(SymbolEqualityComparer.Default);
+    private static IDictionary<SemanticModel, IProgramContext> _contexts = new ConcurrentDictionary<SemanticModel, IProgramContext>();
+    private static IDictionary<ISymbol, IProgramContext> _symbolSontexts = new ConcurrentDictionary<ISymbol, IProgramContext>(SymbolEqualityComparer.Default);
     public static IProgramContext? Context { get; private set; }
     public static IProgramContext NewContext(CompilationUnitSyntax? compilation = null, SemanticModel? model = null)
     {
@@ -21,14 +22,19 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
         if (assembly is not null)
         {
             Context = newContext;
-            _contexts[assembly] = Context;
+            _symbolSontexts[assembly] = Context;
+        }
+        if (model is not null)
+        {
+            Context = newContext;
+            _contexts[model] = Context;
         }
         return newContext;
     }
 
-    public static IProgramContext? GetContext(ISymbol symbol) => _contexts[symbol.ContainingAssembly];
-    public static IProgramContext? GetContext(SemanticModel? model)
-        => GetContext(model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()));
+    public static IProgramContext? GetContext(ISymbol symbol) => _symbolSontexts[symbol.ContainingAssembly];
+    public static IProgramContext? GetContext(SemanticModel model, ISymbol symbol) => _contexts[model] ??
+        GetContext(symbol ?? model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()));
 
     private Dictionary<ISymbol, ICodeModel> _symbols = new(SymbolEqualityComparer.Default);
 
@@ -66,12 +72,12 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
         return model;
     }
 
-
     public T Register<T>(SyntaxNode node, T model) where T : ICodeModel
         => Register(GetSymbol(node), model);
 
     private ISymbol GetSymbol(SyntaxNode node)
-        => Model is null ? throw new ArgumentException("No semantic model.")
-    : Model.GetSymbolInfo(node).Symbol ?? Model.GetDeclaredSymbol(node)
-         ?? throw new ArgumentException("No symbol.");
+        => Model is null
+        ? throw new ArgumentException("No semantic model.")
+        : SymbolUtils.GetDeclaration(node, Model)
+            ?? throw new ArgumentException("No symbol.");
 }

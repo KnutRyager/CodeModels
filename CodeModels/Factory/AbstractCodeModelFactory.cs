@@ -38,6 +38,7 @@ public static class AbstractCodeModelFactory
     public static NamedValueCollection NamedValues(params AbstractProperty[] properties) => new(properties);
     public static NamedValueCollection NamedValues(Type type) => CodeModelsFromReflection.NamedValues(type);
     public static NamedValueCollection NamedValues(string code) => ParseNamedValues(code);
+    public static NamedValueCollection EmptyNamedValues(string name) => NamedValues(name, properties: Array.Empty<AbstractProperty>());
 
 
 

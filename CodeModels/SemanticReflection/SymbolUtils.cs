@@ -40,13 +40,14 @@ public static class SymbolUtils
         IdentifierNameSyntax identifier => GetDeclaredSymbol(identifier, model) ?? GetSymbol(identifier, model),
         QualifiedNameSyntax qualifiedName => GetDeclaredSymbol(qualifiedName, model) ?? GetSymbol(qualifiedName, model),
         ObjectCreationExpressionSyntax objectCreation => GetDeclaration(objectCreation, model),
+        LocalFunctionStatementSyntax localFunctionStatement => GetDeclaredSymbol(localFunctionStatement, model),
         _ => throw new NotImplementedException()
     };
 
     public static ISymbol? GetDeclaration(FieldDeclarationSyntax node, SemanticModel? model = null)
         => GetDeclaredSymbol(node.Declaration.Variables.FirstOrDefault(), model);
-    public static ISymbol? GetDeclaration(PropertyDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node.Parent, model);
+    public static ISymbol? GetDeclaration(PropertyDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
     public static ISymbol? GetDeclaration(MethodDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
-    public static ISymbol? GetDeclaration(ConstructorDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node.Parent, model);
+    public static ISymbol? GetDeclaration(ConstructorDeclarationSyntax node, SemanticModel? model = null) => GetDeclaredSymbol(node, model);
     public static ISymbol? GetDeclaration(ObjectCreationExpressionSyntax node, SemanticModel? model = null) => GetDeclaration(node.Type, model);
 }

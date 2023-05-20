@@ -8,13 +8,14 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public record PropertyExpression(Property Property, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+public record PropertyExpression(IProperty Property, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Property.Type, Symbol),
     IPropertyExpression
 {
+    IProperty IPropertyExpression.Property => Property;
     public IBaseTypeDeclaration? Owner => Property.Owner;
-
     IBaseTypeDeclaration? IMemberAccess.Owner => Owner;
+
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
 

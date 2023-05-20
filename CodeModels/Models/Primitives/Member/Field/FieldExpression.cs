@@ -8,13 +8,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public record FieldExpression(Field Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
+public record FieldExpression(IField Field, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null, ISymbol? Symbol = null)
     : Expression<ExpressionSyntax>(Field.Type, Symbol),
-    IFieldExpression<Field>
+    IFieldExpression
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
+    public IField GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<IField>(Symbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

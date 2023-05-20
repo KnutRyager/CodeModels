@@ -125,6 +125,12 @@ public class CodeModelExecutionContextTests
         var forLoop = For("i", Literal(10), Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("i")).AsStatement());
         forLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(45);
+
+        forLoop.Code().Should().Be(
+@"for (int i = 0; i < 10; i++)
+{
+    a += i;
+}");
     }
 
     [Fact]

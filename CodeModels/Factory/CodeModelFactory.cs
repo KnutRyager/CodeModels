@@ -103,8 +103,8 @@ public static class CodeModelFactory
     public static EnumMember EnumField(string name, IExpression? value = null) => EnumMember.Create(name, value: value);
     public static EnumMember EnumField(string name, int value) => EnumField(name, Literal(value));
 
-    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None)
-        => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value);
+    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None, IEnumerable<AttributeList>? attributes = null)
+        => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value, attributes: attributes);
     public static Property Property(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
         => Property(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
     public static Property Property<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
@@ -115,19 +115,6 @@ public static class CodeModelFactory
     IExpression? expressionBody = null,
     IEnumerable<AttributeList>? attributes = null,
     Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
-
-    public static Property Property(string name,
-    IType type,
-    List<AttributeList>? attributes = null,
-    List<Accessor>? accessors = null,
-    Modifier modifier = Modifier.None,
-    IExpression? value = null) => new(
-        Name: name,
-        Type: type,
-        Attributes: attributes ?? List<AttributeList>(),
-        Accessors: accessors ?? new List<Accessor>(),
-        Modifier: modifier,
-        Value: value ?? VoidValue);
 
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static IExpression Expression(ExpressionSyntax? syntax, IType? Type = null) => ParseExpression(syntax, Type);
