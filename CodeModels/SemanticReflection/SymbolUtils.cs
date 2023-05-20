@@ -43,6 +43,7 @@ public static class SymbolUtils
         IdentifierNameSyntax identifier => GetDeclaredSymbol(identifier, model) ?? GetSymbol(identifier, model),
         QualifiedNameSyntax qualifiedName => GetDeclaredSymbol(qualifiedName, model) ?? GetSymbol(qualifiedName, model),
         ObjectCreationExpressionSyntax objectCreation => GetDeclaration(objectCreation, model),
+        LocalFunctionStatementSyntax localFunctionStatement => GetDeclaredSymbol(localFunctionStatement, model),
         _ => throw new NotImplementedException()
     };
 
