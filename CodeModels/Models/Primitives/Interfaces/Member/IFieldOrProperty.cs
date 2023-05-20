@@ -103,7 +103,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
 
     public ExpressionSyntax? ExpressionSyntax => Value switch
     {
-        _ when ReferenceEquals(Value, CodeModelFactory.VoidValue) => default,
+        _ when Value is null || ReferenceEquals(Value, CodeModelFactory.VoidValue) => default,
         _ => Value.Syntax()
     };
 
