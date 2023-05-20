@@ -27,6 +27,16 @@ public static class AccessorTypeExtensions
         _ => throw new NotImplementedException($"No mapping for '{accessorType}'.")
     };
 
+    public static SyntaxKind ToKeyword(this AccessorType accessorType) => accessorType switch
+    {
+        AccessorType.Get => SyntaxKind.GetKeyword,
+        AccessorType.Set => SyntaxKind.SetKeyword,
+        AccessorType.Init => SyntaxKind.InitKeyword,
+        AccessorType.Add => SyntaxKind.AddKeyword,
+        AccessorType.Remove => SyntaxKind.RemoveKeyword,
+        _ => throw new NotImplementedException($"No mapping for '{accessorType}'.")
+    };
+
     public static AccessorType FromSyntax(SyntaxKind syntaxKind) => syntaxKind switch
     {
         SyntaxKind.GetAccessorDeclaration => AccessorType.Get,

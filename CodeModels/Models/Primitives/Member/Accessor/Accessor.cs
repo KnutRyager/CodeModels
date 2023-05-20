@@ -5,6 +5,7 @@ using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -48,10 +49,16 @@ public record Accessor(AccessorType Type,
             Type.ToSyntax(),
             List(Attributes.Select(x => x.Syntax())),
             modifier.SetModifiers(Modifier).SetFlags(removeModifier, false).Syntax(),
-            ArrowExpressionClause(ExpressionBody.Syntax()))
-            : AccessorDeclaration(  // TODO: No modifier?
+            Token(Type.ToKeyword()),
+            ArrowExpressionClause(ExpressionBody.Syntax()),
+            semicolonToken: Token(SyntaxKind.SemicolonToken))
+            : AccessorDeclaration(
             Type.ToSyntax(),
-            null);
+            List(Attributes.Select(x => x.Syntax())),
+            modifier.SetModifiers(Modifier).SetFlags(removeModifier, false).Syntax(),
+            Token(Type.ToKeyword()),
+            body: null!,
+            semicolonToken: Token(SyntaxKind.SemicolonToken));
 
     public Method GetMethod(string name) => Type switch
     {
@@ -68,7 +75,7 @@ public record Accessor(AccessorType Type,
         _ when ExpressionBody is IExpression expression => CodeModelFactory.Method(Type.GetBackingMethodName(name),
                        AbstractCodeModelFactory.NamedValues(),
                        CodeModelFactory.Type(typeof(void)), expression),
-        _ => CodeModelFactory.Method(Type.GetBackingMethodName(name), 
+        _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
             AbstractCodeModelFactory.NamedValues(),
             CodeModelFactory.Type(typeof(void)), CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)))
     };
@@ -76,10 +83,10 @@ public record Accessor(AccessorType Type,
     private Method GetSetMethod(string name) => this switch
     {
         _ when Body is Block block => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       AbstractCodeModelFactory.NamedValues("value"),
+                       AbstractCodeModelFactory.EmptyNamedValues("value"),
                        CodeModelFactory.Type(typeof(void)), block),
         _ when ExpressionBody is IExpression expression => CodeModelFactory.Method(Type.GetBackingMethodName(name),
-                       AbstractCodeModelFactory.NamedValues("value"),
+                       AbstractCodeModelFactory.EmptyNamedValues("value"),
                        CodeModelFactory.Type(typeof(void)), expression),
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
             AbstractCodeModelFactory.NamedValues(AbstractCodeModelFactory.NamedValue("value")),

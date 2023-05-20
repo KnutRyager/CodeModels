@@ -9,6 +9,7 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Reflection;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -55,11 +56,14 @@ public record Property(string Name,
             type: Type.Syntax(),
             explicitInterfaceSpecifier: default,    // TODO
             identifier: ToIdentifier(),
-            accessorList: AccessorList(IsGetOnly() ? List<AccessorDeclarationSyntax>() : List(Accessors.Select(x => x.Syntax()))),
+            accessorList: IsGetOnly() && GetterExpressionBody() is not null
+                ? null
+                : AccessorList(List(Accessors.Select(x => x.Syntax()))),
             expressionBody: IsGetOnly()
                 ? GetterExpressionBody() is IExpression getter
                     ? ArrowExpressionClause(getter.Syntax()) : null : null,
-            initializer: Initializer());
+            initializer: Initializer(),
+            semicolonToken: IsGetOnly() && GetterExpressionBody() is not null ? Token(SyntaxKind.SemicolonToken) :default);
 
     public bool IsGetOnly() => Accessors.Count is 1 && GetAccessor is not null;
 
