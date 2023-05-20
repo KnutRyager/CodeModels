@@ -150,7 +150,7 @@ public static class CodeModelParsing
         ? TryGetModel<IField>(field, model) is IField fieldModel
             ? new FieldExpression(fieldModel, This(), Scopes: Array.Empty<ICodeModelExecutionScope>(), Symbol: field)
             : new FieldExpressionFromSymbol(field, This(), Scopes: Array.Empty<ICodeModelExecutionScope>())
-        : new PropertyFromField(field).AccessValue(syntax.ToString(), type, field);
+        : new FieldFromReflection(field).AccessValue(syntax.ToString(), type, field);
 
     public static IExpression Parse(IdentifierNameSyntax syntax, IPropertySymbol property, IType? type = null, SemanticModel? model = null)
         => SymbolUtils.IsNewDefined(property)
