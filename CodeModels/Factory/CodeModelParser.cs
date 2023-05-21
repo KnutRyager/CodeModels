@@ -24,10 +24,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
 using static CodeModels.Factory.CodeModelFactory;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Parsing.ParseUtil;
-using static CodeModels.Factory.AbstractCodeModelParsing;
-using CodeModels.ProgramModels.ModelModel;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Factory;
 
@@ -858,8 +856,13 @@ public class CodeModelParser
     public IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
     public Method Parse(MethodDeclarationSyntax syntax)
-         => Register(syntax,
-             new Method(syntax.GetName(), AbstractCodeModelParsing.NamedValues(this, syntax), ParseType(syntax.ReturnType), syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
+         => Register(syntax, MethodFull(syntax.GetName(),
+                 AbstractCodeModelParsing.NamedValues(this, syntax),
+                 ParseType(syntax.ReturnType),
+                 syntax.TypeParameterList?.Parameters.Select(Parse),
+                 syntax.ConstraintClauses.Select(Parse).ToArray(),
+                 syntax.Body is null ? null : Parse(syntax.Body),
+                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
     public IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
     {
@@ -906,14 +909,20 @@ public class CodeModelParser
         StructDeclarationSyntax declaration => Parse(declaration),
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
-    public ClassDeclaration Parse(ClassDeclarationSyntax @class, NamespaceDeclarationSyntax? @namespace = null) =>
-       Register(@class, Class(@class.Identifier.ValueText,
-           @class.GetMembers().Select(Parse).ToArray(),
+    public ClassDeclaration Parse(ClassDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null) =>
+       Register(syntax, Class(syntax.Identifier.ValueText,
+           syntax.TypeParameterList?.Parameters.Select(Parse),
+           syntax.ConstraintClauses.Select(Parse).ToArray(),
+           syntax.BaseList?.Types.Select(Parse).ToArray(),
+           syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : new(@namespace),
-           modifier: ParseModifier(@class.Modifiers)));
+           modifier: ParseModifier(syntax.Modifiers)));
 
     public IMember Parse(InterfaceDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
         => Register(syntax, Interface(syntax.Identifier.ValueText,
+           syntax.TypeParameterList?.Parameters.Select(Parse),
+           syntax.ConstraintClauses.Select(Parse).ToArray(),
+           syntax.BaseList?.Types.Select(Parse).ToArray(),
            syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : new(@namespace),
            modifier: ParseModifier(syntax.Modifiers)));
@@ -933,4 +942,14 @@ public class CodeModelParser
     public IMember Parse(DelegateDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(EnumMemberDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(IncompleteMemberSyntax syntax) => throw new NotImplementedException();
+
+    public IBaseType Parse(BaseTypeSyntax syntax) => syntax switch
+    {
+        SimpleBaseTypeSyntax type => Parse(type),
+        PrimaryConstructorBaseTypeSyntax type => Parse(type),
+        _ => throw new NotImplementedException($"Not implemented BaseTypeSyntax: '{syntax}'.")
+    };
+
+    public SimpleBaseType Parse(SimpleBaseTypeSyntax syntax) => new SimpleBaseType(ParseType(syntax.Type));
+    public PrimaryConstructorBaseType Parse(PrimaryConstructorBaseTypeSyntax syntax) => new PrimaryConstructorBaseType(ParseType(syntax.Type), List(syntax.ArgumentList.Arguments.Select(ParseToArgument)));
 }

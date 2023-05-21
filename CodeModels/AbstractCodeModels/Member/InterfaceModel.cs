@@ -26,5 +26,5 @@ public record InterfaceModel(string Identifier, NamedValueCollection Properties,
     }
 
     protected override InterfaceDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
-        => Interface(Identifier, Members(), Namespace, TopLevelModifier);
+        => Interface(Identifier, null, null, null, Members(), Namespace, TopLevelModifier);
 }

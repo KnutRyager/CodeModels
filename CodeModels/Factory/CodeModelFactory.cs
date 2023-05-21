@@ -117,18 +117,20 @@ public static class CodeModelFactory
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => new(name, parameters, returnType, body, modifier);
+    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
+        => Models.Primitives.Member.Method.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => MethodFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => MethodFull(name, parameters, returnType, genericParameters, constraintClauses, null, expressionBody, modifier);
     public static Method Method(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => new(name, parameters, returnType, Block(statements), modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => new(name, parameters, returnType, expressionBody, modifier);
+        => MethodFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => Method(name, AbstractCodeModelFactory.NamedValues(), returnType, body, modifier);
+        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: body, modifier: modifier);
     public static Method Method(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => Method(name, AbstractCodeModelFactory.NamedValues(), returnType, Block(statements), modifier);
+        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => Method(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody, modifier);
+        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
     public static ICodeModel Member(MemberInfo member) => member switch
     {
         Type type => TypeFromReflection.Create(type),
@@ -270,15 +272,24 @@ public static class CodeModelFactory
     public static ExpressionStatement Statement(IExpression expression) => new(expression);
 
     public static ClassDeclaration Class(string name,
+        IEnumerable<IType>? genericParameters = null,
+        IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
+        IEnumerable<IBaseType>? baseTypeList = null,
         IEnumerable<IMember>? members = null,
         Namespace? @namespace = null,
-        Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+        Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name),
+            genericParameters, constraintClauses, baseTypeList, members,
+            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
 
     public static InterfaceDeclaration Interface(string name,
+        IEnumerable<IType>? genericParameters = null,
+        IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
+        IEnumerable<IBaseType>? baseTypeList = null,
         IEnumerable<IMember>? members = null,
         Namespace? @namespace = null,
-        Modifier? modifier = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+        Modifier? modifier = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name),
+            genericParameters, constraintClauses, baseTypeList, members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
     public static InterfaceDeclaration Interface(string name, params IMember[] membersArray) => Interface(name, members: membersArray);
 
     public static EnumDeclaration Enum(string name,

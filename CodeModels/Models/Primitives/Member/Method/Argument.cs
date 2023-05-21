@@ -8,18 +8,18 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member
 {
     // TODO: refKindKeyword
-    public record Argument(string? Name, IExpression? Expression = null)
+    public record Argument(string? Name, IExpression Expression)
         : CodeModel<ArgumentSyntax>()
     {
-        public static Method Create(string name, NamedValueCollection parameters, IType returnType, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
-            => new(name, parameters, returnType, body, expressionBody, modifier);
+        public static Argument Create(string? name, IExpression expression)
+            => new(name, expression);
 
         public override IEnumerable<ICodeModel> Children()
         {
-            if (Expression is not null) yield return Expression;
+            yield return Expression;
         }
 
         public override ArgumentSyntax Syntax()
-            => SyntaxFactory.Argument(Name is null ? null : SyntaxFactory.NameColon(IdentifierName(Name)), Token(SyntaxKind.None), Expression?.Syntax());
+            => SyntaxFactory.Argument(Name is null ? null : SyntaxFactory.NameColon(IdentifierName(Name)), Token(SyntaxKind.None), Expression.Syntax());
     }
 }

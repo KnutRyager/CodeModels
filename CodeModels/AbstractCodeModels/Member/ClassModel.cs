@@ -17,5 +17,5 @@ public abstract record ClassModel(string Identifier, NamedValueCollection Proper
     //    => CodeModelFactory.Class(Identifier, Members(), Namespace, TopLevelModifier);
 
     protected override ClassDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
-        => CodeModelFactory.Class(Identifier, Members(), Namespace, TopLevelModifier);
+        => CodeModelFactory.Class(Identifier, null, null, null, Members(), Namespace, TopLevelModifier);
 }

@@ -9,7 +9,7 @@ public class MethodTests
 {
     [Fact]
     public void BlockMethod() => Method("test", NamedValues(new[] { NamedValue(Type("int"), "a") }), Type("string"),
-        Block(LocalDeclaration(Declaration(Type("string"), "b", Literal("test"))), Return(Identifier("a"))), Modifier.Private)
+        Block(LocalDeclaration(Declaration(Type("string"), "b", Literal("test"))), Return(Identifier("a"))), modifier: Modifier.Private)
         .CodeModelEqual(@"
 private string test(int a){
     string b = ""test"";
@@ -18,7 +18,7 @@ private string test(int a){
 
     [Fact]
     public void ExpressionMethod() => Method("test", NamedValues(new[] { NamedValue(Type("int"), "a") }), Type("string"),
-         Literal("test"), Modifier.Private)
+         Literal("test"), modifier: Modifier.Private)
         .CodeModelEqual(@"
 private string test(int a) => ""test"";
 ");

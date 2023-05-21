@@ -13,7 +13,6 @@ namespace CodeModels.Models
     public interface IInterfaceDeclaration : ITypeDeclaration<InterfaceDeclarationSyntax>,
         IToClassConvertible, IToRecordConvertible
     {
-        IInterfaceDeclaration? Parent { get; }
         List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null);
         IType BaseType();
         List<IType> ConvertToList();

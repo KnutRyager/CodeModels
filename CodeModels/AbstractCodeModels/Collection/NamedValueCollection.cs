@@ -121,7 +121,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
         throw new NotImplementedException();
     }
 
-    public IClassDeclaration ToClassModel() => Class(Name ?? string.Empty, Properties.Select(x => x.ToProperty()));
+    public IClassDeclaration ToClassModel() => Class(Name ?? string.Empty, members: Properties.Select(x => x.ToProperty()));
 
     public Property ToProperty() => Property(Name, Value);
 

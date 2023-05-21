@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
@@ -16,7 +18,13 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeModels.Models.Primitives.Member;
 
 public record MethodFromReflection(MethodInfo Method)
-    : Method(Method.Name, new NamedValueCollection(Method.GetParameters()), TypeFromReflection.Create(Method.ReturnType))
+    : Method(
+        Method.Name, 
+        new NamedValueCollection(Method.GetParameters()),
+        Method.GetGenericArguments().Select(x => TypeFromReflection.Create(x)).ToList<IType>(),
+        new List<TypeParameterConstraintClause>(),
+        TypeFromReflection.Create(Method.ReturnType),
+        null)
 {
     //public MethodFromReflection(IMethodSymbol symbol) : this(SemanticReflection.GetMethod(symbol) ?? Context.Get<MethodInfo>(symbol)) { }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
@@ -10,6 +11,7 @@ using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Reflection;
 using Common.Extensions;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -17,18 +19,31 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Member
 {
-    public record Method(string Name, NamedValueCollection Parameters, IType ReturnType, Block? Statements, IExpression? ExpressionBody = null,
+    public record Method(string Name,
+    NamedValueCollection Parameters,
+    List<IType> GenericParameters,
+    List<TypeParameterConstraintClause> ConstraintClauses,
+    IType ReturnType,
+    Block? Statements,
+    IExpression? ExpressionBody = null,
         Modifier Modifier = Modifier.Public, List<AttributeList>? AttributesIn = null)
         : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, AttributesIn ?? new List<AttributeList>(), Modifier),
         IMethod, IInvokable<InvocationExpression>
     {
-        public static Method Create(string name, NamedValueCollection parameters, IType returnType, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
-            => new(name, parameters, returnType, body, expressionBody, modifier);
+        public static Method Create(string name,
+            NamedValueCollection parameters,
+            IType returnType,
+            IEnumerable<IType>? genericParameters = null,
+            IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
+            Block? body = null,
+            IExpression? expressionBody = null,
+            Modifier modifier = Modifier.Public)
+            => new(name, parameters, List(genericParameters), List(constraintClauses), returnType, body, expressionBody, modifier);
 
-        public Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
-            : this(name, parameters, returnType, body, null, modifier) { }
-        public Method(string name, NamedValueCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
-            : this(name, parameters, returnType, null, body, modifier) { }
+        //public Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
+        //    : this(name, parameters, returnType, body, null, modifier) { }
+        //public Method(string name, NamedValueCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
+        //    : this(name, parameters, returnType, null, body, modifier) { }
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: new List<AttributeListSyntax>(),
@@ -36,9 +51,9 @@ namespace CodeModels.Models.Primitives.Member
             returnType: ReturnType.Syntax() ?? TypeShorthands.VoidType.Syntax()!,
             explicitInterfaceSpecifier: default,
             identifier: IdentifierSyntax(),
-            typeParameterList: default,
+            typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
             parameterList: Parameters.ToParameters(),
-            constraintClauses: default,
+            constraintClauses: SyntaxFactory.List(ConstraintClauses.Select(x => x.Syntax())),
             body: Statements?.Syntax(),
             expressionBody: ExpressionBody is null ? null : ArrowExpressionClause(ExpressionBody.Syntax()));
 

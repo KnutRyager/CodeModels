@@ -17,12 +17,17 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member;
 
 public abstract record InterfaceDeclaration(string Name,
+    List<IType> GenericParameters,
+    List<TypeParameterConstraintClause> ConstraintClauses,
+    List<IBaseType> BaseTypeList,
     List<IMember> Members,
-    IInterfaceDeclaration? Parent = null,
     Namespace? Namespace = null,
     Modifier Modifier = Modifier.Public)
     : TypeDeclaration<InterfaceDeclarationSyntax>(
         Name: Name,
+        GenericParameters: GenericParameters,
+        ConstraintClauses: ConstraintClauses,
+        BaseTypeList: BaseTypeList,
         Members: Members,
         Namespace: Namespace,
         TopLevelModifier: Modifier,
@@ -32,11 +37,14 @@ public abstract record InterfaceDeclaration(string Name,
     IMember, IInterfaceDeclaration
 {
     public static InterfaceDeclaration Create(string name,
+    IEnumerable<IType>? genericParameters = null,
+    IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
+    IEnumerable<IBaseType>? baseTypeList = null,
     IEnumerable<IMember>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null)
     {
-        var declaration = new InterfaceDeclarationImp(name, List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new InterfaceDeclarationImp(name, List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
@@ -109,7 +117,7 @@ public abstract record InterfaceDeclaration(string Name,
     public override IInstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
-        var instance = new InstantiatedInterface(this, scope, GetStaticScope(), Parent?.CreateInstanceScope());
+        var instance = new InstantiatedInterface(this, scope, GetStaticScope());
         scope.SetThis(instance);
         InitInstanceScope(scope);
         return instance;
@@ -123,11 +131,17 @@ public abstract record InterfaceDeclaration(string Name,
     }
 
     private record InterfaceDeclarationImp(string Name,
+    List<IType> GenericParameters,
+    List<TypeParameterConstraintClause> ConstraintClauses,
+    List<IBaseType> BaseTypeList,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier Modifier = Modifier.Public)
     : InterfaceDeclaration(
         Name: Name,
+        GenericParameters: GenericParameters,
+        ConstraintClauses: ConstraintClauses,
+        BaseTypeList: BaseTypeList,
         Members: Members,
         Namespace: Namespace,
         Modifier: Modifier);

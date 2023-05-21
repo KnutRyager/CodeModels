@@ -22,5 +22,5 @@ public record ClassFromReflection(Type ReflectedType) : AbstractTypeDeclaration<
     }
 
     protected override ClassDeclaration OnToCodeModel(IAbstractCodeModelSettings? settings = null)
-        => CodeModelFactory.Class(Name, Members());
+        => CodeModelFactory.Class(Name, null, null, null, Members());
 }
