@@ -117,12 +117,12 @@ public static class CodeModelFactory
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
-        => Models.Primitives.Member.Method.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => MethodFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => MethodFull(name, parameters, returnType, genericParameters, constraintClauses, null, expressionBody, modifier);
+    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
+        => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, expressionBody, modifier);
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, body, null, modifier);
+    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, null, expressionBody, modifier);
     public static Method Method(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => MethodFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
@@ -131,6 +131,22 @@ public static class CodeModelFactory
         => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
+
+    public static LocalFunctionStatement LocalFunctionFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
+        => LocalFunctionStatement.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
+    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
+    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, null, expressionBody, modifier);
+    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
+    public static LocalFunctionStatement LocalFunction(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: body, modifier: modifier);
+    public static LocalFunctionStatement LocalFunction(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: Block(statements), modifier: modifier);
+    public static LocalFunctionStatement LocalFunction(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
+        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
+
     public static ICodeModel Member(MemberInfo member) => member switch
     {
         Type type => TypeFromReflection.Create(type),

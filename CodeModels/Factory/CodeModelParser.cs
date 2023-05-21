@@ -722,10 +722,16 @@ public class CodeModelParser
     public LabeledStatement Parse(LabeledStatementSyntax syntax) => new(syntax.Identifier.ToString(), Parse(syntax.Statement));
     public LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => new(Parse(syntax.Declaration));
     public LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax)
-        => Register(syntax, new LocalFunctionStatement(ParseModifier(syntax.Modifiers), ParseType(syntax.ReturnType), syntax.Identifier.ToString(),
-            ParseTypes(syntax.TypeParameterList),
-            AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(syntax.ConstraintClauses), syntax.Body is null ? null : Parse(syntax.Body),
-            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
+
+         => Register(syntax, LocalFunctionFull(syntax.GetName(),
+                 AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList),
+                 ParseType(syntax.ReturnType),
+                 syntax.TypeParameterList?.Parameters.Select(Parse),
+                 syntax.ConstraintClauses.Select(Parse).ToArray(),
+                 syntax.Body is null ? null : Parse(syntax.Body),
+                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression),
+                 ParseModifier(syntax.Modifiers)));
+    
     public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
         => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());

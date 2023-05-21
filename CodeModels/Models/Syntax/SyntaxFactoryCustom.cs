@@ -156,6 +156,26 @@ public static class SyntaxFactoryCustom
         expressionBody: expressionBody,
         semicolonToken: SemicolonIfNone(body));
 
+    public static LocalFunctionStatementSyntax LocalFunctionStatementCustom(IEnumerable<AttributeListSyntax> attributeLists,
+        SyntaxTokenList modifiers,
+        TypeSyntax returnType,
+        SyntaxToken identifier,
+        TypeParameterListSyntax? typeParameterList,
+        ParameterListSyntax? parameterList,
+        BlockSyntax? body,
+        ArrowExpressionClauseSyntax? expressionBody,
+        SyntaxList<TypeParameterConstraintClauseSyntax> constraintClauses) => LocalFunctionStatement(
+        attributeLists: List(attributeLists),
+        modifiers: modifiers,
+        returnType: returnType,
+        identifier: identifier,
+        typeParameterList: typeParameterList,
+        parameterList: parameterList ?? ParameterList(),
+        constraintClauses: constraintClauses,
+        body: body,
+        expressionBody: expressionBody,
+        semicolonToken: SemicolonIfNone(body));
+
     public static ParameterListSyntax ParameterListCustom(IEnumerable<ParameterSyntax> parameters) => ParameterList(Token(SyntaxKind.OpenParenToken),
          parameters: SeparatedList(parameters),
          closeParenToken: Token(SyntaxKind.CloseParenToken));

@@ -38,7 +38,7 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
                 context.EnterScope();
             }
 
-            if (Method.Statements is null && Method.ExpressionBody is null)
+            if (Method.Body is null && Method.ExpressionBody is null)
             {
                 throw new NotImplementedException();
             }
@@ -50,7 +50,7 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
                 context.SetValue(parameter.Name, argument == VoidValue ? parameter.Value : argument);
             }
 
-            if (Method.Statements is Block block)
+            if (Method.Body is Block block)
             {
                 //block.Evaluate(context);
                 foreach (var statement in block.Statements) statement.Evaluate(context);
@@ -80,7 +80,6 @@ public record InvocationExpression(Method Method, IExpression Caller, List<IExpr
     }
 
 }
-
 
 public record InvocationFromReflection(MethodInfo Method, IExpression Caller, List<IExpression> Arguments)
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), TypeFromReflection.Create(Method), OperationType.Invocation)

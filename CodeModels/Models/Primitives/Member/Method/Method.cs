@@ -21,24 +21,25 @@ namespace CodeModels.Models.Primitives.Member
 {
     public record Method(string Name,
     NamedValueCollection Parameters,
-    List<IType> GenericParameters,
+    List<IType> TypeParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     IType ReturnType,
-    Block? Statements,
+    Block? Body,
     IExpression? ExpressionBody = null,
-        Modifier Modifier = Modifier.Public, List<AttributeList>? AttributesIn = null)
+    Modifier Modifier = Modifier.Public, 
+    List<AttributeList>? AttributesIn = null)
         : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, AttributesIn ?? new List<AttributeList>(), Modifier),
         IMethod, IInvokable<InvocationExpression>
     {
         public static Method Create(string name,
-            NamedValueCollection parameters,
-            IType returnType,
-            IEnumerable<IType>? genericParameters = null,
+            NamedValueCollection? parameters = null,
+            IType? returnType = null,
+            IEnumerable<IType>? typeParameters = null,
             IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
             Block? body = null,
             IExpression? expressionBody = null,
             Modifier? modifier = null)
-            => new(name, parameters, List(genericParameters), List(constraintClauses), returnType, body, expressionBody, modifier ?? Modifier.Public);
+            => new(name, parameters ?? AbstractCodeModelFactory.EmptyNamedValues(""), List(typeParameters), List(constraintClauses), returnType ?? TypeShorthands.VoidType, body, expressionBody, modifier ?? Modifier.Public);
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: new List<AttributeListSyntax>(),
@@ -46,10 +47,10 @@ namespace CodeModels.Models.Primitives.Member
             returnType: ReturnType.Syntax() ?? TypeShorthands.VoidType.Syntax()!,
             explicitInterfaceSpecifier: default,
             identifier: IdentifierSyntax(),
-            typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
+            typeParameterList: TypeParameters.Count is 0 ? null : TypeParameterList(SeparatedList(TypeParameters.Select(x => x.ToTypeParameter()))),
             parameterList: Parameters.ToParameters(),
             constraintClauses: SyntaxFactory.List(ConstraintClauses.Select(x => x.Syntax())),
-            body: Statements?.Syntax(),
+            body: Body?.Syntax(),
             expressionBody: ExpressionBody is null ? null : ArrowExpressionClause(ExpressionBody.Syntax()));
 
         public override InvocationExpression Invoke(IExpression? caller, IEnumerable<IExpression> arguments) => Invocation(this, caller, arguments);
@@ -68,8 +69,10 @@ namespace CodeModels.Models.Primitives.Member
 
         public override IEnumerable<ICodeModel> Children()
         {
-            foreach (var property in Parameters.Properties) yield return property;
-            if (Statements is not null) yield return Statements;
+            foreach (var type in TypeParameters) yield return type;
+            foreach (var parameter in Parameters.Properties) yield return parameter;
+            foreach (var constraintClause in ConstraintClauses) yield return constraintClause;
+            if (Body is not null) yield return Body;
             if (ExpressionBody is not null) yield return ExpressionBody;
             yield return ReturnType;
         }

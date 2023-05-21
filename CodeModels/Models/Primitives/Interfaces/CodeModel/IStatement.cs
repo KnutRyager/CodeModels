@@ -19,13 +19,14 @@ public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSy
 public abstract record AbstractStatement<T>(string? Name = null)
     : NamedCodeModel<T>(Name ?? "_AbstractStatement"), IStatement<T> where T : StatementSyntax
 {
-
     StatementSyntax IStatement.Syntax() => Syntax();
     public virtual bool EndsInBreak() => false;
     public abstract void Evaluate(ICodeModelExecutionContext context);
 
-    public Modifier Modifier => Modifier.None;
+    //public Modifier Modifier => Modifier.None;
     public bool IsStatic => false;
+
+    public virtual Modifier Modifier { get; } = Modifier.None;
 
     MemberDeclarationSyntax IMember.Syntax() => new GlobalStatement(this).Syntax();
     public virtual MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();

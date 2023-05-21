@@ -60,6 +60,9 @@ public static class SyntaxNodeExtensions
     public static string GetName(this MethodDeclarationSyntax method)
         => method.Identifier.ValueText;
 
+    public static string GetName(this LocalFunctionStatementSyntax localFunction)
+        => localFunction.Identifier.ValueText;
+
     public static SeparatedSyntaxList<ParameterSyntax> GetParameters(this MethodDeclarationSyntax method)
         => method.ParameterList.Parameters;
 
