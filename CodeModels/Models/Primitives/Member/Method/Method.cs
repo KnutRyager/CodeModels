@@ -37,13 +37,8 @@ namespace CodeModels.Models.Primitives.Member
             IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
             Block? body = null,
             IExpression? expressionBody = null,
-            Modifier modifier = Modifier.Public)
-            => new(name, parameters, List(genericParameters), List(constraintClauses), returnType, body, expressionBody, modifier);
-
-        //public Method(string name, NamedValueCollection parameters, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        //    : this(name, parameters, returnType, body, null, modifier) { }
-        //public Method(string name, NamedValueCollection parameters, IType returnType, IExpression? body = null, Modifier modifier = Modifier.Public)
-        //    : this(name, parameters, returnType, null, body, modifier) { }
+            Modifier? modifier = null)
+            => new(name, parameters, List(genericParameters), List(constraintClauses), returnType, body, expressionBody, modifier ?? Modifier.Public);
 
         public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
             attributeLists: new List<AttributeListSyntax>(),

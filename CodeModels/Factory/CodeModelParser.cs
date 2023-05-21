@@ -862,7 +862,8 @@ public class CodeModelParser
                  syntax.TypeParameterList?.Parameters.Select(Parse),
                  syntax.ConstraintClauses.Select(Parse).ToArray(),
                  syntax.Body is null ? null : Parse(syntax.Body),
-                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression)));
+                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression),
+                 ParseModifier(syntax.Modifiers)));
     public IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
     {

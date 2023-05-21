@@ -55,20 +55,20 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
     public List<IMember> Members() => Properties.Ordered(MemberModifier).Concat<IMember>(Methods).ToList();
     public SyntaxList<MemberDeclarationSyntax> MembersSyntax() => SyntaxFactory.List(Properties.ToMembers(MemberModifier).Concat(MethodsSyntax()));
 
-    public RecordDeclarationSyntax ToRecord() => RecordDeclarationCustom(
+    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
             attributeLists: default,
-            modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
-            identifier: IdentifierSyntax(),
+            modifiers: modifiers?.Syntax() ?? Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
+            identifier: name is not null ? Identifier(name) : IdentifierSyntax(),
             typeParameterList: default,
             parameterList: Properties.ToParameters(),
             baseList: default,
             constraintClauses: default,
             members: MethodsSyntax());
 
-    public ClassDeclarationSyntax ToClass() => ClassDeclarationCustom(
+    public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: default,
-            modifiers: Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
-            identifier: IdentifierSyntax(),
+            modifiers: modifiers?.Syntax() ?? Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
+            identifier: name is not null ? Identifier(name) : IdentifierSyntax(),
             typeParameterList: default,
             baseList: default,
             constraintClauses: default,

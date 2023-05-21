@@ -10,7 +10,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public interface IBaseTypeDeclaration : IScopeHolder, ITypeModel, IMember
+public interface IBaseTypeDeclaration
+    : IScopeHolder, ITypeModel, IMember, IToRecordConvertible, IToClassConvertible
 {
     List<IMember> Members { get; }
     EqualityList<IType> GenericTypes { get; }
@@ -47,10 +48,7 @@ public interface IBaseTypeDeclaration : IScopeHolder, ITypeModel, IMember
     SyntaxList<MemberDeclarationSyntax> MembersSyntax();
     SyntaxList<MemberDeclarationSyntax> MethodsSyntax();
     List<IMember> Ordered(Modifier modifier = Modifier.None);
-    ClassDeclarationSyntax ToClass();
     InterfaceDeclarationSyntax ToInterface();
-    RecordDeclarationSyntax ToRecord();
-    StructDeclarationSyntax ToStruct();
     TupleTypeSyntax ToTupleType();
     IField? TryGetField(string name);
     IMember TryGetMember(string name);

@@ -117,7 +117,7 @@ public static class CodeModelFactory
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public)
+    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
         => Models.Primitives.Member.Method.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
     public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
         => MethodFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
