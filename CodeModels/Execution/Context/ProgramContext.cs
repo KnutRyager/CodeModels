@@ -35,7 +35,7 @@ public record ProgramContext(SemanticModel? Model = null) : IProgramContext
     public static IProgramContext? GetContext(ISymbol symbol) => _symbolContexts[symbol.ContainingAssembly];
     public static IProgramContext? GetContext(SemanticModel model) => _contexts[model];
     public static IProgramContext? GetContext(SemanticModel model, ISymbol symbol) => _contexts[model] ??
-        GetContext(symbol ?? model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()));
+        GetContext(symbol ?? model.GetDeclaredSymbol(model.SyntaxTree.GetCompilationUnitRoot()) ?? throw new NotImplementedException());
 
     private Dictionary<ISymbol, ICodeModel> _symbols = new(SymbolEqualityComparer.Default);
 

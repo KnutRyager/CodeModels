@@ -24,7 +24,7 @@ public abstract record MethodBase<T, U>(IType Type, string Name, List<AttributeL
 {
     BaseMethodDeclarationSyntax IMethodBase.Syntax() => Syntax();
     BaseMethodDeclarationSyntax IMethodBase.SyntaxWithModifiers(Modifier modifier, Modifier removeModifier) => SyntaxWithModifiers(modifier, removeModifier);
-    IInvocation IInvokable.Invoke(IExpression caller, IEnumerable<IExpression> arguments)
+    IInvocation IInvokable.Invoke(IExpression? caller, IEnumerable<IExpression> arguments)
         => Invoke(caller, arguments);
-    public abstract U Invoke(IExpression caller, IEnumerable<IExpression> arguments);
+    public abstract U Invoke(IExpression? caller, IEnumerable<IExpression> arguments);
 }

@@ -7,6 +7,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -84,11 +85,11 @@ public abstract record ClassDeclaration(string Name,
     //        members: default);
 
     public ParameterListSyntax ToParameters() => ParameterListCustom(GetProperties().Select(x => x.ToParameter()));
-    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => x.Value.ToArgument()));
-    public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(GetPropertiesAndFields().Select(x => x.Value.Syntax())));
+    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).ToArgument()));
+    public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(GetPropertiesAndFields().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).Syntax())));
     public List<IMember> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
     public List<Property> FilterValues() => GetProperties().Where(x => x.Value != null).ToList();
-    public List<IExpression> ToExpressions() => GetProperties().Select(x => x.Value).ToList();
+    public List<IExpression> ToExpressions() => GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value)).ToList();
     public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
     //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;

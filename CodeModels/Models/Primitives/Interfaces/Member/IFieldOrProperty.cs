@@ -21,7 +21,7 @@ public interface IFieldOrProperty : IMember, ICodeModel, ITypeModel, IAssigner, 
     IExpression ValueOrDefault();
     IInvocation AccessValue(string identifier, IType? type = null, ISymbol? symbol = null);
     IInvocation AccessValue(IExpression? instance = null);
-    public abstract IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context);
+    public abstract IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context);
 
     ExpressionSyntax? AccessSyntax(IExpression? instance = null);
 }

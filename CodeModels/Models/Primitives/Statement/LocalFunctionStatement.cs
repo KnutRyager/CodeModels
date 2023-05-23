@@ -22,7 +22,7 @@ public record LocalFunctionStatement(string Identifier,
     Block? Body,
     IExpression? ExpressionBody,
     Modifier Modifier)
-    : AbstractStatement<LocalFunctionStatementSyntax>(Identifier)
+    : AbstractStatement<LocalFunctionStatementSyntax>(Identifier, Modifier)
 {
     public static LocalFunctionStatement Create(string name,
             NamedValueCollection? parameters = null,

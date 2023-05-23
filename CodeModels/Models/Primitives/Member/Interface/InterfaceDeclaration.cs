@@ -7,6 +7,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -49,47 +50,12 @@ public abstract record InterfaceDeclaration(string Name,
         return declaration;
     }
 
-    //public InterfaceDeclaration(IEnumerable<Property>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
-    //public InterfaceDeclaration(IEnumerable<PropertyInfo> properties) : this(properties.Select(x => new PropertyFromReflection(x))) { }
-    //public InterfaceDeclaration(IEnumerable<FieldInfo> fields) : this(fields.Select(x => new PropertyFromField(x))) { }
-    //public InterfaceDeclaration(Type type) : this(type.GetProperties(), type.GetFields()) { }
-    //public InterfaceDeclaration(IEnumerable<PropertyInfo> properties, IEnumerable<FieldInfo> fields)
-    //    : this(properties.Select(x => new PropertyFromReflection(x)).ToList<Property>().Concat(fields.Select(x => new PropertyFromField(x)))) { }
-    //public InterfaceDeclaration(InterfaceDeclarationSyntax declaration) : this(new PropertyVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public InterfaceDeclaration(RecordDeclarationSyntax declaration) : this(new ParameterVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x)), declaration.Identifier.ToString()) { }
-    //public InterfaceDeclaration(TupleTypeSyntax declaration) : this(new TupleElementVisiter().GetEntries(declaration.SyntaxTree).Select(x => new Property(x))) { }
-    //public InterfaceDeclaration(MethodDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public InterfaceDeclaration(ConstructorDeclarationSyntax declaration) : this(declaration.ParameterList) { }
-    //public InterfaceDeclaration(ParameterListSyntax parameters) : this(parameters.Parameters.Select(x => new Property(x))) { }
-    //public InterfaceDeclaration(IEnumerable<ParameterInfo> parameters) : this(parameters.Select(x => new PropertyFromParameter(x))) { }
-
-    public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
-            attributeLists: default,
-            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
-            identifier: ToIdentifier(),
-            typeParameterList: default,
-            baseList: default,
-            constraintClauses: default,
-            members: ToMembers(memberModifiers)
-        );
-
-    public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
-            attributeLists: default,
-            modifiers: (modifiers ?? TopLevelModifier).Syntax(),
-            identifier: name != null ? Identifier(name) : ToIdentifier(),
-            typeParameterList: default,
-            parameterList: ToParameters(),
-            baseList: default,
-            constraintClauses: default,
-            members: default);
-
     public ParameterListSyntax ToParameters() => ParameterListCustom(GetProperties().Select(x => x.ToParameter()));
-    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => x.Value.ToArgument()));
+    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).ToArgument()));
     public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(GetPropertiesAndFields().Select(x => x.Value.Syntax())));
     public List<IMember> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
-    public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.SyntaxWithModifiers(modifier)));
     public List<Property> FilterValues() => GetProperties().Where(x => x.Value != null).ToList();
-    public List<IExpression> ToExpressions() => GetProperties().Select(x => x.Value).ToList();
+    public List<IExpression> ToExpressions() => GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value)).ToList();
     public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
     //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;

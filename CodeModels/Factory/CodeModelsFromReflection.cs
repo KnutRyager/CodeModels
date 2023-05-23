@@ -37,7 +37,7 @@ public static class CodeModelsFromReflection
 
     public static List<IMethod> Methods(Type type) => type.GetMethods().Select(x => new MethodFromReflection(x)).ToList<IMethod>();
 
-    public static LiteralExpression Literal(object value) => new(value);
+    public static LiteralExpression Literal(object value) => LiteralExpression.Create(value);
 
     public static NamedValueCollection NamedValues(Type type) => new(type);
 

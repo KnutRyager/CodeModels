@@ -87,7 +87,7 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
         {
             var type = Type.ReflectedType;
             var parameters = Arguments?.Select(x => x.Get_Type().ReflectedType).ToArray();
-            var constructor = type.GetConstructor(parameters);
+            var constructor = type?.GetConstructor(parameters);
             if (constructor is not null)
             {
                 return constructor;

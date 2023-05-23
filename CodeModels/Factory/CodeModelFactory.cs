@@ -24,9 +24,9 @@ namespace CodeModels.Factory;
 
 public static class CodeModelFactory
 {
-    public static readonly LiteralExpression VoidValue = new(TypeShorthands.VoidType);
-    public static readonly LiteralExpression NullValue = new(TypeShorthands.NullType);
-    public static readonly LiteralExpression DefaultValue = new(TypeShorthands.NullType);
+    public static readonly LiteralExpression VoidValue = LiteralExpression.Create(TypeShorthands.VoidType);
+    public static readonly LiteralExpression NullValue = LiteralExpression.Create(TypeShorthands.NullType);
+    public static readonly LiteralExpression DefaultValue = LiteralExpression.Create(TypeShorthands.NullType);
     public static readonly IClassDeclaration VoidClass = Class("_VoidClass");
 
     public static List<T> List<T>(IEnumerable<T>? objects) => objects?.ToList() ?? new List<T>();
@@ -74,7 +74,7 @@ public static class CodeModelFactory
 
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
-    public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : new LiteralExpression(value);
+    public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : LiteralExpression.Create(value);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -85,7 +85,7 @@ public static class CodeModelFactory
     public static ExpressionCollection Values(Array values) => new(CollectionUtil.ModernizeArray(values).Select(Value));
     public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
     public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
-    public static InvocationExpression Invocation(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
+    public static InvocationExpression Invocation(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));

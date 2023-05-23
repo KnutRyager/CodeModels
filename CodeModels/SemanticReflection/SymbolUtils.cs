@@ -8,12 +8,12 @@ namespace CodeModels.Reflection;
 public static class SymbolUtils
 {
     public static bool IsNewDefined(ISymbol symbol) => symbol.ContainingAssembly?.Name.StartsWith("MyCompilation") ?? false;
-    public static bool IsNewDefined(IOperation symbol) => IsNewDefined(symbol.Type);
+    public static bool IsNewDefined(IOperation symbol) => IsNewDefined(symbol.Type ?? throw new NotImplementedException());
     public static ISymbol? GetSymbol(SyntaxNode node, SemanticModel model) => model?.GetSymbolInfo(node).Symbol;
     public static INamedTypeSymbol? GetType(SyntaxNode node, SemanticModel model)
     {
         var declaredSymbol = GetDeclaredSymbol(node, model);
-        return declaredSymbol.ContainingType;
+        return declaredSymbol?.ContainingType;
     }
 
     public static ISymbol? GetDeclaredSymbol(SyntaxNode node, SemanticModel model) => model?.GetDeclaredSymbol(node);
@@ -25,12 +25,12 @@ public static class SymbolUtils
     };
 
     public static IAssemblySymbol? GetAssembly(CompilationUnitSyntax node, SemanticModel model)
-        => model?.GetDeclaredSymbol(node)?.ContainingAssembly ?? (node.Members.Count > 0 ? GetAssembly(node.Members[0], model) : null);
+        => model.GetDeclaredSymbol(node)?.ContainingAssembly ?? (node.Members.Count > 0 ? GetAssembly(node.Members[0], model) : null);
 
     public static IAssemblySymbol GetAssembly(MemberDeclarationSyntax node, SemanticModel model)
-        => model?.GetDeclaredSymbol(node)?.ContainingAssembly;
+        => model.GetDeclaredSymbol(node)?.ContainingAssembly ?? throw new NotImplementedException();
 
-    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel? model = null) => node switch
+    public static ISymbol? GetDeclaration(SyntaxNode node, SemanticModel model) => node switch
     {
         FieldDeclarationSyntax field => GetDeclaration(field, model),
         PropertyDeclarationSyntax property => GetDeclaration(property, model),
@@ -48,7 +48,7 @@ public static class SymbolUtils
     };
 
     public static ISymbol? GetDeclaration(FieldDeclarationSyntax node, SemanticModel model)
-        => GetDeclaredSymbol(node.Declaration.Variables.FirstOrDefault(), model);
+        => GetDeclaredSymbol(node.Declaration.Variables.FirstOrDefault() ?? throw new NotImplementedException(), model);
     public static ISymbol? GetDeclaration(PropertyDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);
     public static ISymbol? GetDeclaration(MethodDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);
     public static ISymbol? GetDeclaration(ConstructorDeclarationSyntax node, SemanticModel model) => GetDeclaredSymbol(node, model);

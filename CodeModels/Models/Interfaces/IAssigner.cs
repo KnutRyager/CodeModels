@@ -8,6 +8,6 @@ namespace CodeModels.Models.Interfaces;
 public interface IAssigner
 {
     AssignmentExpression Assign(IExpression? instance, IExpression value);
-    void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context);
+    void Assign(IExpression? instance, IExpression value, ICodeModelExecutionContext context);
     void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes);
 }

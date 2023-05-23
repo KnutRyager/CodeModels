@@ -14,7 +14,7 @@ public static class SemanticReflection
     {
         IFieldSymbol field => GetField(field),
         IPropertySymbol property => GetProperty(property),
-        IMethodSymbol method => GetMethod(method),
+        IMethodSymbol method => GetMethod(method) ?? throw new NotImplementedException(),
         _ => throw new NotImplementedException($"Not implemented: '{symbol}'.")
     };
 
@@ -23,8 +23,8 @@ public static class SemanticReflection
     public static ConstructorInfo GetConstructor(IObjectCreationOperation symbol)
     {
         var methodSymbol = symbol.Constructor;
-        var type = GetType(symbol.Type);
-        var parameters = methodSymbol.Parameters.Select(GetType).ToArray();
+        var type = GetType(symbol.Type ?? throw new NotImplementedException());
+        var parameters = methodSymbol?.Parameters.Select(GetType).ToArray() ?? throw new NotImplementedException();
         var constructor = type.GetConstructor(parameters);
         return constructor;
     }
@@ -44,7 +44,7 @@ public static class SemanticReflection
             {
                 var parameter = parameters[i];
                 var genericParameter = genericParameters[i];
-                if (genericParameter.Type != parameter.Type)
+                if (!SymbolEqualityComparer.Default.Equals(genericParameter.Type, parameter.Type))
                 {
                     genericIndexOfParameters.Add((i, genericParameterOut.Count));
                     genericParameterOut.Add(GetType(parameter));
@@ -75,7 +75,7 @@ public static class SemanticReflection
     public static Type GetType(IPropertySymbol symbol) => GetType(symbol.Type);
     public static Type GetType(IMethodSymbol symbol) => GetType(symbol.ToString(), symbol);
     public static Type GetType(INamedTypeSymbol symbol) => GetType(symbol.ToString(), symbol);
-    public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter);
+    public static Type GetType(IArgumentOperation symbol) => GetType(symbol.Parameter ?? throw new NotImplementedException());
     public static Type GetType(IParameterSymbol symbol) => GetType(symbol.Type);
 
     // https://docs.microsoft.com/en-us/dotnet/api/system.type.gettype?view=net-6.0
@@ -118,5 +118,5 @@ public static class SemanticReflection
     //public static Type? TryGetType(string name) => Type.GetType(ReflectionSerialization.GetShortHandNameRealOld(ReflectionSerialization.NormalizeType(name.Replace("?", ""))));
 
     public static Microsoft.CodeAnalysis.TypeInfo GetTypeInfo(SyntaxNode node, SemanticModel model) => model.GetTypeInfo(node);
-    public static Type? GetType(SyntaxNode node, SemanticModel model) => GetType(GetTypeInfo(node, model).Type);
+    public static Type? GetType(SyntaxNode node, SemanticModel model) => GetType(GetTypeInfo(node, model).Type ?? throw new NotImplementedException());
 }

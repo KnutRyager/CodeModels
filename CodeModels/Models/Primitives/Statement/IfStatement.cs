@@ -6,6 +6,7 @@ using static CodeModels.Factory.CodeModelFactory;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp;
+using CodeModels.Execution;
 
 namespace CodeModels.Models;
 
@@ -26,7 +27,8 @@ public record IfStatement(IExpression Condition, IStatement Statement, IStatemen
 
     public override void Evaluate(ICodeModelExecutionContext context)
     {
-        if ((bool)Condition.Evaluate(context).LiteralValue())
+        var condition = Condition.Evaluate(context).LiteralValue();
+        if (condition is bool b ? b : throw new CodeModelExecutionException($"Not a conditional: {Condition}"))
         {
             context.EnterScope();
             Statement.Evaluate(context);

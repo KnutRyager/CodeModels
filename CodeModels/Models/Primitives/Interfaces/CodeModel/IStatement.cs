@@ -16,7 +16,7 @@ public interface IStatement<T> : IStatement, ICodeModel<T> where T : StatementSy
     new T Syntax();
 }
 
-public abstract record AbstractStatement<T>(string? Name = null)
+public abstract record AbstractStatement<T>(string? Name = null, Modifier Modifier = Modifier.None)
     : NamedCodeModel<T>(Name ?? "_AbstractStatement"), IStatement<T> where T : StatementSyntax
 {
     StatementSyntax IStatement.Syntax() => Syntax();
@@ -25,8 +25,6 @@ public abstract record AbstractStatement<T>(string? Name = null)
 
     //public Modifier Modifier => Modifier.None;
     public bool IsStatic => false;
-
-    public virtual Modifier Modifier { get; } = Modifier.None;
 
     MemberDeclarationSyntax IMember.Syntax() => new GlobalStatement(this).Syntax();
     public virtual MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => throw new System.NotImplementedException();

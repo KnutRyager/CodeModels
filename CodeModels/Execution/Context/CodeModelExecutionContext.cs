@@ -15,7 +15,7 @@ namespace CodeModels.Execution.Context;
 
 public class CodeModelExecutionContext : ICodeModelExecutionContext
 {
-    public IProgramContext? ProgramContext { get; private set; }
+    public IProgramContext ProgramContext { get; init; }
     private List<ICodeModelExecutionScope> _scopes = new List<ICodeModelExecutionScope>();
     private readonly IDictionary<string, IMember> _members = new Dictionary<string, IMember>();
     //private IDictionary<string, ClassDeclaration> _types = new Dictionary<string, ClassDeclaration>();
@@ -28,7 +28,7 @@ public class CodeModelExecutionContext : ICodeModelExecutionContext
 
     public CodeModelExecutionContext(IProgramContext? programContext = null, TextWriter? console = null)
     {
-        ProgramContext = programContext;
+        ProgramContext = programContext ?? new ProgramContext();
         Console = console ?? new StringWriter();
     }
 

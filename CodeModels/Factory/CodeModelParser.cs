@@ -64,7 +64,9 @@ public class CodeModelParser
         => Context.TryGet<T>(symbol);
     public IType Parse(SyntaxToken token) => ParseType(token.ToString());
     public IType ParseType(string identifier) => ParseType(ParseTypeName(identifier));
-    public IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null && typeInfo.ConvertedType is null ? ParseType(typeInfo.ToString()) : Parse(typeInfo.Type ?? typeInfo.ConvertedType);  // TODO: Nullability
+    public IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null && typeInfo.ConvertedType is null
+        ? ParseType(typeInfo.ToString())
+        : Parse(typeInfo.Type ?? typeInfo.ConvertedType ?? throw new NotImplementedException());
     public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
     //public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
 
@@ -108,7 +110,7 @@ public class CodeModelParser
     public IType Parse(QualifiedNameSyntax syntax, IType? type = null)
         => TypeFromReflection.Create(model is null
             ? System.Type.GetType(syntax.ToString())
-            : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type));
+            : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type ?? throw new NotImplementedException()));
     public IExpression Parse(SimpleNameSyntax syntax, IType? type = null) => syntax switch
     {
         GenericNameSyntax name => Parse(name, type),
@@ -576,7 +578,7 @@ public class CodeModelParser
     };
 
     public ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
-        => new ExpressionCollection(Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions);
+        => new(Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions);
 
     public IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null)
          => throw new NotImplementedException();    // TODO
@@ -613,14 +615,14 @@ public class CodeModelParser
              syntax.Block is null ? null : Parse(syntax.Block),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
 
-    public LiteralExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
+    public IExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {
         SyntaxKind.ArgListExpression => NullValue,
-        SyntaxKind.NumericLiteralExpression => new(ParseNumber(syntax)),
-        SyntaxKind.StringLiteralExpression => new(syntax.Token.ValueText),
-        SyntaxKind.CharacterLiteralExpression => new(syntax.Token.ValueText[0]),
-        SyntaxKind.TrueLiteralExpression => new(true),
-        SyntaxKind.FalseLiteralExpression => new(false),
+        SyntaxKind.NumericLiteralExpression => CodeModelFactory.Literal(ParseNumber(syntax)),
+        SyntaxKind.StringLiteralExpression => CodeModelFactory.Literal(syntax.Token.ValueText),
+        SyntaxKind.CharacterLiteralExpression => CodeModelFactory.Literal(syntax.Token.ValueText[0]),
+        SyntaxKind.TrueLiteralExpression => Literal(true),
+        SyntaxKind.FalseLiteralExpression => Literal(false),
         SyntaxKind.NullLiteralExpression => NullValue,
         SyntaxKind.DefaultLiteralExpression => DefaultValue,
         _ => throw new ArgumentException($"Unhandled literal kind '{syntax}'.")
@@ -828,10 +830,7 @@ public class CodeModelParser
     }
 
     public IMember Parse(IPropertySymbol symbol)
-    {
-        var syntax = symbol.DeclaringSyntaxReferences.First().GetSyntax() as PropertyDeclarationSyntax;
-        return Parse(syntax);
-    }
+        => Parse(symbol.DeclaringSyntaxReferences.First().GetSyntax() as PropertyDeclarationSyntax ?? throw new NotImplementedException());
 
     public Modifier ParseModifier(ISymbol symbol) => Modifier.None.SetFlags(
         symbol.IsStatic ? Modifier.Static : Modifier.None

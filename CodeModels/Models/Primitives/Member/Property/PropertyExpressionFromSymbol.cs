@@ -23,7 +23,7 @@ public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpr
         if (Instance is not null) yield return Instance;
     }
 
-    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
+    public override IExpression Evaluate(ICodeModelExecutionContext context) => Property.EvaluateAccess(Instance?.Evaluate(context) ?? Property.Owner?.ToExpression(), context);
     public override IdentifierExpression ToIdentifierExpression() => Instance is IdentifierExpression idetifier ? idetifier : base.ToIdentifierExpression();
 
     public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes) => Property.Assign(value, context, scopes);

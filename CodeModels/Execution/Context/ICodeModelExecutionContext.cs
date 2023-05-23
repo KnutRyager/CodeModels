@@ -9,7 +9,7 @@ namespace CodeModels.Execution.Context;
 
 public interface ICodeModelExecutionContext
 {
-    IProgramContext? ProgramContext { get; }
+    IProgramContext ProgramContext { get; }
     IExpression This();
     IExpression GetValue(string identifier);
     IExpression GetValue(IdentifierExpression identifier);

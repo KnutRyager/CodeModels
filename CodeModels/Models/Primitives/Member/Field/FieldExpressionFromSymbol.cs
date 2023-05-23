@@ -18,7 +18,7 @@ public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? I
 
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(Symbol);
+    public Field GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<Field>(FieldSymbol);
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
@@ -34,7 +34,7 @@ public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? I
         try
         {
             context.EnterScopes(Scopes);
-            return Field.EvaluateAccess(Instance ?? GetField(context).Owner?.ToExpression(), context);
+            return Field.EvaluateAccess(Instance ?? GetField(context).Owner!.ToExpression(), context);
         }
         finally
         {

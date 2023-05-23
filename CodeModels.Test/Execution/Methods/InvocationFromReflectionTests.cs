@@ -23,7 +23,7 @@ public class InvocationFromReflectionTests
     [Fact]
     public void ObjectToString()
     {
-        var invocation = Invocation<object, string>(x => x.ToString(), Identifier("x"));
+        var invocation = Invocation<object, string?>(x => x.ToString(), Identifier("x"));
         invocation.CodeModelEqual("x.ToString()");
         Func<string> f = 4.ToString;
     }
