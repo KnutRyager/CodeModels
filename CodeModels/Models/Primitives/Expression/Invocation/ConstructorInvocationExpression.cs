@@ -7,6 +7,7 @@ using CodeModels.Execution.ControlFlow;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
+using CodeModels.Utils;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -34,7 +35,7 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
                 var argument = Arguments.Count > i ? Arguments[i] : VoidValue;
                 var parameter = Constructor.Parameters.Properties[i];
                 context.DefineVariable(parameter.Name);
-                context.SetValue(parameter.Name, argument == VoidValue ? parameter.Value : argument);
+                context.SetValue(parameter.Name, ExpressionUtils.IsVoid(argument) ? parameter.Value : argument);
             }
             if (Constructor.Body is not null)
             {
