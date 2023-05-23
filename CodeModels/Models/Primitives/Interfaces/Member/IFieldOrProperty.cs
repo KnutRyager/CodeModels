@@ -30,7 +30,7 @@ public interface IFieldOrProperty<T> : IMember<T>, IFieldOrProperty where T : Me
 {
 }
 
-public abstract record FieldOrProperty<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier, IExpression Value)
+public abstract record FieldOrProperty<T>(string Name, IType Type, List<AttributeList> Attributes, Modifier Modifier, IExpression? Value)
     : NamedCodeModel<T>(Name),
     IFieldOrProperty<T>,
     IScopeHolder

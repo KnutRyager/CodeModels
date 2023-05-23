@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
+using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -36,23 +38,8 @@ public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes
     ICodeModel IMember.Render(Namespace @namespace)
         => Render(@namespace);
 
-    public virtual IType ToType()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public virtual IExpression ToExpression()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public virtual ParameterSyntax ToParameter()
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public virtual TupleElementSyntax ToTupleElement()
-    {
-        throw new System.NotImplementedException();
-    }
+    public virtual IType ToType() => Type;
+    public virtual IExpression ToExpression() => CodeModelFactory.Identifier(Name);
+    public virtual ParameterSyntax ToParameter() => SyntaxFactory.Parameter(ToIdentifier());
+    public virtual TupleElementSyntax ToTupleElement() => SyntaxFactory.TupleElement(Type.Syntax(), ToIdentifier());
 }

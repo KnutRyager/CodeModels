@@ -29,7 +29,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     public AbstractProperty(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
-    public ParameterSyntax ToParameter() => Parameter(
+    public override ParameterSyntax ToParameter() => Parameter(
             attributeLists: default,
             modifiers: default,
             type: TypeSyntax(),
@@ -55,10 +55,10 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
             expressionBody: default,
             initializer: Initializer());
 
-    public TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(IsRandomlyGeneratedName ? null : Name));
-    public IExpression ToExpression() => Value;
+    public override TupleElementSyntax ToTupleElement() => TupleElement(type: TypeSyntax(), identifier: TupleNameIdentifier(IsRandomlyGeneratedName ? null : Name));
+    public override IExpression ToExpression() => Value;
 
-    public SimpleNameSyntax NameSyntax() => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
+    public override SimpleNameSyntax NameSyntax() => Name is null ? throw new Exception($"Attempted to get name from property without name: '{ToString()}'") : IdentifierName(Name);
     public AbstractPropertyExpression AccessValue(IExpression? instance = null) => new(this, instance);
     public AbstractPropertyExpression AccessValue(string identifier, IType? type = null, ISymbol? symbol = null) => AccessValue(Identifier(identifier, type, symbol));
     public ExpressionSyntax? AccessSyntax(IExpression? instance = null) => Owner is null && instance is null ? NameSyntax()
@@ -97,7 +97,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         throw new NotImplementedException();
     }
 
-    public IType ToType() => Type;
+    public override IType ToType() => Type;
 
     public override CodeModel<MemberDeclarationSyntax> Render(Namespace @namespace)
     {

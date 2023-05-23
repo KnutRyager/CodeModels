@@ -78,4 +78,23 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
     }
 
     public override SyntaxToken ToIdentifier() => Identifier(Owner?.Name ?? throw new NotImplementedException());
+
+    public override IType ToType()
+    {
+        throw new NotImplementedException();
+    }
+    public override IExpression ToExpression()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override ParameterSyntax ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public override TupleElementSyntax ToTupleElement()
+    {
+        throw new NotImplementedException();
+    }
 }

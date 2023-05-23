@@ -590,7 +590,7 @@ public class CodeModelParser
 
     public AnonymousMethodExpression Parse(AnonymousMethodExpressionSyntax syntax)
          => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default, syntax.DelegateKeyword != default,
-             AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
+             syntax.ParameterList is null ? AbstractCodeModelFactory.NamedValues() : AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
 
@@ -731,7 +731,7 @@ public class CodeModelParser
                  syntax.Body is null ? null : Parse(syntax.Body),
                  syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression),
                  ParseModifier(syntax.Modifiers)));
-    
+
     public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
         => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
