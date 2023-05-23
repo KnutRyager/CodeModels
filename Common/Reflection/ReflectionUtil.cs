@@ -84,8 +84,20 @@ public static class ReflectionUtil
         _ => null
     };
 
-    public static MethodInfo GetMethodInfo<T1, TOut>(Expression<Func<T1, TOut>> expression)
-        => ((MethodCallExpression)expression.Body).Method;
+    public static MethodInfo GetMethodInfo<T1, TOut>(Expression<Func<T1, TOut>> expression) => expression.Body switch
+    {
+        UnaryExpression unaryExpression => GetMethodInfo(unaryExpression),
+        MethodCallExpression methodCallExpression => methodCallExpression.Method,
+        _ => throw new NotImplementedException()
+    };
+
+    // See: https://learn.microsoft.com/en-us/dotnet/api/system.linq.expressions.expression?view=net-7.0
+    public static MethodInfo GetMethodInfo(UnaryExpression expression) => expression.Operand switch
+    {
+        MethodCallExpression methodCall when methodCall.Object is ConstantExpression constantExpression && constantExpression.Value is MethodInfo info => info,
+        ConstantExpression constantExpression when constantExpression.Value is MethodInfo methodInfo => methodInfo,
+        _ => throw new NotImplementedException()
+    };
 
     public static MethodInfo GetMethodInfo<T1, T2, TOut>(Expression<Func<T1, T2, TOut>> expression)
         => ((MethodCallExpression)expression.Body).Method;
