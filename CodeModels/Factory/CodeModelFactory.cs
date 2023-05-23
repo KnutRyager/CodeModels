@@ -115,6 +115,8 @@ public static class CodeModelFactory
     Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
 
     public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
+    public static IdentifierExpressionGeneric<T> Identifier<T>(string name, ICodeModel? model = null)
+        => IdentifierExpressionGeneric<T>.Create(name, model);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
     public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
