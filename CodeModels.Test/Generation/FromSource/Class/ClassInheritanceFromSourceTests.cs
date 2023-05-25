@@ -86,4 +86,15 @@ class B : A
 {
     public new int P => 1;
 }".AssertParsedAndGeneratedEqual();
+
+    [Fact] public void ClassOverrideClassBaseMethod() => @"
+class A
+{
+    public virtual int P => 1;
+}
+
+class B : A
+{
+    public override int P => base.P;
+}".AssertParsedAndGeneratedEqual();
 }
