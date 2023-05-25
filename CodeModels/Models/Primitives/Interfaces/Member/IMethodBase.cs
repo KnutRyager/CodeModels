@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 

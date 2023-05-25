@@ -5,6 +5,7 @@ using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Generation;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;

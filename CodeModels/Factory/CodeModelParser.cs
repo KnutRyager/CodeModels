@@ -8,6 +8,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Extensions;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.CompileTime;
@@ -462,21 +463,6 @@ public class CodeModelParser
 
     public InitializerExpression Parse(InitializerExpressionSyntax syntax, IType type) =>
         Initializer(syntax.Expressions.Select(x => ParseExpression(x, type)), syntax.Kind(), type);
-    // TODO
-    //syntax.Kind() switch
-    //{
-    //    SyntaxKind.ObjectInitializerExpression => new(type, syntax.Kind(), ObjectInitializer(syntax.Expressions.Select(x => ParseExpression(x, type)), type)),
-    //    SyntaxKind.CollectionInitializerExpression => new(type, syntax.Kind(), CollectionInitializer(syntax.Expressions.Select(x => ParseExpression(x, type)), type)),
-    //    SyntaxKind.ArrayInitializerExpression => type.TypeName switch
-    //    {
-    //        // TODO: Verify dictionary
-    //        "Dictionary" or "IDictionary" => new(type, syntax.Kind(), CollectionInitializer(syntax.Expressions.Select(x => ParseExpression(x, type)), type.GetGenericType(1)),
-    //        _ => ArrayInitializer(type, syntax.Kind(), ArrayInitializer(this, syntax.Expressions.Select(x => ParseExpression(x, type)), type)))
-    //    },
-    //    SyntaxKind.ComplexElementInitializerExpression => new(type, syntax.Kind(), ComplexElementInitializer(syntax.Expressions.Select(x => ParseExpression(x, type)), type)),
-    //    SyntaxKind.WithInitializerExpression => new(type, syntax.Kind(), WithInitializer(syntax.Expressions.Select(x => ParseExpression(x, type)), type)),
-    //    _ => throw new NotImplementedException()
-    //};
 
     public IExpression Parse(ImplicitStackAllocArrayCreationExpressionSyntax syntax, IType? type = null)
         => throw new NotImplementedException();    // TODO
@@ -704,14 +690,22 @@ public class CodeModelParser
     public List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(Parse).ToList();
     public List<AbstractProperty> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(Parse).ToList();
     public AbstractProperty Parse(ArgumentSyntax syntax) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));  // TODO: Semantics for type
-    public Argument ParseToArgument(ArgumentSyntax syntax) => new Argument(syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));
+    public Argument ParseToArgument(ArgumentSyntax syntax) => Arg(syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));
     public List<Argument> Parse(ArgumentListSyntax syntax) => syntax.Arguments.Select(ParseToArgument).ToList();
     public List<AbstractProperty> Parse(IEnumerable<ArgumentSyntax> syntax) => syntax.Select(Parse).ToList();
-    public AttributeList Parse(AttributeListSyntax syntax) => new(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
+
+    public AttributeList Parse(AttributeListSyntax syntax)
+        => Attributes(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
     public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax) => new(syntax.Identifier.ToString());
-    public Models.Attribute Parse(AttributeSyntax syntax)
-        => new(syntax.Name.ToString(), new(syntax.ArgumentList is null ? new List<AttributeArgument>() : syntax.ArgumentList.Arguments.Select(Parse).ToList()));
-    public AttributeArgument Parse(AttributeArgumentSyntax syntax) => new(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
+    public Models.Primitives.Attribute.Attribute Parse(AttributeSyntax syntax)
+        => Attribute(syntax.Name.ToString(), AttributeArgList(syntax.ArgumentList?.Arguments.Select(Parse)));
+    public AttributeArgumentList Parse(AttributeArgumentListSyntax syntax)
+        => AttributeArgList(syntax.Arguments.Select(Parse).ToList());
+    public AttributeArgument Parse(AttributeArgumentSyntax syntax)
+        => AttributeArg(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
+    public NameEquals Parse(NameEqualsSyntax syntax) => CodeModelFactory.NameEquals(syntax.Name.ToString());
+    public NameColon Parse(NameColonSyntax syntax) => CodeModelFactory.NameColon(syntax.Name.ToString());
+
     public ForStatement Parse(ForStatementSyntax syntax)
         => new(syntax.Declaration is null ? new(null) : Parse(syntax.Declaration), syntax.Initializers.Select(x => ParseExpression(x)).ToList(), ParseExpression(syntax.Condition), List(syntax.Incrementors.Select(x => ParseExpression(x))), Parse(syntax.Statement));
     public GotoStatement Parse(GotoStatementSyntax syntax) => new(ParseExpression(syntax.Expression));

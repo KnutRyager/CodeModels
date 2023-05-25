@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Execution.Scope;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.CompileTime;
@@ -95,6 +97,26 @@ public static class CodeModelFactory
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
     public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
+
+    public static Argument Arg(string? name, IExpression expression) => Argument.Create(name, expression);
+    public static Argument Arg(IExpression expression) => Arg(null, expression);
+
+    public static AttributeList Attributes(AttributeTargetSpecifier? target = null, IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
+        => AttributeList.Create(target, attributes);
+    public static AttributeList Attributes(IEnumerable<Models.Primitives.Attribute.Attribute> attributes)
+        => AttributeList.Create(null, attributes);
+    public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList arguments)
+        => Models.Primitives.Attribute.Attribute.Create(name, arguments);
+    public static AttributeArgumentList AttributeArgList(IEnumerable<AttributeArgument>? arguments = null)
+        => AttributeArgumentList.Create(arguments);
+    public static AttributeArgument AttributeArg(IExpression expression, string? name = null)
+        => AttributeArgument.Create(expression, name);
+    public static AttributeTargetSpecifier AttributeTargetSpecifier(string identifier)
+        => Models.Primitives.Attribute.AttributeTargetSpecifier.Create(identifier);
+    public static NameEquals NameEquals(string identifier)
+        => Models.Primitives.Attribute.NameEquals.Create(identifier);
+    public static NameColon NameColon(string name)
+        => Models.Primitives.Attribute.NameColon.Create(name);
 
     public static ElementAccessExpression ElementAccess(IType type, IExpression caller, IEnumerable<IExpression>? arguments = null)
         => ElementAccessExpression.Create(type, caller, arguments);

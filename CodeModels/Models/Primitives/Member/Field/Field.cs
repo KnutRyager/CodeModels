@@ -12,6 +12,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
+using CodeModels.Models.Primitives.Attribute;
 
 namespace CodeModels.Models.Primitives.Member;
 

@@ -7,9 +7,9 @@ using CodeModels.Collectors;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Factory;
 
@@ -37,7 +37,7 @@ public static class AbstractCodeModelParsing
        => new(syntax.Select((x, i) => new AbstractProperty(Type, nameByIndex ? $"Item{i + 1}" : null, parser.ParseExpression(x, Type))), specifiedType: Type);
 
     public static NamedValueCollection ParseNamedValues(this CodeModelParser parser, IEnumerable<ArgumentSyntax> arguments, bool nameByIndex = false, IType? type = null)
-        => new(arguments.Select((x, i) => nameByIndex ? x.NameColon is null ? x.WithNameColon(NameColon($"Item{i + 1}")) : x : x).Select(x => ParseProperty(parser, x, type)), specifiedType: type);
+        => new(arguments.Select((x, i) => nameByIndex ? x.NameColon is null ? x.WithNameColon(SyntaxFactory.NameColon($"Item{i + 1}")) : x : x).Select(x => ParseProperty(parser, x, type)), specifiedType: type);
 
     public static NamedValueCollection ParseNamedValues(this CodeModelParser parser, ArgumentListSyntax syntax, IType? type = null) => ParseNamedValues(parser, syntax.Arguments, type: type);
 
@@ -62,7 +62,7 @@ public static class AbstractCodeModelParsing
     public static NamedValueCollection ParseNamedValues(this CodeModelParser parser, ExpressionSyntax syntax, IType? type = null) => syntax switch
     {
         TupleExpressionSyntax declaration => ParseNamedValues(parser, declaration.Arguments, nameByIndex: true),
-        TupleTypeSyntax declaration => NamedValues(parser ,declaration),
+        TupleTypeSyntax declaration => NamedValues(parser, declaration),
         _ => throw new ArgumentException($"Can't parse {nameof(NamedValueCollection)} from '{syntax}'.")
     };
 

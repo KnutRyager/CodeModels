@@ -10,6 +10,7 @@ using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.AbstractCodeModels.Collection;
+using CodeModels.Models.Primitives.Attribute;
 
 namespace CodeModels.Models.Primitives.Member;
 
