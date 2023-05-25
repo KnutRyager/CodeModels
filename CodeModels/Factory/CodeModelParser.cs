@@ -205,7 +205,7 @@ public class CodeModelParser
         MakeRefExpressionSyntax expression => Parse(expression, type),
         MemberAccessExpressionSyntax expression => Parse(expression, type),
         MemberBindingExpressionSyntax expression => Parse(expression, type),
-        OmittedArraySizeExpressionSyntax expression => Parse(expression, type),
+        OmittedArraySizeExpressionSyntax expression => Parse(expression),
         ParenthesizedExpressionSyntax expression => Parse(expression, type),
         PostfixUnaryExpressionSyntax expression => Parse(expression, type),
         PrefixUnaryExpressionSyntax expression => Parse(expression, type),
@@ -274,7 +274,7 @@ public class CodeModelParser
 
     public UnaryExpression Parse(ParenthesizedExpressionSyntax syntax, IType? type = null)
         => UnaryExpression(ParseExpression(syntax.Expression), OperationType.Parenthesis);
-    public IExpression Parse(OmittedArraySizeExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public IExpression Parse(OmittedArraySizeExpressionSyntax _) => VoidValue;
 
     public IExpression Parse(MemberBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
 
