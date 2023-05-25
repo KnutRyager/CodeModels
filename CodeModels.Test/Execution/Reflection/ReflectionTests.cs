@@ -19,6 +19,8 @@ public class ReflectionTests
     [Fact] public void InstantiateStruct() => "new System.DateTime(2022, 2, 12)".Eval().Should().BeEquivalentTo(new DateTime(2022, 2, 12));
     [Fact] public void InstantiateObject() => "new System.Text.StringBuilder(\"1337\").ToString()".Eval().Should().Be("1337");
     [Fact] public void InstantiateObjectWithInitializer() => "new System.Text.StringBuilder() { Capacity = 1337 }.Capacity".Eval().Should().Be(1337);
+    [Fact] public void InstantiateArrayEmpty() => "new int[0]".Eval().Should().BeEquivalentTo(new int[0]);
+    [Fact] public void InstantiateArrayEmptyWithCapacity() => "new int[1]".Eval().Should().BeEquivalentTo(new int[1]);
     [Fact] public void InstantiateArray() => "new int[] { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new int[] { 1, 2, 3 });
     [Fact] public void InstantiateArrayImplicit() => "new [] { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new[] { 1, 2, 3 });
     [Fact] public void InstantiateList() => "new System.Collections.Generic.List<int>() { 1, 2, 3 }".Eval().Should().BeEquivalentTo(new List<int>() { 1, 2, 3 });

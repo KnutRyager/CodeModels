@@ -539,6 +539,7 @@ public class CodeModelParser
 
     public ImplicitObjectCreationExpression Parse(ImplicitObjectCreationExpressionSyntax syntax, IType type)
         => new(type, AbstractCodeModelParsing.ParseNamedValues(this, syntax.ArgumentList), syntax.Initializer is null ? null : Parse(syntax.Initializer, type));
+
     public ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type)
     {
         var symbol = model?.GetSymbolInfo(syntax).Symbol;
@@ -560,9 +561,14 @@ public class CodeModelParser
 
     public IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null)
         => Assignment(ParseExpression(syntax.Left, type), AssignmentTypeExtensions.GetAssignmentType(syntax.Kind()), ParseExpression(syntax.Right));
-    
-        public ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
-        => new(Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions);
+
+    public ArrayCreationExpression Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
+    => ArrayCreation(type ?? Parse(syntax.Type),
+        syntax.Type.RankSpecifiers.Any() ? syntax.Type.RankSpecifiers.Select(Parse).ToArray() : null,
+        syntax.Initializer is null ? null : Parse(syntax.Initializer, type ?? Parse(syntax.Type)));
+
+    public List<IExpression> Parse(ArrayRankSpecifierSyntax syntax)
+        => syntax.Sizes.Select(x => ParseExpression(x)).ToList();
 
     public IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null)
          => throw new NotImplementedException();    // TODO

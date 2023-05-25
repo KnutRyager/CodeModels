@@ -342,6 +342,15 @@ public static class CodeModelFactory
             initializer,
             operation);
 
+    public static ArrayCreationExpression ArrayCreation(IType type,
+        IEnumerable<List<IExpression>>? arguments = null,
+        InitializerExpression? initializer = null,
+        Microsoft.CodeAnalysis.IOperation? operation = null)
+        => ArrayCreationExpression.Create(type,
+            arguments,
+            initializer,
+            operation);
+
     public static InitializerExpression ArrayInitializer(IEnumerable<IExpression> expressions, IType? type = null)
         => Initializer(expressions, SyntaxKind.ArrayInitializerExpression, type);
     public static InitializerExpression ObjectInitializer(IEnumerable<IExpression> expressions, IType? type = null)

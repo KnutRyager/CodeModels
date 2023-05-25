@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;
@@ -38,15 +37,12 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
         object? valuePlain = null;
         if (Operation is IObjectCreationOperation objectCreationOperation && SymbolUtils.IsNewDefined(objectCreationOperation))
         {
-            // TODO: Remove static reference
-            var member = context.ProgramContext.Get<IClassDeclaration>(objectCreationOperation.Type);
-            //var memberw = ProgramContext.Context.Get<ClassDeclaration>(objectCreationOperation.Type);
+            var member = context.ProgramContext.Get<IClassDeclaration>(objectCreationOperation.Type ?? throw new NotImplementedException());
             var constructor = member.GetConstructor();
             var arguments = Arguments is null ? Array.Empty<IExpression>()
                : Arguments.ToArray();
             var invocation = ConstructorInvocation(constructor, arguments);
             value = invocation.Evaluate(context);
-            //return CodeModelFactory.ConstructorInvocation(constructor);
         }
         else
         {
@@ -74,7 +70,7 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
                     else if (valuePlain is System.Collections.IEnumerable collection)
                     {
                         var addMethod = collection.GetType().GetMethod("Add");
-                        if (addMethod is null) throw new NotImplementedException($"Unhandled ienumerable: '{value}'.");
+                        if (addMethod is null) throw new NotImplementedException($"Unhandled IEnumerable: '{value}'.");
                         foreach (var v in initialPlainValues) addMethod.Invoke(collection, new[] { v });
                     }
                 }
@@ -100,20 +96,6 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
                 return constructor;
             }
         }
-        throw new NotImplementedException();
-    }
-}
-
-public record ImplicitObjectCreationExpression(IType Type, NamedValueCollection Arguments, InitializerExpression? Initializer) : Expression<ImplicitObjectCreationExpressionSyntax>(Type)
-{
-    public override ImplicitObjectCreationExpressionSyntax Syntax() => ImplicitObjectCreationExpression(Arguments.ToArguments(), Initializer?.Syntax());
-    public override IEnumerable<ICodeModel> Children()
-    {
-        yield return Type;
-    }
-
-    public override IExpression Evaluate(ICodeModelExecutionContext context)
-    {
         throw new NotImplementedException();
     }
 }
