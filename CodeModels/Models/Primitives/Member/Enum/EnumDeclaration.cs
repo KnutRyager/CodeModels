@@ -71,7 +71,7 @@ public abstract record EnumDeclaration(string Name,
         foreach (var member in members)
         {
             var initializedMember = previousMember is not null && ExpressionUtils.IsNull(member.Value)
-                ? EnumField(member.Name, ExpressionUtils.Add(previousMember.Value, 1))
+                ? EnumField(member.Name, ExpressionUtils.Add(previousMember.Value!, 1))
                 : ExpressionUtils.IsNull(member.Value) ? EnumField(member.Name, 0) : member;
             initializedMembers.Add(initializedMember);
             previousMember = initializedMember;
