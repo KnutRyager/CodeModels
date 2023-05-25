@@ -31,12 +31,12 @@ public class CodeModelExecutionContextTests
     }
 
     [Fact]
-    public void AddAssignment()
+    public void MakeAddAssignment()
     {
         var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("test", Literal(2), true);
-        var assignment = Assignment(Identifier("test"), SyntaxKind.AddAssignmentExpression, Literal(3));
+        var assignment = AddAssignment(Identifier("test"), Literal(3));
         assignment.Evaluate(context);
         context.GetValue("test").Should().Be(Literal(5));
     }
@@ -122,7 +122,7 @@ public class CodeModelExecutionContextTests
         var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
-        var forLoop = For("i", Literal(10), Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("i")).AsStatement());
+        var forLoop = For("i", Literal(10), AddAssignment(Identifier("a"), Identifier("i")).AsStatement());
         forLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(45);
     }
@@ -134,7 +134,7 @@ public class CodeModelExecutionContextTests
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
         var whileLoop = While(BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(10)),
-            Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Literal(1)).AsStatement());
+            AddAssignment(Identifier("a"), Literal(1)).AsStatement());
         whileLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(10);
     }
@@ -145,7 +145,7 @@ public class CodeModelExecutionContextTests
         var context = new CodeModelExecutionContext();
         context.EnterScope();
         context.SetValue("a", Literal(0), true);
-        var doWhileLoop = Do(Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Literal(1)).AsStatement(),
+        var doWhileLoop = Do(AddAssignment(Identifier("a"), Literal(1)).AsStatement(),
             BinaryExpression(Identifier("a"), OperationType.LessThan, Literal(10)));
         doWhileLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(10);
@@ -159,7 +159,7 @@ public class CodeModelExecutionContextTests
         context.SetValue("a", Literal(0), true);
         var forEachLoop = ForEach("b",
             Literal(new object[] { 1, 2, 3, 4, 5 }),
-            Assignment(Identifier("a"), SyntaxKind.AddAssignmentExpression, Identifier("b")).AsStatement());
+            AddAssignment(Identifier("a"), Identifier("b")).AsStatement());
         forEachLoop.Evaluate(context);
         context.GetValue("a").EvaluatePlain(context).Should().Be(15);
     }

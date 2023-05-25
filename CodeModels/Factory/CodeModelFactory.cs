@@ -286,8 +286,19 @@ public static class CodeModelFactory
     public static AnyArgExpression<ExpressionSyntax> AnyArgExpression(IEnumerable<IExpression>? inputs, OperationType operation, IType? type = null)
         => operation.IsAnyArgOperator() ? new(List(inputs), type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not an any arg operator: '{operation}'");
 
-    public static AssignmentExpression Assignment(IExpression left, SyntaxKind kind, IExpression right) => new(left, right, kind);
-    public static AssignmentExpression Assignment(IExpression left, IExpression right) => new(left, right, SyntaxKind.SimpleAssignmentExpression);
+    public static AssignmentExpression Assignment(IExpression left, AssignmentType type, IExpression right) => new(left, right, type);
+    public static AssignmentExpression Assignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Simple, right);
+    public static AssignmentExpression AddAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Add, right);
+    public static AssignmentExpression SubtractAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Subtract, right);
+    public static AssignmentExpression MultiplyAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Multiply, right);
+    public static AssignmentExpression DivideAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Divide, right);
+    public static AssignmentExpression ModuloAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Modulo, right);
+    public static AssignmentExpression AndAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.And, right);
+    public static AssignmentExpression ExclusiveOrAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.ExclusiveOr, right);
+    public static AssignmentExpression OrAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Or, right);
+    public static AssignmentExpression LeftShiftAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.LeftShift, right);
+    public static AssignmentExpression RightShiftAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.RightShift, right);
+    public static AssignmentExpression CoalesceAssignment(IExpression left, IExpression right) => Assignment(left, AssignmentType.Coalesce, right);
 
     public static ExpressionStatement Statement(IExpression expression) => new(expression);
 

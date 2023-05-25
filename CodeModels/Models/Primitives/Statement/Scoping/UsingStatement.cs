@@ -54,7 +54,7 @@ public record UsingStatement(IStatement Statement, VariableDeclarations? Declara
             }
             finally
             {
-                if (Expression is SimpleAssignmentExpression assignment && assignment.Left is IdentifierExpression identifier)
+                if (Expression is AssignmentExpression { Kind: AssignmentType.Simple, Left: IdentifierExpression identifier })
                 {
                     var disposableCandidate = context.GetValue(identifier.Name)?.LiteralValue();
                     if (disposableCandidate is System.IDisposable disposable)

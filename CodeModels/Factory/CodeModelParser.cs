@@ -558,24 +558,10 @@ public class CodeModelParser
 
     public AwaitExpression Parse(AwaitExpressionSyntax syntax, IType? type = null) => new(ParseExpression(syntax.Expression));
 
-    public IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
-    {
-        SyntaxKind.SimpleAssignmentExpression => new SimpleAssignmentExpression(ParseExpression(syntax.Left, type), ParseExpression(syntax.Right)),
-        SyntaxKind.AddAssignmentExpression => new AddAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.SubtractAssignmentExpression => new SubtractAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.MultiplyAssignmentExpression => new MultiplyAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.DivideAssignmentExpression => new DivideAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.ModuloAssignmentExpression => new ModuloAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.AndAssignmentExpression => new AndAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.ExclusiveOrAssignmentExpression => new ExclusiveOrAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.OrAssignmentExpression => new OrAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.LeftShiftAssignmentExpression => new LeftShiftAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.RightShiftAssignmentExpression => new RightShiftAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        SyntaxKind.CoalesceAssignmentExpression => new CoalesceAssignmentExpression(ParseExpression(syntax.Left), ParseExpression(syntax.Right)),
-        _ => throw new NotImplementedException($"Assignment expression {syntax} not implemented.")
-    };
-
-    public ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
+    public IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null)
+        => Assignment(ParseExpression(syntax.Left, type), AssignmentTypeExtensions.GetAssignmentType(syntax.Kind()), ParseExpression(syntax.Right));
+    
+        public ExpressionCollection Parse(ArrayCreationExpressionSyntax syntax, IType? type = null)
         => new(Parse(syntax.Initializer, type ?? Parse(syntax.Type)).Expressions);
 
     public IExpression Parse(AnonymousObjectCreationExpressionSyntax syntax, IType? type = null)
