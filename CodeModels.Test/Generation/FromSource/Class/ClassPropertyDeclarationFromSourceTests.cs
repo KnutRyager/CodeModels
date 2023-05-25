@@ -36,6 +36,18 @@ class A
     public int B { get; set; }
 }".AssertParsedAndGeneratedEqual();
 
+    [Fact] public void VirtualDefaultGetSetProperty() => @"
+class A
+{
+    virtual int B { get; set; }
+}".AssertParsedAndGeneratedEqual();
+
+    [Fact] public void AbsrtactGetSetProperty() => @"
+abstract class A
+{
+    public abstract int B { get; set; }
+}".AssertParsedAndGeneratedEqual();
+
     [Fact] public void StaticDefaultGetSetProperty() => @"
 class A
 {

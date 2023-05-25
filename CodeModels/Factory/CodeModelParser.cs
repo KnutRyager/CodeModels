@@ -170,8 +170,11 @@ public class CodeModelParser
         SyntaxKind.PublicKeyword => Modifier.Public,
         SyntaxKind.ReadOnlyKeyword => Modifier.Readonly,
         SyntaxKind.ConstKeyword => Modifier.Const,
-        SyntaxKind.AbstractKeyword => Modifier.Abstract,
         SyntaxKind.StaticKeyword => Modifier.Static,
+        SyntaxKind.AbstractKeyword => Modifier.Abstract,
+        SyntaxKind.VirtualKeyword => Modifier.Virtual,
+        SyntaxKind.OverrideKeyword => Modifier.Override,
+        SyntaxKind.NewKeyword => Modifier.New,
         _ => throw new ArgumentException($"Unhandled token '{syntax}'.")
     };
 

@@ -53,4 +53,37 @@ interface B
 class C : A, B
 {
 }".AssertParsedAndGeneratedEqual();
+
+    [Fact] public void ClassOverrideVirtualMethod() => @"
+class A
+{
+    public virtual int P => 1;
+}
+
+class B : A
+{
+    public override int P => 1;
+}".AssertParsedAndGeneratedEqual();
+
+    [Fact] public void ClassOverrideAbstractMethod() => @"
+abstract class A
+{
+    public abstract int P;
+}
+
+class B : A
+{
+    public override int P => 1;
+}".AssertParsedAndGeneratedEqual();
+
+    [Fact] public void ClassOverrideMethodWithNew() => @"
+class A
+{
+    public int P;
+}
+
+class B : A
+{
+    public new int P => 1;
+}".AssertParsedAndGeneratedEqual();
 }
