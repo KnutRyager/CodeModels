@@ -31,12 +31,12 @@ public enum MyEnum {
     public void GenerateListInitialization() => Expressions("Abc,Def,Ghi").ToListInitialization().CodeEqual(@"new List<string>{""Abc"",""Def"",""Ghi""}");
 
     [Fact]
-    public void GenerateKeyValueInitialization() => new ExpressionsMap(Literal(1), "Abc,Def,Ghi").ToKeyValueInitializationSyntax().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
+    public void GenerateKeyValueInitialization() => ExpressionsMap(Literal(1), "Abc,Def,Ghi").ToKeyValueInitializationSyntax().CodeEqual(@"{1, new string[]{""Abc"",""Def"",""Ghi""} }", ignoreWhitespace: true);
 
     [Fact]
-    public void GenerateDictionaryInitialization() => new ExpressionMap(new ExpressionsMap[]{
-        new (Literal(1), "Abc,Def,Ghi"),
-        new (Literal(2), "Jkl,Mno,Pqr")})
+    public void GenerateDictionaryInitialization() => ExpressionMap(new ExpressionsMap[]{
+        ExpressionsMap(Literal(1), "Abc,Def,Ghi"),
+        ExpressionsMap(Literal(2), "Jkl,Mno,Pqr")})
         .ToDictionary().CodeEqual(@"new Dictionary<int, string[]>(){ 
     {1, new string[]{""Abc"",""Def"",""Ghi""} },
     {2, new string[]{""Jkl"",""Mno"",""Pqr""} }

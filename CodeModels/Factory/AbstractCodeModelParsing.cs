@@ -87,4 +87,8 @@ public static class AbstractCodeModelParsing
         => new(type, name, expression, modifier, interfaceType: interfaceType);
     public static AbstractProperty AbstractProperty(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
         => new(new TypeFromSymbol(typeSymbol), name, value is null ? null : CodeModelFactory.Literal(value), modifier, interfaceType: interfaceType);
+
+
+    public static ExpressionsMap ExpressionsMap(IExpression key, EnumDeclarationSyntax declaration)
+        => AbstractCodeModels.Collection.ExpressionsMap.Create(key, declaration);
 }

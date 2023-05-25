@@ -44,6 +44,18 @@ public static class AbstractCodeModelFactory
     public static ExpressionCollection Expressions(EnumDeclarationSyntax declaration)
         => Expressions(declaration.Members.Select(x => CodeModelFactory.Literal(x.Identifier.ToString())));
 
+    public static ExpressionMap ExpressionMap(IEnumerable<ExpressionsMap> keyVaulePairs, ExpressionCollection keys, ExpressionCollection values, string? name = null)
+        => AbstractCodeModels.Collection.ExpressionMap.Create(keyVaulePairs, keys, values, name);
+    public static ExpressionMap ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
+        => AbstractCodeModels.Collection.ExpressionMap.Create(values, name, valueType);
+
+    public static ExpressionsMap ExpressionsMap(IExpression key, IEnumerable<IExpression> values, bool multiValues = false, IType? valueType = null)
+        => AbstractCodeModels.Collection.ExpressionsMap.Create(key, values, multiValues, valueType);
+    public static ExpressionsMap ExpressionsMap(IExpression key, IExpression value, bool multiValues = false, AbstractType? valueType = null)
+        => AbstractCodeModels.Collection.ExpressionsMap.Create(key, value, multiValues, valueType);
+    public static ExpressionsMap ExpressionsMap(IExpression key, string commaSeparatedValues)
+        => AbstractCodeModels.Collection.ExpressionsMap.Create(key, commaSeparatedValues);
+
     public static StaticClass StaticClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null, Modifier topLevelModifier = Modifier.None, Modifier memberModifier = Modifier.None)
         => new(identifier, NamedValues(properties), List(methods), @namespace, topLevelModifier, memberModifier);
     public static InstanceClass InstanceClass(string identifier, NamedValueCollection? properties = null, IEnumerable<IMethod>? methods = null, Namespace? @namespace = null)
@@ -51,5 +63,6 @@ public static class AbstractCodeModelFactory
 
     public static IClassDeclaration Class(NamedValueCollection collection) => collection.ToClassModel();
 
-
+    public static AbstractPropertyExpression Expression(AbstractProperty property, IExpression? instance = null)
+        => AbstractPropertyExpression.Create(property, instance);
 }

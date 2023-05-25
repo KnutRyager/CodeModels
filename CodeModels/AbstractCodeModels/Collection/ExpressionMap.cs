@@ -9,6 +9,7 @@ using CodeModels.Models.Primitives.Expression.Instantiation;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 
@@ -16,7 +17,12 @@ public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollec
 {
     private readonly AbstractType? _valueType;
 
-    public ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
+    public static ExpressionMap Create(IEnumerable<ExpressionsMap> keyVaulePairs, ExpressionCollection keys, ExpressionCollection values, string? name = null)
+        => new(List(keyVaulePairs), keys, values, name);
+    public static ExpressionMap Create(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
+        => new(values, name, valueType);
+
+    private ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
         : this(values.ToList(), AbstractCodeModelFactory.Expressions(values.Select(x => x.Key)), AbstractCodeModelFactory.Expressions(values.SelectMany(x => x.Values)), name)
     {
         _valueType = valueType;

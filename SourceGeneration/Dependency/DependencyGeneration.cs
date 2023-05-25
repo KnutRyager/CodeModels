@@ -23,16 +23,16 @@ public static class DependencyGeneration
             .TransformByTransformedParent<string>((node, parent) => $"{StringUtil.FilterJoin(parent, node)}").ToList()).Distinct())))).ToList();
 
         var staticClass = StaticClass("ModelDependencies", @namespace: Namespace("Dependencies"));
-        var dependencyDictionaries = dependenciesWithFullPaths.Select(x => new ExpressionMap(x.Properties.Select(
-            y => new ExpressionsMap(Literal(y.Member.Name),
-            Literals(y.Dependencies), valueType: Type("string[]"), multiValues: true)), x.Class.Name));
+        var dependencyDictionaries = dependenciesWithFullPaths.Select(x => ExpressionMap(x.Properties.Select(
+            y => ExpressionsMap(Literal(y.Member.Name),
+            Literals(y.Dependencies), valueType: Type<string[]>(), multiValues: true)), x.Class.Name));
         foreach (var dict in dependencyDictionaries)
         {
             staticClass.AddProperty(dict.ToNamedValue());
         }
-        var masterDependencyDictionary = new ExpressionMap(dependenciesWithFullPaths.Select(
-            x => new ExpressionsMap(Literal(x.Class.Name),
-            new AbstractPropertyExpression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
+        var masterDependencyDictionary = ExpressionMap(dependenciesWithFullPaths.Select(
+            x => ExpressionsMap(Literal(x.Class.Name),
+            Expression(staticClass.Properties.Properties.First(y => y.Name == x.Class.Name)))), "Deps");
         staticClass.AddProperty(masterDependencyDictionary.ToNamedValue());
 
         return staticClass.ToClass();

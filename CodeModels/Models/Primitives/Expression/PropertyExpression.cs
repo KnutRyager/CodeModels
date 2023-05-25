@@ -9,9 +9,12 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record AbstractPropertyExpression(AbstractProperty Property, IExpression? Instance = null) 
+public record AbstractPropertyExpression(AbstractProperty Property, IExpression? Instance)
     : Expression<ExpressionSyntax>(Property.Type), IAssignable, IMemberAccess
 {
+    public static AbstractPropertyExpression Create(AbstractProperty property, IExpression? instance = null)
+        => new(property, instance);
+
     public IBaseTypeDeclaration? Owner => Property.Owner;
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? ((IExpression)this).Syntax();
