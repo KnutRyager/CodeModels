@@ -7,14 +7,14 @@ namespace Common.Test.Reflection
     {
         private class A
         {
-            public string InstanceField;
+            public string InstanceField = "";
             public string InstanceProperty { get; set; }
             public string InstanceMethod1() => "";
             public string InstanceMethod2(int x) => "";
             public string InstanceMethod2(string x) => "";
             public string InstanceMethodTwoParams(int x, string y) => "";
             public string InstanceMethodGeneric<T>() => "";
-            public static string StaticField;
+            public static string StaticField = "";
             public static string StaticProperty { get; set; }
             public static string StaticMethod() => "";
             public static string StaticMethodGeneric<T>() => "";

@@ -61,7 +61,7 @@ public static class CodeModelTypeParsing
     public static IType Parse(QualifiedNameSyntax syntax, IType? type = null, SemanticModel? model = null)
         => TypeFromReflection.Create(model is null
             ? System.Type.GetType(syntax.ToString())
-            : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type));
+            : SemanticReflection.GetType(model.GetTypeInfo(syntax).Type ?? throw new NotImplementedException()));
     public static IExpression Parse(SimpleNameSyntax syntax, IType? type = null, SemanticModel? model = null) => syntax switch
     {
         GenericNameSyntax name => Parse(name, type, model),

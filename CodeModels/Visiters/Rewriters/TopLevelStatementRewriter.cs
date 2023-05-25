@@ -18,9 +18,9 @@ public class TopLevelStatementRewriter : CSharpSyntaxRewriter
                 var topLevelStatements = new List<GlobalStatementSyntax>();
                 foreach (var classMember in @class.Members)
                 {
-                    if (classMember is MethodDeclarationSyntax method && IsMainMethod(method))
+                    if (classMember is MethodDeclarationSyntax { Body: BlockSyntax body } method && IsMainMethod(method))
                     {
-                        foreach (var methodStatement in method.Body.Statements)
+                        foreach (var methodStatement in body.Statements)
                         {
                             topLevelStatements.Add(SyntaxFactory.GlobalStatement(methodStatement));
                         }

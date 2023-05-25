@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
@@ -16,7 +17,7 @@ public record ModelRegistry(IList<NamedValueCollection> Models, IList<InstanceCl
 
     public IExpression GetSingleton(IType type)
     {
-        return null;
+        throw new NotImplementedException();
         //return Singletons.FirstOrDefault(x => x.Type() == type);
     }
 

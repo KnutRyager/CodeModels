@@ -70,7 +70,7 @@ public record MultiIfStatement(List<IfStatement> IfStatements, IStatement? Else)
         var ifWasExecuted = false;
         foreach (var statement in IfStatements)
         {
-            var ifCondition = (bool)statement.Condition.Evaluate(context).LiteralValue();
+            var ifCondition = (bool)(statement.Condition.Evaluate(context).LiteralValue() ?? false);
             ifWasExecuted |= ifCondition;
             if (ifCondition)
             {

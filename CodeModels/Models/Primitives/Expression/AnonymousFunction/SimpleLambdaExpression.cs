@@ -55,7 +55,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
             InnerEvaluate(x, context, context.CaptureScope());
             return action.Compile();
         }
-        System.Linq.Expressions.Expression<Func<object, object>> expression = x =>
+        System.Linq.Expressions.Expression<Func<object, object?>> expression = x =>
         InnerEvaluate(x, context, context.CaptureScope());
         return expression.Compile();
     }

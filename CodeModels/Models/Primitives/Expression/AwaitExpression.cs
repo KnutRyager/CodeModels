@@ -28,7 +28,8 @@ public record AwaitExpression(IExpression Expression) : Expression<AwaitExpressi
         {
             if (task.GetType().IsGenericType)
             {
-                return CodeModelFactory.Literal(ReflectionUtil.ConvertTaskResult(value.LiteralValue() as Task));
+                return CodeModelFactory.Literal(ReflectionUtil.ConvertTaskResult(
+                    value.LiteralValue() as Task ?? throw new KeyNotFoundException()));
             }
             task.WaitAndUnwrapException();
         }

@@ -88,7 +88,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
         if (Value is not null) yield return Value;
     }
 
-    public virtual IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression instance)
+    public virtual IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression? instance)
     {
         throw new NotImplementedException();
     }
