@@ -15,6 +15,6 @@ public record FieldFromReflection(FieldInfo Field)
 {
     public FieldFromReflection(IFieldSymbol symbol) : this(SemanticReflection.GetField(symbol)) { }
 
-    public override IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression instance)
-        => CodeModelFactory.Literal(Field.GetValue(instance.EvaluatePlain(context)));
+    public override IExpression EvaluateAccess(ICodeModelExecutionContext context, IExpression? instance)
+        => CodeModelFactory.Literal(Field.GetValue(instance?.EvaluatePlain(context)));
 }

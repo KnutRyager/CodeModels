@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
@@ -14,7 +15,7 @@ public record EnumMemberExpression(EnumMember Field, IExpression? Instance = nul
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public EnumMember GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<EnumMember>(Symbol);
+    public EnumMember GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<EnumMember>(Symbol ?? throw new NotImplementedException());
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

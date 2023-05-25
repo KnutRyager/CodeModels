@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
@@ -14,7 +15,7 @@ public record FieldExpression(IField Field, IExpression? Instance = null, IList<
 {
     public override ExpressionSyntax Syntax() => Field?.AccessSyntax(Instance) ?? Syntax();
 
-    public IField GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<IField>(Symbol);
+    public IField GetField(ICodeModelExecutionContext context) => Field ?? context.ProgramContext.Get<IField>(Symbol ?? throw new NotImplementedException());
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

@@ -22,11 +22,11 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
     {
-        if (Constructor.Body is null && Constructor.ExpressionBody is null)
+        if (Constructor is { Body: null, ExpressionBody: null })
         {
             throw new NotImplementedException();
         }
-        var instance = Constructor.Owner.CreateInstance();
+        var instance = Constructor.Owner?.CreateInstance() ?? throw new NotImplementedException();
         try
         {
             instance.EnterScopes(context);
