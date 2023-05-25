@@ -87,7 +87,7 @@ public record Property(string Name,
     public Field? GetBackingField()
         => Owner is IClassDeclaration b ? b.GetFields().FirstOrDefault(x => x.Name == AccessorType.Get.GetBackingFieldName(Name)) as Field : null;
 
-    public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
+    public override IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context)
     {
         var scopes = GetScopes(expression);
         try
@@ -134,7 +134,7 @@ public record Property(string Name,
         //}
     }
 
-    public override void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context)
+    public override void Assign(IExpression? instance, IExpression value, ICodeModelExecutionContext context)
     {
         var setter = GetSetter();
         if (setter is not null)

@@ -58,7 +58,7 @@ public record Field(string Name,
 
     private VariableDeclaration VariableDeclaration() => new(Type, Name, Value);
 
-    public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
+    public override IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context)
     {
         var scopes = GetScopes(expression);
         try
@@ -108,7 +108,7 @@ public record Field(string Name,
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
 
-    public override void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context)
+    public override void Assign(IExpression? instance, IExpression value, ICodeModelExecutionContext context)
     {
         throw new NotImplementedException();
     }

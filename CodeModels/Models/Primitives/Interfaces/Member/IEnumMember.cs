@@ -6,7 +6,7 @@ namespace CodeModels.Models;
 public interface IEnumMember : IMember
 {
     EnumMemberDeclarationSyntax EnumSyntax();
-    IExpression Value { get; }
+    IExpression? Value { get; }
 }
 
 public interface IEnumMember<T> : IMember<T>, IEnumMember where T : MemberDeclarationSyntax

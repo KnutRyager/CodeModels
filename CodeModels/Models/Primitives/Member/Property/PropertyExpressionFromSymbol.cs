@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
@@ -12,7 +13,7 @@ public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpr
     : Expression<ExpressionSyntax>(TypeFromSymbol.Create(PropertySymbol.Type), PropertySymbol),
     IPropertyExpression
 {
-    public IProperty Property => ProgramContext.GetContext(PropertySymbol).Get<IProperty>(PropertySymbol);
+    public IProperty Property => ProgramContext.GetContext(PropertySymbol)?.Get<IProperty>(PropertySymbol) ?? throw new NotImplementedException();
     public IBaseTypeDeclaration? Owner => Property.Owner;
 
     public override ExpressionSyntax Syntax() => Property?.AccessSyntax(Instance) ?? Syntax();

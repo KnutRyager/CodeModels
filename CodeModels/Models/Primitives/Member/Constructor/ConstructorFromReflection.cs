@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,7 +11,7 @@ public record ConstructorFromReflection(ConstructorInfo Constructor)
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(
         TypeFromReflection.Create(Constructor),
         Constructor.Name,
-        null,   // TODO
+        new List<AttributeList>(),   // TODO
         Modifier.Public), IConstructor
 {
     public override IEnumerable<ICodeModel> Children()
@@ -18,7 +19,7 @@ public record ConstructorFromReflection(ConstructorInfo Constructor)
         throw new System.NotImplementedException();
     }
 
-    public override ConstructorInvocationExpression Invoke(IExpression caller, IEnumerable<IExpression> arguments)
+    public override ConstructorInvocationExpression Invoke(IExpression? caller, IEnumerable<IExpression> arguments)
     {
         throw new System.NotImplementedException();
     }

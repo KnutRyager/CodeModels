@@ -5,8 +5,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record ExpressionFromTypeContext(IProgramContext Context, IType Type) : Expression<ExpressionSyntax>(Type)
-//public record ExpressionFromTypeContext(IProgramContext Context, IType Type) : Expression<ExpressionSyntax>(Type, Context: Context)
+public record ExpressionFromTypeContext(IProgramContext Context, IType Type)
+    : Expression<ExpressionSyntax>(Type)
 {
     public IExpression Resolve() => Context!.GetSingleton(Type);
     public override ExpressionSyntax Syntax() => Resolve().Syntax();

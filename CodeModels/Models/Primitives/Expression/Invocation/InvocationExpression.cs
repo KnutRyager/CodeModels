@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
@@ -13,11 +14,12 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 
 namespace CodeModels.Models.Primitives.Expression.Invocation;
 
-public record InvocationExpression(Method Method, IExpression Caller, List<IExpression> Arguments, List<ICodeModelExecutionScope> Scopes)
-    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),
+public record InvocationExpression(Method Method, IExpression? Caller, List<IExpression> Arguments, List<ICodeModelExecutionScope> Scopes)
+    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller ?? NullValue }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),
     IInvocation
 {
-    public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Caller.Syntax(), Arguments.Select(x => x.Syntax()));
+    public override InvocationExpressionSyntax Syntax()
+        => InvocationExpressionCustom((Caller ?? NullValue).Syntax(), Arguments.Select(x => x.Syntax()));
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
         => Literal(EvaluatePlain(context));

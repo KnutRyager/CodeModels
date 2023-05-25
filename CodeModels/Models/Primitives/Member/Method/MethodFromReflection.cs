@@ -33,7 +33,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     where T : ISymbol
     where TCodeModel : class, IMember
 {
-    public IProgramContext Context => ProgramContext.GetContext(Symbol);
+    public IProgramContext Context => ProgramContext.GetContext(Symbol) ?? throw new NotImplementedException();
     public TCodeModel Lookup => Context.Get<TCodeModel>(Symbol);
     public IMember Member => Lookup;
 
@@ -79,7 +79,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
         throw new NotImplementedException();
     }
 
-    public IdentifierExpression ToIdentifierExpression()
+    public virtual IdentifierExpression ToIdentifierExpression()
     {
         throw new NotImplementedException();
     }
@@ -137,7 +137,7 @@ public abstract record MethodBaseFromSymbol<T, TCodeModel>(T Symbol) : MemberFro
     public object Invoke(object obj, BindingFlags invokeAttr, Binder binder, object[] parameters, CultureInfo culture) => Lookup.Children();
     public object Invoke(object obj, object[] parameters) => Lookup.Invoke(obj, parameters);
 
-    public IInvocation Invoke(IExpression caller, IEnumerable<IExpression> arguments)
+    public IInvocation Invoke(IExpression? caller, IEnumerable<IExpression> arguments)
     {
         throw new NotImplementedException();
     }
@@ -212,7 +212,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public IExpression Evaluate(ICodeModelExecutionContext context) => Lookup.AsStatement();
     public object? EvaluatePlain(ICodeModelExecutionContext context) => Lookup.AsStatement();
     public IType GetGenericType(int index) => Lookup.GetGenericType(index);
-    public IdentifierExpression ToIdentifierExpression() => new(Lookup.TypeName);
+    public override IdentifierExpression ToIdentifierExpression() => CodeModelFactory.Identifier(Lookup.TypeName);
     public string GetMostSpecificType() => Lookup.GetMostSpecificType();
     public Type? GetReflectedType() => Lookup.GetReflectedType();
     public ArgumentSyntax ToArgument() => Lookup.ToArgument();

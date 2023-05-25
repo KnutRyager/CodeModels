@@ -98,10 +98,10 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         && (Value is not null && (Type.ReflectedType?.IsValueType ?? false))
         ? CodeModelFactory.Literal(Activator.CreateInstance(Type.ReflectedType)) : Value ?? CodeModelFactory.NullValue;
 
-    public abstract IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context);
+    public abstract IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context);
 
     public abstract AssignmentExpression Assign(IExpression? instance, IExpression value);
-    public abstract void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context);
+    public abstract void Assign(IExpression? instance, IExpression value, ICodeModelExecutionContext context);
     public abstract void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes);
     public abstract IInvocation Invoke(IExpression? caller, IEnumerable<IExpression> arguments);
 

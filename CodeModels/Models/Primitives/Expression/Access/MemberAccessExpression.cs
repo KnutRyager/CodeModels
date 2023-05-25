@@ -66,7 +66,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
                 {
                     if (Identifier.Symbol is IFieldSymbol)
                     {
-                        return ((declaration as IField).Owner as IClassDeclaration).GetStaticScope().GetValue(Identifier.Name);
+                        return (declaration as IField)!.Owner!.GetStaticScope().GetValue(Identifier.Name);
                     }
                 }
                 return Identifier.Symbol switch

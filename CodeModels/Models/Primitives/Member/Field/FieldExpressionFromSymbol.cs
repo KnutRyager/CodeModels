@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Primitives.Expression.Abstract;
@@ -12,7 +13,7 @@ public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? I
     : Expression<ExpressionSyntax>(TypeFromSymbol.Create(FieldSymbol.Type), FieldSymbol),
     IFieldExpression<Field>
 {
-    public Field Field => ProgramContext.GetContext(FieldSymbol).Get<Field>(FieldSymbol);
+    public Field Field => ProgramContext.GetContext(FieldSymbol)?.Get<Field>(FieldSymbol) ?? throw new NotImplementedException();
     public IBaseTypeDeclaration? Owner => Field.Owner;
     IField IFieldExpression.Field => Field;
 

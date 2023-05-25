@@ -299,7 +299,7 @@ public class CodeModelParser
         try
         {
             var symbol = model.GetSymbolInfo(syntax);
-            var operation = model?.GetOperation(syntax);
+            var operation = model.GetOperation(syntax);
             if (operation is IFieldReferenceOperation fieldReferenceOperation)
             {
                 var fieldSymbol = fieldReferenceOperation.Field;
@@ -537,10 +537,10 @@ public class CodeModelParser
 
     public ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type)
     {
-        var symbol = model?.GetSymbolInfo(syntax).Symbol;
+        var symbol = model.GetSymbolInfo(syntax).Symbol;
         return ObjectCreation(type, syntax.ArgumentList is null ? null
             : Parse(syntax.ArgumentList).Select(x => x.Expression).ToList(),
-            syntax.Initializer is null ? null : Parse(syntax.Initializer, GetObjectCreationType(syntax, type)), model?.GetOperation(syntax));
+            syntax.Initializer is null ? null : Parse(syntax.Initializer, GetObjectCreationType(syntax, type)), model.GetOperation(syntax));
     }
 
     public IType GetObjectCreationType(ObjectCreationExpressionSyntax syntax, IType type) => syntax switch
@@ -855,10 +855,10 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"Not implemented BaseMethodDeclaration: '{syntax}'.")
     };
     public IConstructor Parse(ConstructorDeclarationSyntax syntax)
-       => model?.GetSymbolInfo(syntax).Symbol is IObjectCreationOperation objectCreationSymbol
+       => model.GetSymbolInfo(syntax).Symbol is IObjectCreationOperation objectCreationSymbol
         && SemanticReflection.GetConstructor(objectCreationSymbol) is ConstructorInfo constructorInfo
         ? CodeModelsFromReflection.Constructor(constructorInfo)
-        : CodeModelFactory.Constructor(Parse(SymbolUtils.GetType(syntax, model)), AbstractCodeModelParsing.NamedValues(this, syntax),
+        : CodeModelFactory.Constructor(Parse(SymbolUtils.GetType(syntax, model) ?? throw new NotImplementedException()), AbstractCodeModelParsing.NamedValues(this, syntax),
             syntax.Body is null ? null : Parse(syntax.Body), syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression));
     public IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();

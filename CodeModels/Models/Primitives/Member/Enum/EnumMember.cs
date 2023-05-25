@@ -50,7 +50,7 @@ public record EnumMember(string Name,
             Identifier(Name),
             Value is null ? null : EqualsValueClause(Value.Syntax()));
 
-    public override IExpression EvaluateAccess(IExpression expression, ICodeModelExecutionContext context)
+    public override IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context)
     {
         var scopes = GetScopes(expression);
         try
@@ -85,7 +85,7 @@ public record EnumMember(string Name,
         MemberAccess(caller ?? Owner?.ToIdentifierExpression() ?? throw new NotImplementedException(),
             ToIdentifierExpression()), value);
 
-    public override void Assign(IExpression instance, IExpression value, ICodeModelExecutionContext context)
+    public override void Assign(IExpression? instance, IExpression value, ICodeModelExecutionContext context)
     {
         throw new NotImplementedException();
     }

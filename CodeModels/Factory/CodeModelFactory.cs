@@ -81,7 +81,7 @@ public static class CodeModelFactory
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
     public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : LiteralExpression.Create(value);
-    public static UnaryExpression Default(IType? type) => UnaryExpression(type, OperationType.Default, type);
+    public static UnaryExpression Default(IType? type) => UnaryExpression(type!, OperationType.Default, type);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -93,7 +93,8 @@ public static class CodeModelFactory
     public static ExpressionCollection Values(params object?[] values) => AbstractCodeModelFactory.Expressions(values.Select(Value));
 
     public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
-    public static InvocationExpression Invocation(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
+    public static InvocationExpression Invocation(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null)
+        => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
