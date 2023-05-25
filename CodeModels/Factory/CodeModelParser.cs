@@ -696,7 +696,8 @@ public class CodeModelParser
 
     public AttributeList Parse(AttributeListSyntax syntax)
         => Attributes(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
-    public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax) => new(syntax.Identifier.ToString());
+    public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax)
+        => AttributeTargetSpecifier(syntax.Identifier.ToString());
     public Models.Primitives.Attribute.Attribute Parse(AttributeSyntax syntax)
         => Attribute(syntax.Name.ToString(), AttributeArgList(syntax.ArgumentList?.Arguments.Select(Parse)));
     public AttributeArgumentList Parse(AttributeArgumentListSyntax syntax)
@@ -707,10 +708,14 @@ public class CodeModelParser
     public NameColon Parse(NameColonSyntax syntax) => CodeModelFactory.NameColon(syntax.Name.ToString());
 
     public ForStatement Parse(ForStatementSyntax syntax)
-        => new(syntax.Declaration is null ? new(null) : Parse(syntax.Declaration), syntax.Initializers.Select(x => ParseExpression(x)).ToList(), ParseExpression(syntax.Condition), List(syntax.Incrementors.Select(x => ParseExpression(x))), Parse(syntax.Statement));
+        => For(syntax.Declaration is null ? null : Parse(syntax.Declaration),
+            syntax.Initializers.Select(x => ParseExpression(x)).ToList(), 
+            ParseExpression(syntax.Condition),
+            List(syntax.Incrementors.Select(x => ParseExpression(x))),
+            Parse(syntax.Statement));
     public GotoStatement Parse(GotoStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
     public IfStatement Parse(IfStatementSyntax syntax)
-        => new(ParseExpression(syntax.Condition), Parse(syntax.Statement), syntax.Else is null ? null : Parse(syntax.Else));
+        => If(ParseExpression(syntax.Condition), Parse(syntax.Statement), syntax.Else is null ? null : Parse(syntax.Else));
     public IStatement Parse(ElseClauseSyntax syntax) => Parse(syntax.Statement);
     public LabeledStatement Parse(LabeledStatementSyntax syntax) => new(syntax.Identifier.ToString(), Parse(syntax.Statement));
     public LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => new(Parse(syntax.Declaration));

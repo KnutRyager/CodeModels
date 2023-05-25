@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Reflection;
+using System.Xml.Linq;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Execution.Scope;
@@ -244,6 +245,19 @@ public static class CodeModelFactory
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, Attributes);
 
+    public static VariableDeclarations VariableDeclarations(IType type, IEnumerable<VariableDeclarator>? value = null)
+        => Models.VariableDeclarations.Create(type, value);
+    public static VariableDeclarations VariableDeclarations(VariableDeclaration? declaration)
+        => Models.VariableDeclarations.Create(declaration);
+    public static VariableDeclarations VariableDeclarations(IType type, IEnumerable<(string Name, IExpression? Value)> initializations)
+        => Models.VariableDeclarations.Create(type, initializations);
+    public static VariableDeclarations VariableDeclarations(IType type, string name, IExpression? value = null)
+        => Models.VariableDeclarations.Create(type, name, value);
+    public static VariableDeclaration VariableDeclaration(IType type, string name, IExpression? value = null)
+        => Models.VariableDeclaration.Create(type, name, value);
+    public static VariableDeclarator VariableDeclarator(string name, IExpression? value = null)
+        => Models.VariableDeclarator.Create(name, value);
+
     public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
     public static Block Block(params IStatement[] statements) => new(List(statements));
     public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
@@ -252,12 +266,20 @@ public static class CodeModelFactory
     public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
     public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);
 
-    public static ForStatement For(VariableDeclaration declaration, IExpression? initializer, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
-        => new(declaration, initializer, condition, incrementors, Block(statement, blockify));
-    public static ForStatement For(VariableDeclaration declaration, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
+    public static ForStatement For(VariableDeclarations? declarations, IEnumerable<IExpression> initializers, IExpression condition, IEnumerable<IExpression> incrementors, IStatement statement, bool blockify = true)
+        => ForStatement.Create(declarations, initializers, condition, incrementors, Block(statement, blockify));
+    public static ForStatement For(VariableDeclaration? declaration, IExpression? initializer, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
+        => ForStatement.Create(declaration, initializer, condition, incrementors, Block(statement, blockify));
+    public static ForStatement For(VariableDeclaration? declaration, IExpression condition, IExpression incrementors, IStatement statement, bool blockify = true)
         => For(declaration, null, condition, incrementors, statement, blockify);
-    public static SimpleForStatement For(string variable, IExpression limit, IStatement statement, bool blockify = true)
-        => new(variable, limit, Block(statement, blockify));
+    public static ForStatement For(string variable, IExpression limit, IStatement statement, bool blockify = true)
+        => For(variable, limit, Block(statement, blockify));
+    public static ForStatement For(string variable, IExpression limit, IStatement statement)
+        => For(Declaration(Type("int"), variable, Literal(0)),
+            null,
+            BinaryExpression(Identifier(variable), OperationType.LessThan, limit),
+            UnaryExpression(Identifier(variable), OperationType.UnaryAddAfter),
+            statement);
 
     public static ForEachStatement ForEach(IType? type, string identifier, IExpression expression, IStatement statement, bool blockify = true)
         => ForEachStatement.Create(type, identifier, expression, Block(statement, blockify));
