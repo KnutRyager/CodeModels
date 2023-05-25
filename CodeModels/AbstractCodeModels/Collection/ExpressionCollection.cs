@@ -37,11 +37,11 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
     public ArrayCreationExpressionSyntax ToArrayInitialization() 
         => ArrayInitializationCustom(BaseType().TypeSyntaxNonMultiWrapped(), Values.Select(x => x.Syntax()));
     public ObjectCreationExpression ToArrayInitialization2()
-        => new ObjectCreationExpression(BaseType(), null, ArrayInitializer(Values));
+        =>  ObjectCreation(BaseType(), null, ArrayInitializer(Values));
     public ObjectCreationExpressionSyntax ToListInitialization() 
         => ListInitializationCustom(BaseTypeSyntax(), Values.Select(x => x.Syntax()));
     public ObjectCreationExpression ToListInitialization2() 
-        => new ObjectCreationExpression(BaseType(), null, CollectionInitializer(Values));
+        => ObjectCreation(BaseType(), null, CollectionInitializer(Values));
 
     public override ArrayCreationExpressionSyntax Syntax() => ToArrayInitialization();
 

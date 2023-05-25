@@ -29,9 +29,9 @@ public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollec
         initializer: CollectionInitializerExpressionCustom(KeyVaulePairs.Select(x => x.ToKeyValueInitializationSyntax()).ToList()));
 
     public ObjectCreationExpression ToDictionary2()
-        => new ObjectCreationExpression(ToDictionaryType(),
-            Arguments: new List<IExpression>(),
-            Initializer: CodeModelFactory.CollectionInitializer(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList(), BaseValueType()));
+        => CodeModelFactory.ObjectCreation(ToDictionaryType(),
+            arguments: new List<IExpression>(),
+            initializer: CodeModelFactory.CollectionInitializer(KeyVaulePairs.Select(x => x.ToKeyValueInitialization()).ToList(), BaseValueType()));
 
     public IType ToDictionaryType() => CodeModelFactory.QuickType("Dictionary", new[] { BaseKeyType(), BaseValueType() });
     public IType ToDictionaryInterfaceType() => CodeModelFactory.QuickType("IDictionary", new[] { BaseKeyType(), BaseValueType() });

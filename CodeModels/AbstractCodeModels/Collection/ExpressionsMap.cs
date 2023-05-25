@@ -24,7 +24,7 @@ public record ExpressionsMap(IExpression Key, List<IExpression> Values, bool Mul
         new ExpressionSyntax[] { Key.Syntax(), MultiValues ? ToArrayInitialization() : Values.First().Syntax() });
 
     public InitializerExpression ToKeyValueInitialization() => ComplexElementInitializer(new IExpression[] { Key }
-        .Concat(new IExpression[] { MultiValues ? new ObjectCreationExpression(Type, null, ArrayInitializer(Values, Type)) : Values.First() }), ValueType);
+        .Concat(new IExpression[] { MultiValues ? ObjectCreation(Type, null, ArrayInitializer(Values, Type)) : Values.First() }), ValueType);
 
     public override IType BaseType() => ValueType ?? (MultiValues ? base.BaseType().ToMultiType() : base.BaseType());
 }

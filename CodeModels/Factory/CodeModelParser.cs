@@ -542,9 +542,7 @@ public class CodeModelParser
     public ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type)
     {
         var symbol = model?.GetSymbolInfo(syntax).Symbol;
-        var op = model?.GetOperation(syntax);
-        var t = model?.GetTypeInfo(syntax);
-        return new(type, syntax.ArgumentList is null ? null
+        return ObjectCreation(type, syntax.ArgumentList is null ? null
             : Parse(syntax.ArgumentList).Select(x => x.Expression).ToList(),
             //: Parse(syntax.ArgumentList, GetObjectCreationType(syntax, type)),
             //return new(type, syntax.ArgumentList is null ? null : AbstractCodeModelParsing.ParseNamedValues(this, syntax.ArgumentList, GetObjectCreationType(syntax, type)),
