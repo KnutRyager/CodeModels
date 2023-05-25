@@ -14,7 +14,7 @@ public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyn
 {
     public TypeCollection(IEnumerable<IType>? values = null) : this(List(values)) { }
 
-    public ExpressionCollection ToExpressions() => new(Types.Select(x => CodeModelFactory.Literal(x.Name)));
+    public ExpressionCollection ToExpressions() => AbstractCodeModelFactory.Expressions(Types.Select(x => CodeModelFactory.Literal(x.Name)));
 
     public override TypeParameterListSyntax Syntax() => TypeParameterList(SeparatedList(Types.Select(x => x.ToTypeParameter())));
 

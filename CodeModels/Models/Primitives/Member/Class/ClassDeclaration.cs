@@ -90,7 +90,7 @@ public abstract record ClassDeclaration(string Name,
     public List<IMember> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
     public List<Property> FilterValues() => GetProperties().Where(x => x.Value != null).ToList();
     public List<IExpression> ToExpressions() => GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value)).ToList();
-    public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
+    public ExpressionCollection ToValueCollection() => AbstractCodeModelFactory.Expressions(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Get_Type());
     public ArrayCreationExpressionSyntax ToArrayCreationSyntax() => ToValueCollection().Syntax();
     //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(GetPropertiesAndFields().Select(x => x.ExpressionSyntax!));

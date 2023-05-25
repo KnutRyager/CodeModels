@@ -17,7 +17,7 @@ public record ExpressionMap(List<ExpressionsMap> KeyVaulePairs, ExpressionCollec
     private readonly AbstractType? _valueType;
 
     public ExpressionMap(IEnumerable<ExpressionsMap> values, string? name = null, AbstractType? valueType = null)
-        : this(values.ToList(), new ExpressionCollection(values.Select(x => x.Key)), new ExpressionCollection(values.SelectMany(x => x.Values)), name)
+        : this(values.ToList(), AbstractCodeModelFactory.Expressions(values.Select(x => x.Key)), AbstractCodeModelFactory.Expressions(values.SelectMany(x => x.Values)), name)
     {
         _valueType = valueType;
     }

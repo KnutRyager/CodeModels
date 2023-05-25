@@ -12,6 +12,8 @@ namespace CodeModels.Models.Primitives.Expression.CompileTime;
 
 public record SizeOfExpression(IType Type) : Expression<SizeOfExpressionSyntax>(Type)
 {
+    public static SizeOfExpression Create(IType type) => new(type);
+    
     public override SizeOfExpressionSyntax Syntax() => SizeOfExpression(Type.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

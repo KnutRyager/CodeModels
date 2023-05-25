@@ -21,6 +21,14 @@ public record SimpleLambdaExpression(Modifier Modifier,
     : LambdaExpression<SimpleLambdaExpressionSyntax>
     (Modifier, IsAsync, AbstractCodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
 {
+    public static SimpleLambdaExpression Create(Modifier modifier,
+    bool isAsync,
+    INamedValue parameter,
+    IType type,
+    Block? body = null,
+    IExpression? expressionBody = null)
+        => new(modifier, isAsync, parameter, type, body, expressionBody);
+
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var child in base.Children()) yield return child;

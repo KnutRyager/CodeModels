@@ -30,7 +30,7 @@ public class ClassPropertyTests
     public void ClassInstaceMethodReturnFieldValue()
     {
         var method = Method("getA",
-            NamedValues(), Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
+            NamedValues(), Type<int>(), Block(Return(IdentifierExp("A"))));
         var c = Class("classA", Field("A", Literal(5)), method);
         var instance = c.CreateInstance();
 

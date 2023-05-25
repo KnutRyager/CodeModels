@@ -9,6 +9,8 @@ namespace CodeModels.Models;
 
 public record ContinueStatement() : AbstractStatement<ContinueStatementSyntax>
 {
+    public static ContinueStatement Create() => new();
+
     public override ContinueStatementSyntax Syntax() => ContinueCustom();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();

@@ -2,20 +2,22 @@
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
 
 namespace CodeModels.Models;
 
-public record ReturnStatement(IExpression Expression) : AbstractStatement<ReturnStatementSyntax>
+public record ReturnStatement(IExpression? Expression) : AbstractStatement<ReturnStatementSyntax>
 {
-    public override ReturnStatementSyntax Syntax() => ReturnCustom(Expression.Syntax());
+    public static ReturnStatement Create(IExpression? expression = null) => new(expression);
+
+    public override ReturnStatementSyntax Syntax() => SyntaxFactory.ReturnStatement(Expression?.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
-        yield return Expression;
+        if (Expression is not null) yield return Expression;
     }
 
     public override void Evaluate(ICodeModelExecutionContext context)
-        => throw new ReturnException(Expression.EvaluatePlain(context));
+        => throw new ReturnException(Expression?.EvaluatePlain(context));
 }

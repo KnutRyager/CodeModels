@@ -15,7 +15,10 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
     : Expression<IdentifierNameSyntax>(Type ?? (Symbol is ITypeSymbol typeSymbol ? new TypeFromSymbol(typeSymbol) : TypeShorthands.VoidType), Symbol, Name),
     IAssignable
 {
-    public IdentifierExpression(ISymbol symbol) : this(symbol.Name, null, symbol) { }
+    public static IdentifierExpression Create(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)
+        => new(name, type, symbol, model);
+    public static IdentifierExpression Create(ISymbol symbol) => new(symbol.Name, null, symbol);
+
     public override IdentifierNameSyntax Syntax() => Syntax(Name ?? Type.Name);
     public SyntaxToken ToToken() => Identifier(Name);
     public IdentifierNameSyntax Syntax(string name) => IdentifierName(name);

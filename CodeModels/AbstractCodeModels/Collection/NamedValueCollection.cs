@@ -59,7 +59,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
     public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.SyntaxWithModifiers(modifier)));
     public List<AbstractProperty> FilterValues() => Properties.Where(x => x.Value != null).ToList();
     public List<IExpression> ToExpressions() => Properties.Select(x => x.Value).ToList();
-    public ExpressionCollection ToValueCollection() => new(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Type);
+    public ExpressionCollection ToValueCollection() => AbstractCodeModelFactory.Expressions(FilterValues().Select(x => x.Value ?? throw new Exception($"Property '{x}' contains no value.")), Type);
     public override ArrayCreationExpressionSyntax Syntax() => ToValueCollection().Syntax();
     public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax();
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(Properties.Select(x => x.ExpressionSyntax!));

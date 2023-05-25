@@ -77,7 +77,7 @@ public record Accessor(AccessorType Type,
                        CodeModelFactory.Type(typeof(void)), expression),
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
             AbstractCodeModelFactory.NamedValues(),
-            CodeModelFactory.Type(typeof(void)), CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)))
+            CodeModelFactory.Type(typeof(void)), CodeModelFactory.IdentifierExp(Type.GetBackingFieldName(name)))
     };
 
     private Method GetSetMethod(string name) => this switch
@@ -91,8 +91,8 @@ public record Accessor(AccessorType Type,
         _ => CodeModelFactory.Method(Type.GetBackingMethodName(name),
             AbstractCodeModelFactory.NamedValues(AbstractCodeModelFactory.NamedValue("value")),
             CodeModelFactory.Type(typeof(void)), CodeModelFactory.Assignment(
-                CodeModelFactory.ExpressionFromQualifiedName(Type.GetBackingFieldName(name)),
-                CodeModelFactory.ExpressionFromQualifiedName("value")))
+                CodeModelFactory.IdentifierExp(Type.GetBackingFieldName(name)),
+                CodeModelFactory.IdentifierExp("value")))
     };
 }
 

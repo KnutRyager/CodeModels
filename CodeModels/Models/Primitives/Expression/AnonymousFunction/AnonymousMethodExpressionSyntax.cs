@@ -13,6 +13,11 @@ public record AnonymousMethodExpression(Modifier Modifier, bool IsAsync,
     IType Type, Block? Body, IExpression? ExpressionBody)
     : AnonymousFunctionExpression<AnonymousMethodExpressionSyntax>(Modifier, Type, Body, ExpressionBody)
 {
+    public static AnonymousMethodExpression Create(Modifier modifier, bool isAsync,
+    bool isDelegate, NamedValueCollection parameters,
+    IType type, Block? body = null, IExpression? expressionBody = null)
+        => new(modifier, isAsync, isDelegate, parameters, type, body, expressionBody);
+
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var parameter in Parameters.Properties) yield return parameter;

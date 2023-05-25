@@ -22,6 +22,14 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     : LambdaExpression<ParenthesizedLambdaExpressionSyntax>
     (Modifier, IsAsync, Parameters, Type, Body, ExpressionBody), ILambdaExpression
 {
+    public static ParenthesizedLambdaExpression Create(Modifier modifier,
+    bool isAsync,
+    NamedValueCollection parameters,
+    IType type,
+    Block? body = null,
+    IExpression? expressionBody = null)
+        => new(modifier, isAsync, parameters, type, body, expressionBody);
+
     public override IEnumerable<ICodeModel> Children()
     {
         foreach (var child in base.Children()) yield return child;

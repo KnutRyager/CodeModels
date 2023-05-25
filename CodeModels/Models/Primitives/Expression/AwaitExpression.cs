@@ -13,6 +13,8 @@ namespace CodeModels.Models;
 
 public record AwaitExpression(IExpression Expression) : Expression<AwaitExpressionSyntax>(Expression.Get_Type())
 {
+    public static AwaitExpression Create(IExpression expression) => new(expression);
+
     public override AwaitExpressionSyntax Syntax() => AwaitExpression(Expression.Syntax());
     public override IEnumerable<ICodeModel> Children()
     {

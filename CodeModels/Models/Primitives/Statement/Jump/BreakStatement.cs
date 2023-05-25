@@ -9,6 +9,8 @@ namespace CodeModels.Models;
 
 public record BreakStatement() : AbstractStatement<BreakStatementSyntax>
 {
+    public static BreakStatement Create() => new();
+
     public override BreakStatementSyntax Syntax() => BreakCustom();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();

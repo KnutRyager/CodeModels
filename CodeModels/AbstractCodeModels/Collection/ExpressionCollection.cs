@@ -19,9 +19,8 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
     : Expression<ArrayCreationExpressionSyntax>((Type(SpecifiedType ?? TypeUtil.FindCommonType(Values)).ToMultiType())),
     IExpressionCollection
 {
-    public ExpressionCollection(IEnumerable<IExpression>? values = null, IType? specifiedType = null) : this(List(values), specifiedType) { }
-    public ExpressionCollection(string commaSeparatedValues) : this(commaSeparatedValues.Trim().Split(',').Select(CodeModelFactory.Literal)) { }
-    public ExpressionCollection(EnumDeclarationSyntax declaration) : this(declaration.Members.Select(x => CodeModelFactory.Literal(x.Identifier.ToString()))) { }
+    public static ExpressionCollection Create(IEnumerable<IExpression>? values = null, IType? specifiedType = null) 
+        => new(List(values), specifiedType);
 
     public EnumDeclarationSyntax ToEnum(string name, bool isFlags = false, bool hasNoneValue = false) => EnumDeclaration(
             attributeLists: default,

@@ -10,6 +10,8 @@ namespace CodeModels.Models.Primitives.Expression.CompileTime;
 
 public record TypeOfExpression(IType Type) : Expression<TypeOfExpressionSyntax>(Type)
 {
+    public static TypeOfExpression Create(IType type) => new(type);
+
     public override TypeOfExpressionSyntax Syntax() => TypeOfExpression(Type.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

@@ -7,6 +7,8 @@ namespace CodeModels.Models;
 public record DiscardDesignation() 
     : VariableDesignation<DiscardDesignationSyntax>
 {
+    public static DiscardDesignation Create() => new();
+    
     public override IEnumerable<ICodeModel> Children()
     {
         yield break;

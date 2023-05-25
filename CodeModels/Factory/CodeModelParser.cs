@@ -227,16 +227,21 @@ public class CodeModelParser
 
     public BinaryExpression Parse(WithExpressionSyntax syntax, IType? type = null)
         => BinaryExpression(ParseExpression(syntax.Expression), OperationType.With, Parse(syntax.Initializer, type ?? TypeShorthands.NullType));
+
     public TypeOfExpression Parse(TypeOfExpressionSyntax syntax, IType? type = null)
-        => new(type ?? ParseType(syntax.Type));
-    public ThrowExpression Parse(ThrowExpressionSyntax syntax, IType? type = null) => new(ParseExpression(syntax.Expression));
+        => TypeOf(type ?? ParseType(syntax.Type));
 
-    public IExpression Parse(SwitchExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public ThrowExpression Parse(ThrowExpressionSyntax syntax, IType? type = null)
+        => ThrowExpression(ParseExpression(syntax.Expression));
 
-    public IExpression Parse(StackAllocArrayCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public IExpression Parse(SwitchExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();    // TODO
+
+    public IExpression Parse(StackAllocArrayCreationExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();    // TODO
 
     public SizeOfExpression Parse(SizeOfExpressionSyntax syntax, IType? type = null)
-        => new(type ?? ParseType(syntax.Type));
+        => SizeOf(type ?? ParseType(syntax.Type));
 
     public UnaryExpression Parse(RefValueExpressionSyntax syntax, IType? type = null)
         => UnaryExpression(ParseExpression(syntax.Expression), OperationType.Ref);
@@ -315,9 +320,7 @@ public class CodeModelParser
         }
         var expression = ParseExpression(syntax.Expression);
         var accessSymbol = model.GetSymbolInfo(syntax).Symbol;
-        return new(expression, new IdentifierExpression(syntax.Name.ToString(), Symbol: accessSymbol), typeModel);
-        //return new(expression, Parse(syntax.Name).ToIdentifierExpression(), typeModel);
-        //return new(expression, property ?? Parse(syntax.Name).Identifier(), typeModel);
+        return MemberAccess(expression, IdentifierExp(syntax.Name.ToString(), symbol: accessSymbol), typeModel);
     }
 
     public IExpression Parse(MakeRefExpressionSyntax syntax, IType? type = null)
@@ -373,12 +376,12 @@ public class CodeModelParser
         ParenthesizedVariableDesignationSyntax designation => Parse(designation),
         _ => throw new NotImplementedException($"Not implemented VariableDesignation: '{syntax}'.")
     };
-    public DiscardDesignation Parse(DiscardDesignationSyntax syntax)
-        => new();
+    public DiscardDesignation Parse(DiscardDesignationSyntax _)
+        => Discard();
     public SingleVariableDesignation Parse(SingleVariableDesignationSyntax syntax)
-        => new(syntax.Identifier.ToString());
+        => SingleVariable(syntax.Identifier.ToString());
     public ParenthesizedVariableDesignation Parse(ParenthesizedVariableDesignationSyntax syntax)
-        => new(syntax.Variables.Select(Parse).ToList());
+        => ParenthesizedVariable(syntax.Variables.Select(Parse).ToList());
 
     public CasePatternSwitchLabel Parse(CasePatternSwitchLabelSyntax syntax)
         => new(Parse(syntax.Pattern), syntax.WhenClause is null ? null : Parse(syntax.WhenClause));
@@ -475,15 +478,19 @@ public class CodeModelParser
     //    _ => throw new NotImplementedException()
     //};
 
-    public IExpression Parse(ImplicitStackAllocArrayCreationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public IExpression Parse(ImplicitStackAllocArrayCreationExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();    // TODO
 
     public ImplicitElementAccessExpression Parse(ImplicitElementAccessSyntax syntax, IType? type = null)
-        => new(type ?? (model.GetTypeInfo(syntax).Type is ITypeSymbol symbol ? Type(symbol) : TypeShorthands.VoidType), Parse(syntax.ArgumentList).Select(x => x.ToExpression()).ToList());
+        => ImplicitElementAccess(type ?? (model.GetTypeInfo(syntax).Type is ITypeSymbol symbol
+                ? Type(symbol) : TypeShorthands.VoidType),
+            Parse(syntax.ArgumentList).Select(x => x.ToExpression()).ToList());
 
     public ExpressionCollection Parse(ImplicitArrayCreationExpressionSyntax syntax, IType? type = null)
-        => new ExpressionCollection(Parse(syntax.Initializer, type ?? Type(model.GetTypeInfo(syntax))).Expressions);
+        => AbstractCodeModelFactory.Expressions(Parse(syntax.Initializer, type ?? Type(model.GetTypeInfo(syntax))).Expressions);
 
-    public IExpression Parse(ElementBindingExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public IExpression Parse(ElementBindingExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();    // TODO
 
     public AnyArgExpression<ExpressionSyntax> Parse(ElementAccessExpressionSyntax syntax, IType? type = null)
         => AnyArgExpression(List(ParseExpression(syntax.Expression)).Concat(Parse(syntax.ArgumentList).Select(x => x.Value)).ToList(), OperationType.Bracket);
@@ -491,7 +498,8 @@ public class CodeModelParser
     public UnaryExpression Parse(DefaultExpressionSyntax syntax, IType? type = null)
         => UnaryExpression(Parse(syntax.Type), OperationType.Default);
 
-    public IExpression Parse(DeclarationExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();
+    public IExpression Parse(DeclarationExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();
 
     public TernaryExpression Parse(ConditionalExpressionSyntax syntax, IType? type = null)
         => TernaryExpression(ParseExpression(syntax.Condition), ParseExpression(syntax.WhenTrue), ParseExpression(syntax.WhenFalse));
@@ -499,7 +507,8 @@ public class CodeModelParser
     public BinaryExpression Parse(ConditionalAccessExpressionSyntax syntax, IType? type = null)
         => BinaryExpression(ParseExpression(syntax.Expression), OperationType.ConditionalAccess, ParseExpression(syntax.WhenNotNull));
 
-    public IExpression Parse(CheckedExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();
+    public IExpression Parse(CheckedExpressionSyntax syntax, IType? type = null)
+        => throw new NotImplementedException();
 
     public UnaryExpression Parse(CastExpressionSyntax syntax, IType? type = null)
         => UnaryExpression(ParseExpression(syntax.Expression), OperationType.Cast);
@@ -538,15 +547,13 @@ public class CodeModelParser
     };
 
     public ImplicitObjectCreationExpression Parse(ImplicitObjectCreationExpressionSyntax syntax, IType type)
-        => new(type, AbstractCodeModelParsing.ParseNamedValues(this, syntax.ArgumentList), syntax.Initializer is null ? null : Parse(syntax.Initializer, type));
+        => ImplicitObjectCreation(type, Parse(syntax.ArgumentList).Select(x => x.Expression).ToList(), syntax.Initializer is null ? null : Parse(syntax.Initializer, type));
 
     public ObjectCreationExpression Parse(ObjectCreationExpressionSyntax syntax, IType type)
     {
         var symbol = model?.GetSymbolInfo(syntax).Symbol;
         return ObjectCreation(type, syntax.ArgumentList is null ? null
             : Parse(syntax.ArgumentList).Select(x => x.Expression).ToList(),
-            //: Parse(syntax.ArgumentList, GetObjectCreationType(syntax, type)),
-            //return new(type, syntax.ArgumentList is null ? null : AbstractCodeModelParsing.ParseNamedValues(this, syntax.ArgumentList, GetObjectCreationType(syntax, type)),
             syntax.Initializer is null ? null : Parse(syntax.Initializer, GetObjectCreationType(syntax, type)), model?.GetOperation(syntax));
     }
 
@@ -557,7 +564,7 @@ public class CodeModelParser
         _ => type
     };
 
-    public AwaitExpression Parse(AwaitExpressionSyntax syntax, IType? type = null) => new(ParseExpression(syntax.Expression));
+    public AwaitExpression Parse(AwaitExpressionSyntax syntax, IType? type = null) => Await(ParseExpression(syntax.Expression));
 
     public IExpression Parse(AssignmentExpressionSyntax syntax, IType? type = null)
         => Assignment(ParseExpression(syntax.Left, type), AssignmentTypeExtensions.GetAssignmentType(syntax.Kind()), ParseExpression(syntax.Right));
@@ -581,7 +588,7 @@ public class CodeModelParser
     };
 
     public AnonymousMethodExpression Parse(AnonymousMethodExpressionSyntax syntax)
-         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default, syntax.DelegateKeyword != default,
+         => AnonymousMethod(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default, syntax.DelegateKeyword != default,
              syntax.ParameterList is null ? AbstractCodeModelFactory.NamedValues() : AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
@@ -594,13 +601,13 @@ public class CodeModelParser
     };
 
     public SimpleLambdaExpression Parse(SimpleLambdaExpressionSyntax syntax)
-         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
+         => SimpleLambda(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
              Parse(syntax.Parameter), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
 
     public ParenthesizedLambdaExpression Parse(ParenthesizedLambdaExpressionSyntax syntax)
-         => new(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
+         => ParenthesizedLambda(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
              AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
              syntax.Block is null ? null : Parse(syntax.Block),
              syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
@@ -608,7 +615,7 @@ public class CodeModelParser
     public IExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {
         SyntaxKind.ArgListExpression => NullValue,
-        SyntaxKind.NumericLiteralExpression => CodeModelFactory.Literal(ParseNumber(syntax)),
+        SyntaxKind.NumericLiteralExpression => Literal(ParseNumber(syntax)),
         SyntaxKind.StringLiteralExpression => CodeModelFactory.Literal(syntax.Token.ValueText),
         SyntaxKind.CharacterLiteralExpression => CodeModelFactory.Literal(syntax.Token.ValueText[0]),
         SyntaxKind.TrueLiteralExpression => Literal(true),
@@ -673,19 +680,19 @@ public class CodeModelParser
         _ => throw new ArgumentException($"Can't parse {nameof(IStatement)} from '{syntax}'.")
     };
 
-    public Block Parse(BlockSyntax syntax) => new(List(syntax.Statements.Select(Parse)));
-    public BreakStatement Parse(BreakStatementSyntax _) => new();
-    public CheckedStatement Parse(CheckedStatementSyntax syntax) => new(Parse(syntax.Block));
+    public Block Parse(BlockSyntax syntax) => Block(List(syntax.Statements.Select(Parse)));
+    public BreakStatement Parse(BreakStatementSyntax _) => Break();
+    public CheckedStatement Parse(CheckedStatementSyntax syntax) => Checked(Parse(syntax.Block));
     public ForEachStatement Parse(CommonForEachStatementSyntax syntax) => syntax switch
     {
         ForEachStatementSyntax statement => Parse(statement),
         _ => throw new ArgumentException($"Can't parse {nameof(ForEachStatement)} from '{syntax}'.")
     };
-    public ForEachStatement Parse(ForEachStatementSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString(), ParseExpression(syntax.Expression), Parse(syntax.Statement));
-    public ContinueStatement Parse(ContinueStatementSyntax _) => new();
-    public DoStatement Parse(DoStatementSyntax syntax) => new(Parse(syntax.Statement), ParseExpression(syntax.Condition));
-    public EmptyStatement Parse(EmptyStatementSyntax _) => new();
-    public ExpressionStatement Parse(ExpressionStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
+    public ForEachStatement Parse(ForEachStatementSyntax syntax) => ForEach(ParseType(syntax.Type), syntax.Identifier.ToString(), ParseExpression(syntax.Expression), Parse(syntax.Statement));
+    public ContinueStatement Parse(ContinueStatementSyntax _) => Continue();
+    public DoStatement Parse(DoStatementSyntax syntax) => Do(Parse(syntax.Statement), ParseExpression(syntax.Condition));
+    public EmptyStatement Parse(EmptyStatementSyntax _) => Empty();
+    public ExpressionStatement Parse(ExpressionStatementSyntax syntax) => Statement(ParseExpression(syntax.Expression));
     public IMember Parse(GlobalStatementSyntax syntax)
     {
         var statement = Parse(syntax.Statement);

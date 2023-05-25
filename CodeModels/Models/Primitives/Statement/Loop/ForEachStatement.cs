@@ -13,8 +13,8 @@ namespace CodeModels.Models;
 public record ForEachStatement(IType? Type, string Identifier, IExpression Expression, IStatement Statement)
     : AbstractStatement<ForEachStatementSyntax>
 {
-    public ForEachStatement(string Identifier, IExpression Expression, IStatement Statement)
-        : this(null, Identifier, Expression, Statement) { }
+    public static ForEachStatement Create(IType? type, string identifier, IExpression expression, IStatement statement)
+        => new(type, identifier, expression, statement);
 
     public override ForEachStatementSyntax Syntax() => ForEachStatementCustom((Type ?? TypeShorthands.VarType).Syntax(),
         SyntaxFactory.Identifier(Identifier),

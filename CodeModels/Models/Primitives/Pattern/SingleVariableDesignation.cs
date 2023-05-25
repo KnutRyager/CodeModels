@@ -8,6 +8,8 @@ namespace CodeModels.Models;
 public record SingleVariableDesignation(string Identifier) 
     : VariableDesignation<SingleVariableDesignationSyntax>
 {
+    public static SingleVariableDesignation Create(string identifier) => new(identifier);
+
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
 
     public override SingleVariableDesignationSyntax Syntax()

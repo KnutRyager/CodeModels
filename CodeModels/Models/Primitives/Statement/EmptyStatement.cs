@@ -8,6 +8,8 @@ namespace CodeModels.Models;
 
 public record EmptyStatement() : AbstractStatement<EmptyStatementSyntax>
 {
+    public static EmptyStatement Create() => new();
+    
     public override EmptyStatementSyntax Syntax() => EmptyStatement();
 
     public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();

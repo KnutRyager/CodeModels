@@ -8,6 +8,8 @@ namespace CodeModels.Models;
 
 public record CheckedStatement(Block Block) : AbstractStatement<CheckedStatementSyntax>
 {
+    public static CheckedStatement Create(Block block) => new(block);
+
     public override CheckedStatementSyntax Syntax() => CheckedStatement(SyntaxKind.Block, Block.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

@@ -24,13 +24,13 @@ public class ClassMethodTests
 
     [Fact]
     public void EvaluateMethodReturnArgument() => Method("get3",
-            NamedValues(NamedValue("value")), Type<int>(), ExpressionFromQualifiedName("value"))
+            NamedValues(NamedValue("value")), Type<int>(), IdentifierExp("value"))
         .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance(), Literal(1337))
         .Eval().Should().Be(1337);
 
     [Fact]
     public void EvaluateMethodReturnTwoArguments() => Method("get3",
-            NamedValues(NamedValue("v1"), NamedValue("v2")), Type<int>(), BinaryExpression(ExpressionFromQualifiedName("v1"), OperationType.Plus, ExpressionFromQualifiedName("v2")))
+            NamedValues(NamedValue("v1"), NamedValue("v2")), Type<int>(), BinaryExpression(IdentifierExp("v1"), OperationType.Plus, IdentifierExp("v2")))
         .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance(), Literal(3), Literal(7))
         .Eval().Should().Be(10);
 
@@ -38,7 +38,7 @@ public class ClassMethodTests
     public void ClassInstaceMethodReturnFieldValue()
     {
         var method = Method("getA",
-            Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
+            Type<int>(), Block(Return(IdentifierExp("A"))));
         var c = Class("classA", Field("A", Literal(5)), method);
         var instance = c.CreateInstance();
 
@@ -49,8 +49,8 @@ public class ClassMethodTests
     public void ClassInstaceMethodModifyFieldValue()
     {
         var getter = Method("getA",
-             Type<int>(), Block(Return(ExpressionFromQualifiedName("A"))));
-        var setter = Method("setA", Type(typeof(void)), Block(Assignment(ExpressionFromQualifiedName("A"), Literal(6))));
+             Type<int>(), Block(Return(IdentifierExp("A"))));
+        var setter = Method("setA", Type(typeof(void)), Block(Assignment(IdentifierExp("A"), Literal(6))));
         var c = Class("classA", Field("A", Literal(5)), getter, setter);
         var instance = c.CreateInstance();
 

@@ -8,6 +8,7 @@ using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
+using CodeModels.Models.Primitives.Expression.CompileTime;
 using CodeModels.Models.Primitives.Expression.Instantiation;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
@@ -17,6 +18,7 @@ using CodeModels.Reflection;
 using CodeModels.Utils;
 using Common.Reflection;
 using Common.Util;
+using Generator.Models.Primitives.Expression.AnonymousFunction;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -83,15 +85,21 @@ public static class CodeModelFactory
         Array array => Values(array),
         _ => Literal(value),
     };
-    public static ExpressionCollection Values(IEnumerable<object?> values) => new(values.Select(Value));
-    public static ExpressionCollection Values(Array values) => new(CollectionUtil.ModernizeArray(values).Select(Value));
-    public static ExpressionCollection Values(params object?[] values) => new(values.Select(Value));
+    public static ExpressionCollection Values(IEnumerable<object?> values) => AbstractCodeModelFactory.Expressions(values.Select(Value));
+    public static ExpressionCollection Values(Array values) => AbstractCodeModelFactory.Expressions(CollectionUtil.ModernizeArray(values).Select(Value));
+    public static ExpressionCollection Values(params object?[] values) => AbstractCodeModelFactory.Expressions(values.Select(Value));
+
     public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
     public static InvocationExpression Invocation(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null) => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
     public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
+
+    public static ElementAccessExpression ElementAccess(IType type, IExpression caller, IEnumerable<IExpression>? arguments = null)
+        => ElementAccessExpression.Create(type, caller, arguments);
+    public static ImplicitElementAccessExpression ImplicitElementAccess(IType type, IEnumerable<IExpression>? arguments = null)
+        => ImplicitElementAccessExpression.Create(type, arguments);
 
     public static Field Field(IType? type, string name, IExpression? value = null, IEnumerable<AttributeList>? attributes = null, Modifier modifier = Modifier.None)
         => Models.Primitives.Member.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, attributes, modifier, value);
@@ -116,7 +124,8 @@ public static class CodeModelFactory
     IEnumerable<AttributeList>? attributes = null,
     Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
 
-    public static IdentifierExpression ExpressionFromQualifiedName(string qualifiedName) => new(qualifiedName);
+    public static IdentifierExpression IdentifierExp(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)
+        => IdentifierExpression.Create(name, type, symbol, model);
     public static IdentifierExpressionGeneric<T> Identifier<T>(string name, ICodeModel? model = null)
         => IdentifierExpressionGeneric<T>.Create(name, model);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
@@ -229,29 +238,40 @@ public static class CodeModelFactory
         => new(variable, limit, Block(statement, blockify));
 
     public static ForEachStatement ForEach(IType? type, string identifier, IExpression expression, IStatement statement, bool blockify = true)
-        => new(type, identifier, expression, Block(statement, blockify));
+        => ForEachStatement.Create(type, identifier, expression, Block(statement, blockify));
     public static ForEachStatement ForEach(string identifier, IExpression expression, IStatement statement, bool blockify = true)
-        => new(identifier, expression, Block(statement, blockify));
+        => ForEach(null, identifier, expression, Block(statement, blockify));
 
-    public static WhileStatement While(IExpression condition, IStatement statement, bool blockify = true) => new(condition, Block(statement, blockify));
+    public static WhileStatement While(IExpression condition, IStatement statement, bool blockify = true)
+        => new(condition, Block(statement, blockify));
 
-    public static DoStatement Do(IStatement statement, IExpression condition, bool blockify = true) => new(Block(statement, blockify), condition);
+    public static DoStatement Do(IStatement statement, IExpression condition, bool blockify = true)
+        => new(Block(statement, blockify), condition);
 
     public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
          => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
     public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
     public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), List(statement));
 
+    public static EmptyStatement Empty() => EmptyStatement.Create();
     public static ThisExpression This() => new(TypeShorthands.VoidType);
-    public static ReturnStatement Return(IExpression expression) => new(expression);
-    public static ReturnStatement Return(object? literal) => new(Literal(literal));
-    public static ContinueStatement Continue() => new();
-    public static BreakStatement Break() => new();
+    public static ReturnStatement Return() => ReturnStatement.Create();
+    public static ReturnStatement Return(IExpression? expression) => ReturnStatement.Create(expression);
+    public static ReturnStatement Return(object? literal) => Return(Literal(literal));
+    public static ContinueStatement Continue() => ContinueStatement.Create();
+    public static BreakStatement Break() => BreakStatement.Create();
+    public static CheckedStatement Checked(Block block) => CheckedStatement.Create(block);
 
     public static VariableDeclaration Declaration(IType type, string name, IExpression value) => new(type, name, value);
     public static LocalDeclarationStatement LocalDeclaration(VariableDeclaration declaration, Modifier modifiers = Modifier.None) => new(declaration, modifiers);
     public static LocalDeclarationStatement LocalDeclaration(IType type, string name, IExpression? value = null, Modifier modifiers = Modifier.None)
         => LocalDeclaration(new(type, name, value), modifiers);
+
+    public static DiscardDesignation Discard() => DiscardDesignation.Create();
+    public static SingleVariableDesignation SingleVariable(string identifier)
+        => SingleVariableDesignation.Create(identifier);
+    public static ParenthesizedVariableDesignation ParenthesizedVariable(IEnumerable<IVariableDesignation>? variables = null)
+        => ParenthesizedVariableDesignation.Create(variables);
 
     public static TryStatement Try(IStatement statement, IEnumerable<CatchClause> catchClauses, FinallyClause? @finally = null)
         => new(statement, List(catchClauses), @finally);
@@ -342,6 +362,15 @@ public static class CodeModelFactory
             initializer,
             operation);
 
+    public static ImplicitObjectCreationExpression ImplicitObjectCreation(IType type,
+        IEnumerable<IExpression>? arguments = null,
+        InitializerExpression? initializer = null,
+        Microsoft.CodeAnalysis.IOperation? operation = null)
+        => ImplicitObjectCreationExpression.Create(type,
+            arguments,
+            initializer,
+            operation);
+
     public static ArrayCreationExpression ArrayCreation(IType type,
         IEnumerable<List<IExpression>>? arguments = null,
         InitializerExpression? initializer = null,
@@ -363,4 +392,30 @@ public static class CodeModelFactory
         => Initializer(expressions, SyntaxKind.WithInitializerExpression, type);
     public static InitializerExpression Initializer(IEnumerable<IExpression> expressions, SyntaxKind kind, IType? type = null)
         => new(type ?? TypeUtil.FindCommonType(expressions.Select(x => x.Get_Type())), kind, List(expressions));
+
+    public static AwaitExpression Await(IExpression expression) => AwaitExpression.Create(expression);
+    public static TypeOfExpression TypeOf(IType type) => TypeOfExpression.Create(type);
+    public static SizeOfExpression SizeOf(IType type) => SizeOfExpression.Create(type);
+
+    public static AnonymousMethodExpression AnonymousMethod(Modifier modifier, bool isAsync,
+    bool isDelegate, NamedValueCollection parameters,
+    IType type, Block? body = null, IExpression? expressionBody = null)
+        => AnonymousMethodExpression.Create(modifier, isAsync, isDelegate, parameters, type, body, expressionBody);
+
+    public static SimpleLambdaExpression SimpleLambda(Modifier modifier,
+    bool isAsync,
+    INamedValue parameter,
+    IType type,
+    Block? body = null,
+    IExpression? expressionBody = null)
+        => SimpleLambdaExpression.Create(modifier, isAsync, parameter, type, body, expressionBody);
+
+    public static ParenthesizedLambdaExpression ParenthesizedLambda(Modifier modifier,
+    bool isAsync,
+    NamedValueCollection parameters,
+    IType type,
+    Block? body = null,
+    IExpression? expressionBody = null)
+        => ParenthesizedLambdaExpression.Create(modifier, isAsync, parameters, type, body, expressionBody);
+
 }
