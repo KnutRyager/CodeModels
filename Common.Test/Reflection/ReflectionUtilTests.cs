@@ -5,7 +5,7 @@ using Common.Reflection;
 using FluentAssertions;
 using Xunit;
 
-namespace Common.Tests
+namespace Common.Test.Reflection
 {
     public class ReflectionUtilTests
     {
@@ -50,6 +50,8 @@ namespace Common.Tests
             Assert.Contains(collectionsAssembly, directDependencies);
         }
 
+        [Fact] public void IsExtensionTrue() => Assert.True(ReflectionUtil.IsExtension(typeof(Enumerable).GetMethods().Where(x => x.Name is "Select").First()));
+        [Fact] public void IsExtensionFalse() => Assert.False(ReflectionUtil.IsExtension(typeof(object).GetMethods().Where(x => x.Name is "ToString").First()));
         [Fact] public void IsNullableValueTypeTrue() => Assert.True(ReflectionUtil.IsNullable<int?>());
         [Fact] public void IsNullableValueTypeFalse() => Assert.False(ReflectionUtil.IsNullable<int>());
 

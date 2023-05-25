@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Common.Util;
 
@@ -516,6 +517,7 @@ public static class ReflectionUtil
     public static bool IsContainerOf(Type type, Func<Type, bool> predicate) => typeof(System.Collections.IEnumerable).IsAssignableFrom(type) && type.GetGenericArguments().Any(predicate);
     public static bool IsStatic(Type type) => type.IsAbstract && type.IsSealed && !type.GetConstructors().Any();
     public static bool IsStatic(PropertyInfo property) => property.GetAccessors(true)[0].IsStatic;
+    public static bool IsExtension(MethodInfo method) => method.IsDefined(typeof(ExtensionAttribute), true);
 
     // https://stackoverflow.com/questions/22109246/get-result-of-taskt-without-knowing-typeof-t
     public static object ConvertTaskResult(Task task)

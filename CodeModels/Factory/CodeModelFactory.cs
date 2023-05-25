@@ -8,6 +8,7 @@ using CodeModels.Execution.Scope;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
+using CodeModels.Models.Primitives.Expression.Instantiation;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
@@ -75,6 +76,7 @@ public static class CodeModelFactory
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
     public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : LiteralExpression.Create(value);
+    public static UnaryExpression Default(IType? type) => UnaryExpression(type, OperationType.Default, type);
     public static IExpression Value(object? value) => value switch
     {
         null => NullValue,
@@ -319,6 +321,15 @@ public static class CodeModelFactory
 
     public static TryStatement TryStatement(IStatement statement, IEnumerable<CatchClause>? catchClauses, FinallyClause? @finally = null)
         => Models.TryStatement.Create(statement, catchClauses, @finally);
+
+    public static ObjectCreationExpression ObjectCreation(IType type,
+        IEnumerable<IExpression>? arguments = null,
+        InitializerExpression? initializer = null,
+        Microsoft.CodeAnalysis.IOperation? operation = null)
+        => ObjectCreationExpression.Create(type,
+            arguments,
+            initializer,
+            operation);
 
     public static InitializerExpression ArrayInitializer(IEnumerable<IExpression> expressions, IType? type = null)
         => Initializer(expressions, SyntaxKind.ArrayInitializerExpression, type);

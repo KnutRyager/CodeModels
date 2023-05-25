@@ -14,8 +14,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Instantiation;
 
-public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null) : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
+public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null)
+    : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {
+    public static ObjectCreationExpression Create(IType type,
+        IEnumerable<IExpression>? arguments = null,
+        InitializerExpression? initializer = null,
+        Microsoft.CodeAnalysis.IOperation? operation = null)
+        => new(type, arguments is null ? null : List(arguments), initializer, operation);
+
     public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(),
         Arguments is null ? null : ArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))), Initializer?.Syntax());
 
