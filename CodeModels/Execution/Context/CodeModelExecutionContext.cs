@@ -190,6 +190,11 @@ public class CodeModelExecutionContext : ICodeModelExecutionContext
         throw new CodeModelExecutionException($"No 'this' reference found.");
     }
 
+    public IExpression Base()
+    {
+        throw new CodeModelExecutionException($"No 'base' reference found.");
+    }
+
     public IMember GetMember(string? key, string? name = null) => _members[NamespaceUtils.GetKeyAndName(key, name)];
     public IMember? TryGetMember(string? key, string? name = null)
     {

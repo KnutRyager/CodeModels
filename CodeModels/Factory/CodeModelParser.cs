@@ -69,7 +69,7 @@ public class CodeModelParser
         ? ParseType(typeInfo.ToString())
         : Parse(typeInfo.Type ?? typeInfo.ConvertedType ?? throw new NotImplementedException());
     public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol)
-        ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? TypeFromSymbol.Create(symbol) 
+        ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? TypeFromSymbol.Create(symbol)
         : TypeFromSymbol.Create(symbol);
 
     public IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null)
@@ -457,12 +457,8 @@ public class CodeModelParser
         _ => throw new NotImplementedException()
     };
 
-    public IExpression Parse(BaseExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
-    {
-        SyntaxKind.BaseExpression => IdentifierExp(syntax.Token.ToString()), // IDK, TODO
-        _ => throw new NotImplementedException()
-    };
-    public IExpression Parse(ThisExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
+    public IExpression Parse(BaseExpressionSyntax _, IType? type = null) => Base(type);
+    public IExpression Parse(ThisExpressionSyntax _, IType? type = null) => This(type);
 
     public InitializerExpression Parse(InitializerExpressionSyntax syntax, IType type) =>
         Initializer(syntax.Expressions.Select(x => ParseExpression(x, type)), syntax.Kind(), type);

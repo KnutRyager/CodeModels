@@ -315,7 +315,8 @@ public static class CodeModelFactory
     public static WhenClause When(IExpression condition) => WhenClause.Create(condition);
 
     public static EmptyStatement Empty() => EmptyStatement.Create();
-    public static ThisExpression This() => new(TypeShorthands.VoidType);
+    public static ThisExpression This(IType? type = null) => new(type ?? TypeShorthands.VoidType);
+    public static BaseExpression Base(IType? type = null) => BaseExpression.Create(type ?? TypeShorthands.VoidType);
     public static ReturnStatement Return() => ReturnStatement.Create();
     public static ReturnStatement Return(IExpression? expression) => ReturnStatement.Create(expression);
     public static ReturnStatement Return(object? literal) => Return(Literal(literal));

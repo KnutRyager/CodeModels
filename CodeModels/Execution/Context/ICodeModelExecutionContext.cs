@@ -11,6 +11,7 @@ public interface ICodeModelExecutionContext
 {
     IProgramContext ProgramContext { get; }
     IExpression This();
+    IExpression Base();
     IExpression GetValue(string identifier);
     IExpression GetValue(IdentifierExpression identifier);
     ICodeModel GetValueOrMember(string identifier);
