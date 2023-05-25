@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeModels.Models.Primitives.Member;
 
 public record FieldExpressionFromSymbol(IFieldSymbol FieldSymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
-    : Expression<ExpressionSyntax>(new TypeFromSymbol(FieldSymbol.Type), FieldSymbol),
+    : Expression<ExpressionSyntax>(TypeFromSymbol.Create(FieldSymbol.Type), FieldSymbol),
     IFieldExpression<Field>
 {
     public Field Field => ProgramContext.GetContext(FieldSymbol).Get<Field>(FieldSymbol);

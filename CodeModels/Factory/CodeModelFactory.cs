@@ -253,6 +253,10 @@ public static class CodeModelFactory
     Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, Attributes);
 
+    public static SimpleBaseType SimpleBase(IType type) => SimpleBaseType.Create(type);
+    public static PrimaryConstructorBaseType PrimaryConstructorBase(IType type, IEnumerable<Argument>? arguments = default)
+        => PrimaryConstructorBaseType.Create(type, arguments);
+
     public static VariableDeclarations VariableDeclarations(IType type, IEnumerable<VariableDeclarator>? value = null)
         => Models.VariableDeclarations.Create(type, value);
     public static VariableDeclarations VariableDeclarations(VariableDeclaration? declaration)
@@ -306,6 +310,8 @@ public static class CodeModelFactory
     public static SwitchSection Cases(IEnumerable<ISwitchLabel> labels, IEnumerable<IStatement> statements) => SwitchSection.Create(labels, statements);
     public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => SwitchSection.Create(labels, statement);
     public static CaseSwitchLabel SwitchLabel(IExpression value) => CaseSwitchLabel.Create(value);
+    public static DefaultSwitchLabel DefaultLabel() => DefaultSwitchLabel.Create();
+    public static WhenClause When(IExpression condition) => WhenClause.Create(condition);
 
     public static EmptyStatement Empty() => EmptyStatement.Create();
     public static ThisExpression This() => new(TypeShorthands.VoidType);
@@ -348,6 +354,7 @@ public static class CodeModelFactory
         => SingleVariableDesignation.Create(identifier);
     public static ParenthesizedVariableDesignation ParenthesizedVariable(IEnumerable<IVariableDesignation>? variables = null)
         => ParenthesizedVariableDesignation.Create(variables);
+
 
     public static TryStatement Try(IStatement statement, IEnumerable<CatchClause> catchClauses, FinallyClause? @finally = null)
         => new(statement, List(catchClauses), @finally);
@@ -496,4 +503,17 @@ public static class CodeModelFactory
     IExpression? expressionBody = null)
         => ParenthesizedLambdaExpression.Create(modifier, isAsync, parameters, type, body, expressionBody);
 
+    public static ConstantPattern ConstantPat(IExpression expression) => ConstantPattern.Create(expression);
+    public static DeclarationPattern DeclarationPat(IType type, IVariableDesignation designation)
+        => DeclarationPattern.Create(type, designation);
+    public static DiscardPattern DiscardPat() => DiscardPattern.Create();
+    public static ParenthesizedPattern ParenthesizedPat(IPattern pattern) => ParenthesizedPattern.Create(pattern);
+    public static RecursivePattern RecursivePat(IType type) => RecursivePattern.Create(type);
+    public static RelationalPattern RelationalPat(SyntaxToken @operator, IExpression expression)
+        => RelationalPattern.Create(@operator, expression);
+    public static TypePattern TypePat(IType type) => TypePattern.Create(type);
+    public static UnaryPattern UnaryPat(IPattern pattern) => UnaryPattern.Create(pattern);
+    public static VarPattern VarPat(IVariableDesignation designation) => VarPattern.Create(designation);
+    public static CasePatternSwitchLabel CasePatSwitchLabel(IPattern pattern, WhenClause? whenClause = default)
+        => CasePatternSwitchLabel.Create(pattern, whenClause);
 }

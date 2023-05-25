@@ -9,6 +9,8 @@ namespace CodeModels.Models;
 public record DefaultSwitchLabel()
     : SwitchLabel<DefaultSwitchLabelSyntax>
 {
+    public static DefaultSwitchLabel Create() => new();
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield break;

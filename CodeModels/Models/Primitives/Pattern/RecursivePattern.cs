@@ -7,6 +7,8 @@ namespace CodeModels.Models;
 public record RecursivePattern(IType Type)
     : Pattern<RecursivePatternSyntax>
 {
+    public static RecursivePattern Create(IType type) => new(type);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
@@ -14,9 +16,9 @@ public record RecursivePattern(IType Type)
 
     public override RecursivePatternSyntax Syntax()
         => SyntaxFactory.RecursivePattern(Type.Syntax(), null, null, null);
-        //public static RecursivePatternSyntax RecursivePattern(
-        //TypeSyntax? type,
-        //PositionalPatternClauseSyntax? positionalPatternClause,
-        //PropertyPatternClauseSyntax? propertyPatternClause,
-        //VariableDesignationSyntax? designation)
+    //public static RecursivePatternSyntax RecursivePattern(
+    //TypeSyntax? type,
+    //PositionalPatternClauseSyntax? positionalPatternClause,
+    //PropertyPatternClauseSyntax? propertyPatternClause,
+    //VariableDesignationSyntax? designation)
 }

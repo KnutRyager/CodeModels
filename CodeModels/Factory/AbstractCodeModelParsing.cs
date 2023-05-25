@@ -82,11 +82,11 @@ public static class AbstractCodeModelParsing
     public static AbstractProperty AbstractProperty(this CodeModelParser parser, ParameterSyntax parameter, Modifier? modifier = null, IType? interfaceType = null)
         => new(Type(parameter.Type), parameter.Identifier.ToString(), parser.ParseExpression(parameter.Default?.Value, Type(parameter.Type)), modifier, interfaceType: interfaceType);
     public static AbstractProperty AbstractProperty(this CodeModelParser parser, ITypeSymbol typeSymbol, string name, ExpressionSyntax? expression = null, Modifier? modifier = null, IType? interfaceType = null)
-        => new(new TypeFromSymbol(typeSymbol), name, parser.ParseExpression(expression, new TypeFromSymbol(typeSymbol)), modifier, interfaceType: interfaceType);
+        => new(TypeFromSymbol.Create(typeSymbol), name, parser.ParseExpression(expression, TypeFromSymbol.Create(typeSymbol)), modifier, interfaceType: interfaceType);
     public static AbstractProperty AbstractProperty(IType type, string name, IExpression? expression = null, Modifier? modifier = null, IType? interfaceType = null)
         => new(type, name, expression, modifier, interfaceType: interfaceType);
     public static AbstractProperty AbstractProperty(ITypeSymbol typeSymbol, string name, string? value = null, Modifier? modifier = null, IType? interfaceType = null)
-        => new(new TypeFromSymbol(typeSymbol), name, value is null ? null : Literal(value), modifier, interfaceType: interfaceType);
+        => new(TypeFromSymbol.Create(typeSymbol), name, value is null ? null : Literal(value), modifier, interfaceType: interfaceType);
 
     public static ExpressionsMap ExpressionsMap(IExpression key, EnumDeclarationSyntax declaration)
         => AbstractCodeModels.Collection.ExpressionsMap.Create(key, declaration);

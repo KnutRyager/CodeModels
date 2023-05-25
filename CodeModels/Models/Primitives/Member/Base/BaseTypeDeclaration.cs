@@ -200,7 +200,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
     }
 
     public IBaseTypeDeclaration AddProperty(Type type, string name) => AddProperty(TypeFromReflection.Create(type), name);
-    public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
+    public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(TypeFromSymbol.Create(type), name);
     public IBaseTypeDeclaration AddProperty(AbstractType type, string name) => AddMember(CodeModelFactory.Property(name, type));
     public IType Get_Type() => Type(this);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();

@@ -75,7 +75,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
                     IPropertySymbol property => CodeModelFactory.Literal(SemanticReflection.GetProperty(property).GetValue(Expression.EvaluatePlain(context))),
                     IMethodSymbol method => throw new NotImplementedException(),
                     INamespaceSymbol @namespace => new Namespace(@namespace),
-                    ITypeSymbol type => new TypeFromSymbol(type),
+                    ITypeSymbol type => TypeFromSymbol.Create(type),
                     _ when Identifier.Type is not null => Identifier.Type,
                     _ => throw new NotImplementedException($"Evaluate not implemented for MemberAccessExpression '{ToString()}'.")
                 };
@@ -88,7 +88,7 @@ public record MemberAccessExpression(IExpression Expression, IdentifierExpressio
                     IPropertySymbol property => CodeModelFactory.Literal(SemanticReflection.GetProperty(property).GetValue(Expression.EvaluatePlain(context))),
                     IMethodSymbol method => throw new NotImplementedException(),
                     INamespaceSymbol @namespace => new Namespace(@namespace),
-                    ITypeSymbol type => new TypeFromSymbol(type),
+                    ITypeSymbol type => TypeFromSymbol.Create(type),
                     _ when Identifier.Type is not null => Identifier.Type,
                     _ => throw new NotImplementedException($"Evaluate not implemented for MemberAccessExpression '{ToString()}'.")
                 };

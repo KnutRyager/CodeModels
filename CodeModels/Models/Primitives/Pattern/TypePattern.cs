@@ -7,6 +7,8 @@ namespace CodeModels.Models;
 public record TypePattern(IType Type)
     : Pattern<TypePatternSyntax>
 {
+    public static TypePattern Create(IType type) => new(type);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

@@ -8,6 +8,8 @@ namespace CodeModels.Models;
 public record SimpleBaseType(IType Type)
     : BaseType<SimpleBaseTypeSyntax>(Type)
 {
+    public static SimpleBaseType Create(IType type) => new(type);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;

@@ -68,8 +68,9 @@ public class CodeModelParser
     public IType Parse(Microsoft.CodeAnalysis.TypeInfo typeInfo) => typeInfo.Type is null && typeInfo.ConvertedType is null
         ? ParseType(typeInfo.ToString())
         : Parse(typeInfo.Type ?? typeInfo.ConvertedType ?? throw new NotImplementedException());
-    public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
-    //public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol) ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? new TypeFromSymbol(symbol) : new TypeFromSymbol(symbol);
+    public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol)
+        ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? TypeFromSymbol.Create(symbol) 
+        : TypeFromSymbol.Create(symbol);
 
     public IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null)
     {
@@ -345,7 +346,6 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"Pattern not implemented: {syntax}")
     };
 
-
     public BinaryPattern Parse(BinaryPatternSyntax syntax) => syntax.Kind() switch
     {
         SyntaxKind.OrPattern => new OrPattern(Parse(syntax.Left), Parse(syntax.Right)),
@@ -353,23 +353,23 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"Not implemented BinaryPattern: '{syntax}'.")
     };
     public ConstantPattern Parse(ConstantPatternSyntax syntax)
-        => new(ParseExpression(syntax.Expression));
+        => ConstantPat(ParseExpression(syntax.Expression));
     public DeclarationPattern Parse(DeclarationPatternSyntax syntax)
-        => new(ParseType(syntax.Type), Parse(syntax.Designation));
-    public DiscardPattern Parse(DiscardPatternSyntax syntax)
-        => new();
+        => DeclarationPat(ParseType(syntax.Type), Parse(syntax.Designation));
+    public DiscardPattern Parse(DiscardPatternSyntax _)
+        => DiscardPat();
     public ParenthesizedPattern Parse(ParenthesizedPatternSyntax syntax)
-        => new(Parse(syntax.Pattern));
+        => ParenthesizedPat(Parse(syntax.Pattern));
     public RecursivePattern Parse(RecursivePatternSyntax syntax)
-        => new(ParseType(syntax.Type));
+        => RecursivePat(ParseType(syntax.Type));
     public RelationalPattern Parse(RelationalPatternSyntax syntax)
-        => new(syntax.OperatorToken, ParseExpression(syntax.Expression));
+        => RelationalPat(syntax.OperatorToken, ParseExpression(syntax.Expression));
     public TypePattern Parse(TypePatternSyntax syntax)
-        => new(ParseType(syntax.Type));
+        => TypePat(ParseType(syntax.Type));
     public UnaryPattern Parse(UnaryPatternSyntax syntax)
-        => new(Parse(syntax.Pattern));
+        => UnaryPat(Parse(syntax.Pattern));
     public VarPattern Parse(VarPatternSyntax syntax)
-        => new(Parse(syntax.Designation));
+        => VarPat(Parse(syntax.Designation));
     public IVariableDesignation Parse(VariableDesignationSyntax syntax) => syntax switch
     {
         DiscardDesignationSyntax designation => Parse(designation),
@@ -385,16 +385,16 @@ public class CodeModelParser
         => ParenthesizedVariable(syntax.Variables.Select(Parse).ToList());
 
     public CasePatternSwitchLabel Parse(CasePatternSwitchLabelSyntax syntax)
-        => new(Parse(syntax.Pattern), syntax.WhenClause is null ? null : Parse(syntax.WhenClause));
+        => CasePatSwitchLabel(Parse(syntax.Pattern), syntax.WhenClause is null ? null : Parse(syntax.WhenClause));
 
     public CaseSwitchLabel Parse(CaseSwitchLabelSyntax syntax)
-        => new(ParseExpression(syntax.Value));
+        => SwitchLabel(ParseExpression(syntax.Value));
 
     public DefaultSwitchLabel ParseDefaultSwitch()
-        => new();
+        => DefaultLabel();
 
     public WhenClause Parse(WhenClauseSyntax syntax)
-        => new(ParseExpression(syntax.Condition));
+        => When(ParseExpression(syntax.Condition));
 
     public IExpression Parse(InvocationExpressionSyntax syntax, IType? type = null)
     {
@@ -442,7 +442,7 @@ public class CodeModelParser
         {
             throw new ArgumentException($"Couldn't find method for symbol: {methodSymbol}");
         }
-        return new InvocationFromReflection(methodInfo, caller, argumentList);
+        return CodeModelsFromReflection.Invocation(methodInfo, caller, argumentList);
     }
 
     public IExpression Parse(InterpolatedStringExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
@@ -456,7 +456,7 @@ public class CodeModelParser
 
     public IExpression Parse(BaseExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {
-        SyntaxKind.BaseExpression => new IdentifierExpression(syntax.Token.ToString()), // IDK, TODO
+        SyntaxKind.BaseExpression => IdentifierExp(syntax.Token.ToString()), // IDK, TODO
         _ => throw new NotImplementedException()
     };
     public IExpression Parse(ThisExpressionSyntax syntax, IType? type = null) => throw new NotImplementedException();    // TODO
@@ -959,6 +959,7 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"Not implemented BaseTypeSyntax: '{syntax}'.")
     };
 
-    public SimpleBaseType Parse(SimpleBaseTypeSyntax syntax) => new SimpleBaseType(ParseType(syntax.Type));
-    public PrimaryConstructorBaseType Parse(PrimaryConstructorBaseTypeSyntax syntax) => new PrimaryConstructorBaseType(ParseType(syntax.Type), List(syntax.ArgumentList.Arguments.Select(ParseToArgument)));
+    public SimpleBaseType Parse(SimpleBaseTypeSyntax syntax) => SimpleBase(ParseType(syntax.Type));
+    public PrimaryConstructorBaseType Parse(PrimaryConstructorBaseTypeSyntax syntax)
+        => PrimaryConstructorBase(ParseType(syntax.Type), List(syntax.ArgumentList.Arguments.Select(ParseToArgument)));
 }

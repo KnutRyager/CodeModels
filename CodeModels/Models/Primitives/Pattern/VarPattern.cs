@@ -7,6 +7,9 @@ namespace CodeModels.Models;
 public record VarPattern(IVariableDesignation Designation)
     : Pattern<VarPatternSyntax>
 {
+    public static VarPattern Create(IVariableDesignation designation)
+        => new(designation);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Designation;

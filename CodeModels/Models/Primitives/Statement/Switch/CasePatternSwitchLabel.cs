@@ -10,6 +10,9 @@ namespace CodeModels.Models;
 public record CasePatternSwitchLabel(IPattern Pattern, WhenClause? WhenClause)
     : SwitchLabel<CasePatternSwitchLabelSyntax>
 {
+    public static CasePatternSwitchLabel Create(IPattern pattern, WhenClause? whenClause = default)
+        => new(pattern, whenClause);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Pattern;

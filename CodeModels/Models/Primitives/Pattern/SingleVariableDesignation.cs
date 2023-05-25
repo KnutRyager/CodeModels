@@ -5,7 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public record SingleVariableDesignation(string Identifier) 
+public record SingleVariableDesignation(string Identifier)
     : VariableDesignation<SingleVariableDesignationSyntax>
 {
     public static SingleVariableDesignation Create(string identifier) => new(identifier);

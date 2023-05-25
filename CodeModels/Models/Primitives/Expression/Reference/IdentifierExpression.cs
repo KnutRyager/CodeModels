@@ -12,7 +12,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Expression.Reference;
 
 public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Symbol = null, ICodeModel? Model = null)
-    : Expression<IdentifierNameSyntax>(Type ?? (Symbol is ITypeSymbol typeSymbol ? new TypeFromSymbol(typeSymbol) : TypeShorthands.VoidType), Symbol, Name),
+    : Expression<IdentifierNameSyntax>(Type ?? (Symbol is ITypeSymbol typeSymbol ? TypeFromSymbol.Create(typeSymbol) : TypeShorthands.VoidType), Symbol, Name),
     IAssignable
 {
     public static IdentifierExpression Create(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)

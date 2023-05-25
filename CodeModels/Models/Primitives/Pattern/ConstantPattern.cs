@@ -8,6 +8,8 @@ namespace CodeModels.Models;
 public record ConstantPattern(IExpression Expression)
     : Pattern<ConstantPatternSyntax>
 {
+    public static ConstantPattern Create(IExpression expression) => new(expression);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Expression;

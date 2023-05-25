@@ -5,13 +5,16 @@ using Microsoft.CodeAnalysis;
 
 namespace CodeModels.Models;
 
-public record TypeFromSymbol(ITypeSymbol Symbol, System.Type? ReflectedType = null)   // TODO: Generics, required, isMulti
+public record TypeFromSymbol(ITypeSymbol Symbol, System.Type? ReflectedType)   // TODO: Generics, required, isMulti
     : AbstractType(ReflectionSerialization.GetToShortHandName(Symbol.Name), new EqualityList<IType>(), true, false,
         ReflectedType ?? (SymbolUtils.IsNewDefined(Symbol) ? null : SemanticReflection.GetType(Symbol)))
 {
-    public override System.Type? GetReflectedType() => SemanticReflection.GetType(Symbol);
+    public static TypeFromSymbol Create(ITypeSymbol symbol, System.Type? reflectedType = default)
+        => new(symbol, reflectedType);
 
-    public override string GetMostSpecificType() => Symbol.ToString();
+    public override System.Type? GetReflectedType() => SemanticReflection.GetType(Symbol!);
+
+    public override string GetMostSpecificType() => Symbol!.ToString();
 
     public virtual bool Equals(TypeFromSymbol other) => other is not null && (ReferenceEquals(this, other) ||
             (TypeName.Equals(other.TypeName)

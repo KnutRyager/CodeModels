@@ -8,6 +8,9 @@ namespace CodeModels.Models;
 public record WhenClause(IExpression Condition)
     : CodeModel<WhenClauseSyntax>
 {
+    public static WhenClause Create(IExpression condition)
+        => new(condition);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Condition;

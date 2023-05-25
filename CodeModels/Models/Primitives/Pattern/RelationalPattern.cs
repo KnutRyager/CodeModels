@@ -9,6 +9,9 @@ namespace CodeModels.Models;
 public record RelationalPattern(SyntaxToken Operator, IExpression Expression)
     : Pattern<RelationalPatternSyntax>
 {
+    public static RelationalPattern Create(SyntaxToken @operator, IExpression expression)
+        => new(@operator, expression);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Expression;

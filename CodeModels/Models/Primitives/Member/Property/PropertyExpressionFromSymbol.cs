@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace CodeModels.Models.Primitives.Member;
 
 public record PropertyExpressionFromSymbol(IPropertySymbol PropertySymbol, IExpression? Instance = null, IList<ICodeModelExecutionScope>? Scopes = null)
-    : Expression<ExpressionSyntax>(new TypeFromSymbol(PropertySymbol.Type), PropertySymbol),
+    : Expression<ExpressionSyntax>(TypeFromSymbol.Create(PropertySymbol.Type), PropertySymbol),
     IPropertyExpression
 {
     public IProperty Property => ProgramContext.GetContext(PropertySymbol).Get<IProperty>(PropertySymbol);

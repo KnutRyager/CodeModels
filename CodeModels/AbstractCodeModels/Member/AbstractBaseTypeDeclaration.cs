@@ -45,7 +45,7 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
     }
 
     public IBaseTypeDeclaration AddProperty(Type type, string name) => AddProperty(TypeFromReflection.Create(type), name);
-    public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(new TypeFromSymbol(type), name);
+    public IBaseTypeDeclaration AddProperty(ITypeSymbol type, string name) => AddProperty(TypeFromSymbol.Create(type), name);
     public IBaseTypeDeclaration AddProperty(AbstractType type, string name) => AddProperty(new(type, name));
     public IType Get_Type() => Type(Name);
     public TypeSyntax TypeSyntax() => Get_Type().Syntax();

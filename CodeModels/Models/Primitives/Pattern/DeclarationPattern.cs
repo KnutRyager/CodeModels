@@ -7,6 +7,9 @@ namespace CodeModels.Models;
 public record DeclarationPattern(IType Type, IVariableDesignation Designation)
     : Pattern<DeclarationPatternSyntax>
 {
+    public static DeclarationPattern Create(IType type, IVariableDesignation designation)
+        => new(type, designation);
+
     public override IEnumerable<ICodeModel> Children()
 {
     yield return Type;

@@ -16,7 +16,7 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
     public Expression(IType type) : this(type, null) { }
 
     // TODO: Containing type for prop
-    public Expression(ITypeSymbol symbol) : this(new TypeFromSymbol(symbol), symbol) { }
+    public Expression(ITypeSymbol symbol) : this(TypeFromSymbol.Create(symbol), symbol) { }
 
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => EnumMemberDeclaration(
             attributeLists: default,
