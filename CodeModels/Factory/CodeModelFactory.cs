@@ -183,6 +183,14 @@ public static class CodeModelFactory
     public static LocalFunctionStatement LocalFunction(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
         => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
 
+    public static TypeParameterConstraintClause ConstraintClause(string name, IEnumerable<ITypeParameterConstraint>? constraints = null)
+        => TypeParameterConstraintClause.Create(name, constraints);
+    public static ClassOrStructConstraint ConstraintClassOrStruct(SyntaxKind kind, SyntaxToken classOrStructKeyword)
+        => ClassOrStructConstraint.Create(kind, classOrStructKeyword);
+    public static ConstructorConstraint ConstraintConstructor() => ConstructorConstraint.Create();
+    public static DefaultConstraint ConstraintDefault() => DefaultConstraint.Create();
+    public static TypeConstraint ConstraintType(IType type) => TypeConstraint.Create(type);
+
     public static ICodeModel Member(MemberInfo member) => member switch
     {
         Type type => TypeFromReflection.Create(type),
@@ -294,8 +302,10 @@ public static class CodeModelFactory
 
     public static SwitchStatement Switch(IExpression expression, IEnumerable<SwitchSection> sections, IStatement? @default = null)
          => @default is null ? new(expression, List(sections)) : new(expression, List(sections), @default);
-    public static SwitchSection Case(IExpression label, IStatement statement) => new(label, statement);
-    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => new(labels.ToList(), List(statement));
+    public static SwitchSection Case(IExpression label, IStatement statement) => SwitchSection.Create(label, statement);
+    public static SwitchSection Cases(IEnumerable<ISwitchLabel> labels, IEnumerable<IStatement> statements) => SwitchSection.Create(labels, statements);
+    public static SwitchSection Cases(IEnumerable<IExpression> labels, IStatement statement) => SwitchSection.Create(labels, statement);
+    public static CaseSwitchLabel SwitchLabel(IExpression value) => CaseSwitchLabel.Create(value);
 
     public static EmptyStatement Empty() => EmptyStatement.Create();
     public static ThisExpression This() => new(TypeShorthands.VoidType);
@@ -303,8 +313,30 @@ public static class CodeModelFactory
     public static ReturnStatement Return(IExpression? expression) => ReturnStatement.Create(expression);
     public static ReturnStatement Return(object? literal) => Return(Literal(literal));
     public static ContinueStatement Continue() => ContinueStatement.Create();
+    public static GotoStatement Goto(IExpression expression) => GotoStatement.Create(expression);
     public static BreakStatement Break() => BreakStatement.Create();
     public static CheckedStatement Checked(Block block) => CheckedStatement.Create(block);
+    public static UnsafeStatement Unsafe(Block block) => UnsafeStatement.Create(block);
+    public static FixedStatement Fixed(VariableDeclarations variableDeclarations, IStatement statement)
+        => FixedStatement.Create(variableDeclarations, statement);
+    public static LockStatement Lock(IExpression expression, IStatement statement)
+        => LockStatement.Create(expression, statement);
+    public static LabeledStatement Labeled(string identifier, IStatement statement)
+        => LabeledStatement.Create(identifier, statement);
+
+    public static UsingStatement Using(IStatement statement,
+        VariableDeclarations? declarations = null,
+        IExpression? expression = null)
+        => UsingStatement.Create(statement, declarations, expression);
+
+    public static UsingDirective UsingDir(string name,
+        bool? isStatic = default,
+        bool? isGlobal = default,
+        string? alias = default)
+        => UsingDirective.Create(name, isStatic, isGlobal, alias);
+
+    public static LocalDeclarationStatements LocalDeclarations(VariableDeclarations declarations, Modifier? modifiers = null)
+        => LocalDeclarationStatements.Create(declarations, modifiers);
 
     public static VariableDeclaration Declaration(IType type, string name, IExpression value) => new(type, name, value);
     public static LocalDeclarationStatement LocalDeclaration(VariableDeclaration declaration, Modifier modifiers = Modifier.None) => new(declaration, modifiers);
@@ -325,6 +357,8 @@ public static class CodeModelFactory
         => CatchClause.Create(type, identifier, statement, filter);
     public static CatchClause Catch(IType type, IStatement statement, CatchFilterClause? filter = null)
         => Catch(type, null, statement, filter);
+    public static CatchDeclaration CatchDeclaration(IType type, string? identifier = null)
+        => Models.CatchDeclaration.Create(type, identifier);
     public static CatchFilterClause CatchFilter(IExpression expression) => CatchFilterClause.Create(expression);
     public static FinallyClause Finally(IStatement statement) => new(statement);
     public static ThrowStatement Throw(IExpression expression) => new(expression);

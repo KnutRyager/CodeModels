@@ -12,7 +12,7 @@ namespace CodeModels.AbstractCodeModels.Collection;
 public record TypeCollection(List<IType> Types) : CodeModel<TypeParameterListSyntax>,
     ITypeCollection
 {
-    public TypeCollection(IEnumerable<IType>? values = null) : this(List(values)) { }
+    public static TypeCollection Create(IEnumerable<IType>? values = null) => new(List(values));
 
     public ExpressionCollection ToExpressions() => AbstractCodeModelFactory.Expressions(Types.Select(x => CodeModelFactory.Literal(x.Name)));
 

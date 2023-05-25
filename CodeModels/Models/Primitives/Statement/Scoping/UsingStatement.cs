@@ -7,8 +7,14 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record UsingStatement(IStatement Statement, VariableDeclarations? Declarations = null, IExpression? Expression = null) : AbstractStatement<UsingStatementSyntax>
+public record UsingStatement(IStatement Statement, VariableDeclarations? Declarations, IExpression? Expression)
+    : AbstractStatement<UsingStatementSyntax>
 {
+    public static UsingStatement Create(IStatement statement,
+        VariableDeclarations? declarations = null,
+        IExpression? expression = null)
+        => new(statement, declarations, expression);
+
     public override UsingStatementSyntax Syntax() => UsingStatement(
         Declarations?.Syntax(),
         Expression?.Syntax(),

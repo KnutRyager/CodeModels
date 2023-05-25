@@ -5,8 +5,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record LabeledStatement(string Identifier, IStatement Statement) : AbstractStatement<LabeledStatementSyntax>
+public record LabeledStatement(string Identifier, IStatement Statement)
+    : AbstractStatement<LabeledStatementSyntax>
 {
+    public static LabeledStatement Create(string identifier, IStatement statement)
+        => new(identifier, statement);
+
     public override LabeledStatementSyntax Syntax() => LabeledStatement(Identifier, Statement.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

@@ -5,8 +5,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record FixedStatement(VariableDeclarations VariableDeclarations, IStatement Statement) : AbstractStatement<FixedStatementSyntax>
+public record FixedStatement(VariableDeclarations VariableDeclarations, IStatement Statement)
+    : AbstractStatement<FixedStatementSyntax>
 {
+    public static FixedStatement Create(VariableDeclarations variableDeclarations, IStatement statement)
+        => new(variableDeclarations, statement);
+
     public override FixedStatementSyntax Syntax() => FixedStatement(VariableDeclarations.Syntax(), Statement.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

@@ -12,14 +12,14 @@ namespace CodeModels.Models;
 public record SwitchSection(List<ISwitchLabel> Labels, List<IStatement> Statements)
     : CodeModel<SwitchSectionSyntax>
 {
-    public SwitchSection(IExpression label, IStatement statement)
-        : this(new List<ISwitchLabel>() { new CaseSwitchLabel(label) }, new List<IStatement>() { statement }) { }
-
-    public SwitchSection(IEnumerable<IExpression> labels, IEnumerable<IStatement> statements)
-        : this(labels.Select(x => new CaseSwitchLabel(x)).ToList<ISwitchLabel>(), statements.ToList()) { }
-
-    public SwitchSection(IExpression label, IEnumerable<IStatement> statements)
-        : this(new List<ISwitchLabel>() { new CaseSwitchLabel(label) }, statements.ToList()) { }
+    public static SwitchSection Create(IEnumerable<ISwitchLabel>? labels = null, IEnumerable<IStatement>? statements = null)
+        => new(List(labels), List(statements));
+    public static SwitchSection Create(IExpression label, IEnumerable<IStatement> statements)
+        => Create(List(SwitchLabel(label)), statements);
+    public static SwitchSection Create(IEnumerable<IExpression> labels, IStatement statement)
+        => Create(labels.Select(SwitchLabel).ToArray(), new List<IStatement>() { statement });
+    public static SwitchSection Create(IExpression label, IStatement statement)
+        => Create(List(SwitchLabel(label)), new List<IStatement>() { statement });
 
     public override SwitchSectionSyntax Syntax() =>
         SyntaxFactory.SwitchSection(SyntaxFactory.List(Labels.Select(x => x.Syntax())), SyntaxFactory.List(Statements.Select(x => x.Syntax()).ToArray()));

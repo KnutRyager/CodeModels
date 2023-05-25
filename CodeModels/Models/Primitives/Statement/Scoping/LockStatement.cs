@@ -6,8 +6,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record LockStatement(IExpression Expression, IStatement Statement) : AbstractStatement<LockStatementSyntax>
+public record LockStatement(IExpression Expression, IStatement Statement)
+    : AbstractStatement<LockStatementSyntax>
 {
+    public static LockStatement Create(IExpression expression, IStatement statement)
+        => new(expression, statement);
+
     public override LockStatementSyntax Syntax() => LockStatement(Expression.Syntax(), Statement.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

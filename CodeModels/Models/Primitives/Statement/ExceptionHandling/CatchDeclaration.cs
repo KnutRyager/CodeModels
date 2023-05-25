@@ -8,6 +8,9 @@ namespace CodeModels.Models;
 
 public record CatchDeclaration(IType Type, string? Identifier) : CodeModel<CatchDeclarationSyntax>
 {
+    public static CatchDeclaration Create(IType type, string? identifier = null)
+        => new(type, identifier);
+
     public override CatchDeclarationSyntax Syntax() => CatchDeclarationCustom(Type.Syntax(), Identifier);
 
     public override IEnumerable<ICodeModel> Children()

@@ -7,6 +7,8 @@ namespace CodeModels.Models;
 
 public record UnsafeStatement(Block Block) : AbstractStatement<UnsafeStatementSyntax>
 {
+    public static UnsafeStatement Create(Block block) => new(block);
+
     public override UnsafeStatementSyntax Syntax() => UnsafeStatement(Block.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

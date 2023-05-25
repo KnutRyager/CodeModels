@@ -9,6 +9,8 @@ namespace CodeModels.Models;
 // TODO
 public record GotoStatement(IExpression Expression) : AbstractStatement<GotoStatementSyntax>
 {
+    public static GotoStatement Create(IExpression expression) => new(expression);
+
     public override GotoStatementSyntax Syntax() => throw new NotImplementedException();//GotoStatement(SyntaxKind.Block ,Case.Syntax(), Expression.Syntax());
 
     public override IEnumerable<ICodeModel> Children()

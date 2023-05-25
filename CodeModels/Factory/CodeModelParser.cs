@@ -684,12 +684,12 @@ public class CodeModelParser
         var statement = Parse(syntax.Statement);
         return statement is ExpressionStatement ? statement : statement;
     }
-    public FixedStatement Parse(FixedStatementSyntax syntax) => new(Parse(syntax.Declaration), Parse(syntax.Statement));
-    public VariableDeclarations Parse(VariableDeclarationSyntax syntax) => new(ParseType(syntax.Type), Parse(syntax.Variables));
-    public VariableDeclarator Parse(VariableDeclaratorSyntax syntax) => new(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value));
+    public FixedStatement Parse(FixedStatementSyntax syntax) => Fixed(Parse(syntax.Declaration), Parse(syntax.Statement));
+    public VariableDeclarations Parse(VariableDeclarationSyntax syntax) => VariableDeclarations(ParseType(syntax.Type), Parse(syntax.Variables));
+    public VariableDeclarator Parse(VariableDeclaratorSyntax syntax) => VariableDeclarator(syntax.Identifier.ToString(), syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value));
     public List<VariableDeclarator> Parse(IEnumerable<VariableDeclaratorSyntax> syntax) => syntax.Select(Parse).ToList();
     public List<AbstractProperty> Parse(BracketedArgumentListSyntax syntax) => syntax.Arguments.Select(Parse).ToList();
-    public AbstractProperty Parse(ArgumentSyntax syntax) => new(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));  // TODO: Semantics for type
+    public AbstractProperty Parse(ArgumentSyntax syntax) => AbstractCodeModelFactory.NamedValue(TypeShorthands.VoidType, syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));  // TODO: Semantics for type
     public Argument ParseToArgument(ArgumentSyntax syntax) => Arg(syntax.NameColon?.ToString(), ParseExpression(syntax.Expression));
     public List<Argument> Parse(ArgumentListSyntax syntax) => syntax.Arguments.Select(ParseToArgument).ToList();
     public List<AbstractProperty> Parse(IEnumerable<ArgumentSyntax> syntax) => syntax.Select(Parse).ToList();
@@ -709,16 +709,16 @@ public class CodeModelParser
 
     public ForStatement Parse(ForStatementSyntax syntax)
         => For(syntax.Declaration is null ? null : Parse(syntax.Declaration),
-            syntax.Initializers.Select(x => ParseExpression(x)).ToList(), 
+            syntax.Initializers.Select(x => ParseExpression(x)).ToList(),
             ParseExpression(syntax.Condition),
             List(syntax.Incrementors.Select(x => ParseExpression(x))),
             Parse(syntax.Statement));
-    public GotoStatement Parse(GotoStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
+    public GotoStatement Parse(GotoStatementSyntax syntax) => Goto(ParseExpression(syntax.Expression));
     public IfStatement Parse(IfStatementSyntax syntax)
         => If(ParseExpression(syntax.Condition), Parse(syntax.Statement), syntax.Else is null ? null : Parse(syntax.Else));
     public IStatement Parse(ElseClauseSyntax syntax) => Parse(syntax.Statement);
-    public LabeledStatement Parse(LabeledStatementSyntax syntax) => new(syntax.Identifier.ToString(), Parse(syntax.Statement));
-    public LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => new(Parse(syntax.Declaration));
+    public LabeledStatement Parse(LabeledStatementSyntax syntax) => Labeled(syntax.Identifier.ToString(), Parse(syntax.Statement));
+    public LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => LocalDeclarations(Parse(syntax.Declaration));
     public LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax)
 
          => Register(syntax, LocalFunctionFull(syntax.GetName(),
@@ -732,7 +732,7 @@ public class CodeModelParser
 
     public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
-        => new(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
+        => ConstraintClause(syntax.Name.ToString(), syntax.Constraints.Select(Parse).ToList());
     public ITypeParameterConstraint Parse(TypeParameterConstraintSyntax syntax) => syntax switch
     {
         ClassOrStructConstraintSyntax constraint => Parse(constraint),
@@ -741,18 +741,18 @@ public class CodeModelParser
         TypeConstraintSyntax constraint => Parse(constraint),
         _ => throw new ArgumentException($"Can't parse {nameof(ITypeParameterConstraint)} from '{syntax}'.")
     };
-    public ClassOrStructConstraint Parse(ClassOrStructConstraintSyntax syntax) => new(syntax.Kind(), syntax.ClassOrStructKeyword);
-    public ConstructorConstraint Parse(ConstructorConstraintSyntax _) => new();
-    public DefaultConstraint Parse(DefaultConstraintSyntax _) => new();
-    public TypeConstraint Parse(TypeConstraintSyntax syntax) => new(ParseType(syntax.Type));
-    public TypeCollection ParseTypes(TypeParameterListSyntax? syntax) => syntax is null ? new() : new(syntax.Parameters.Select(Parse));
+    public ClassOrStructConstraint Parse(ClassOrStructConstraintSyntax syntax) => ConstraintClassOrStruct(syntax.Kind(), syntax.ClassOrStructKeyword);
+    public ConstructorConstraint Parse(ConstructorConstraintSyntax _) => ConstraintConstructor();
+    public DefaultConstraint Parse(DefaultConstraintSyntax _) => ConstraintDefault();
+    public TypeConstraint Parse(TypeConstraintSyntax syntax) => ConstraintType(ParseType(syntax.Type));
+    public TypeCollection ParseTypes(TypeParameterListSyntax? syntax) => syntax is null ? AbstractCodeModelParsing.Types() : AbstractCodeModelParsing.Types(syntax.Parameters.Select(Parse));
     public AbstractProperty Parse(ParameterSyntax syntax) => AbstractCodeModelParsing.AbstractProperty(this, syntax);
     public IType Parse(TypeParameterSyntax syntax) => QuickType(syntax.Identifier.ToString());    // TODO
-    public LockStatement Parse(LockStatementSyntax syntax) => new(ParseExpression(syntax.Expression), Parse(syntax.Statement));
-    public ReturnStatement Parse(ReturnStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
-    public SwitchStatement Parse(SwitchStatementSyntax syntax) => new(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
+    public LockStatement Parse(LockStatementSyntax syntax) => Lock(ParseExpression(syntax.Expression), Parse(syntax.Statement));
+    public ReturnStatement Parse(ReturnStatementSyntax syntax) => Return(ParseExpression(syntax.Expression));
+    public SwitchStatement Parse(SwitchStatementSyntax syntax) => Switch(ParseExpression(syntax.Expression), List(syntax.Sections.Select(Parse)));
     public SwitchSection Parse(SwitchSectionSyntax syntax)
-        => new(syntax.Labels.Select(Parse).ToList(),
+        => Cases(syntax.Labels.Select(Parse).ToList(),
            syntax.Statements.Select(Parse).ToList());
     public ISwitchLabel Parse(SwitchLabelSyntax syntax) => syntax switch
     {
@@ -761,27 +761,33 @@ public class CodeModelParser
         DefaultSwitchLabelSyntax _ => ParseDefaultSwitch(),
         _ => throw new NotImplementedException($"SwitchLabelSyntax {syntax} not implemented.")
     };
-    public ThrowStatement Parse(ThrowStatementSyntax syntax) => new(ParseExpression(syntax.Expression));
+    public ThrowStatement Parse(ThrowStatementSyntax syntax) => Throw(ParseExpression(syntax.Expression));
     public TryStatement Parse(TryStatementSyntax syntax)
         => TryStatement(Parse(syntax.Block), List(syntax.Catches.Select(Parse)), syntax.Finally is null ? null : Parse(syntax.Finally));
     public CatchClause Parse(CatchClauseSyntax syntax)
         => Catch(syntax.Declaration is null ? TypeShorthands.VoidType : ParseType(syntax.Declaration.Type), syntax.Declaration?.Identifier.ToString(), Parse(syntax.Block), syntax.Filter is null ? null : Parse(syntax.Filter));
     public CatchFilterClause Parse(CatchFilterClauseSyntax syntax)
         => CatchFilter(ParseExpression(syntax.FilterExpression));
-    public CatchDeclaration Parse(CatchDeclarationSyntax syntax) => new(ParseType(syntax.Type), syntax.Identifier.ToString());
-    public FinallyClause Parse(FinallyClauseSyntax syntax) => new(Parse(syntax.Block));
-    public UnsafeStatement Parse(UnsafeStatementSyntax syntax) => new(Parse(syntax.Block));
+    public CatchDeclaration Parse(CatchDeclarationSyntax syntax)
+        => CodeModelFactory.CatchDeclaration(ParseType(syntax.Type), syntax.Identifier.ToString());
+    public FinallyClause Parse(FinallyClauseSyntax syntax) => Finally(Parse(syntax.Block));
+    public UnsafeStatement Parse(UnsafeStatementSyntax syntax) => Unsafe(Parse(syntax.Block));
     public UsingStatement Parse(UsingStatementSyntax syntax)
-        => new(Parse(syntax.Statement),
+        => Using(Parse(syntax.Statement),
             syntax.Declaration is null ? null : Parse(syntax.Declaration),
             syntax.Expression is null ? null : ParseExpression(syntax.Expression));
-    public WhileStatement Parse(WhileStatementSyntax syntax) => new(ParseExpression(syntax.Condition), Parse(syntax.Statement));
+
+    public WhileStatement Parse(WhileStatementSyntax syntax)
+        => While(ParseExpression(syntax.Condition), Parse(syntax.Statement));
 
     public CompilationUnit Parse() => Parse(CompilationUnit);
     public CompilationUnit Parse(CompilationUnitSyntax syntax)
-        => new(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
+        => CompilationUnit(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
     public UsingDirective Parse(UsingDirectiveSyntax syntax)
-            => new(syntax.Name.ToString(), IsGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword), IsStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword), Alias: syntax.Alias?.ToString());
+            => UsingDir(syntax.Name.ToString(),
+                isGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword),
+                isStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword),
+                alias: syntax.Alias?.ToString());
 
     public IMember Parse(MemberDeclarationSyntax syntax) => syntax switch
     {
@@ -874,6 +880,7 @@ public class CodeModelParser
     };
     public IMember Parse(FileScopedNamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(NamespaceDeclarationSyntax syntax) => throw new NotImplementedException();
+    public Namespace ParseToNamespace(NamespaceDeclarationSyntax syntax) => Namespace(syntax.Name.ToString());
     public IMember Parse(BasePropertyDeclarationSyntax syntax) => syntax switch
     {
         EventDeclarationSyntax declaration => Parse(declaration),
@@ -917,7 +924,7 @@ public class CodeModelParser
            syntax.ConstraintClauses.Select(Parse).ToArray(),
            syntax.BaseList?.Types.Select(Parse).ToArray(),
            syntax.GetMembers().Select(Parse).ToArray(),
-           @namespace: @namespace == default ? default : new(@namespace),
+           @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
            modifier: ParseModifier(syntax.Modifiers)));
 
     public IMember Parse(InterfaceDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
@@ -926,7 +933,7 @@ public class CodeModelParser
            syntax.ConstraintClauses.Select(Parse).ToArray(),
            syntax.BaseList?.Types.Select(Parse).ToArray(),
            syntax.GetMembers().Select(Parse).ToArray(),
-           @namespace: @namespace == default ? default : new(@namespace),
+           @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
            modifier: ParseModifier(syntax.Modifiers)));
 
     public IMember Parse(RecordDeclarationSyntax syntax) => syntax switch

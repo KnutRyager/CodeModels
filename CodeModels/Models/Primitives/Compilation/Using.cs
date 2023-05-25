@@ -6,8 +6,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
-public record UsingDirective(string Name, bool IsStatic = false, bool IsGlobal = false, string? Alias = null) : CodeModel<UsingDirectiveSyntax>()
+public record UsingDirective(string Name, bool IsStatic, bool IsGlobal, string? Alias)
+    : CodeModel<UsingDirectiveSyntax>()
 {
+    public static UsingDirective Create(string name,
+        bool? isStatic = default,
+        bool? isGlobal = default,
+        string? alias = default)
+        => new(name, isStatic ?? false, isGlobal ?? false, alias);
+
     public override UsingDirectiveSyntax Syntax() => UsingDirective(Token(IsGlobal ? SyntaxKind.GlobalKeyword : SyntaxKind.None),
             Token(SyntaxKind.UsingKeyword),
             Token(IsStatic ? SyntaxKind.StaticKeyword : SyntaxKind.None),

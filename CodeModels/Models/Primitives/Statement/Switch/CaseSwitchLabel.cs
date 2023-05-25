@@ -9,6 +9,8 @@ namespace CodeModels.Models;
 public record CaseSwitchLabel(IExpression Value)
     : SwitchLabel<CaseSwitchLabelSyntax>
 {
+    public static CaseSwitchLabel Create(IExpression value) => new(value);
+
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Value;

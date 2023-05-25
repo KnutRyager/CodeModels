@@ -21,8 +21,11 @@ public record LocalDeclarationStatement(VariableDeclaration Declaration, Modifie
     }
 }
 
-public record LocalDeclarationStatements(VariableDeclarations Declarations, Modifier Modifiers = Modifier.None) : AbstractStatement<LocalDeclarationStatementSyntax>
+public record LocalDeclarationStatements(VariableDeclarations Declarations, Modifier Modifiers) : AbstractStatement<LocalDeclarationStatementSyntax>
 {
+    public static LocalDeclarationStatements Create(VariableDeclarations declarations, Modifier? modifiers = null)
+        => new(declarations, modifiers ?? Modifier.None);
+
     public override LocalDeclarationStatementSyntax Syntax() => LocalDeclarationStatementCustom(Modifiers.Syntax(), Declarations.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
