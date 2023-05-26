@@ -13,4 +13,5 @@ public enum ModifierType
     Using,
     Async,
     Partial,
+    File,
 }

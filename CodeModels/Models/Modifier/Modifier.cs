@@ -38,4 +38,6 @@ public enum Modifier
     Using = 1048576,
     // Partial
     Partial = 2097152,
+    // File
+    File = 4194304,
 }

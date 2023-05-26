@@ -5,23 +5,6 @@ namespace Common.Test.Reflection
 {
     public class ExpressionReflectionUtilTests
     {
-        private class A
-        {
-            public string InstanceField = "";
-            public string InstanceProperty { get; set; }
-            public string InstanceMethod1() => "";
-            public string InstanceMethod2(int x) => "";
-            public string InstanceMethod2(string x) => "";
-            public string InstanceMethodTwoParams(int x, string y) => "";
-            public string InstanceMethodGeneric<T>() => "";
-            public static string StaticField = "";
-            public static string StaticProperty { get; set; }
-            public static string StaticMethod() => "";
-            public static string StaticMethodGeneric<T>() => "";
-            public static string StaticMethod2(int x) => "";
-            public static string StaticMethod2(string x) => "";
-        }
-
         [Fact]
         public void InstanceFieldInfo()
         {
@@ -126,6 +109,23 @@ namespace Common.Test.Reflection
 
         private static T T<T>() => default;
     }
+}
+
+file class A
+{
+    public string InstanceField = "";
+    public string InstanceProperty { get; set; }
+    public string InstanceMethod1() => "";
+    public string InstanceMethod2(int x) => "";
+    public string InstanceMethod2(string x) => "";
+    public string InstanceMethodTwoParams(int x, string y) => "";
+    public string InstanceMethodGeneric<T>() => "";
+    public static string StaticField = "";
+    public static string StaticProperty { get; set; }
+    public static string StaticMethod() => "";
+    public static string StaticMethodGeneric<T>() => "";
+    public static string StaticMethod2(int x) => "";
+    public static string StaticMethod2(string x) => "";
 }
 
 // TODO

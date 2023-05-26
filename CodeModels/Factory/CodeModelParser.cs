@@ -175,6 +175,7 @@ public class CodeModelParser
         SyntaxKind.VirtualKeyword => Modifier.Virtual,
         SyntaxKind.OverrideKeyword => Modifier.Override,
         SyntaxKind.NewKeyword => Modifier.New,
+        SyntaxKind.FileKeyword => Modifier.File,
         _ => throw new ArgumentException($"Unhandled token '{syntax}'.")
     };
 

@@ -35,6 +35,11 @@ internal class A
 {
 }".AssertParsedAndGeneratedEqual();
 
+    [Fact] public void FileClass() => @"
+file class A
+{
+}".AssertParsedAndGeneratedEqual();
+
     [Fact] public void PublicStaticClass() => @"
 public static class A
 {

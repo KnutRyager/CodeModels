@@ -12,14 +12,6 @@ namespace CodeModels.Test.Execution.Functions;
 
 public class InvocationFromReflectionTests
 {
-    private class A
-    {
-        public int B() => 0;
-        public int C2(int x) => x;
-        public int C(int x, int y) => x;
-        public string D() => "";
-    }
-
     [Fact]
     public void ObjectToString()
     {
@@ -55,3 +47,12 @@ public class InvocationFromReflectionTests
         invocation.CodeModelEqual("Math.sqrt(x)");
     }
 }
+
+file class A
+{
+    public int B() => 0;
+    public int C2(int x) => x;
+    public int C(int x, int y) => x;
+    public string D() => "";
+}
+

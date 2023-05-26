@@ -29,6 +29,8 @@ public static class ModifierTypes
     public const Modifier NonUsing = ((Modifier)int.MaxValue) ^ Using;
     public const Modifier Partial = Modifier.Partial;
     public const Modifier NonPartial = ((Modifier)int.MaxValue) ^ Partial;
+    public const Modifier File = Modifier.File;
+    public const Modifier NonFile = ((Modifier)int.MaxValue) ^ File;
 }
 
 public static class TypeDeclarationTypes
@@ -70,6 +72,7 @@ public static class TypeDeclarationTypeExtensions
         _ when modifier.HasFlag(Modifier.Protected) => Modifier.Protected,
         _ when modifier.HasFlag(Modifier.Internal) => Modifier.Internal,
         _ when modifier.HasFlag(Modifier.Public) => Modifier.Public,
+        _ when modifier.HasFlag(Modifier.File) => Modifier.File,
         _ => Modifier.None
     };
 
@@ -79,6 +82,7 @@ public static class TypeDeclarationTypeExtensions
         _ when modifier.HasFlag(Modifier.Protected) => Token(SyntaxKind.ProtectedKeyword),
         _ when modifier.HasFlag(Modifier.Internal) => Token(SyntaxKind.InternalKeyword),
         _ when modifier.HasFlag(Modifier.Public) => Token(SyntaxKind.PublicKeyword),
+        _ when modifier.HasFlag(Modifier.File) => Token(SyntaxKind.FileKeyword),
         _ => Token(SyntaxKind.None)
     };
 
@@ -201,35 +205,49 @@ public static class TypeDeclarationTypeExtensions
         _ => Token(SyntaxKind.None)
     };
 
+    public static Modifier FileModifier(this Modifier modifier) => modifier switch
+    {
+        _ when modifier.HasFlag(Modifier.File) => Modifier.File,
+        _ => Modifier.None
+    };
+
+    public static SyntaxToken FileModifierToken(this Modifier modifier) => modifier switch
+    {
+        _ when modifier.HasFlag(Modifier.File) => Token(SyntaxKind.FileKeyword),
+        _ => Token(SyntaxKind.None)
+    };
+
     public static ModifierType GetModifierType(this Modifier modifier) => modifier switch
     {
-        (<= Modifier.None) => ModifierType.None,
-        (<= Modifier.Public) => ModifierType.Access,
-        (<= Modifier.Static) => ModifierType.Static,
-        (<= Modifier.Class) => ModifierType.Member,
-        (<= Modifier.Const) => ModifierType.Const,
-        (<= Modifier.Abstract) => ModifierType.Abstract,
-        (<= Modifier.Record) => ModifierType.Record,
-        (<= Modifier.Field) => ModifierType.Field,
-        (<= Modifier.Async) => ModifierType.Async,
-        (<= Modifier.Using) => ModifierType.Using,
-        (<= Modifier.Partial) => ModifierType.Partial,
+        <= Modifier.None => ModifierType.None,
+        <= Modifier.Public => ModifierType.Access,
+        <= Modifier.Static => ModifierType.Static,
+        <= Modifier.Class => ModifierType.Member,
+        <= Modifier.Const => ModifierType.Const,
+        <= Modifier.Abstract => ModifierType.Abstract,
+        <= Modifier.Record => ModifierType.Record,
+        <= Modifier.Field => ModifierType.Field,
+        <= Modifier.Async => ModifierType.Async,
+        <= Modifier.Using => ModifierType.Using,
+        <= Modifier.Partial => ModifierType.Partial,
+        <= Modifier.File => ModifierType.File,
         _ => ModifierType.None
     };
 
     public static Modifier GetNonModifierType(this Modifier modifier) => modifier switch
     {
-        (<= Modifier.None) => Modifier.None,
-        (<= Modifier.Public) => ModifierTypes.NonAccess,
-        (<= Modifier.Static) => ModifierTypes.NonStatic,
-        (<= Modifier.Class) => ModifierTypes.NonMember,
-        (<= Modifier.Const) => ModifierTypes.NonConst,
-        (<= Modifier.Abstract) => ModifierTypes.NonAbstract,
-        (<= Modifier.Record) => ModifierTypes.NonRecord,
-        (<= Modifier.Field) => ModifierTypes.NonField,
-        (<= Modifier.Async) => ModifierTypes.NonAsync,
-        (<= Modifier.Using) => ModifierTypes.NonUsing,
-        (<= Modifier.Partial) => ModifierTypes.NonPartial,
+        <= Modifier.None => Modifier.None,
+        <= Modifier.Public => ModifierTypes.NonAccess,
+        <= Modifier.Static => ModifierTypes.NonStatic,
+        <= Modifier.Class => ModifierTypes.NonMember,
+        <= Modifier.Const => ModifierTypes.NonConst,
+        <= Modifier.Abstract => ModifierTypes.NonAbstract,
+        <= Modifier.Record => ModifierTypes.NonRecord,
+        <= Modifier.Field => ModifierTypes.NonField,
+        <= Modifier.Async => ModifierTypes.NonAsync,
+        <= Modifier.Using => ModifierTypes.NonUsing,
+        <= Modifier.Partial => ModifierTypes.NonPartial,
+        <= Modifier.File => ModifierTypes.NonFile,
         _ => Modifier.None
     };
 
