@@ -1,5 +1,5 @@
-﻿using System.Collections.Generic;
-using CodeModels.Execution.Context;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -22,7 +22,7 @@ public abstract record CodeModel<T>() : ICodeModel<T> where T : CSharpSyntaxNode
 {
     public abstract T Syntax();
     CSharpSyntaxNode ICodeModel.Syntax() => Syntax();
-    public string Code() => Syntax().NormalizeWhitespace().ToString();
+    public string Code() => Syntax().NormalizeWhitespace().ToString().Replace("\r\n", Environment.NewLine);
     public ISet<IType> Dependencies(ISet<IType>? set = null)
     {
         var dependencies = set ?? new HashSet<IType>();
