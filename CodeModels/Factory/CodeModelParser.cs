@@ -346,6 +346,7 @@ public class CodeModelParser
         TypePatternSyntax pattern => Parse(pattern),
         UnaryPatternSyntax pattern => Parse(pattern),
         VarPatternSyntax pattern => Parse(pattern),
+        ListPatternSyntax pattern => Parse(pattern),
         _ => throw new NotImplementedException($"Pattern not implemented: {syntax}")
     };
 
@@ -373,6 +374,9 @@ public class CodeModelParser
         => UnaryPat(Parse(syntax.Pattern));
     public VarPattern Parse(VarPatternSyntax syntax)
         => VarPat(Parse(syntax.Designation));
+    public ListPattern Parse(ListPatternSyntax syntax)
+        => ListPat(syntax.Patterns.Select(Parse).ToArray(), syntax.Designation is null ? null : Parse(syntax.Designation));
+
     public IVariableDesignation Parse(VariableDesignationSyntax syntax) => syntax switch
     {
         DiscardDesignationSyntax designation => Parse(designation),
@@ -783,7 +787,7 @@ public class CodeModelParser
     public CompilationUnit Parse(CompilationUnitSyntax syntax)
         => CompilationUnit(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
     public UsingDirective Parse(UsingDirectiveSyntax syntax)
-            => UsingDir(syntax.Name.ToString(),
+            => UsingDir(syntax.Name?.ToString() ?? throw new NotImplementedException(),
                 isGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword),
                 isStatic: syntax.GlobalKeyword.IsKind(SyntaxKind.GlobalKeyword),
                 alias: syntax.Alias?.ToString());

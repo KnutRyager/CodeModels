@@ -13,7 +13,7 @@
          It needs the additional 'OutputItemType' and 'ReferenceOutputAssembly' attributes. -->
 		<ProjectReference Include="..\Common\Common.csproj" />
 		<ProjectReference Include="..\SourceGeneration\SourceGeneration.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 
 	</ItemGroup>
 
