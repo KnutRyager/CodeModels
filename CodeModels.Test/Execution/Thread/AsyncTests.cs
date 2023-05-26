@@ -24,7 +24,7 @@ using System.Threading.Tasks;
 await Task.FromResult(""Success"");
 ".Eval().Should().Be("Success");
 
-    [Fact] public void AwaitHttpClient() => @"
+    [Fact(Skip = "Slow/uses web")] public void AwaitHttpClient() => @"
 using System.Net.Http;
 using System.Text.RegularExpressions;
 using System;
@@ -43,7 +43,7 @@ string title = titleMatch.Groups[""Title""].Value.Trim();
 Console.Write(title);
 }".Eval().Should().Be("Example Domain");
 
-    [Fact] public void AwaitHttpClient2() => @"
+    [Fact(Skip = "Slow/uses web")] public void AwaitHttpClient2() => @"
 using System;
 using System.Net.Http;
 using System.Linq; 
