@@ -8,7 +8,7 @@ public class ReflectionSerializationTests
 {
     private const string MsCorLib = "";
     private const string CommonLib = "Common.Test, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null";
-    private const string SystemLib = "System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
+    private const string SystemLib = "System.Private.CoreLib, Version=7.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e";
     private const string SystemLibSpaced = "System.Private.CoreLib, Version = 6.0.0.0, Culture = neutral, PublicKeyToken = 7cec85d7bea7798e";
     private const string TestPath = "Common.Tests.Reflection.ReflectionSerializationTests";
     public class A

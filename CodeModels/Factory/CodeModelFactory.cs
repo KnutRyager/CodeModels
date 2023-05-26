@@ -255,6 +255,7 @@ public static class CodeModelFactory
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, Attributes);
 
     public static SimpleBaseType SimpleBase(IType type) => SimpleBaseType.Create(type);
+    public static SimpleBaseType SimpleBase<T>() => SimpleBase(Type<T>());
     public static PrimaryConstructorBaseType PrimaryConstructorBase(IType type, IEnumerable<Argument>? arguments = default)
         => PrimaryConstructorBaseType.Create(type, arguments);
 
