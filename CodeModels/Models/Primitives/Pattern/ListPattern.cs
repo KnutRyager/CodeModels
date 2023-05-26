@@ -14,7 +14,11 @@ public record ListPattern(List<IPattern> Patterns, IVariableDesignation? Designa
     public static ListPattern Create(IEnumerable<IPattern>? patterns = null, IVariableDesignation? designation = null)
         => new(List(patterns), designation);
 
-    public override IEnumerable<ICodeModel> Children() => Array.Empty<ICodeModel>();
+    public override IEnumerable<ICodeModel> Children()
+    {
+        foreach (var pattern in Patterns) yield return pattern;
+        if (Designation is not null) yield return Designation;
+    }
 
     public override ListPatternSyntax Syntax()
         => SyntaxFactory.ListPattern(SyntaxFactory.SeparatedList(Patterns.Select(x => x.Syntax())), Designation?.Syntax());

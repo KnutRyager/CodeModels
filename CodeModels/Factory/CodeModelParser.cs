@@ -347,6 +347,7 @@ public class CodeModelParser
         UnaryPatternSyntax pattern => Parse(pattern),
         VarPatternSyntax pattern => Parse(pattern),
         ListPatternSyntax pattern => Parse(pattern),
+        SlicePatternSyntax pattern => Parse(pattern),
         _ => throw new NotImplementedException($"Pattern not implemented: {syntax}")
     };
 
@@ -376,6 +377,8 @@ public class CodeModelParser
         => VarPat(Parse(syntax.Designation));
     public ListPattern Parse(ListPatternSyntax syntax)
         => ListPat(syntax.Patterns.Select(Parse).ToArray(), syntax.Designation is null ? null : Parse(syntax.Designation));
+    public SlicePattern Parse(SlicePatternSyntax syntax)
+        => SlicePat(syntax.Pattern is null ? null : Parse(syntax.Pattern));
 
     public IVariableDesignation Parse(VariableDesignationSyntax syntax) => syntax switch
     {

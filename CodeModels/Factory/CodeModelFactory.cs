@@ -518,6 +518,7 @@ public static class CodeModelFactory
     public static VarPattern VarPat(IVariableDesignation designation) => VarPattern.Create(designation);
     public static ListPattern ListPat(IEnumerable<IPattern>? patterns = null, IVariableDesignation? designation = null)
         => ListPattern.Create(patterns, designation);
+    public static SlicePattern SlicePat(IPattern? pattern) => SlicePattern.Create(pattern);
     public static CasePatternSwitchLabel CasePatSwitchLabel(IPattern pattern, WhenClause? whenClause = default)
         => CasePatternSwitchLabel.Create(pattern, whenClause);
 }
