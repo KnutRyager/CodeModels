@@ -1,4 +1,5 @@
 ﻿using CodeModels.Execution.Context;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -46,6 +47,7 @@ public abstract record AbstractStatement<T>(string? Name = null, Modifier Modifi
     {
         throw new System.NotImplementedException();
     }
+    public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
 
     public Parameter ToParameter()
     {

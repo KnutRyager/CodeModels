@@ -2,7 +2,7 @@
 
 namespace CodeModels.Models;
 
-public interface IToExpresisonConvertible
+public interface IToExpresisonConvertible : IToArgumentConvertible
 {
     IExpression ToExpression();
 }

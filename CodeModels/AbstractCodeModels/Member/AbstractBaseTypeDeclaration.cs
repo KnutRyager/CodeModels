@@ -148,6 +148,8 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
         throw new NotImplementedException();
     }
 
+    public Argument ToArgument() => Arg(ToExpression());
+
     public Parameter ToParameter()
     {
         throw new NotImplementedException();

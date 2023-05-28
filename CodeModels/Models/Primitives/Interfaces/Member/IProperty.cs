@@ -3,7 +3,7 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 
 namespace CodeModels.Models;
 
-public interface IProperty : IFieldOrProperty, IScopeHolder
+public interface IProperty : IFieldOrProperty, IScopeHolder, IToParameterConvertible, IToArgumentConvertible
 {
     IType Type { get; }
     IPropertyExpression Access(IExpression? instance = null);

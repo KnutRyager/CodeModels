@@ -2,6 +2,7 @@
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
@@ -18,8 +19,8 @@ public interface IMethodBase<T> : ICodeModel<T>, IMethodBase where T : BaseMetho
     new CodeModel<T> Render(Namespace @namespace);
 }
 
-public abstract record MethodBase<T, U>(IType Type, string Name, List<AttributeList> Attributes, Modifier Modifier)
-    : MemberModel<T>(Type, Attributes, Modifier, Name), IMethodBase<T>, IInvokable<U>
+public abstract record MethodBase<T, U>(IType Type, string Name, ParameterList Parameters, List<AttributeList> Attributes, Modifier Modifier)
+    : MemberModel<T>(Type, Attributes, Modifier, Name), IMethodBase<T>, IInvokable<U>, IToParameterListConvertible
     where T : BaseMethodDeclarationSyntax
     where U : IInvocation
 {

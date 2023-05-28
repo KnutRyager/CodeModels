@@ -12,6 +12,7 @@ using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 
@@ -78,20 +79,21 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
     public ExpressionSyntax? DefaultValueSyntax() => ExpressionSyntax;
 
     public CodeModel<T> Render(Namespace @namespace)
-        => throw new System.NotImplementedException();
+        => throw new NotImplementedException();
 
     ICodeModel IMember.Render(Namespace @namespace)
         => Render(@namespace);
 
     public IType ToType()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
 
     public IExpression ToExpression()
     {
-        throw new System.NotImplementedException();
+        throw new NotImplementedException();
     }
+    public Argument ToArgument() => Arg(ToExpression());
 
     public IExpression ValueOrDefault() => (Value is null
             || (LiteralExpression)Value == CodeModelFactory.VoidValue
@@ -108,7 +110,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
 
     public ExpressionSyntax? ExpressionSyntax => Value switch
     {
-        _ when Value is null || ReferenceEquals(Value, CodeModelFactory.VoidValue) => default,
+        _ when Value is null || ReferenceEquals(Value, VoidValue) => default,
         _ => Value.Syntax()
     };
 

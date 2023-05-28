@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
@@ -11,6 +12,7 @@ public record ConstructorFromReflection(ConstructorInfo Constructor)
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(
         TypeFromReflection.Create(Constructor),
         Constructor.Name,
+        CodeModelsFromReflection.ParamList(Constructor),
         new List<AttributeList>(),   // TODO
         Modifier.Public), IConstructor
 {

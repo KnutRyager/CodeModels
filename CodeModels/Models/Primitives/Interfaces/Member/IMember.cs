@@ -44,6 +44,7 @@ public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes
 
     public virtual IType ToType() => Type;
     public virtual IExpression ToExpression() => CodeModelFactory.Identifier(Name);
+    public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
     public virtual Parameter ToParameter() => ToIdentifierExpression().ToParameter();
     public virtual ParameterList ToParameterList() => ToParameter().ToParameterList();
     public virtual ParameterSyntax ToParameterSyntax() => SyntaxFactory.Parameter(ToIdentifier());

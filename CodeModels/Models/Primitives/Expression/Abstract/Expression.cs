@@ -12,7 +12,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Expression.Abstract;
 
 public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string? Name = null)
-    : NamedCodeModel<T>(Name ?? Type.Name), IExpression<T> where T : ExpressionSyntax
+    : NamedCodeModel<T>(Name ?? Type.Name), IExpression<T>
+    where T : ExpressionSyntax
 {
     public Expression(IType type) : this(type, null) { }
 
@@ -30,7 +31,6 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
 
     public Argument ToArgument() => CodeModelFactory.Arg(this);
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
-
 
     public virtual object? LiteralValue() => null;
     public bool IsLiteralExpression => LiteralSyntax() is not null;

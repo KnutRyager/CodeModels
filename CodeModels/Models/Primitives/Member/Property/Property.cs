@@ -65,7 +65,7 @@ public record Property(string Name,
                 ? GetterExpressionBody() is IExpression getter
                     ? ArrowExpressionClause(getter.Syntax()) : null : null,
             initializer: Initializer(),
-            semicolonToken: IsGetOnly() && GetterExpressionBody() is not null ? Token(SyntaxKind.SemicolonToken) :default);
+            semicolonToken: IsGetOnly() && GetterExpressionBody() is not null ? Token(SyntaxKind.SemicolonToken) : default);
 
     public bool IsGetOnly() => Accessors.Count is 1 && GetAccessor is not null;
 
@@ -168,5 +168,7 @@ public record Property(string Name,
 
     public PropertyExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
     IPropertyExpression IProperty.Access(IExpression? instance) => Access(instance);
+
+    public Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
 }
 

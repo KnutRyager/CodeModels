@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Attribute;
@@ -27,9 +26,9 @@ namespace CodeModels.Models.Primitives.Member
     IType ReturnType,
     Block? Body,
     IExpression? ExpressionBody = null,
-    Modifier Modifier = Modifier.Public, 
+    Modifier Modifier = Modifier.Public,
     List<AttributeList>? AttributesIn = null)
-        : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, AttributesIn ?? new List<AttributeList>(), Modifier),
+        : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, Parameters, AttributesIn ?? new List<AttributeList>(), Modifier),
         IMethod, IInvokable<InvocationExpression>
     {
         public static Method Create(string name,

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Reflection;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
@@ -19,8 +18,8 @@ namespace CodeModels.Models.Primitives.Member;
 
 public record MethodFromReflection(MethodInfo Method)
     : Method(
-        Method.Name, 
-        new NamedValueCollection(Method.GetParameters()).ToParameterList(),
+        Method.Name,
+        CodeModelsFromReflection.ParamList(Method),
         Method.GetGenericArguments().Select(x => TypeFromReflection.Create(x)).ToList<IType>(),
         new List<TypeParameterConstraintClause>(),
         TypeFromReflection.Create(Method.ReturnType),
@@ -55,6 +54,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     {
         throw new NotImplementedException();
     }
+    public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
 
     public ParameterSyntax ToParameterSyntax()
     {

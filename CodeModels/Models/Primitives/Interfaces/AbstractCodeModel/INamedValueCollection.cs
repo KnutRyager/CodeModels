@@ -5,6 +5,8 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 namespace CodeModels.Models;
 
 public interface INamedValueCollection<T> :
+    IToParameterListConvertible,
+    IToArgumentListConvertible,
     IToClassConvertible,
     IToRecordConvertible,
     IToTupleConvertible

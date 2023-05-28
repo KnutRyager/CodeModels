@@ -3,7 +3,7 @@ using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.Models;
 
-public interface INamedValue : INamed
+public interface INamedValue : INamed, IToArgumentConvertible
 {
     Modifier Modifier { get; }
     IType Type { get; }

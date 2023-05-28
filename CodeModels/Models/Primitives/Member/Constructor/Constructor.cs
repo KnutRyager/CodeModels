@@ -1,25 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using Common.Extensions;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static CodeModels.Generation.SyntaxFactoryCustom;
-using static CodeModels.Factory.CodeModelFactory;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using System.Linq;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
-using CodeModels.AbstractCodeModels.Collection;
-using CodeModels.Models.Primitives.Attribute;
-using System.Linq;
+using Common.Extensions;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Generation.SyntaxFactoryCustom;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Member;
 
 public record Constructor(IType ReturnType, ParameterList Parameters, Block? Body,
     IExpression? ExpressionBody,
     Modifier Modifier, List<AttributeList>? Attributes, ConstructorInitializer? Initializer)
-    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Attributes ?? new List<AttributeList>(), Modifier),
+    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Parameters, Attributes ?? new List<AttributeList>(), Modifier),
     IConstructor, IInvokable<ConstructorInvocationExpression>
 {
     public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)

@@ -48,4 +48,13 @@ public static class CodeModelsFromReflection
     public static InvocationFromReflection Invocation<TIn, TOut>(System.Linq.Expressions.Expression<Func<TIn, TOut>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
         => Invocation(ReflectionUtil.GetMethodInfo(expression), caller, arguments);
 
+    public static Parameter Param(ParameterInfo parameter)
+        => CodeModelFactory.Param(parameter.Name, Type(parameter.ParameterType), CodeModelFactory.Literal(parameter.DefaultValue));
+    public static ParameterList ParamList(IEnumerable<ParameterInfo> parameters)
+        => CodeModelFactory.ParamList(parameters.Select(Param));
+    public static ParameterList ParamList(MethodInfo method)
+        => ParamList(method.GetParameters());
+    public static ParameterList ParamList(ConstructorInfo constructor)
+        => ParamList(constructor.GetParameters());
+
 }
