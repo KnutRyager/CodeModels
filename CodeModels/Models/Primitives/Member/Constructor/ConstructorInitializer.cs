@@ -16,7 +16,7 @@ public record ConstructorInitializer(ArgumentList Arguments, bool IsBase)
 
     public override ConstructorInitializerSyntax Syntax()
         => SyntaxFactory.ConstructorInitializer(IsBase
-            ? SyntaxKind.BaseKeyword : SyntaxKind.ThisKeyword,
+            ? SyntaxKind.BaseConstructorInitializer : SyntaxKind.ThisConstructorInitializer,
             Arguments.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
