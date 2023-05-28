@@ -25,7 +25,7 @@ public record LocalFunctionExpression(LocalFunctionStatement Function)
 
     public override object? EvaluatePlain(ICodeModelExecutionContext context)
     {
-        if (Function.Parameters.Properties.Count > 0)
+        if (Function.Parameters.Parameters.Count > 0)
         {
             throw new NotImplementedException();
         }

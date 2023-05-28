@@ -100,8 +100,17 @@ public static class CodeModelFactory
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
     public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
 
+
+    public static Parameter Param(string name, IType type, IExpression? value = default) => Parameter.Create(name, type, value);
+    public static ParameterList ParamList(IEnumerable<Parameter>? parameters = default)
+        => ParameterList.Create(parameters);
+
     public static Argument Arg(string? name, IExpression expression) => Argument.Create(name, expression);
     public static Argument Arg(IExpression expression) => Arg(null, expression);
+    public static ArgumentList ArgList(IEnumerable<Argument>? arguments = default)
+        => ArgumentList.Create(arguments);
+    public static ArgumentList ArgList(IEnumerable<IToArgumentConvertible> arguments)
+        => ArgumentList.Create(arguments.Select(x => x.ToArgument()));
 
     public static AttributeList Attributes(AttributeTargetSpecifier? target = null, IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
         => AttributeList.Create(target, attributes);
@@ -154,28 +163,28 @@ public static class CodeModelFactory
         => IdentifierExpressionGeneric<T>.Create(name, model);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method MethodFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
+    public static Method MethodFull(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
         => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, expressionBody, modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, Block body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
         => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, body, null, modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
         => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, null, expressionBody, modifier);
-    public static Method Method(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => MethodFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: body, modifier: modifier);
+        => MethodFull(name, ParamList(), returnType, body: body, modifier: modifier);
     public static Method Method(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: Block(statements), modifier: modifier);
+        => MethodFull(name, ParamList(), returnType, body: Block(statements), modifier: modifier);
     public static Method Method(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => MethodFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
+        => MethodFull(name, ParamList(), returnType, expressionBody: expressionBody, modifier: modifier);
 
-    public static LocalFunctionStatement LocalFunctionFull(string name, NamedValueCollection parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
+    public static LocalFunctionStatement LocalFunctionFull(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
         => LocalFunctionStatement.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
         => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
+    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
         => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, null, expressionBody, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, NamedValueCollection parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
+    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
         => LocalFunctionFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
     public static LocalFunctionStatement LocalFunction(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
         => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: body, modifier: modifier);
@@ -206,53 +215,56 @@ public static class CodeModelFactory
         _ => throw new NotImplementedException($"Unhandled base: {@base}")
     };
 
-    public static Constructor ConstructorFull(IBaseTypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(IType type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(IBaseTypeDeclaration type, NamedValueCollection parameters, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(type, parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(IBaseTypeDeclaration type, NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(type, parameters, Block(statements), null, modifier);
-    public static Constructor Constructor(string type, NamedValueCollection parameters, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), parameters, body, null, Modifier, Attributes);
-    public static Constructor Constructor(string type, NamedValueCollection parameters, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), parameters, null, expressionBody, Modifier, Attributes);
+    public static Constructor ConstructorFull(IBaseTypeDeclaration type, IToParameterListConvertible parameters, Block? body = null, IExpression? expressionBody = null,
+    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IType type, IToParameterListConvertible parameters, Block? body = null, IExpression? expressionBody = null,
+    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IBaseTypeDeclaration type, IToParameterListConvertible parameters, IExpression expressionBody,
+    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(type, parameters, null, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IBaseTypeDeclaration type, IToParameterListConvertible parameters, IEnumerable<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => ConstructorFull(type, parameters, Block(statements), null, modifier, initializer: initializer);
+    public static Constructor Constructor(string type, IToParameterListConvertible parameters, Block? body = null,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(Class(type), parameters, body, null, Modifier, attributes, initializer);
+    public static Constructor Constructor(string type, IToParameterListConvertible parameters, IExpression? expressionBody = null,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(Class(type), parameters, null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), body, expressionBody, Modifier, Attributes);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), body, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(IBaseTypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IBaseTypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(string type, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), body, null, Modifier, Attributes);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), body, null, Modifier, attributes, initializer);
     public static Constructor Constructor(string type, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(NamedValueCollection parameters, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, parameters, null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(NamedValueCollection parameters, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(VoidClass, parameters, Block(statements), null, modifier);
-    public static Constructor Constructor(NamedValueCollection parameters, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, parameters, body, null, Modifier, Attributes);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IToParameterListConvertible parameters, IExpression expressionBody,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, parameters, null, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(IToParameterListConvertible parameters, List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, parameters, Block(statements), null, modifier, initializer: initializer);
+    public static Constructor Constructor(IToParameterListConvertible parameters, Block? body = null,
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, parameters, body, null, Modifier, attributes, initializer);
     public static Constructor Constructor(IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, Attributes);
-    public static Constructor Constructor(List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
+    public static Constructor Constructor(List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
-        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, Attributes);
+    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, attributes, initializer: initializer);
+
+    public static ConstructorInitializer ConstructorInitializer(IToArgumentListConvertible? arguments = null, bool isBase = false)
+        => Models.Primitives.Member.ConstructorInitializer.Create(arguments, isBase);
 
     public static SimpleBaseType SimpleBase(IType type) => SimpleBaseType.Create(type);
     public static SimpleBaseType SimpleBase<T>() => SimpleBase(Type<T>());
@@ -486,7 +498,7 @@ public static class CodeModelFactory
     public static SizeOfExpression SizeOf(IType type) => SizeOfExpression.Create(type);
 
     public static AnonymousMethodExpression AnonymousMethod(Modifier modifier, bool isAsync,
-    bool isDelegate, NamedValueCollection parameters,
+    bool isDelegate, IToParameterListConvertible parameters,
     IType type, Block? body = null, IExpression? expressionBody = null)
         => AnonymousMethodExpression.Create(modifier, isAsync, isDelegate, parameters, type, body, expressionBody);
 
@@ -500,7 +512,7 @@ public static class CodeModelFactory
 
     public static ParenthesizedLambdaExpression ParenthesizedLambda(Modifier modifier,
     bool isAsync,
-    NamedValueCollection parameters,
+    IToParameterListConvertible parameters,
     IType type,
     Block? body = null,
     IExpression? expressionBody = null)

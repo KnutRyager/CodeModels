@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Operations;
@@ -12,22 +13,22 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Instantiation;
 
-public record ImplicitObjectCreationExpression(IType Type, List<IExpression> Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null)
+public record ImplicitObjectCreationExpression(IType Type, ArgumentList? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null)
     : Expression<ImplicitObjectCreationExpressionSyntax>(Type)
 {
     public static ImplicitObjectCreationExpression Create(IType type,
-        IEnumerable<IExpression>? arguments = null,
+        IEnumerable<IToArgumentConvertible>? arguments = null,
         InitializerExpression? initializer = null,
         Microsoft.CodeAnalysis.IOperation? operation = null)
-        => new(type, List(arguments), initializer, operation);
+        => new(type, arguments is null ? null : ArgList(arguments), initializer, operation);
 
     public override ImplicitObjectCreationExpressionSyntax Syntax()
-        => ImplicitObjectCreationExpression(ArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))), Initializer?.Syntax());
+        => ImplicitObjectCreationExpression(Arguments?.Syntax() ?? ArgumentList(), Initializer?.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        foreach (var argument in Arguments) yield return argument;
+        if (Arguments is not null) yield return Arguments;
     }
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
@@ -38,8 +39,7 @@ public record ImplicitObjectCreationExpression(IType Type, List<IExpression> Arg
         {
             var member = context.ProgramContext.Get<IClassDeclaration>(objectCreationOperation.Type ?? throw new NotImplementedException());
             var constructor = member.GetConstructor();
-            var arguments = Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.ToArray();
+            var arguments = Arguments?.Arguments.Select(x => x.Expression).ToArray() ?? Array.Empty<IExpression>();
             var invocation = ConstructorInvocation(constructor, arguments);
             value = invocation.Evaluate(context);
         }
@@ -47,7 +47,7 @@ public record ImplicitObjectCreationExpression(IType Type, List<IExpression> Arg
         {
             var constructor = GetConstructor();
             value = Value(constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.Select(x => x.EvaluatePlain(context)).ToArray()));
+               : Arguments?.Arguments.Select(x => x.Expression.EvaluatePlain(context)).ToArray()));
             valuePlain = value.LiteralValue();
         }
         if (Initializer is not null)
@@ -88,7 +88,7 @@ public record ImplicitObjectCreationExpression(IType Type, List<IExpression> Arg
         else
         {
             var type = Type.ReflectedType;
-            var parameters = Arguments?.Select(x => x.Get_Type().ReflectedType).ToArray();
+            var parameters = Arguments?.Arguments.Select(x => x.Expression.Get_Type().ReflectedType).ToArray();
             var constructor = type?.GetConstructor(parameters);
             if (constructor is not null)
             {

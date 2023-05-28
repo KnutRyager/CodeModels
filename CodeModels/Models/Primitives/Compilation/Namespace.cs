@@ -4,6 +4,7 @@ using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.DataStructures;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -56,7 +57,8 @@ public record Namespace(
     public string GetMostSpecificType() => throw new NotImplementedException();
     public IType GetGenericType(int index) => throw new NotImplementedException();
     TypeSyntax ICodeModel<TypeSyntax>.Syntax() => throw new NotImplementedException();
-    public ArgumentSyntax ToArgument() => throw new NotImplementedException();
+    public Argument ToArgument() => throw new NotImplementedException();
+    public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;
     public object? EvaluatePlain(ICodeModelExecutionContext context) => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
@@ -98,7 +100,7 @@ public record Namespace(
         throw new NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }
@@ -114,6 +116,11 @@ public record Namespace(
     }
 
     public IType ToOptionalType()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Parameter ToParameter()
     {
         throw new NotImplementedException();
     }

@@ -19,7 +19,8 @@ public record SimpleLambdaExpression(Modifier Modifier,
     Block? Body,
     IExpression? ExpressionBody)
     : LambdaExpression<SimpleLambdaExpressionSyntax>
-    (Modifier, IsAsync, AbstractCodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }), Type, Body, ExpressionBody), ILambdaExpression
+    (Modifier, IsAsync, AbstractCodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }).ToParameterList(),
+        Type, Body, ExpressionBody), ILambdaExpression
 {
     public static SimpleLambdaExpression Create(Modifier modifier,
     bool isAsync,
@@ -37,7 +38,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
     public override SimpleLambdaExpressionSyntax Syntax()
         => SyntaxFactory.SimpleLambdaExpression(
                 IsAsync ? TokenList(Token(SyntaxKind.AsyncKeyword)) : default,
-                Parameter.ToParameter(),
+                Parameter.ToParameter().Syntax(),
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());
 

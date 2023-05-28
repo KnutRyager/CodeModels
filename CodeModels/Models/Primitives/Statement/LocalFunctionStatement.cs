@@ -15,7 +15,7 @@ using CodeModels.Generation;
 namespace CodeModels.Models;
 
 public record LocalFunctionStatement(string Identifier,
-    NamedValueCollection Parameters,
+    ParameterList Parameters,
     List<IType> TypeParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     IType ReturnType,
@@ -25,14 +25,14 @@ public record LocalFunctionStatement(string Identifier,
     : AbstractStatement<LocalFunctionStatementSyntax>(Identifier, Modifier)
 {
     public static LocalFunctionStatement Create(string name,
-            NamedValueCollection? parameters = null,
+            IToParameterListConvertible? parameters = null,
             IType? returnType = null,
             IEnumerable<IType>? typeParameters = null,
             IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
             Block? body = null,
             IExpression? expressionBody = null,
             Modifier? modifier = null)
-            => new(name, parameters ?? AbstractCodeModelFactory.EmptyNamedValues(""), List(typeParameters), List(constraintClauses), returnType ?? TypeShorthands.VoidType, body, expressionBody, modifier ?? Modifier.Public);
+            => new(name, parameters?.ToParameterList() ?? ParamList(), List(typeParameters), List(constraintClauses), returnType ?? TypeShorthands.VoidType, body, expressionBody, modifier ?? Modifier.Public);
 
     public override LocalFunctionStatementSyntax Syntax()
         => SyntaxFactoryCustom.LocalFunctionStatementCustom(
@@ -41,7 +41,7 @@ public record LocalFunctionStatement(string Identifier,
             returnType: ReturnType.Syntax(),
             identifier: IdentifierSyntax(),
             typeParameterList: TypeParameters.Count is 0 ? null : TypeParameterList(SeparatedList(TypeParameters.Select(x => x.ToTypeParameter()))),
-            parameterList: Parameters.ToParameters(),
+            parameterList: Parameters.Syntax(),
             constraintClauses: SyntaxFactory.List(ConstraintClauses.Select(x => x.Syntax())),
             body: Body?.Syntax(),
             expressionBody: ExpressionBody is null ? null! : ArrowExpressionClause(ExpressionBody.Syntax()));
@@ -50,7 +50,7 @@ public record LocalFunctionStatement(string Identifier,
     {
         yield return ReturnType;
         foreach (var type in TypeParameters) yield return type;
-        foreach (var parameter in Parameters.Properties) yield return parameter;
+        yield return Parameters;
         foreach (var constraintClause in ConstraintClauses) yield return constraintClause;
         if (Body is not null) yield return Body;
         if (ExpressionBody is not null) yield return ExpressionBody;
@@ -65,7 +65,7 @@ public record LocalFunctionStatement(string Identifier,
 
     public virtual object? EvaluatePlain(ICodeModelExecutionContext context)
     {
-        if (Parameters.Properties.Count > 0)
+        if (Parameters.Parameters.Count > 0)
         {
             throw new NotImplementedException();
         }

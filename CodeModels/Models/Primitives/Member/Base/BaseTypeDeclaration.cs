@@ -236,7 +236,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
             modifiers: modifiers?.Syntax() ?? Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
             identifier: name is not null ? Identifier(name) : ToIdentifier(),
             typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
-            parameterList: ParameterList(SeparatedList(GetProperties().Select(x => x.ToParameter()))),
+            parameterList: ParameterList(SeparatedList(GetProperties().Select(x => x.ToParameterSyntax()))),
             baseList: BaseTypeList.Any() ? BaseList(SeparatedList(BaseTypeList.Select(x => x.Syntax()))) : null,
             constraintClauses: SyntaxFactory.List(ConstraintClauses.Select(x => x.Syntax())),
             members: MethodsSyntax());
@@ -320,7 +320,12 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     public IExpression ToExpression() => ToIdentifierExpression();
 
-    public ParameterSyntax ToParameter()
+    public Parameter ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }

@@ -20,7 +20,7 @@ namespace CodeModels.Models.Primitives.Member;
 public record MethodFromReflection(MethodInfo Method)
     : Method(
         Method.Name, 
-        new NamedValueCollection(Method.GetParameters()),
+        new NamedValueCollection(Method.GetParameters()).ToParameterList(),
         Method.GetGenericArguments().Select(x => TypeFromReflection.Create(x)).ToList<IType>(),
         new List<TypeParameterConstraintClause>(),
         TypeFromReflection.Create(Method.ReturnType),
@@ -56,7 +56,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
         throw new NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }
@@ -90,6 +90,11 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     }
 
     public SyntaxToken IdentifierSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public Parameter ToParameter()
     {
         throw new NotImplementedException();
     }
@@ -215,7 +220,8 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public override IdentifierExpression ToIdentifierExpression() => CodeModelFactory.Identifier(Lookup.TypeName);
     public string GetMostSpecificType() => Lookup.GetMostSpecificType();
     public Type? GetReflectedType() => Lookup.GetReflectedType();
-    public ArgumentSyntax ToArgument() => Lookup.ToArgument();
+    public Argument ToArgument() => Lookup.ToArgument();
+    public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => Lookup.ToEnumValue(value);
     public IType ToMultiType() => Lookup.ToMultiType();
     public TypeParameterSyntax ToTypeParameter() => Lookup.ToTypeParameter();

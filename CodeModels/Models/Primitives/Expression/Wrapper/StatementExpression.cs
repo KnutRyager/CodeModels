@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -28,7 +29,8 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     public virtual IType Get_Type() => Statement.Get_Type();
     public ExpressionSyntax Syntax() => throw new NotImplementedException();
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => throw new NotImplementedException();
-    public ArgumentSyntax ToArgument() => throw new NotImplementedException();
+    public Argument ToArgument() => throw new NotImplementedException();
+    public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     CSharpSyntaxNode ICodeModel.Syntax() => Statement.Syntax();
 

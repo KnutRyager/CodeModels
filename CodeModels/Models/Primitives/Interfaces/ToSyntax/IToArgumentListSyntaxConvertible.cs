@@ -2,7 +2,7 @@
 
 namespace CodeModels.Models;
 
-public interface IToArgumentListConvertible
+public interface IToArgumentListSyntaxConvertible
 {
     ArgumentListSyntax ToArguments();
 }

@@ -4,6 +4,7 @@ using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Utils;
 using Common.DataStructures;
 using Common.Reflection;
@@ -11,6 +12,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static CodeModels.Factory.CodeModelFactory;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeModels.Models;
 
@@ -32,7 +35,7 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     public override TypeSyntax Syntax() => TypeSyntaxNullableWrapped(TypeSyntaxMultiWrapped(TypeSyntaxUnwrapped()));
     public TypeSyntax TypeSyntaxNonMultiWrapped() => TypeSyntaxNullableWrapped(TypeSyntaxUnwrapped());
     public TypeSyntax TypeSyntaxNullableWrapped(TypeSyntax type) => Required ? type : NullableType(type);
-    public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => IsMulti ? ArrayType(type, rankSpecifiers: List(new[] { ArrayRankSpecifierCustom() })) : type;
+    public TypeSyntax TypeSyntaxMultiWrapped(TypeSyntax type) => IsMulti ? ArrayType(type, rankSpecifiers: SyntaxFactory.List(new[] { ArrayRankSpecifierCustom() })) : type;
 
     public TypeSyntax TypeSyntaxUnwrapped() => Name switch
     {
@@ -64,7 +67,9 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
 
     public SimpleNameSyntax NameSyntax() => IdentifierName(Name);
 
-    public ArgumentSyntax ToArgument() => throw new NotImplementedException();
+    public Argument ToArgument() => throw new NotImplementedException();
+
+    public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;
     public object? EvaluatePlain(ICodeModelExecutionContext context) => null;
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
@@ -108,7 +113,7 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
         throw new NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }
@@ -128,4 +133,9 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
         => new(Name, Model: this, Symbol: Symbol);
 
     private bool PrintAsGeneric() => Required && GenericTypes.Count > 0 && !TypeName.StartsWith("Nullable") && (!ReflectedType?.Name.StartsWith("Nullable") ?? true);
+
+    public Parameter ToParameter()
+    {
+        throw new NotImplementedException();
+    }
 }

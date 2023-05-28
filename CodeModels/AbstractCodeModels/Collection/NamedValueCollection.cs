@@ -20,7 +20,7 @@ namespace CodeModels.AbstractCodeModels.Collection;
 public record NamedValueCollection(List<AbstractProperty> Properties, string? Name = null, IType? SpecifiedType = null)
     : Expression<ArrayCreationExpressionSyntax>(SpecifiedType ?? Type(TypeUtil.FindCommonType(Properties.Select(x => x.Value))).ToMultiType(), Name: Name),
     INamedValueCollection<AbstractProperty>,
-    IMember
+    IMember, IToParameterListConvertible, IToArgumentListConvertible
 {
     public NamedValueCollection(AbstractProperty property, string? name = null, IType? specifiedType = null) : this(List(property), name, specifiedType) { }
     public NamedValueCollection(IEnumerable<AbstractProperty>? properties = null, string? name = null, IType? specifiedType = null) : this(List(properties), name, specifiedType) { }
@@ -52,8 +52,8 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
             members: default);
 
     public TupleTypeSyntax ToTupleType() => TupleType(SeparatedList(Properties.Select(x => x.ToTupleElement())));
-    public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameter()));
-    public ArgumentListSyntax ToArguments() => ArgumentListCustom(Properties.Select(x => x.Value.ToArgument()));
+    public ParameterListSyntax ToParameters() => ParameterListCustom(Properties.Select(x => x.ToParameterSyntax()));
+    public ArgumentListSyntax ToArguments() => ArgumentListCustom(Properties.Select(x => x.Value.ToArgument().Syntax()));
     public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(Properties.Select(x => x.Value.Syntax())));
     public List<AbstractProperty> Ordered(Modifier modifier = Modifier.None) => Properties.OrderBy(x => x, new AbstractPropertyComparer(modifier)).ToList();
     public SyntaxList<MemberDeclarationSyntax> ToMembers(Modifier modifier = Modifier.None) => SyntaxFactory.List(Ordered(modifier).Select(x => x.SyntaxWithModifiers(modifier)));
@@ -111,10 +111,18 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
         throw new NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public Parameter ToParameter()
     {
         throw new NotImplementedException();
     }
+
+    public ParameterSyntax ToParameterSyntax()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterList ToParameterList() => ParamList(Properties.Select(x => x.ToParameter()));
+    public ArgumentList ToArgumentList() => ArgList(Properties.Select(x => x.ToArgument()));
 
     public TupleElementSyntax ToTupleElement()
     {

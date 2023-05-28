@@ -12,6 +12,7 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Instantiation;
+using CodeModels.Models.Primitives.Member;
 
 namespace CodeModels.AbstractCodeModels.Collection;
 
@@ -30,7 +31,8 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
             members: SeparatedList(Values.Select((x, index) => x.ToEnumValue(isFlags ? hasNoneValue && index == 0 ? 0 : (int)Math.Pow(2, index - (hasNoneValue ? 1 : 0)) : null)))
         );
 
-    public ArgumentListSyntax ToArguments() => ArgumentListCustom(Values.Select(x => x.ToArgument()));
+    public ArgumentList ToArgumentList() => ArgList(Values);
+    public ArgumentListSyntax ToArguments() => ToArgumentList().Syntax();
     public TypeSyntax BaseTypeSyntax() => BaseType().Syntax();
     public virtual IType BaseType() => SpecifiedType ?? TypeUtil.FindCommonType(Values);
     public ArrayCreationExpressionSyntax ToArrayInitialization() 

@@ -4,16 +4,18 @@ using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Reference;
 
 public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Symbol = null, ICodeModel? Model = null)
     : Expression<IdentifierNameSyntax>(Type ?? (Symbol is ITypeSymbol typeSymbol ? TypeFromSymbol.Create(typeSymbol) : TypeShorthands.VoidType), Symbol, Name),
-    IAssignable
+    IAssignable, IToParameterConvertible
 {
     public static IdentifierExpression Create(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)
         => new(name, type, symbol, model);
@@ -83,4 +85,6 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
 
         throw new System.NotImplementedException();
     }
+
+    public Parameter ToParameter() => Param(Name, Type);
 }

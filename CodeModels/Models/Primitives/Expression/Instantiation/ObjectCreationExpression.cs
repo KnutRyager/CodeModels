@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,22 +14,22 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Instantiation;
 
-public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null)
+public record ObjectCreationExpression(IType Type, ArgumentList? Arguments, InitializerExpression? Initializer, Microsoft.CodeAnalysis.IOperation? Operation = null)
     : Expression<ObjectCreationExpressionSyntax>(Type, Operation?.Type)
 {
     public static ObjectCreationExpression Create(IType type,
-        IEnumerable<IExpression>? arguments = null,
+        IEnumerable<IToArgumentConvertible>? arguments = null,
         InitializerExpression? initializer = null,
         Microsoft.CodeAnalysis.IOperation? operation = null)
-        => new(type, arguments is null ? null : List(arguments), initializer, operation);
+        => new(type, arguments is null ? null : ArgList(arguments), initializer, operation);
 
     public override ObjectCreationExpressionSyntax Syntax() => ObjectCreationExpression(Type.Syntax(),
-        Arguments is null ? null : ArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))), Initializer?.Syntax());
+        Arguments?.Syntax(), Initializer?.Syntax());
 
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        if (Arguments is not null) foreach (var argument in Arguments) yield return argument;
+        if (Arguments is not null) yield return Arguments;
     }
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
@@ -39,16 +40,14 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
         {
             var member = context.ProgramContext.Get<IClassDeclaration>(objectCreationOperation.Type ?? throw new NotImplementedException());
             var constructor = member.GetConstructor();
-            var arguments = Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.ToArray();
+            var arguments = Arguments?.Arguments.Select(x => x.Expression).ToArray() ?? Array.Empty<IExpression>();
             var invocation = ConstructorInvocation(constructor, arguments);
             value = invocation.Evaluate(context);
         }
         else
         {
             var constructor = GetConstructor();
-            value = Value(constructor.Invoke(Arguments is null ? Array.Empty<IExpression>()
-               : Arguments.Select(x => x.EvaluatePlain(context)).ToArray()));
+            value = Value(constructor.Invoke(Arguments?.EvaluatePlain(context).ToArray() ?? Array.Empty<object>()));
             valuePlain = value.LiteralValue();
         }
         if (Initializer is not null)
@@ -89,7 +88,7 @@ public record ObjectCreationExpression(IType Type, List<IExpression>? Arguments,
         else
         {
             var type = Type.ReflectedType;
-            var parameters = Arguments?.Select(x => x.Get_Type().ReflectedType).ToArray();
+            var parameters = Arguments?.Arguments.Select(x => x.Expression.Get_Type().ReflectedType).ToArray();
             var constructor = type?.GetConstructor(parameters);
             if (constructor is not null)
             {

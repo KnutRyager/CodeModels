@@ -89,10 +89,12 @@ public record InstantiatedObject(IClassDeclaration Type,
         throw new NotImplementedException();
     }
 
-    public ArgumentSyntax ToArgument()
+    public Argument ToArgument()
     {
         throw new NotImplementedException();
     }
+
+    public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
 
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null)
     {

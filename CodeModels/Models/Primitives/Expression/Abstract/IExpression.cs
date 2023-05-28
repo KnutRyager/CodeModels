@@ -3,11 +3,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models.Primitives.Expression.Abstract;
 
-public interface IExpression : ICodeModel, IIdentifiable, IExpressionOrPattern
+public interface IExpression : ICodeModel, IIdentifiable, IExpressionOrPattern, IToArgumentConvertible
 {
     bool IsLiteralExpression { get; }
     LiteralExpressionSyntax? LiteralSyntax();
-    ArgumentSyntax ToArgument();
     object? LiteralValue();
     EnumMemberDeclarationSyntax ToEnumValue(int? value = null);
     //System.Type GetReflectedType();

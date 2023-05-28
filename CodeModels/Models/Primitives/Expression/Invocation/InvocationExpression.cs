@@ -42,12 +42,12 @@ public record InvocationExpression(Method Method, IExpression? Caller, List<IExp
             {
                 throw new NotImplementedException();
             }
-            for (var i = 0; i < Method.Parameters.Properties.Count; i++)
+            for (var i = 0; i < Method.Parameters.Parameters.Count; i++)
             {
                 var argument = Arguments.Count > i ? Arguments[i] : VoidValue;
-                var parameter = Method.Parameters.Properties[i];
+                var parameter = Method.Parameters.Parameters[i];
                 context.DefineVariable(parameter.Name);
-                context.SetValue(parameter.Name, ExpressionUtils.IsVoid(argument) ? parameter.Value : argument);
+                context.SetValue(parameter.Name, ExpressionUtils.IsVoid(argument) ? parameter.Expression ?? VoidValue : argument);
             }
 
             if (Method.Body is Block block)

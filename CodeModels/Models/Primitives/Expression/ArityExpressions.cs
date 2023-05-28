@@ -8,7 +8,8 @@ using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models;
 
-public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, OperationType Operation) : Expression<T>(Type) where T : ExpressionSyntax
+public record AnyArgExpression<T>(List<IExpression> Inputs, IType Type, OperationType Operation) 
+    : Expression<T>(Type) where T : ExpressionSyntax
 {
     public override IEnumerable<ICodeModel> Children()
     {

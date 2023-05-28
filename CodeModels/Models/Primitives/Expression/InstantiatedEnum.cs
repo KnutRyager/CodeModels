@@ -89,7 +89,12 @@ public record InstantiatedEnum(EnumDeclaration Type,
         throw new NotImplementedException();
     }
 
-    public ArgumentSyntax ToArgument()
+    public Argument ToArgument()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ArgumentSyntax ToArgumentSyntax()
     {
         throw new NotImplementedException();
     }

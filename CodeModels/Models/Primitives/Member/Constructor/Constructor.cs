@@ -11,38 +11,41 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Models.Primitives.Attribute;
+using System.Linq;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public record Constructor(IType ReturnType, NamedValueCollection Parameters, Block? Body, IExpression? ExpressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? Attributes = null)
+public record Constructor(IType ReturnType, ParameterList Parameters, Block? Body,
+    IExpression? ExpressionBody,
+    Modifier Modifier, List<AttributeList>? Attributes, ConstructorInitializer? Initializer)
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Attributes ?? new List<AttributeList>(), Modifier),
     IConstructor, IInvokable<ConstructorInvocationExpression>
 {
-    public static Constructor Create(IType type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
-        => new(type, parameters, body, expressionBody, modifier, attributes);
-    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, List<AttributeList>? attributes = null)
-        => new(type.Get_Type(), parameters, body, expressionBody, modifier, attributes)
+    public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type, parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, List(attributes), initializer);
+    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type.Get_Type(), parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, List(attributes), initializer)
         {
             Owner = type
         };
-    public static Constructor Create(IType returnType, NamedValueCollection parameters, Block body, Modifier modifier = Modifier.Public)
-        => Create(returnType, parameters, body, null, modifier);
-    public static Constructor Create(IType returnType, NamedValueCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
-        => Create(returnType, parameters, null, body, modifier);
-    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, Block body, Modifier modifier = Modifier.Public)
-        => Create(type, parameters, body, null, modifier);
-    public static Constructor Create(IBaseTypeDeclaration type, NamedValueCollection parameters, IExpression? body = null, Modifier modifier = Modifier.Public)
-        => Create(type, parameters, null, body, modifier);
+    public static Constructor Create(IType returnType, IToParameterListConvertible parameters, Block body, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => Create(returnType, parameters?.ToParameterList() ?? ParamList(), body, null, modifier, initializer: initializer);
+    public static Constructor Create(IType returnType, IToParameterListConvertible parameters, IExpression? body = null, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => Create(returnType, parameters?.ToParameterList() ?? ParamList(), null, body, modifier, initializer: initializer);
+    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible parameters, Block body, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => Create(type, parameters?.ToParameterList() ?? ParamList(), body, null, modifier, initializer: initializer);
+    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible parameters, IExpression? body = null, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
+        => Create(type, parameters?.ToParameterList() ?? ParamList(), null, body, modifier, initializer: initializer);
 
     public ConstructorDeclarationSyntax ToConstructorSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None)
         => ConstructorDeclarationCustom(
-        attributeLists: List<AttributeListSyntax>(),
+        attributeLists: SyntaxFactory.List(Attributes.Select(x => x.Syntax())),
         modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
         identifier: ToIdentifier(),
-        parameterList: Parameters.ToParameters(),
+        parameterList: Parameters.Syntax(),
         body: Body?.Syntax(),
-        initializer: null,
+        initializer: Initializer?.Syntax(),
         expressionBody: ExpressionBody is null ? null : ArrowExpressionClause(ExpressionBody.Syntax()));
 
     public override ConstructorDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
@@ -50,7 +53,7 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
 
     public override IEnumerable<ICodeModel> Children()
     {
-        foreach (var property in Parameters.Properties) yield return property;
+        yield return Parameters;
         if (Body is not null) yield return Body;
         if (ExpressionBody is not null) yield return ExpressionBody;
     }
@@ -89,7 +92,7 @@ public record Constructor(IType ReturnType, NamedValueCollection Parameters, Blo
         throw new NotImplementedException();
     }
 
-    public override ParameterSyntax ToParameter()
+    public override ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }

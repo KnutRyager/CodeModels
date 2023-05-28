@@ -50,8 +50,8 @@ public abstract record InterfaceDeclaration(string Name,
         return declaration;
     }
 
-    public ParameterListSyntax ToParameters() => ParameterListCustom(GetProperties().Select(x => x.ToParameter()));
-    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).ToArgument()));
+    public ParameterListSyntax ToParameters() => ParameterListCustom(GetProperties().Select(x => x.ToParameterSyntax()));
+    public ArgumentListSyntax ToArguments() => ArgumentListCustom(GetProperties().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).ToArgument().Syntax()));
     public InitializerExpressionSyntax ToInitializer() => InitializerExpression(SyntaxKind.ObjectCreationExpression, SeparatedList(GetPropertiesAndFields().Select(x => ExpressionUtils.ExpressionOrVoid(x.Value).Syntax())));
     public List<IMember> Ordered() => Members.OrderBy(x => x.Modifier, new ModifierComparer()).ToList();
     public List<Property> FilterValues() => GetProperties().Where(x => x.Value != null).ToList();

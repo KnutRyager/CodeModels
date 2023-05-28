@@ -8,6 +8,7 @@ using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -56,7 +57,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
     MemberDeclarationSyntax IMember.SyntaxWithModifiers(Modifier modifier, Modifier removeModifier)
         => SyntaxWithModifiers(modifier, removeModifier);
 
-    public ParameterSyntax ToParameter() => SyntaxFactory.Parameter(
+    public ParameterSyntax ToParameterSyntax() => SyntaxFactory.Parameter(
             attributeLists: default,
             modifiers: default,
             type: TypeSyntax(),
@@ -124,4 +125,9 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         _ when Owner is IScopeHolder scopeHolder => scopeHolder.GetScopes(context),
         _ => throw new NotImplementedException()
     };
+
+    public Parameter ToParameter()
+    {
+        throw new NotImplementedException();
+    }
 }

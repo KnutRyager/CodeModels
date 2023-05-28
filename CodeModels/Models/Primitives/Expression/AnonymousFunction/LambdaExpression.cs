@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Generator.Models.Primitives.Expression.AnonymousFunction;
@@ -9,7 +9,7 @@ namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 public abstract record LambdaExpression<T>(
     Modifier Modifier,
     bool IsAsync,
-    NamedValueCollection Parameters,
+    ParameterList Parameters,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)
@@ -18,7 +18,7 @@ public abstract record LambdaExpression<T>(
 {
     public override IEnumerable<ICodeModel> Children()
     {
-        foreach (var parameter in Parameters.Properties) yield return parameter;
+        yield return Parameters;
         if (Body is not null) yield return Body;
         if (ExpressionBody is not null) yield return ExpressionBody;
         foreach (var child in base.Children()) yield return child;

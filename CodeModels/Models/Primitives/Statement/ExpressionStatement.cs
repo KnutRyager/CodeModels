@@ -2,6 +2,7 @@
 using CodeModels.Execution.Context;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -27,7 +28,8 @@ public record ExpressionStatement(IExpression Expression)
     MemberDeclarationSyntax IMember.Syntax() => GlobalStatement(Syntax());
     public override MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None) => GlobalStatement(Syntax());
     public override TypeSyntax TypeSyntax() => Get_Type().Syntax();
-    public ArgumentSyntax ToArgument() => Argument(Expression.Syntax());
+    public Argument ToArgument() => Expression.ToArgument();
+    public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null)
     {
         throw new System.NotImplementedException();

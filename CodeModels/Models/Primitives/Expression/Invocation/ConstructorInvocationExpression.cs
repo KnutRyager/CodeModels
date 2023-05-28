@@ -30,12 +30,12 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
         try
         {
             instance.EnterScopes(context);
-            for (var i = 0; i < Constructor.Parameters.Properties.Count; i++)
+            for (var i = 0; i < Constructor.Parameters.Parameters.Count; i++)
             {
                 var argument = Arguments.Count > i ? Arguments[i] : VoidValue;
-                var parameter = Constructor.Parameters.Properties[i];
+                var parameter = Constructor.Parameters.Parameters[i];
                 context.DefineVariable(parameter.Name);
-                context.SetValue(parameter.Name, ExpressionUtils.IsVoid(argument) ? parameter.Value : argument);
+                context.SetValue(parameter.Name, ExpressionUtils.IsVoid(argument) ? parameter.Expression ?? VoidValue : argument);
             }
             if (Constructor.Body is not null)
             {

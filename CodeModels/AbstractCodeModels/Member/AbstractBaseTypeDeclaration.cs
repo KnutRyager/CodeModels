@@ -148,7 +148,12 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
         throw new NotImplementedException();
     }
 
-    public ParameterSyntax ToParameter()
+    public Parameter ToParameter()
+    {
+        throw new NotImplementedException();
+    }
+
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }

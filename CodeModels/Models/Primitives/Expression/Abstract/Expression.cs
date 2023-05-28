@@ -2,6 +2,7 @@
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Reference;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -27,10 +28,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
             },
             equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
 
-    public ArgumentSyntax ToArgument() => ArgumentCustom(
-            nameColon: default,
-            refKindKeyword: default,
-            expression: Syntax());
+    public Argument ToArgument() => CodeModelFactory.Arg(this);
+    public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
 
 
     public virtual object? LiteralValue() => null;

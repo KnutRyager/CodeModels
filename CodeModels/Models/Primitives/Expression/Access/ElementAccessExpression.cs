@@ -4,20 +4,23 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Expression.Access;
 
-public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpression> Arguments)
-    : AnyArgExpression<ElementAccessExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), Type, OperationType.Invocation), IAssignable
+public record ElementAccessExpression(IType Type, IExpression Caller, ArgumentList Arguments)
+    : AnyArgExpression<ElementAccessExpressionSyntax>(new IExpression[] {
+        This(Type) }.Concat(Arguments.Arguments.Select(x => x.Expression)).ToList(),
+        Type, OperationType.Invocation), IAssignable
 {
     public static ElementAccessExpression Create(IType type, IExpression caller, IEnumerable<IExpression>? arguments = null)
-        => new(type, caller, List(arguments));
+        => new(type, caller, arguments is null ? ArgList() : ArgList(arguments));
 
     public override ElementAccessExpressionSyntax Syntax() => ElementAccessExpression(Caller.Syntax(),
-        BracketedArgumentList(SeparatedList(Arguments.Select(x => x.ToArgument()))));
+        Arguments.ToBracketedListSyntax());
 
     public void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
     {
@@ -26,7 +29,7 @@ public record ElementAccessExpression(IType Type, IExpression Caller, List<IExpr
             context.EnterScopes(scopes);
             var valuePlain = value.EvaluatePlain(context);
             var callerPlain = Inputs.First().EvaluatePlain(context);
-            var args = Arguments.Select(x => x.EvaluatePlain(context)).ToArray();
+            var args = Arguments.EvaluatePlain(context);
             var arguments = new object?[] { args[0], valuePlain };
             var set_itemMethod = Type.GetReflectedType()?.GetMethod("set_Item");
             if (set_itemMethod is not null)

@@ -3,6 +3,7 @@ using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
@@ -24,7 +25,9 @@ public interface IMember<T> : ICodeModel<T>, IMember where T : MemberDeclaration
 }
 
 public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes, Modifier Modifier, string? Name = null)
-    : NamedCodeModel<T>(Name ?? Type.Name), IMember<T> where T : MemberDeclarationSyntax
+    : NamedCodeModel<T>(Name ?? Type.Name), IMember<T>,
+    IToParameterConvertible, IToParameterListConvertible
+    where T : MemberDeclarationSyntax
 {
     public IBaseTypeDeclaration? Owner { get; set; }
     public IType Get_Type() => Type;
@@ -41,6 +44,8 @@ public abstract record MemberModel<T>(IType Type, List<AttributeList> Attributes
 
     public virtual IType ToType() => Type;
     public virtual IExpression ToExpression() => CodeModelFactory.Identifier(Name);
-    public virtual ParameterSyntax ToParameter() => SyntaxFactory.Parameter(ToIdentifier());
+    public virtual Parameter ToParameter() => ToIdentifierExpression().ToParameter();
+    public virtual ParameterList ToParameterList() => ToParameter().ToParameterList();
+    public virtual ParameterSyntax ToParameterSyntax() => SyntaxFactory.Parameter(ToIdentifier());
     public virtual TupleElementSyntax ToTupleElement() => SyntaxFactory.TupleElement(Type.Syntax(), ToIdentifier());
 }

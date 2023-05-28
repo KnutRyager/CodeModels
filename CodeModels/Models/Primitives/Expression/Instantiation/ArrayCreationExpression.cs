@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
-using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Reflection;
 using Microsoft.CodeAnalysis.CSharp.Syntax;

@@ -19,7 +19,8 @@ namespace CodeModels.AbstractCodeModels.Member;
 
 public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
     : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
-    IMember, ITypeModel, IAssignable, INamedValue
+    IMember, ITypeModel, IAssignable, INamedValue,
+    IToArgumentConvertible, IToArgumentListConvertible
 {
     public AbstractProperty(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IBaseTypeDeclaration? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)
@@ -30,7 +31,11 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     public AbstractProperty(IExpression expression, string? name = null, Modifier modifier = Modifier.Public, ITypeDeclaration? owner = null, IType? interfaceType = null)
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
-    public override ParameterSyntax ToParameter() => Parameter(
+    public override Parameter ToParameter() => Param(Name, Type, Value);
+    public Argument ToArgument() => Arg(Value);
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
+
+    public override ParameterSyntax ToParameterSyntax() => Parameter(
             attributeLists: default,
             modifiers: default,
             type: TypeSyntax(),

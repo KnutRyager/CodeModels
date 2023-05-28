@@ -19,4 +19,9 @@ public abstract record AnonymousFunctionExpression<T>(Modifier Modifier,
 
     AnonymousFunctionExpressionSyntax IAnonymousFunctionExpression.Syntax()
         => Syntax();
+
+    T IAnonymousFunctionExpression<T>.Syntax()
+    {
+        throw new System.NotImplementedException();
+    }
 }

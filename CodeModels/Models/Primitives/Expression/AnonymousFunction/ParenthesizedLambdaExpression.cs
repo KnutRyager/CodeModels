@@ -1,21 +1,22 @@
 ﻿using System;
 using System.Collections.Generic;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
 using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.Util;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 
 public record ParenthesizedLambdaExpression(Modifier Modifier,
     bool IsAsync,
-    NamedValueCollection Parameters,
+    ParameterList Parameters,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)
@@ -24,11 +25,11 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
 {
     public static ParenthesizedLambdaExpression Create(Modifier modifier,
     bool isAsync,
-    NamedValueCollection parameters,
+    IToParameterListConvertible parameters,
     IType type,
     Block? body = null,
     IExpression? expressionBody = null)
-        => new(modifier, isAsync, parameters, type, body, expressionBody);
+        => new(modifier, isAsync, parameters?.ToParameterList() ?? ParamList(), type, body, expressionBody);
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -38,7 +39,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     public override ParenthesizedLambdaExpressionSyntax Syntax()
         => SyntaxFactory.ParenthesizedLambdaExpression(
                 IsAsync ? Token(SyntaxKind.AsyncKeyword) : default,
-                Parameters.ToParameters(),
+                Parameters.Syntax(),
                 Token(SyntaxKind.ArrowExpressionClause),
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());
@@ -52,7 +53,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     {
         if (Type.Name is "Action")
         {
-            return Parameters.Properties.Count switch
+            return Parameters.Parameters.Count switch
             {
                 0 => FunctionalUtil.ActionExpression(() => InnerEvaluate(Array.Empty<object>(), context)).Compile(),
                 1 => FunctionalUtil.ActionExpression<object>((x) => InnerEvaluate(new object[] { x }, context)).Compile(),
@@ -64,7 +65,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
                 _ => throw new NotImplementedException()
             };
         }
-        return Parameters.Properties.Count switch
+        return Parameters.Parameters.Count switch
         {
             0 => FunctionalUtil.LambdaExpression<object?>(() => InnerEvaluate(Array.Empty<object>(), context)).Compile(),
             1 => FunctionalUtil.LambdaExpression<object, object?>((x) => InnerEvaluate(new object[] { x }, context)).Compile(),
@@ -80,9 +81,9 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     private dynamic? InnerEvaluate(dynamic[] arguments, ICodeModelExecutionContext context)
     {
         context.EnterScope();
-        for (var i = 0; i < Parameters.Properties.Count; i++)
+        for (var i = 0; i < Parameters.Parameters.Count; i++)
         {
-            var parameter = Parameters.Properties[i];
+            var parameter = Parameters.Parameters[i];
             var argument = arguments[i];
             context.DefineVariable(parameter.Name);
             context.SetValue(parameter.Name, CodeModelFactory.Literal(argument));
