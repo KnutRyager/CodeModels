@@ -94,6 +94,7 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
         throw new NotImplementedException();
     }
     public Argument ToArgument() => Arg(ToExpression());
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public IExpression ValueOrDefault() => (Value is null
             || (LiteralExpression)Value == CodeModelFactory.VoidValue

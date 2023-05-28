@@ -168,7 +168,5 @@ public record Property(string Name,
 
     public PropertyExpression Access(IExpression? instance = null) => new(this, instance, GetScopes());
     IPropertyExpression IProperty.Access(IExpression? instance) => Access(instance);
-
-    public Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
 }
 

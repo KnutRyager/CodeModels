@@ -122,7 +122,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
     }
 
     public ParameterList ToParameterList() => ParamList(Properties.Select(x => x.ToParameter()));
-    public ArgumentList ToArgumentList() => ArgList(Properties.Select(x => x.ToArgument()));
+    public override ArgumentList ToArgumentList() => ArgList(Properties.Select(x => x.ToArgument()));
 
     public TupleElementSyntax ToTupleElement()
     {

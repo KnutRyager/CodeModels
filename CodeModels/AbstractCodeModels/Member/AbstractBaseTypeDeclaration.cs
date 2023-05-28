@@ -149,6 +149,7 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
     }
 
     public Argument ToArgument() => Arg(ToExpression());
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public Parameter ToParameter()
     {

@@ -58,6 +58,7 @@ public record Namespace(
     public IType GetGenericType(int index) => throw new NotImplementedException();
     TypeSyntax ICodeModel<TypeSyntax>.Syntax() => throw new NotImplementedException();
     public Argument ToArgument() => throw new NotImplementedException();
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;
     public object? EvaluatePlain(ICodeModelExecutionContext context) => throw new NotImplementedException();

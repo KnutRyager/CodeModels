@@ -30,6 +30,7 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     public ExpressionSyntax Syntax() => throw new NotImplementedException();
     ExpressionOrPatternSyntax IExpressionOrPattern.Syntax() => throw new NotImplementedException();
     public Argument ToArgument() => throw new NotImplementedException();
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     CSharpSyntaxNode ICodeModel.Syntax() => Statement.Syntax();

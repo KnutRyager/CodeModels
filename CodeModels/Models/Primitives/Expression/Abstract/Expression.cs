@@ -29,7 +29,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
             },
             equalsValue: value is null ? default! : EqualsValueClause(LiteralExpressionCustom(value)));
 
-    public Argument ToArgument() => CodeModelFactory.Arg(this);
+    public virtual Argument ToArgument() => CodeModelFactory.Arg(this);
+    public virtual ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
 
     public virtual object? LiteralValue() => null;

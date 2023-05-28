@@ -31,7 +31,7 @@ public record ExpressionCollection(List<IExpression> Values, IType? SpecifiedTyp
             members: SeparatedList(Values.Select((x, index) => x.ToEnumValue(isFlags ? hasNoneValue && index == 0 ? 0 : (int)Math.Pow(2, index - (hasNoneValue ? 1 : 0)) : null)))
         );
 
-    public ArgumentList ToArgumentList() => ArgList(Values);
+    public override ArgumentList ToArgumentList() => ArgList(Values);
     public ArgumentListSyntax ToArguments() => ToArgumentList().Syntax();
     public TypeSyntax BaseTypeSyntax() => BaseType().Syntax();
     public virtual IType BaseType() => SpecifiedType ?? TypeUtil.FindCommonType(Values);

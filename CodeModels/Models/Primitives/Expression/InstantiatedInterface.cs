@@ -93,6 +93,7 @@ public record InstantiatedInterface(IInterfaceDeclaration Type,
     {
         throw new NotImplementedException();
     }
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax()
     {

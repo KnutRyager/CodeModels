@@ -48,6 +48,7 @@ public abstract record AbstractStatement<T>(string? Name = null, Modifier Modifi
         throw new System.NotImplementedException();
     }
     public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public Parameter ToParameter()
     {

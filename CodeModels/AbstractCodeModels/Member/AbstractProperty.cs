@@ -32,8 +32,7 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
             : this(expression.Get_Type(), name, expression, modifier, owner, interfaceType) { }
 
     public override Parameter ToParameter() => Param(Name, Type, Value);
-    public Argument ToArgument() => Arg(Value);
-    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
+    public override Argument ToArgument() => Arg(Value);
 
     public override ParameterSyntax ToParameterSyntax() => Parameter(
             attributeLists: default,

@@ -93,6 +93,7 @@ public record InstantiatedObject(IClassDeclaration Type,
     {
         throw new NotImplementedException();
     }
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
 

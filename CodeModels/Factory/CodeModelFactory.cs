@@ -102,6 +102,7 @@ public static class CodeModelFactory
 
 
     public static Parameter Param(string name, IType type, IExpression? value = default) => Parameter.Create(name, type, value);
+    public static Parameter Param<T>(string name,IExpression? value = default) => Param(name, Type<T>(), value);
     public static ParameterList ParamList(IEnumerable<Parameter>? parameters = default)
         => ParameterList.Create(parameters);
 
@@ -263,8 +264,10 @@ public static class CodeModelFactory
     Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, attributes, initializer: initializer);
 
-    public static ConstructorInitializer ConstructorInitializer(IToArgumentListConvertible? arguments = null, bool isBase = false)
-        => Models.Primitives.Member.ConstructorInitializer.Create(arguments, isBase);
+    public static ConstructorInitializer BaseConstructorInitializer(IToArgumentListConvertible? arguments = null)
+        => ConstructorInitializer.Create(arguments, true);
+    public static ConstructorInitializer ThisConstructorInitializer(IToArgumentListConvertible? arguments = null)
+        => ConstructorInitializer.Create(arguments, false);
 
     public static SimpleBaseType SimpleBase(IType type) => SimpleBaseType.Create(type);
     public static SimpleBaseType SimpleBase<T>() => SimpleBase(Type<T>());

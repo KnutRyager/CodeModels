@@ -68,6 +68,7 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     public SimpleNameSyntax NameSyntax() => IdentifierName(Name);
 
     public Argument ToArgument() => throw new NotImplementedException();
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;

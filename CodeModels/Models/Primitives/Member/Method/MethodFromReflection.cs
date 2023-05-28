@@ -55,6 +55,7 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
         throw new NotImplementedException();
     }
     public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
+    public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public ParameterSyntax ToParameterSyntax()
     {
@@ -220,7 +221,7 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public override IdentifierExpression ToIdentifierExpression() => CodeModelFactory.Identifier(Lookup.TypeName);
     public string GetMostSpecificType() => Lookup.GetMostSpecificType();
     public Type? GetReflectedType() => Lookup.GetReflectedType();
-    public Argument ToArgument() => Lookup.ToArgument();
+    public override Argument ToArgument() => Lookup.ToArgument();
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => Lookup.ToEnumValue(value);
     public IType ToMultiType() => Lookup.ToMultiType();
