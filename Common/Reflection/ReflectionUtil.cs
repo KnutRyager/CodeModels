@@ -228,7 +228,7 @@ public static class ReflectionUtil
         var isUnboundGenericMethod = (genericArgumentCount > 0 && (genericArguments is null)
             || (genericArguments?.Any(x => x is null) ?? false));
         return type
-         .GetMethods()
+         .GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Static)
          .Where(m => m.Name == name)
          .Select(m => new
          {
