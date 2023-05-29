@@ -38,5 +38,7 @@ public static class StringUtil
         .Replace("{", "")
         .Replace("}", "");
 
+    public static string Uncapitalize(string s) => s is { Length: 0 } ? s : $"{char.ToLower(s[0])}{s[1..]}";
+
     public static string FilterJoin(string? str1, string? str2, string separator = ".") => $"{str1}{((string.IsNullOrWhiteSpace(str1) || string.IsNullOrWhiteSpace(str2)) ? string.Empty : separator)}{str2}";
 }
