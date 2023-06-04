@@ -164,35 +164,17 @@ public static class CodeModelFactory
         => IdentifierExpressionGeneric<T>.Create(name, model);
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method MethodFull(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
-        => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, expressionBody, modifier);
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, Block body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, body, null, modifier);
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => MethodFull(name, parameters, returnType, typeParameters, constraintClauses, null, expressionBody, modifier);
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => MethodFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
-    public static Method Method(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => MethodFull(name, ParamList(), returnType, body: body, modifier: modifier);
-    public static Method Method(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => MethodFull(name, ParamList(), returnType, body: Block(statements), modifier: modifier);
-    public static Method Method(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => MethodFull(name, ParamList(), returnType, expressionBody: expressionBody, modifier: modifier);
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+        => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference);
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IStatementOrExpression body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+        => Method(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference: bodyPreference);
+    public static Method Method(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+        => Method(name, ParamList(), returnType, null, body: body, modifier: modifier, bodyPreference: bodyPreference);
 
-    public static LocalFunctionStatement LocalFunctionFull(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Block? body = null, IExpression? expressionBody = null, Modifier? modifier = null)
-        => LocalFunctionStatement.Create(name, parameters, returnType, genericParameters, constraintClauses, body, expressionBody, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, Block body, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, body, null, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, IExpression expressionBody, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, parameters, returnType, genericParameters, constraintClauses, null, expressionBody, modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, parameters, returnType, body: Block(statements), modifier: modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IType returnType, Block body, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: body, modifier: modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IType returnType, List<IStatement> statements, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, body: Block(statements), modifier: modifier);
-    public static LocalFunctionStatement LocalFunction(string name, IType returnType, IExpression expressionBody, Modifier modifier = Modifier.Public)
-        => LocalFunctionFull(name, AbstractCodeModelFactory.NamedValues(), returnType, expressionBody: expressionBody, modifier: modifier);
+    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+        => LocalFunctionStatement.Create(name, parameters, returnType, genericParameters, constraintClauses, body, modifier, bodyPreference);
+    public static LocalFunctionStatement LocalFunction(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = default, MethodBodyPreference? bodyPreference = default)
+        => LocalFunction(name, ParamList(), returnType, body: body, modifier: modifier, bodyPreference: bodyPreference);
 
     public static TypeParameterConstraintClause ConstraintClause(string name, IEnumerable<ITypeParameterConstraint>? constraints = null)
         => TypeParameterConstraintClause.Create(name, constraints);
@@ -287,10 +269,11 @@ public static class CodeModelFactory
     public static VariableDeclarator VariableDeclarator(string name, IExpression? value = null)
         => Models.VariableDeclarator.Create(name, value);
 
-    public static Block Block(IEnumerable<IStatement> statements) => new(List(statements));
-    public static Block Block(params IStatement[] statements) => new(List(statements));
-    public static Block Block(IStatement statement, bool condition = true) => !condition || statement is Block ? (statement as Block)! : new(List(statement));
-    public static Block Block(IExpression expression) => Block(new[] { Statement(expression) });
+    public static Block Block(IEnumerable<IStatementOrExpression> statements) => Models.Block.Create(statements);
+    public static Block Block(params IStatementOrExpression[] statements) => Models.Block.Create(statements);
+    public static Block Block(IStatementOrExpression? statement, bool condition = true) 
+        => !condition || statement is Block ? (statement as Block)!
+        : Block(statement is null ? Array.Empty<IStatementOrExpression>() : List(statement));
 
     public static IfStatement If(IExpression condition, IStatement statement, IStatement? @else = null) => new(condition, statement, @else);
     public static MultiIfStatement MultiIf(IEnumerable<IfStatement> ifs, IStatement? @else = null) => new(List(ifs), @else);

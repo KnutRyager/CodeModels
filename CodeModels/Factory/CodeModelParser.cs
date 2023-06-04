@@ -728,14 +728,18 @@ public class CodeModelParser
     public LocalDeclarationStatements Parse(LocalDeclarationStatementSyntax syntax) => LocalDeclarations(Parse(syntax.Declaration));
     public LocalFunctionStatement Parse(LocalFunctionStatementSyntax syntax)
 
-         => Register(syntax, LocalFunctionFull(syntax.GetName(),
+         => Register(syntax, LocalFunction(syntax.GetName(),
                  AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList),
                  ParseType(syntax.ReturnType),
                  syntax.TypeParameterList?.Parameters.Select(Parse),
                  syntax.ConstraintClauses.Select(Parse).ToArray(),
-                 syntax.Body is null ? null : Parse(syntax.Body),
-                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression),
-                 ParseModifier(syntax.Modifiers)));
+                 syntax.Body is null
+                     ? syntax.ExpressionBody is null
+                         ? null
+                         : ParseExpression(syntax.ExpressionBody.Expression)
+                     : Parse(syntax.Body),
+                 ParseModifier(syntax.Modifiers),
+                 MethodBodyPreference.Automatic));
 
     public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
     public TypeParameterConstraintClause Parse(TypeParameterConstraintClauseSyntax syntax)
@@ -870,14 +874,18 @@ public class CodeModelParser
     public IMember Parse(ConversionOperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(DestructorDeclarationSyntax syntax) => throw new NotImplementedException();
     public Method Parse(MethodDeclarationSyntax syntax)
-         => Register(syntax, MethodFull(syntax.GetName(),
+         => Register(syntax, Method(syntax.GetName(),
                  AbstractCodeModelParsing.NamedValues(this, syntax),
                  ParseType(syntax.ReturnType),
                  syntax.TypeParameterList?.Parameters.Select(Parse),
                  syntax.ConstraintClauses.Select(Parse).ToArray(),
-                 syntax.Body is null ? null : Parse(syntax.Body),
-                 syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody.Expression),
-                 ParseModifier(syntax.Modifiers)));
+                 syntax.Body is null
+                     ? syntax.ExpressionBody is null
+                         ? null
+                         : ParseExpression(syntax.ExpressionBody.Expression)
+                     : Parse(syntax.Body),
+                 ParseModifier(syntax.Modifiers),
+                 MethodBodyPreference.Automatic));
     public IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch
     {

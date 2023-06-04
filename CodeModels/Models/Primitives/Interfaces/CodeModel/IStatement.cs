@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public interface IStatement : ICodeModel, IMember
+public interface IStatement : IStatementOrExpression, IMember
 {
     new StatementSyntax Syntax();
     bool EndsInBreak();

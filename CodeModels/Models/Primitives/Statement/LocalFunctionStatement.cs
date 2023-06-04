@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
-using CodeModels.Factory;
+using CodeModels.Generation;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
-using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
-using CodeModels.Generation;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using static CodeModels.Factory.CodeModelFactory;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models;
 
@@ -29,10 +27,16 @@ public record LocalFunctionStatement(string Identifier,
             IType? returnType = null,
             IEnumerable<IType>? typeParameters = null,
             IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
-            Block? body = null,
-            IExpression? expressionBody = null,
-            Modifier? modifier = null)
-            => new(name, parameters?.ToParameterList() ?? ParamList(), List(typeParameters), List(constraintClauses), returnType ?? TypeShorthands.VoidType, body, expressionBody, modifier ?? Modifier.Public);
+        IStatementOrExpression? body = null,
+            Modifier? modifier = null,
+        MethodBodyPreference? bodyPreference = default)
+            => new(name, parameters?.ToParameterList() ?? ParamList(),
+                List(typeParameters),
+                List(constraintClauses),
+                returnType ?? TypeShorthands.VoidType,
+                MethodUtils.GetBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression),
+                MethodUtils.GetExpressionBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression),
+                modifier ?? Modifier.Public);
 
     public override LocalFunctionStatementSyntax Syntax()
         => SyntaxFactoryCustom.LocalFunctionStatementCustom(
@@ -82,12 +86,11 @@ public record LocalFunctionStatement(string Identifier,
         throw new NotImplementedException();
     }
 
-    public Method ToMethod() => MethodFull(name: Name,
-        parameters: Parameters,
-        returnType: ReturnType,
-        typeParameters: TypeParameters,
-        constraintClauses: ConstraintClauses,
-        body: Body,
-        expressionBody: ExpressionBody,
-        modifier: Modifier);
+    public Method ToMethod() => Method(Name,
+        Parameters,
+        ReturnType,
+        TypeParameters,
+        ConstraintClauses,
+        Body as IStatementOrExpression ?? ExpressionBody,
+        Modifier);
 }
