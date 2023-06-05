@@ -1,3 +1,4 @@
+using System.Reflection;
 using Common.Reflection;
 using Xunit;
 
@@ -5,6 +6,14 @@ namespace Common.Test.Reflection
 {
     public class ExpressionReflectionUtilTests
     {
+        [Fact]
+        public void Constant()
+        {
+            var actual = ExpressionReflectionUtil.GetConstant<BindingFlags>(x => BindingFlags.Instance);
+            var expected = BindingFlags.Instance;
+            Assert.Equal(expected, actual);
+        }
+
         [Fact]
         public void InstanceFieldInfo()
         {

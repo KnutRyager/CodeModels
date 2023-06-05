@@ -1,17 +1,16 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.InteropServices.ComTypes;
-using System.Threading.Tasks;
-using Common.Util;
 
 namespace Common.Reflection;
 
 public static class ExpressionReflectionUtil
 {
+    public static object GetConstant<T>(Expression<Func<T, object>> expression)
+        => GetConstant(expression.Body) ?? throw new NotImplementedException();
+    public static object GetConstant(Expression<Func<object, object>> expression)
+        => GetConstant(expression.Body) ?? throw new NotImplementedException();
+
     public static FieldInfo GetFieldInfo<T>(Expression<Func<T, object>> expression)
         => GetMemberInfo(expression.Body) as FieldInfo ?? throw new NotImplementedException();
     public static FieldInfo GetFieldInfo(Expression<Func<object, object>> expression)
@@ -51,9 +50,22 @@ public static class ExpressionReflectionUtil
     {
         MethodCallExpression methodCall => GetMemberInfo(methodCall.Object),
         ConstantExpression constantExpression => constantExpression.Value as MemberInfo ?? throw new NotImplementedException(),
+        MemberExpression memberExpression => memberExpression.Member,
         _ => throw new NotImplementedException()
     };
 
+    public static object GetConstant(Expression expression) => expression switch
+    {
+        UnaryExpression unaryExpression => GetConstant(unaryExpression),
+        ConstantExpression constantExpression => constantExpression.Value,
+        _ => throw new NotImplementedException()
+    };
+    public static object GetConstant(UnaryExpression expression) => expression.Operand switch
+    {
+        MethodCallExpression methodCall => GetConstant(methodCall.Object),
+        ConstantExpression constantExpression => constantExpression.Value ?? throw new NotImplementedException(),
+        _ => throw new NotImplementedException()
+    };
 
     public static string? GetModel(Expression<Func<object, object>> expression) => GetModel(expression.Body);
 
