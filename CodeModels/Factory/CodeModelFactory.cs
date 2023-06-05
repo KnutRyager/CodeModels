@@ -160,8 +160,14 @@ public static class CodeModelFactory
 
     public static IdentifierExpression IdentifierExp(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)
         => IdentifierExpression.Create(name, type, symbol, model);
-    public static IdentifierExpressionGeneric<T> Identifier<T>(string name, ICodeModel? model = null)
-        => IdentifierExpressionGeneric<T>.Create(name, model);
+    public static IdentifierExpressionGeneric<T> Identifier<T>(string? name = null, ICodeModel? model = null)
+        => IdentifierExpressionGeneric<T>.Create(name ?? StringUtil.Uncapitalize(typeof(T).Name), model);
+    public static IdentifierExpressionGeneric<T> StaticIdentifier<T>(ICodeModel? model = null)
+        => IdentifierExpressionGeneric<T>.Create(typeof(T).Name, model);
+    public static IdentifierExpression Identifier(Type type)
+        => IdentifierExpression.Create(type.Name, Type(type));
+    public static IdentifierExpression Identifier(IType type)
+        => IdentifierExpression.Create(StringUtil.Uncapitalize(type.Name));
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
     public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
