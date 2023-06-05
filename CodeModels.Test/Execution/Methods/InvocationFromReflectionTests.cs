@@ -1,12 +1,9 @@
 using System;
-using CodeModels.Execution;
-using FluentAssertions;
-using Xunit;
-using static CodeModels.Factory.CodeModelsFromReflection;
-using static CodeModels.Factory.CodeModelFactory;
-using TestCommon;
-using Microsoft.Extensions.Azure;
 using CodeModels.Factory;
+using TestCommon;
+using Xunit;
+using static CodeModels.Factory.CodeModelFactory;
+using static CodeModels.Factory.CodeModelsFromReflection;
 
 namespace CodeModels.Test.Execution.Functions;
 
@@ -17,7 +14,6 @@ public class InvocationFromReflectionTests
     {
         var invocation = Invocation<object, string?>(x => x.ToString(), Identifier("x"));
         invocation.CodeModelEqual("x.ToString()");
-        Func<string> f = 4.ToString;
     }
 
     [Fact]
@@ -25,7 +21,7 @@ public class InvocationFromReflectionTests
     {
         var intArg = CodeModelFactory.Literal(1337);
         var a = Identifier<A>("x");
-        var invocation = a.GetInvocation<int>(x => x.B);
+        var invocation = a.GetInvocation(x => x.B);
         invocation.CodeModelEqual("x.B()");
     }
 
