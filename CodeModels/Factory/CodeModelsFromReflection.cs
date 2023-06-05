@@ -7,6 +7,7 @@ using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
+using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
 using Common.Reflection;
 using Microsoft.CodeAnalysis;
@@ -41,6 +42,23 @@ public static class CodeModelsFromReflection
 
     public static NamedValueCollection NamedValues(Type type) => new(type);
 
+    public static PropertyExpressionFromReflection PropertyAccess(PropertyInfo property, IExpression caller)
+        => PropertyExpressionFromReflection.Create(property, caller);
+    public static PropertyExpressionFromReflection PropertyAccess(Type type, string name, IExpression caller)
+        => PropertyAccess(type.GetProperty(name), caller);
+    public static PropertyExpressionFromReflection PropertyAccess<T>(System.Linq.Expressions.Expression<Func<T, object>> expression, IExpression caller)
+        => PropertyAccess(ExpressionReflectionUtil.GetPropertyInfo(expression), caller);
+    public static ILambdaExpression GetModel<T>(System.Linq.Expressions.Expression<Func<T, object>> expression)
+        => CodeModelsFromExpression.GetModel(expression);
+    public static IExpression GetModel(System.Linq.Expressions.Expression<Func<object, object?>> expression)
+        => CodeModelsFromExpression.GetExpression(expression);
+
+    public static IdentifierExpression GetIdentifier<T>(System.Linq.Expressions.Expression<Func<T, object>> expression)
+        => CodeModelFactory.Identifier(ExpressionReflectionUtil.GetConstant(expression.Body) is object o
+            ? o is Enum e ? e.ToString() : o.GetType() is Type type ? type.Name : throw new NotImplementedException()
+            : throw new NotImplementedException());
+    public static IdentifierExpression GetIdentifier(System.Linq.Expressions.Expression<Func<object, object>> expression)
+        => CodeModelFactory.Identifier(ExpressionReflectionUtil.GetConstant(expression.Body)?.GetType() is Type type ? type.Name : throw new NotImplementedException());
     public static InvocationFromReflection Invocation(MethodInfo method, IExpression caller, IEnumerable<IExpression>? arguments = null)
         => InvocationFromReflection.Create(method, caller, arguments);
     public static InvocationFromReflection Invocation(Type type, string name, IExpression caller, IEnumerable<IExpression>? arguments = null)

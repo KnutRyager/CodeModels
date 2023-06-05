@@ -16,6 +16,8 @@ public record PropertyFromReflection(PropertyInfo Property)
     : AbstractProperty(TypeFromReflection.Create(Property), Property.Name, ReflectionUtil.IsStatic(Property) ? CodeModelFactory.Literal(Property.GetValue(null)) : null,
         (!Property.CanWrite ? Modifier.Readonly : Modifier.None).SetFlags(Modifier.Public | Modifier.Property))
 {
+    public static PropertyFromReflection Create(PropertyInfo property) => new(property);
+    
     public PropertyFromReflection(IPropertySymbol symbol) : this(SemanticReflection.GetProperty(symbol)) { }
 
     public override void Assign(IExpression value, ICodeModelExecutionContext context, IList<ICodeModelExecutionScope> scopes)
