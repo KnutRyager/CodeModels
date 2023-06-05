@@ -560,4 +560,6 @@ public static class CodeModelFactory
     public static SlicePattern SlicePat(IPattern? pattern) => SlicePattern.Create(pattern);
     public static CasePatternSwitchLabel CasePatSwitchLabel(IPattern pattern, WhenClause? whenClause = default)
         => CasePatternSwitchLabel.Create(pattern, whenClause);
+
+    public static T T<T>() => default!;
 }
