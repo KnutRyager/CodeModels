@@ -253,6 +253,9 @@ public static class CodeModelFactory
 
     public static SimpleBaseType SimpleBase(IType type) => SimpleBaseType.Create(type);
     public static SimpleBaseType SimpleBase<T>() => SimpleBase(Type<T>());
+    public static List<SimpleBaseType> SimpleBases<T>() => new() { SimpleBase<T>() };
+    public static List<SimpleBaseType> SimpleBases<T1, T2>() => new() { SimpleBase<T1>(), SimpleBase<T2>() };
+    public static List<SimpleBaseType> SimpleBases<T1, T2, T3>() => new() { SimpleBase<T1>(), SimpleBase<T2>(), SimpleBase<T3>() };
     public static PrimaryConstructorBaseType PrimaryConstructorBase(IType type, IEnumerable<Argument>? arguments = default)
         => PrimaryConstructorBaseType.Create(type, arguments);
 
