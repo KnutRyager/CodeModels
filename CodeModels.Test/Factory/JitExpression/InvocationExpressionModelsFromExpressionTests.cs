@@ -25,7 +25,7 @@ public class A
     public static A StaticMethodChain() => new A();
 }
 
-public static class AExtensions
+file static class AExtensions
 {
     public static int AExtension(this A a) => a.InstanceMethod();
     public static A AExtensionChain(this A a) => a;
