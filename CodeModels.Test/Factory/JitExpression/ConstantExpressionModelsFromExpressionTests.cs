@@ -1,3 +1,5 @@
+using System;
+using System.Reflection;
 using CodeModels.Factory;
 using FluentAssertions;
 using Xunit;
@@ -16,4 +18,8 @@ public class ConstantExpressionModelsFromExpressionTests
     [Fact] public void Int() => CodeModelsFromExpression.GetCode(x => 1).Should().Be("1");
 
     [Fact] public void String() => CodeModelsFromExpression.GetCode(x => "hi").Should().Be("\"hi\"");
+
+    [Fact] public void Enum() => CodeModelsFromExpression.GetCode(x => BindingFlags.Instance).Should().Be("BindingFlags.Instance");
+    
+    [Fact] public void StaticConst() => CodeModelsFromExpression.GetCode(x => Math.PI).Should().Be("3.141592653589793D");
 }
