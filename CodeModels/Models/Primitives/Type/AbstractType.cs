@@ -14,6 +14,7 @@ using static CodeModels.Generation.SyntaxFactoryCustom;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
+using CodeModels.Factory;
 
 namespace CodeModels.Models;
 
@@ -139,4 +140,5 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     {
         throw new NotImplementedException();
     }
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
 }

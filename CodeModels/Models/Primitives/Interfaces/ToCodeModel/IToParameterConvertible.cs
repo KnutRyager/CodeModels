@@ -2,7 +2,7 @@
 
 namespace CodeModels.Models;
 
-public interface IToParameterConvertible
+public interface IToParameterConvertible : IToParameterListConvertible
 {
     Parameter ToParameter();
 }

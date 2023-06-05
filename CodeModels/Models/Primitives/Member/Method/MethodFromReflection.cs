@@ -57,12 +57,13 @@ public abstract record MemberFromSymbol<T, TCodeModel>(T Symbol) : IMember
     public virtual Argument ToArgument() => CodeModelFactory.Arg(ToExpression());
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
-    public ParameterSyntax ToParameterSyntax()
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
+
+    public TupleElementSyntax ToTupleElement()
     {
         throw new NotImplementedException();
     }
-
-    public TupleElementSyntax ToTupleElement()
+    public ParameterSyntax ToParameterSyntax()
     {
         throw new NotImplementedException();
     }

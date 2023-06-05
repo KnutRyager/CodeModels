@@ -125,4 +125,5 @@ public record Namespace(
     {
         throw new NotImplementedException();
     }
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
 }

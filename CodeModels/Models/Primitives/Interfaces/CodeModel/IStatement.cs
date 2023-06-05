@@ -54,6 +54,7 @@ public abstract record AbstractStatement<T>(string? Name = null, Modifier Modifi
     {
         throw new System.NotImplementedException();
     }
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
 
     public ParameterSyntax ToParameterSyntax() => ToParameter().Syntax();
 

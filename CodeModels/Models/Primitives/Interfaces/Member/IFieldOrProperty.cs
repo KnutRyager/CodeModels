@@ -133,4 +133,5 @@ public abstract record FieldOrProperty<T>(string Name, IType Type, List<Attribut
     {
         throw new NotImplementedException();
     }
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
 }

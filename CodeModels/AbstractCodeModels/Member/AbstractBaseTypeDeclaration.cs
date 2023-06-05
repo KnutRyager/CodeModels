@@ -4,6 +4,7 @@ using System.Linq;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
@@ -155,6 +156,7 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
     {
         throw new NotImplementedException();
     }
+    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
 
     public ParameterSyntax ToParameterSyntax()
     {
