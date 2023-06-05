@@ -87,4 +87,5 @@ public record IdentifierExpression(string Name, IType? Type = null, ISymbol? Sym
     }
 
     public Parameter ToParameter() => Param(Name, Type);
+    public ParameterList ToParameterList() => ParamList(this);
 }
