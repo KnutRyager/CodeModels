@@ -377,8 +377,31 @@ public static class CodeModelFactory
     public static UnaryExpression UnaryExpression(IExpression input, OperationType operation, IType? type = null)
        => operation.IsUnaryOperator() ? new(input, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a unary operator: '{operation}'");
 
+    public static UnaryExpression Not(IExpression input, IType? type = null)
+       => UnaryExpression(input, OperationType.Not, type);
+
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
+
+    public static BinaryExpression Equal(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Equals, right);
+    public static BinaryExpression NotEqual(IExpression left, IExpression right) => BinaryExpression(left, OperationType.NotEquals, right);
+    public static BinaryExpression Plus(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Plus, right);
+    public static BinaryExpression Minus(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Subtract, right);
+    public static BinaryExpression Multiply(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Multiply, right);
+    public static BinaryExpression Divide(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Divide, right);
+    public static BinaryExpression Modulo(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Modulo, right);
+    public static BinaryExpression GreaterThan(IExpression left, IExpression right) => BinaryExpression(left, OperationType.GreaterThan, right);
+    public static BinaryExpression GreaterThanOrEqual(IExpression left, IExpression right) => BinaryExpression(left, OperationType.GreaterThanOrEqual, right);
+    public static BinaryExpression LessThan(IExpression left, IExpression right) => BinaryExpression(left, OperationType.LessThan, right);
+    public static BinaryExpression LessThanOrEqual(IExpression left, IExpression right) => BinaryExpression(left, OperationType.LessThanOrEqual, right);
+    public static BinaryExpression Or(IExpression left, IExpression right) => BinaryExpression(left, OperationType.LogicalOr, right);
+    public static BinaryExpression And(IExpression left, IExpression right) => BinaryExpression(left, OperationType.LogicalAnd, right);
+    public static BinaryExpression BitwiseAnd(IExpression left, IExpression right) => BinaryExpression(left, OperationType.BitwiseAnd, right);
+    public static BinaryExpression BitwiseOr(IExpression left, IExpression right) => BinaryExpression(left, OperationType.BitwiseOr, right);
+    public static BinaryExpression ExclusiveOr(IExpression left, IExpression right) => BinaryExpression(left, OperationType.ExclusiveOr, right);
+    public static BinaryExpression LeftShift(IExpression left, IExpression right) => BinaryExpression(left, OperationType.LeftShift, right);
+    public static BinaryExpression RightShift(IExpression left, IExpression right) => BinaryExpression(left, OperationType.RightShift, right);
+    public static BinaryExpression Coalesce(IExpression left, IExpression right) => BinaryExpression(left, OperationType.Coalesce, right);
 
     public static IsPatternExpression IsPatternExpression(IExpression lhs, IPattern pattern, IType? type = null)
         => new(lhs, pattern, type ?? TypeShorthands.NullType);
