@@ -13,7 +13,7 @@ public abstract record LambdaExpression<T>(
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)
-    : AnonymousFunctionExpression<T>(Modifier, Type, Body, ExpressionBody)
+    : AnonymousFunctionExpression<T>(Modifier, Type, Body, ExpressionBody), ILambdaExpression
     where T : LambdaExpressionSyntax
 {
     public override IEnumerable<ICodeModel> Children()
@@ -23,4 +23,6 @@ public abstract record LambdaExpression<T>(
         if (ExpressionBody is not null) yield return ExpressionBody;
         foreach (var child in base.Children()) yield return child;
     }
+
+    LambdaExpressionSyntax ILambdaExpression.Syntax() => Syntax();
 }

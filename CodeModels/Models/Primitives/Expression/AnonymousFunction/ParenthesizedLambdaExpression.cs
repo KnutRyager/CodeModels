@@ -23,13 +23,18 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     : LambdaExpression<ParenthesizedLambdaExpressionSyntax>
     (Modifier, IsAsync, Parameters, Type, Body, ExpressionBody), ILambdaExpression
 {
-    public static ParenthesizedLambdaExpression Create(Modifier modifier,
-    bool isAsync,
-    IToParameterListConvertible parameters,
-    IType type,
-    Block? body = null,
-    IExpression? expressionBody = null)
-        => new(modifier, isAsync, parameters?.ToParameterList() ?? ParamList(), type, body, expressionBody);
+    public static ParenthesizedLambdaExpression Create(IToParameterListConvertible parameters,
+        IType type,
+        IStatementOrExpression? body = null,
+        bool? isAsync = default,
+        MethodBodyPreference? bodyPreference = default,
+        Modifier? modifier = default)
+        => new(modifier ?? Modifier.None, 
+            isAsync ?? false,
+            parameters?.ToParameterList() ?? ParamList(),
+            type,
+            MethodUtils.GetBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression),
+            MethodUtils.GetExpressionBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression));
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -39,7 +44,7 @@ public record ParenthesizedLambdaExpression(Modifier Modifier,
     public override ParenthesizedLambdaExpressionSyntax Syntax()
         => SyntaxFactory.ParenthesizedLambdaExpression(
                 IsAsync ? Token(SyntaxKind.AsyncKeyword) : default,
-                Parameters.Syntax(),
+                Parameters.TypelessSyntax(),
                 Token(SyntaxKind.ArrowExpressionClause),
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());

@@ -6,6 +6,7 @@ using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -14,21 +15,25 @@ namespace Generator.Models.Primitives.Expression.AnonymousFunction;
 
 public record SimpleLambdaExpression(Modifier Modifier,
     bool IsAsync,
-    INamedValue Parameter,
+    Parameter Parameter,
     IType Type,
     Block? Body,
     IExpression? ExpressionBody)
     : LambdaExpression<SimpleLambdaExpressionSyntax>
-    (Modifier, IsAsync, AbstractCodeModelFactory.NamedValues(new List<INamedValue>() { Parameter }).ToParameterList(),
-        Type, Body, ExpressionBody), ILambdaExpression
+    (Modifier, IsAsync, Parameter.ToParameterList(), Type, Body, ExpressionBody), ILambdaExpression
 {
-    public static SimpleLambdaExpression Create(Modifier modifier,
-    bool isAsync,
-    INamedValue parameter,
-    IType type,
-    Block? body = null,
-    IExpression? expressionBody = null)
-        => new(modifier, isAsync, parameter, type, body, expressionBody);
+    public static SimpleLambdaExpression Create(IToParameterConvertible parameter,
+        IType type,
+        IStatementOrExpression? body = null,
+        bool? isAsync = default,
+        MethodBodyPreference? bodyPreference = default,
+        Modifier? modifier = default)
+        => new(modifier ?? Modifier.None,
+            isAsync ?? false,
+            parameter.ToParameter(),
+            type,
+            MethodUtils.GetBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression),
+            MethodUtils.GetExpressionBodyFromPreference(body, bodyPreference ?? MethodBodyPreference.Expression));
 
     public override IEnumerable<ICodeModel> Children()
     {
@@ -38,7 +43,7 @@ public record SimpleLambdaExpression(Modifier Modifier,
     public override SimpleLambdaExpressionSyntax Syntax()
         => SyntaxFactory.SimpleLambdaExpression(
                 IsAsync ? TokenList(Token(SyntaxKind.AsyncKeyword)) : default,
-                Parameter.ToParameter().Syntax(),
+                Parameter.TypelessSyntax(),
                 Body?.Syntax(),
                 ExpressionBody?.Syntax());
 

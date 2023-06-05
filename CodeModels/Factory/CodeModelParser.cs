@@ -594,16 +594,22 @@ public class CodeModelParser
     };
 
     public SimpleLambdaExpression Parse(SimpleLambdaExpressionSyntax syntax)
-         => SimpleLambda(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
-             Parse(syntax.Parameter), Parse(model.GetTypeInfo(syntax)),
-             syntax.Block is null ? null : Parse(syntax.Block),
-             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
+         => SimpleLambda(Parse(syntax.Parameter), Parse(model.GetTypeInfo(syntax)),
+             syntax.Block is null
+                     ? syntax.ExpressionBody is null
+                         ? null
+                         : ParseExpression(syntax.ExpressionBody)
+                     : Parse(syntax.Block), syntax.AsyncKeyword != default,
+                 ParseModifier(syntax.Modifiers), MethodBodyPreference.Automatic);
 
     public ParenthesizedLambdaExpression Parse(ParenthesizedLambdaExpressionSyntax syntax)
-         => ParenthesizedLambda(ParseModifier(syntax.Modifiers), syntax.AsyncKeyword != default,
-             AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
-             syntax.Block is null ? null : Parse(syntax.Block),
-             syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody));
+         => ParenthesizedLambda(AbstractCodeModelParsing.ParseProperties(this, syntax.ParameterList), Parse(model.GetTypeInfo(syntax)),
+             syntax.Block is null
+                     ? syntax.ExpressionBody is null
+                         ? null
+                         : ParseExpression(syntax.ExpressionBody)
+                     : Parse(syntax.Block), syntax.AsyncKeyword != default,
+                 ParseModifier(syntax.Modifiers), MethodBodyPreference.Automatic);
 
     public IExpression Parse(LiteralExpressionSyntax syntax, IType? type = null) => syntax.Kind() switch
     {

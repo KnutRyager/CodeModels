@@ -511,21 +511,35 @@ public static class CodeModelFactory
     IType type, Block? body = null, IExpression? expressionBody = null)
         => AnonymousMethodExpression.Create(modifier, isAsync, isDelegate, parameters, type, body, expressionBody);
 
-    public static SimpleLambdaExpression SimpleLambda(Modifier modifier,
+    public static ILambdaExpression Lambda(IToParameterListConvertible parameters,
     bool isAsync,
     INamedValue parameter,
     IType type,
-    Block? body = null,
-    IExpression? expressionBody = null)
-        => SimpleLambdaExpression.Create(modifier, isAsync, parameter, type, body, expressionBody);
+    IStatementOrExpression? body = null,
+    bool? isAsync = default,
+    Modifier? modifier = default,
+    MethodBodyPreference? bodyPreference = default)
+        => parameters.ToParameterList() is ParameterList { Parameters.Count: 1 } p
+        ? SimpleLambda(p.Parameters.First(), type, body, isAsync, modifier, bodyPreference)
+        : ParenthesizedLambda(parameters, type, body, isAsync, modifier, bodyPreference);
 
-    public static ParenthesizedLambdaExpression ParenthesizedLambda(Modifier modifier,
+    public static SimpleLambdaExpression SimpleLambda(INamedValue parameter,
+    IType type,
+    IStatementOrExpression? body = null,
+    bool? isAsync = default,
+    Modifier? modifier = default,
+    MethodBodyPreference? bodyPreference = default)
+        => SimpleLambdaExpression.Create(parameter, type, body, isAsync, bodyPreference, modifier);
+
+    public static ParenthesizedLambdaExpression ParenthesizedLambda(IToParameterListConvertible parameters,
     bool isAsync,
     IToParameterListConvertible parameters,
     IType type,
-    Block? body = null,
-    IExpression? expressionBody = null)
-        => ParenthesizedLambdaExpression.Create(modifier, isAsync, parameters, type, body, expressionBody);
+    IStatementOrExpression? body = null,
+    bool? isAsync = default,
+    Modifier? modifier = default,
+    MethodBodyPreference? bodyPreference = default)
+        => ParenthesizedLambdaExpression.Create(parameters, type, body, isAsync, bodyPreference, modifier);
 
     public static ConstantPattern ConstantPat(IExpression expression) => ConstantPattern.Create(expression);
     public static DeclarationPattern DeclarationPat(IType type, IVariableDesignation designation)
