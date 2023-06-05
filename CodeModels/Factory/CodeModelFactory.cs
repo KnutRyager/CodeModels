@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Reflection;
-using System.Xml.Linq;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Execution.Scope;
@@ -97,19 +95,25 @@ public static class CodeModelFactory
         => new(method, caller, List(arguments), List(scopes));
     public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
-    public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
-    public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => new(caller, Identifier(field.Name, model: field));
+    public static MemberAccessExpression MemberAccess(IExpression caller, IdentifierExpression identifier) => new(caller, identifier);
+    public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => MemberAccess(caller, Identifier(field.Name, model: field));
+    public static MemberAccessExpression MemberAccess(EnumMember field, IExpression caller) => MemberAccess(caller, Identifier(field.Name, model: field));
+    public static MemberAccessExpression MemberAccess(string caller, string identifier) => MemberAccess(Identifier(caller), Identifier(identifier));
 
 
     public static Parameter Param(string name, IType type, IExpression? value = default) => Parameter.Create(name, type, value);
-    public static Parameter Param<T>(string name,IExpression? value = default) => Param(name, Type<T>(), value);
-    public static ParameterList ParamList(IEnumerable<Parameter>? parameters = default)
+    public static Parameter Param(IType type, IExpression? value = default) => Param(StringUtil.Uncapitalize(type.Name), type, value);
+    public static Parameter Param<T>(string? name = null, IExpression? value = default) => Param(name ?? StringUtil.Uncapitalize(typeof(T).Name), Type<T>(), value);
+    public static ParameterList ParamList(IEnumerable<IToParameterConvertible>? parameters = default)
         => ParameterList.Create(parameters);
+    public static ParameterList ParamList(IToParameterConvertible parameter)
+        => ParamList(new[] { parameter.ToParameter() });
 
     public static Argument Arg(string? name, IExpression expression) => Argument.Create(name, expression);
     public static Argument Arg(IExpression expression) => Arg(null, expression);
     public static ArgumentList ArgList(IEnumerable<Argument>? arguments = default)
         => ArgumentList.Create(arguments);
+    public static ArgumentList ArgList(Argument argument) => ArgList(new[] { argument });
     public static ArgumentList ArgList(IEnumerable<IToArgumentConvertible> arguments)
         => ArgumentList.Create(arguments.Select(x => x.ToArgument()));
 
