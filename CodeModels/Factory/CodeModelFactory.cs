@@ -521,8 +521,6 @@ public static class CodeModelFactory
         => AnonymousMethodExpression.Create(modifier, isAsync, isDelegate, parameters, type, body, expressionBody);
 
     public static ILambdaExpression Lambda(IToParameterListConvertible parameters,
-    bool isAsync,
-    INamedValue parameter,
     IType type,
     IStatementOrExpression? body = null,
     bool? isAsync = default,
