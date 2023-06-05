@@ -539,8 +539,6 @@ public static class CodeModelFactory
         => SimpleLambdaExpression.Create(parameter, type, body, isAsync, bodyPreference, modifier);
 
     public static ParenthesizedLambdaExpression ParenthesizedLambda(IToParameterListConvertible parameters,
-    bool isAsync,
-    IToParameterListConvertible parameters,
     IType type,
     IStatementOrExpression? body = null,
     bool? isAsync = default,
