@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.ControlFlow;
+using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,8 +13,9 @@ using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
 
 namespace CodeModels.Models.Primitives.Expression.Invocation;
+
 public record InvocationFromReflection(MethodInfo Method, IExpression Caller, List<IExpression> Arguments)
-    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), TypeFromReflection.Create(Method), OperationType.Invocation)
+    : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller }.Concat(Arguments).ToList(), TypeFromReflection.Create(Method), OperationType.Invocation), IInvocation
 {
     public static InvocationFromReflection Create(MethodInfo method, IExpression caller, IEnumerable<IExpression>? arguments = null)
         => new(method, caller, List(arguments));
