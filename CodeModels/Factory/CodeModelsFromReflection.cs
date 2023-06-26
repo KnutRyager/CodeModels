@@ -21,7 +21,7 @@ public static class CodeModelsFromReflection
     public static ConstructorFromReflection Constructor(ConstructorInfo info) => new(info);
     public static MethodFromReflection Method(MethodInfo info) => new(info);
     public static FieldFromReflection Field(FieldInfo info) => new(info);
-    public static PropertyFromReflection Property(PropertyInfo info) => new(info);
+    public static PropertyExpressionFromReflection Property(PropertyInfo info) => new(info);
 
     public static IBaseTypeDeclaration MetodHolder(Type type) => type switch
     {
@@ -48,6 +48,13 @@ public static class CodeModelsFromReflection
         => PropertyAccess(type.GetProperty(name), caller);
     public static PropertyExpressionFromReflection PropertyAccess<T>(System.Linq.Expressions.Expression<Func<T, object>> expression, IExpression caller)
         => PropertyAccess(ExpressionReflectionUtil.GetPropertyInfo(expression), caller);
+    //public static PropertyExpressionFromReflection PropertyAccess<T>(System.Linq.Expressions.Expression<Action<T>> expression, IExpression caller)
+    //    => PropertyAccess(ExpressionReflectionUtil.GetPropertyInfo(expression), caller);
+    //public static PropertyExpressionFromReflection PropertyAccess<T>(System.Linq.Expressions.Expression<Func<T, Delegate>> expression, IExpression caller)
+    //    => PropertyAccess(ExpressionReflectionUtil.GetPropertyInfo(expression), caller);
+    //public static PropertyExpressionFromReflection PropertyAccess(System.Linq.Expressions.Expression<Action<object>> expression, IExpression caller)
+    //    => PropertyAccess(ExpressionReflectionUtil.GetPropertyInfo(expression), caller);
+
     public static ILambdaExpression GetModel<T>(System.Linq.Expressions.Expression<Func<T, object>> expression)
         => CodeModelsFromExpression.GetModel(expression);
     public static IExpression GetModel(System.Linq.Expressions.Expression<Func<object, object?>> expression)
@@ -59,12 +66,26 @@ public static class CodeModelsFromReflection
             : throw new NotImplementedException());
     public static IdentifierExpression GetIdentifier(System.Linq.Expressions.Expression<Func<object, object>> expression)
         => CodeModelFactory.Identifier(ExpressionReflectionUtil.GetConstant(expression.Body)?.GetType() is Type type ? type.Name : throw new NotImplementedException());
+    private static string GetName(object o) => o switch
+    {
+
+        _ => throw new NotImplementedException($"Unhandled: {o}")
+    };
+
     public static InvocationFromReflection Invocation(MethodInfo method, IExpression caller, IEnumerable<IExpression>? arguments = null)
         => InvocationFromReflection.Create(method, caller, arguments);
     public static InvocationFromReflection Invocation(Type type, string name, IExpression caller, IEnumerable<IExpression>? arguments = null)
-        => Invocation(arguments is null ? type.GetMethod(name) : type.GetMethod(name, arguments.Select(x => x.Get_Type()?.ReflectedType ?? throw new ArgumentException($"No ReflectedType for '{x}'")).ToArray()), caller, arguments);
+        => Invocation(ReflectionUtil.GetMethodInfo(type, name,
+            arguments is null ? Array.Empty<Type>() : arguments.Select(x => x.Get_Type()?.ReflectedType ?? throw new ArgumentException($"No ReflectedType for '{x}'")).ToArray())!,
+            caller, arguments);
     public static InvocationFromReflection Invocation<TIn, TOut>(System.Linq.Expressions.Expression<Func<TIn, TOut>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
-        => Invocation(ReflectionUtil.GetMethodInfo(expression), caller, arguments);
+        => Invocation(ExpressionReflectionUtil.GetMethodInfo(expression), caller, arguments);
+    public static InvocationFromReflection Invocation<T>(System.Linq.Expressions.Expression<Action<T>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
+        => Invocation(ExpressionReflectionUtil.GetMethodInfo(expression), caller, arguments);
+    public static InvocationFromReflection Invocation<T>(System.Linq.Expressions.Expression<Func<T, Delegate>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
+        => Invocation(ExpressionReflectionUtil.GetMethodInfo(expression), caller, arguments);
+    public static InvocationFromReflection Invocation(System.Linq.Expressions.Expression<Action<object>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
+        => Invocation(ExpressionReflectionUtil.GetMethodInfo(expression), caller, arguments);
 
     public static Parameter Param(ParameterInfo parameter)
         => CodeModelFactory.Param(parameter.Name, Type(parameter.ParameterType), CodeModelFactory.Literal(parameter.DefaultValue));
@@ -74,5 +95,19 @@ public static class CodeModelsFromReflection
         => ParamList(method.GetParameters());
     public static ParameterList ParamList(ConstructorInfo constructor)
         => ParamList(constructor.GetParameters());
-
+     
+    //public static InvocationFromReflection Invocation2<TIn, TOut>(System.Linq.Expressions.Expression<Func<TIn, TOut>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
+    //    => GetModel(expression, caller, arguments);
+        //=> Invocation(GetModel(expression), caller, arguments);
+    //public static InvocationFromReflection GetModel(Expression expression) => expression switch
+    ////public static InvocationFromReflection GetModel(Expression expression, IExpression caller, IEnumerable<IExpression>? arguments = null) => expression switch
+    //{
+    //    LambdaExpression lammbda => CodeModelFactory.Lambda(),
+    //    System.Linq.Expressions.BinaryExpression e => null,
+    //    _ => throw new NotImplementedException()
+    //};
+    //=> Invocation(ExpressionReflectionUtil.GetModel(expression), caller, arguments);
+    
+    //public static ICodeModel GetModel(LambdaExpression expression)
+    //    => CodeModelFactory.Lambda(expression.Parameters.Select(x => GetModel(x)), Type(expression.Type), GetModel());
 }

@@ -284,7 +284,7 @@ public static class CodeModelFactory
 
     public static Block Block(IEnumerable<IStatementOrExpression> statements) => Models.Block.Create(statements);
     public static Block Block(params IStatementOrExpression[] statements) => Models.Block.Create(statements);
-    public static Block Block(IStatementOrExpression? statement, bool condition = true) 
+    public static Block Block(IStatementOrExpression? statement, bool condition = true)
         => !condition || statement is Block ? (statement as Block)!
         : Block(statement is null ? Array.Empty<IStatementOrExpression>() : List(statement));
 

@@ -1,13 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using CodeModels.Factory;
-using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Member;
-using Common.Reflection;
 
 namespace CodeModels.Models.Primitives.Expression.Reference;
 
@@ -31,15 +28,11 @@ public record IdentifierExpressionGeneric<T>(string Name, ICodeModel? Model = nu
     public InvocationFromReflection GetInvocation(System.Linq.Expressions.Expression<Func<T, object>> expression, IEnumerable<IExpression>? arguments = null)
         => CodeModelsFromReflection.Invocation(expression, this, arguments);
     public IExpression GetModel(System.Linq.Expressions.Expression<Func<T, object>> expression, IEnumerable<IExpression>? arguments = null)
-    {
-        var lambda = CodeModelsFromReflection.GetModel(expression);
-        return lambda;
-        //return lambda.ExpressionBody switch
-        //{
-        //    InvocationFromReflection invocation => CodeModelsFromReflection.Invocation(invocation.Method, invocation.Caller, arguments),
-        //    _ => throw new NotImplementedException()
-        //};
-    }
+        => CodeModelsFromReflection.GetModel(expression).ExpressionBody switch
+        {
+            InvocationFromReflection invocation => CodeModelsFromReflection.Invocation(invocation.Method, invocation.Caller, arguments ?? invocation.Arguments),
+            _ => throw new NotImplementedException()
+        };
 
     public InvocationFromReflection GetInvocation(System.Linq.Expressions.Expression<Action<T>> expression, IEnumerable<IExpression>? arguments = null)
         => CodeModelsFromReflection.Invocation(expression, this, arguments);

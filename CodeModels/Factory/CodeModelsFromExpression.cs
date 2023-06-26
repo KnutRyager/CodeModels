@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using CodeModels.Models.Primitives.Expression.Abstract;
+using CodeModels.Models.Primitives.Member;
 using Common.Reflection;
 
 namespace CodeModels.Factory;
@@ -10,9 +11,9 @@ public static class CodeModelsFromExpression
 {
     public static string GetCode(Expression expression) => GetModel(expression).Code();
     public static string GetCode<T>(System.Linq.Expressions.Expression<Func<T, Delegate>> expression) => GetModel(expression).Code();
-    public static string GetCode(System.Linq.Expressions.Expression<Func<object, object?>> expression) => GetModel(expression).Code();
+    public static string GetCode(System.Linq.Expressions.Expression<Func<object, object?>> expression) => GetExpression(expression).Code();
 
-    public static Models.ICodeModel GetModel(System.Linq.Expressions.Expression<Func<object, object?>> expression) => GetModel(expression.Body);
+    public static IExpression GetExpression(System.Linq.Expressions.Expression<Func<object, object?>> expression) => GetExpression(expression.Body);
 
     public static Models.ICodeModel GetModel(Expression? expression) => expression switch
     {
@@ -35,7 +36,7 @@ public static class CodeModelsFromExpression
         MethodCallExpression methodCallExpression => GetModel(methodCallExpression),
         NewArrayExpression newArrayExpression => GetModel(newArrayExpression),
         NewExpression newExpression => GetModel(newExpression),
-        ParameterExpression parameterExpression => GetModel(parameterExpression),
+        ParameterExpression parameterExpression => GetArgModel(parameterExpression),
         RuntimeVariablesExpression runtimeVariablesExpression => GetModel(runtimeVariablesExpression),
         SwitchExpression switchExpression => GetModel(switchExpression),
         TryExpression tryExpression => GetModel(tryExpression),
@@ -45,35 +46,42 @@ public static class CodeModelsFromExpression
         _ => throw new NotImplementedException()
     };
 
-    public static Models.ICodeModel GetModel(BlockExpression expression)
+    public static IExpression GetModel(BlockExpression expression)
         => throw new NotImplementedException();
     //=> CodeModelFactory.Block(expression.Variables.Select(GetModel));
 
-    public static Models.ICodeModel GetModel(ConditionalExpression expression)
+    public static IExpression GetModel(ConditionalExpression expression)
         => CodeModelFactory.TernaryExpression(GetExpression(expression.Test), GetExpression(expression.IfTrue), GetExpression(expression.IfFalse));
 
-    public static Models.ICodeModel GetModel(ConstantExpression expression)
-        => CodeModelFactory.Literal(expression.Value);
+    public static IExpression GetModel(ConstantExpression expression) => expression switch
+    {
+        _ when expression.Value is Enum e => CodeModelFactory.Identifier(e.GetType()).Access(CodeModelFactory.Identifier(e.ToString())),
+        _ => CodeModelFactory.Literal(expression.Value)
+    };
 
-    public static Models.ICodeModel GetModel(DebugInfoExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(DebugInfoExpression expression) => throw new NotImplementedException();
 
-    public static Models.ICodeModel GetModel(DefaultExpression expression)
+    public static IExpression GetModel(DefaultExpression expression)
         => CodeModelFactory.Default(CodeModelFactory.Type(expression.Type));
 
-    public static Models.ICodeModel GetModel(DynamicExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(GotoExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(IndexExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(InvocationExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(LabelExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(LambdaExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(ListInitExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(LoopExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(DynamicExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(GotoExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(IndexExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(InvocationExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(LabelExpression expression) => throw new NotImplementedException();
+    public static Models.ILambdaExpression GetModel(LambdaExpression expression) 
+        => CodeModelFactory.Lambda(CodeModelFactory.ParamList(expression.Parameters.Select(GetModel)), 
+            CodeModelFactory.Type(expression.Type),
+            GetExpression(expression.Body));
 
-    public static Models.ICodeModel GetModel(MemberExpression expression)
-        => CodeModelFactory.Identifier(expression.Member.Name);
+    public static IExpression GetModel(ListInitExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(LoopExpression expression) => throw new NotImplementedException();
 
-    public static Models.ICodeModel GetModel(MemberInitExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(MethodCallExpression expression)
+    public static IExpression GetModel(MemberExpression expression)
+        => CodeModelFactory.MemberAccess(GetExpression(expression.Expression), CodeModelFactory.Identifier(expression.Member.Name));
+
+    public static IExpression GetModel(MemberInitExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(MethodCallExpression expression)
         => CodeModelsFromReflection.Invocation(expression.Method,
             expression.Object is null
             ? ReflectionUtil.IsExtension(expression.Method)
@@ -84,32 +92,36 @@ public static class CodeModelsFromExpression
             ? expression.Arguments.Skip(1).Select(GetExpression)
             : expression.Arguments.Select(GetExpression));
 
-    public static Models.ICodeModel GetModel(NewArrayExpression expression)
+    public static IExpression GetModel(NewArrayExpression expression)
     => CodeModelFactory.ObjectCreation(
         CodeModelFactory.Type(expression.Type),
         null,
         CodeModelFactory.ArrayInitializer(expression.Expressions.Select(GetExpression).ToArray()));
 
-    public static Models.ICodeModel GetModel(NewExpression expression)
+    public static IExpression GetModel(NewExpression expression)
         => CodeModelFactory.ObjectCreation(
             CodeModelFactory.Type(expression.Type),
             expression.Arguments.Select(GetExpression).ToArray());
 
-    public static Models.ICodeModel GetModel(ParameterExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(RuntimeVariablesExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(SwitchExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(TryExpression expression) => throw new NotImplementedException();
-    public static Models.ICodeModel GetModel(TypeBinaryExpression expression) => throw new NotImplementedException();
+    public static Parameter GetModel(ParameterExpression expression)
+        => CodeModelFactory.Param(expression.Name, CodeModelFactory.Type(expression.Type));
+    public static Argument GetArgModel(ParameterExpression expression)
+        => CodeModelFactory.Arg(CodeModelFactory.Identifier(expression.Name));
 
-    public static Models.ICodeModel GetModel(UnaryExpression expression) => expression.NodeType switch
+    public static IExpression GetModel(RuntimeVariablesExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(SwitchExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(TryExpression expression) => throw new NotImplementedException();
+    public static IExpression GetModel(TypeBinaryExpression expression) => throw new NotImplementedException();
+
+    public static IExpression GetModel(UnaryExpression expression) => expression.NodeType switch
     {
         ExpressionType.Convert when expression is { Operand: UnaryExpression inner } && inner.NodeType is ExpressionType.Convert
             => CodeModelFactory.UnaryExpression(GetExpression(inner.Operand), GetUnaryExpressionType(inner.NodeType), CodeModelFactory.Type(inner.Type)),
-        ExpressionType.Convert => GetModel(expression.Operand),
+        ExpressionType.Convert => GetExpression(expression.Operand),
         _ => CodeModelFactory.UnaryExpression(GetExpression(expression.Operand), GetUnaryExpressionType(expression.NodeType), CodeModelFactory.Type(expression.Type))
     };
 
-    public static Models.ICodeModel GetModel(BinaryExpression expression)
+    public static IExpression GetModel(BinaryExpression expression)
         => CodeModelFactory.BinaryExpression(GetExpression(expression.Left), GetBinaryExpressionType(expression.NodeType), GetExpression(expression.Right));
 
     public static IExpression GetExpression(Expression expression)
