@@ -5,6 +5,7 @@ using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
 using Common.DataStructures;
@@ -19,6 +20,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models;
 
 public abstract record BaseTypeDeclaration<T>(string Name,
+    AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     List<IBaseType> BaseTypeList,
@@ -46,8 +48,9 @@ public abstract record BaseTypeDeclaration<T>(string Name,
         IEnumerable<IBaseType>? baseTypeList = null,
         IEnumerable<IMember>? members = null,
         Namespace? @namespace = null, Modifier topLevelModifier = Modifier.Public,
-        Modifier memberModifier = Modifier.Public, Type? type = null)
-        : this(name, List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
+        Modifier memberModifier = Modifier.Public, Type? type = null,
+        AttributeListList? attributes = null)
+        : this(name, Attributes: attributes ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, topLevelModifier, memberModifier, ReflectedType: type)
     {
         InitOwner();
     }
@@ -232,7 +235,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
     public virtual Constructor GetConstructor() => GetConstructors().First();
 
     public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
-            attributeLists: default,
+            attributeLists: Attributes.Syntax(),
             modifiers: modifiers?.Syntax() ?? Modifier.Public.SetModifiers(TopLevelModifier).Syntax(),
             identifier: name is not null ? Identifier(name) : ToIdentifier(),
             typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
@@ -242,7 +245,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
             members: MethodsSyntax());
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
-            attributeLists: default,
+            attributeLists: Attributes.Syntax(),
             modifiers: modifiers?.Syntax() ?? TopLevelModifier.Syntax(),
             identifier: name is not null ? Identifier(name) : ToIdentifier(),
             typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
@@ -300,6 +303,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     public override IEnumerable<ICodeModel> Children()
     {
+        foreach (var attributeList in Attributes.Children()) yield return attributeList;
         foreach (var member in Members) yield return member;
     }
 

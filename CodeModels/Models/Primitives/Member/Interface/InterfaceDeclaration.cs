@@ -6,6 +6,7 @@ using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Utils;
 using Microsoft.CodeAnalysis;
@@ -18,6 +19,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member;
 
 public abstract record InterfaceDeclaration(string Name,
+    AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     List<IBaseType> BaseTypeList,
@@ -33,7 +35,8 @@ public abstract record InterfaceDeclaration(string Name,
         Namespace: Namespace,
         TopLevelModifier: Modifier,
         MemberModifier: Modifier.None,
-        ReflectedType: null),
+        ReflectedType: null,
+        Attributes: Attributes),
     INamedValueCollection<IFieldOrProperty>,
     IMember, IInterfaceDeclaration
 {
@@ -43,9 +46,10 @@ public abstract record InterfaceDeclaration(string Name,
     IEnumerable<IBaseType>? baseTypeList = null,
     IEnumerable<IMember>? members = null,
     Namespace? @namespace = null,
-    Modifier? modifier = null)
+    Modifier? modifier = null,
+    AttributeListList? attributes = null)
     {
-        var declaration = new InterfaceDeclarationImp(name, List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new InterfaceDeclarationImp(name, attributes ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
@@ -61,11 +65,6 @@ public abstract record InterfaceDeclaration(string Name,
     //public override LiteralExpressionSyntax? LiteralSyntax() => ToValueCollection().LiteralSyntax;
     public SeparatedSyntaxList<ExpressionSyntax> SyntaxList() => SeparatedList(GetPropertiesAndFields().Select(x => x.ExpressionSyntax!));
     //public override object? LiteralValue() => ToValueCollection().LiteralValue();
-
-    public override IEnumerable<ICodeModel> Children()
-    {
-        foreach (var member in Members) yield return member;
-    }
 
     public void Evaluate(ICodeModelExecutionContext context) => context.AddMember(Namespace?.Name, this);
 
@@ -97,6 +96,7 @@ public abstract record InterfaceDeclaration(string Name,
     }
 
     private record InterfaceDeclarationImp(string Name,
+    AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     List<IBaseType> BaseTypeList,
@@ -110,6 +110,7 @@ public abstract record InterfaceDeclaration(string Name,
         BaseTypeList: BaseTypeList,
         Members: Members,
         Namespace: Namespace,
-        Modifier: Modifier);
+        Modifier: Modifier,
+        Attributes: Attributes);
 }
 

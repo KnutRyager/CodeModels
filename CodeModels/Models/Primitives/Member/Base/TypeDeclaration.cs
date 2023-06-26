@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
 public abstract record TypeDeclaration<T>(string Name,
+    AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     List<IBaseType> BaseTypeList,
@@ -14,7 +16,7 @@ public abstract record TypeDeclaration<T>(string Name,
     Modifier TopLevelModifier,
     Modifier MemberModifier,
     Type? ReflectedType)
-    : BaseTypeDeclaration<T>(Name, GenericParameters, ConstraintClauses, BaseTypeList, Members, Namespace, TopLevelModifier, MemberModifier, ReflectedType),
+    : BaseTypeDeclaration<T>(Name, Attributes, GenericParameters, ConstraintClauses, BaseTypeList, Members, Namespace, TopLevelModifier, MemberModifier, ReflectedType),
     ITypeDeclaration<T>,
     IScopeHolder where T : TypeDeclarationSyntax
 

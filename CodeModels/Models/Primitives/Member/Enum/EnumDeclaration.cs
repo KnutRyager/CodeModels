@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using CodeModels.Execution.Scope;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Utils;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,8 +15,10 @@ public abstract record EnumDeclaration(string Name,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier Modifier,
+    AttributeListList Attributes,
     Type? ReflectedType = null)
     : BaseTypeDeclaration<EnumDeclarationSyntax>(Name,
+        Attributes: Attributes,
         GenericParameters: new List<IType>(),
         new List<TypeParameterConstraintClause>(),
         new List<IBaseType>(),
@@ -29,9 +33,10 @@ public abstract record EnumDeclaration(string Name,
     public static EnumDeclaration Create(string name,
     IEnumerable<IEnumMember>? members = null,
     Namespace? @namespace = null,
-    Modifier? modifier = null)
+    Modifier? modifier = null,
+    AttributeListList? attributes = null)
     {
-        var declaration = new EnumDeclarationImp(name, List(InitMembersWithDefaultValues(members)), @namespace, modifier ?? Modifier.Public);
+        var declaration = new EnumDeclarationImp(name, List(InitMembersWithDefaultValues(members)), @namespace, attributes ?? AttributesList(), modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
@@ -82,10 +87,12 @@ public abstract record EnumDeclaration(string Name,
     private record EnumDeclarationImp(string Name,
     List<IMember> Members,
     Namespace? Namespace,
+    AttributeListList Attributes,
     Modifier Modifier = Modifier.Public)
     : EnumDeclaration(
         Name: Name,
         Members: Members,
         Namespace: Namespace,
-        Modifier: Modifier);
+        Modifier: Modifier,
+        Attributes: Attributes);
 }

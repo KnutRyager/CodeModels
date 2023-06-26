@@ -121,7 +121,13 @@ public static class CodeModelFactory
         => AttributeList.Create(target, attributes);
     public static AttributeList Attributes(IEnumerable<Models.Primitives.Attribute.Attribute> attributes)
         => AttributeList.Create(null, attributes);
-    public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList arguments)
+
+    public static AttributeListList AttributesList(IEnumerable<AttributeList> attributes)
+        => AttributeListList.Create(attributes);
+    public static AttributeListList AttributesList(IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
+        => AttributesList(List(Attributes(null, attributes)));
+
+    public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList? arguments = null)
         => Models.Primitives.Attribute.Attribute.Create(name, arguments);
     public static AttributeArgumentList AttributeArgList(IEnumerable<AttributeArgument>? arguments = null)
         => AttributeArgumentList.Create(arguments);
@@ -450,9 +456,10 @@ public static class CodeModelFactory
         IEnumerable<IBaseType>? baseTypeList = null,
         IEnumerable<IMember>? members = null,
         Namespace? @namespace = null,
-        Modifier? modifier = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name),
+        Modifier? modifier = null,
+        AttributeListList? attributes = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name),
             genericParameters, constraintClauses, baseTypeList, members,
-            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier, attributes);
     public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
 
     public static InterfaceDeclaration Interface(string name,
@@ -461,8 +468,11 @@ public static class CodeModelFactory
         IEnumerable<IBaseType>? baseTypeList = null,
         IEnumerable<IMember>? members = null,
         Namespace? @namespace = null,
-        Modifier? modifier = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name),
-            genericParameters, constraintClauses, baseTypeList, members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+        Modifier? modifier = null,
+        AttributeListList? attributes = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name),
+            genericParameters, constraintClauses, baseTypeList, members,
+            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace,
+            modifier, attributes);
     public static InterfaceDeclaration Interface(string name, params IMember[] membersArray) => Interface(name, members: membersArray);
 
     public static EnumDeclaration Enum(string name,

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -12,7 +13,7 @@ public record AttributeArgument(IExpression Expression, string? Name)
         => new(expression, name);
 
     public override AttributeArgumentSyntax Syntax()
-        => AttributeArgument(Name is null ? null : new NameEquals(Name).Syntax(), Name is null ? null : new NameColon(Name).Syntax(), Expression.Syntax());
+        => AttributeArgument(null, Name is null ? null : CodeModelFactory.NameColon(Name).Syntax(), Expression.Syntax());
     
     public override IEnumerable<ICodeModel> Children()
     {

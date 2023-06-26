@@ -5,15 +5,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Attribute;
 
-public record Attribute(string Name, AttributeArgumentList Arguments)
+public record Attribute(string Name, AttributeArgumentList? Arguments)
     : CodeModel<AttributeSyntax>
 {
-    public static Attribute Create(string name, AttributeArgumentList arguments)
+    public static Attribute Create(string name, AttributeArgumentList? arguments = null)
         => new(name, arguments);
 
-    public override AttributeSyntax Syntax() => SyntaxFactory.Attribute(IdentifierName(Name), Arguments.Syntax());
+    public override AttributeSyntax Syntax() => SyntaxFactory.Attribute(IdentifierName(Name), Arguments?.Syntax());
     public override IEnumerable<ICodeModel> Children()
     {
-        yield return Arguments;
+        if(Arguments is not null) yield return Arguments;
     }
 }

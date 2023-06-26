@@ -709,10 +709,12 @@ public class CodeModelParser
 
     public AttributeList Parse(AttributeListSyntax syntax)
         => Attributes(syntax.Target is null ? null : Parse(syntax.Target), syntax.Attributes.Select(Parse).ToList());
+    public AttributeListList Parse(IEnumerable<AttributeListSyntax> syntax)
+        => AttributesList(syntax.Select(Parse).ToList());
     public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax)
         => AttributeTargetSpecifier(syntax.Identifier.ToString());
     public Models.Primitives.Attribute.Attribute Parse(AttributeSyntax syntax)
-        => Attribute(syntax.Name.ToString(), AttributeArgList(syntax.ArgumentList?.Arguments.Select(Parse)));
+        => Attribute(syntax.Name.ToString(), syntax.ArgumentList is null ? null : AttributeArgList(syntax.ArgumentList.Arguments.Select(Parse)));
     public AttributeArgumentList Parse(AttributeArgumentListSyntax syntax)
         => AttributeArgList(syntax.Arguments.Select(Parse).ToList());
     public AttributeArgument Parse(AttributeArgumentSyntax syntax)
@@ -946,7 +948,8 @@ public class CodeModelParser
            syntax.BaseList?.Types.Select(Parse).ToArray(),
            syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
-           modifier: ParseModifier(syntax.Modifiers)));
+           modifier: ParseModifier(syntax.Modifiers),
+           attributes: Parse(syntax.AttributeLists)));
 
     public IMember Parse(InterfaceDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
         => Register(syntax, Interface(syntax.Identifier.ValueText,
@@ -955,7 +958,8 @@ public class CodeModelParser
            syntax.BaseList?.Types.Select(Parse).ToArray(),
            syntax.GetMembers().Select(Parse).ToArray(),
            @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
-           modifier: ParseModifier(syntax.Modifiers)));
+           modifier: ParseModifier(syntax.Modifiers),
+           attributes: Parse(syntax.AttributeLists)));
 
     public IMember Parse(RecordDeclarationSyntax syntax) => syntax switch
     {
