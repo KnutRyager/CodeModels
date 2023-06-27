@@ -17,14 +17,14 @@ namespace CodeModels.Models.Primitives.Member;
 
 public record Constructor(IType ReturnType, ParameterList Parameters, Block? Body,
     IExpression? ExpressionBody,
-    Modifier Modifier, List<AttributeList>? Attributes, ConstructorInitializer? Initializer)
-    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Parameters, Attributes ?? new List<AttributeList>(), Modifier),
+    Modifier Modifier, AttributeListList Attributes, ConstructorInitializer? Initializer)
+    : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Parameters, Attributes ?? AttributesList(), Modifier),
     IConstructor, IInvokable<ConstructorInvocationExpression>
 {
-    public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
-        => new(type, parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, List(attributes), initializer);
-    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
-        => new(type.Get_Type(), parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, List(attributes), initializer)
+    public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type, parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes ?? AttributesList(), initializer);
+    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type.Get_Type(), parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes ?? AttributesList(), initializer)
         {
             Owner = type
         };
@@ -39,7 +39,7 @@ public record Constructor(IType ReturnType, ParameterList Parameters, Block? Bod
 
     public ConstructorDeclarationSyntax ToConstructorSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None)
         => ConstructorDeclarationCustom(
-        attributeLists: SyntaxFactory.List(Attributes.Select(x => x.Syntax())),
+        attributeLists: Attributes.Syntax(),
         modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
         identifier: ToIdentifier(),
         parameterList: Parameters.Syntax(),

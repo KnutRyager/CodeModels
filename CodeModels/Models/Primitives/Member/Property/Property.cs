@@ -19,7 +19,7 @@ namespace CodeModels.Models.Primitives.Member;
 
 public record Property(string Name,
     IType Type,
-    List<AttributeList> Attributes,
+    AttributeListList Attributes,
     List<Accessor> Accessors,
     Modifier Modifier,
     IExpression Value)
@@ -29,11 +29,11 @@ public record Property(string Name,
     public static Property Create(string name,
     IType type,
     IEnumerable<Accessor> accessors,
-    IEnumerable<AttributeList>? attributes = null,
+    AttributeListList? attributes = null,
     Modifier modifier = Modifier.Public,
     IExpression? value = null) => new(name,
     type,
-    CodeModelFactory.List(attributes),
+    attributes ?? CodeModelFactory.AttributesList(),
     CodeModelFactory.List(accessors),
     modifier,
     value ?? CodeModelFactory.VoidValue);
@@ -42,7 +42,7 @@ public record Property(string Name,
     {
         yield return Type;
         foreach (var accessor in Accessors) yield return accessor;
-        foreach (var attribute in Attributes) yield return attribute;
+        foreach (var attribute in Attributes.Children()) yield return attribute;
     }
 
     public Accessor? GetAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Get);
@@ -53,7 +53,7 @@ public record Property(string Name,
 
     public override PropertyDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => PropertyDeclaration(
-            attributeLists: List(Attributes.Select(x => x.Syntax())),
+            attributeLists: Attributes.Syntax(),
             modifiers: Modifier.Syntax(),
             type: Type.Syntax(),
             explicitInterfaceSpecifier: default,    // TODO

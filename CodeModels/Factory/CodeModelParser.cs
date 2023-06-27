@@ -13,7 +13,6 @@ using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.CompileTime;
 using CodeModels.Models.Primitives.Expression.Instantiation;
-using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
 using CodeModels.Reflection;
@@ -801,7 +800,7 @@ public class CodeModelParser
 
     public CompilationUnit Parse() => Parse(CompilationUnit);
     public CompilationUnit Parse(CompilationUnitSyntax syntax)
-        => CompilationUnit(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), syntax.AttributeLists.Select(Parse).ToList());
+        => CompilationUnit(syntax.Members.Select(Parse).ToList(), syntax.Usings.Select(Parse).ToList(), AttributesList(syntax.AttributeLists.Select(Parse)));
     public UsingDirective Parse(UsingDirectiveSyntax syntax)
             => UsingDir(syntax.Name?.ToString() ?? throw new NotImplementedException(),
                 isGlobal: syntax.GlobalKeyword.IsKind(SyntaxKind.StaticKeyword),
@@ -832,7 +831,7 @@ public class CodeModelParser
         => Register(syntax, CodeModelFactory.Field(ParseType(syntax.Declaration.Type),
             Parse(syntax.Declaration).First().Name,
             syntax.Declaration.Variables.FirstOrDefault()?.Initializer is null ? null : ParseExpression(syntax.Declaration.Variables.First().Initializer!.Value),
-            syntax.AttributeLists.Select(Parse).ToList(),
+            AttributesList(syntax.AttributeLists.Select(Parse)),
             ParseModifier(syntax.Modifiers)));
 
     public Field Parse(IFieldSymbol symbol)
@@ -920,7 +919,7 @@ public class CodeModelParser
                 : Parse(syntax.AccessorList!),
             syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value),
             ParseModifier(syntax.Modifiers),
-            syntax.AttributeLists.Select(Parse).ToList()));
+            AttributesList(syntax.AttributeLists.Select(Parse))));
     public List<Accessor> Parse(AccessorListSyntax syntax)
         => List(syntax.Accessors.Select(Parse));
     public Accessor Parse(AccessorDeclarationSyntax syntax)
@@ -932,7 +931,11 @@ public class CodeModelParser
         TypeDeclarationSyntax declaration => Parse(declaration),
         _ => throw new NotImplementedException($"Not implemented BaseTypeDeclaration: '{syntax}'.")
     };
-    public IMember Parse(EnumDeclarationSyntax syntax) => throw new NotImplementedException();
+    public IMember Parse(EnumDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null) => Register(syntax, Enum(syntax.Identifier.ValueText,
+           syntax.GetMembers().Select(x => (Parse(x) as IEnumMember)!).ToArray(),
+    @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
+           modifier: ParseModifier(syntax.Modifiers),
+           attributes: Parse(syntax.AttributeLists)));
     public IMember Parse(TypeDeclarationSyntax syntax) => syntax switch
     {
         ClassDeclarationSyntax declaration => Parse(declaration),
@@ -974,7 +977,9 @@ public class CodeModelParser
         => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
     public IMember Parse(StructDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(DelegateDeclarationSyntax syntax) => throw new NotImplementedException();
-    public IMember Parse(EnumMemberDeclarationSyntax syntax) => throw new NotImplementedException();
+    public IMember Parse(EnumMemberDeclarationSyntax syntax) => EnumField(syntax.Identifier.ValueText,
+        syntax.EqualsValue is null ? null : ParseExpression(syntax.EqualsValue.Value),
+        syntax.EqualsValue is null);
     public IMember Parse(IncompleteMemberSyntax syntax) => throw new NotImplementedException();
 
     public IBaseType Parse(BaseTypeSyntax syntax) => syntax switch

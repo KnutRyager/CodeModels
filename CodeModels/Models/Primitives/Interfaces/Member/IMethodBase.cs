@@ -19,7 +19,7 @@ public interface IMethodBase<T> : ICodeModel<T>, IMethodBase where T : BaseMetho
     new CodeModel<T> Render(Namespace @namespace);
 }
 
-public abstract record MethodBase<T, U>(IType Type, string Name, ParameterList Parameters, List<AttributeList> Attributes, Modifier Modifier)
+public abstract record MethodBase<T, U>(IType Type, string Name, ParameterList Parameters, AttributeListList Attributes, Modifier Modifier)
     : MemberModel<T>(Type, Attributes, Modifier, Name), IMethodBase<T>, IInvokable<U>, IToParameterListConvertible
     where T : BaseMethodDeclarationSyntax
     where U : IInvocation

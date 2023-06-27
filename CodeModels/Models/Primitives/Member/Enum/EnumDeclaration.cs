@@ -42,8 +42,8 @@ public abstract record EnumDeclaration(string Name,
     }
 
     public EnumDeclarationSyntax ToEnum() => SyntaxFactory.EnumDeclaration(
-        attributeLists: default,
-        modifiers: SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)),
+        attributeLists: Attributes.Syntax(),
+        modifiers: Modifier.Syntax(),
         identifier: SyntaxFactory.Identifier(Name),
         baseList: default,
         members: SyntaxFactory.SeparatedList(GetEnumMembers().Select(x => x.EnumSyntax())));
@@ -76,8 +76,8 @@ public abstract record EnumDeclaration(string Name,
         foreach (var member in members)
         {
             var initializedMember = previousMember is not null && ExpressionUtils.IsNull(member.Value)
-                ? EnumField(member.Name, ExpressionUtils.Add(previousMember.Value!, 1))
-                : ExpressionUtils.IsNull(member.Value) ? EnumField(member.Name, 0) : member;
+                ? EnumField(member.Name, ExpressionUtils.Add(previousMember.Value!, 1), member.IsImplicitValue)
+                : ExpressionUtils.IsNull(member.Value) ? EnumField(member.Name, 0, member.IsImplicitValue) : member;
             initializedMembers.Add(initializedMember);
             previousMember = initializedMember;
         }

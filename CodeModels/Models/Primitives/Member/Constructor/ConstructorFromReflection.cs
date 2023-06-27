@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using CodeModels.Factory;
-using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -13,7 +12,7 @@ public record ConstructorFromReflection(ConstructorInfo Constructor)
         TypeFromReflection.Create(Constructor),
         Constructor.Name,
         CodeModelsFromReflection.ParamList(Constructor),
-        new List<AttributeList>(),   // TODO
+        CodeModelFactory.AttributesList(),   // TODO
         Modifier.Public), IConstructor
 {
     public override IEnumerable<ICodeModel> Children()

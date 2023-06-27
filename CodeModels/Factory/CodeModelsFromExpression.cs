@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
 using Common.Reflection;
@@ -69,8 +70,8 @@ public static class CodeModelsFromExpression
     public static IExpression GetModel(IndexExpression expression) => throw new NotImplementedException();
     public static IExpression GetModel(InvocationExpression expression) => throw new NotImplementedException();
     public static IExpression GetModel(LabelExpression expression) => throw new NotImplementedException();
-    public static Models.ILambdaExpression GetModel(LambdaExpression expression) 
-        => CodeModelFactory.Lambda(CodeModelFactory.ParamList(expression.Parameters.Select(GetModel)), 
+    public static Models.ILambdaExpression GetModel(LambdaExpression expression)
+        => CodeModelFactory.Lambda(CodeModelFactory.ParamList(expression.Parameters.Select(GetModel)),
             CodeModelFactory.Type(expression.Type),
             GetExpression(expression.Body));
 
@@ -78,7 +79,10 @@ public static class CodeModelsFromExpression
     public static IExpression GetModel(LoopExpression expression) => throw new NotImplementedException();
 
     public static IExpression GetModel(MemberExpression expression)
-        => CodeModelFactory.MemberAccess(GetExpression(expression.Expression), CodeModelFactory.Identifier(expression.Member.Name));
+        => expression.Expression is ConstantExpression constantExpression && ReflectionUtil.IsStatic(constantExpression.Type)
+            || expression.Expression is ParameterExpression
+            ? CodeModelFactory.MemberAccess(GetExpression(expression.Expression), CodeModelFactory.Identifier(expression.Member.Name))
+            : CodeModelFactory.Identifier(expression.Member.Name);
 
     public static IExpression GetModel(MemberInitExpression expression) => throw new NotImplementedException();
     public static IExpression GetModel(MethodCallExpression expression)

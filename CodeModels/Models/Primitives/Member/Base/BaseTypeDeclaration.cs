@@ -281,7 +281,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
-    public Modifier Modifier => Modifier.None;
+    public Modifier Modifier => TopLevelModifier;
 
     public string TypeName => Name;
 

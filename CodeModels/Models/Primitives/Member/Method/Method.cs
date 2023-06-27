@@ -20,15 +20,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member;
 
 public record Method(string Name,
-ParameterList Parameters,
-List<IType> TypeParameters,
-List<TypeParameterConstraintClause> ConstraintClauses,
-IType ReturnType,
-Block? Body,
-IExpression? ExpressionBody = null,
-Modifier Modifier = Modifier.Public,
-List<AttributeList>? AttributesIn = null)
-    : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, Parameters, AttributesIn ?? new List<AttributeList>(), Modifier),
+    ParameterList Parameters,
+    List<IType> TypeParameters,
+    List<TypeParameterConstraintClause> ConstraintClauses,
+    IType ReturnType,
+    Block? Body,
+    IExpression? ExpressionBody = null,
+    Modifier Modifier = Modifier.Public,
+    AttributeListList? AttributesIn = null)
+    : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, Parameters, AttributesIn ?? AttributesList(), Modifier),
     IMethod, IInvokable<InvocationExpression>
 {
     public static Method Create(string name,

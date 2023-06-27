@@ -6,6 +6,7 @@ namespace CodeModels.Models;
 public interface IEnumMember : IMember
 {
     EnumMemberDeclarationSyntax EnumSyntax();
+    bool IsImplicitValue { get; }
     IExpression? Value { get; }
 }
 

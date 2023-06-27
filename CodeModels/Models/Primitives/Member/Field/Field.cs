@@ -18,7 +18,7 @@ namespace CodeModels.Models.Primitives.Member;
 
 public record Field(string Name,
     IType Type,
-    List<AttributeList> Attributes,
+    AttributeListList Attributes,
     Modifier Modifier,
     IExpression? Value)
     : FieldOrProperty<FieldDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
@@ -26,11 +26,11 @@ public record Field(string Name,
 {
     public static Field Create(string name,
     IType type,
-    IEnumerable<AttributeList>? attributes = null,
+    AttributeListList? attributes = null,
     Modifier modifier = Modifier.Public,
     IExpression? value = null) => new(name,
     type,
-    List(attributes),
+    attributes ?? AttributesList(),
     modifier,
     value ?? VoidValue);
 
@@ -47,12 +47,12 @@ public record Field(string Name,
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        foreach (var attribute in Attributes) yield return attribute;
+        foreach (var attribute in Attributes.Children()) yield return attribute;
     }
 
     public override FieldDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => FieldDeclaration(
-            SyntaxFactory.List(Attributes.Select(x => x.Syntax())),
+            Attributes.Syntax(),
             Modifier.Syntax(),
             VariableDeclaration().Syntax());
 

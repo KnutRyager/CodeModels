@@ -13,17 +13,22 @@ using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Attribute;
+using CodeModels.Utils;
 
 namespace CodeModels.Models.Primitives.Member.Enum;
 
 public record EnumMember(string Name,
-    List<AttributeList> Attributes,
-    IExpression Value)
+    AttributeListList Attributes,
+    IExpression Value,
+    bool IsImplicitValue)
     : FieldOrProperty<EnumMemberDeclarationSyntax>(Name, TypeShorthands.Int, Attributes, Modifier.Public | Modifier.Static, Value),
     IEnumMember, IField<EnumMemberExpression>
 {
-    public static EnumMember Create(string name, IEnumerable<AttributeList>? attributes = null, IExpression? value = null)
-        => new(name, List(attributes), value ?? VoidValue);
+    public static EnumMember Create(string name,
+        AttributeListList? attributes = null,
+        IExpression? value = null,
+        bool? isImplicitValue = null)
+        => new(name, attributes ?? AttributesList(), value ?? VoidValue, isImplicitValue is null ? value is null : isImplicitValue.Value);
 
     public override IInvocation AccessValue(IExpression? instance = null) => new EnumMemberExpression(this, instance, GetScopes(instance));
 
@@ -38,17 +43,17 @@ public record EnumMember(string Name,
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        foreach (var attribute in Attributes) yield return attribute;
+        foreach (var attribute in Attributes.Children()) yield return attribute;
     }
 
     public EnumMemberDeclarationSyntax EnumSyntax() => SyntaxWithModifiers();
 
     public override EnumMemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => EnumMemberDeclaration(
-            SyntaxFactory.List(Attributes.Select(x => x.Syntax())),
-            Modifier.Syntax(),
+            Attributes.Syntax(),
+            Modifier.None.Syntax(),
             Identifier(Name),
-            Value is null ? null : EqualsValueClause(Value.Syntax()));
+            IsImplicitValue || Value is null || ExpressionUtils.IsVoid(Value) ? null : EqualsValueClause(Value.Syntax()));
 
     public override IExpression EvaluateAccess(IExpression? expression, ICodeModelExecutionContext context)
     {

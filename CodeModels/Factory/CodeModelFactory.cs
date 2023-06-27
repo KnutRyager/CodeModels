@@ -60,8 +60,8 @@ public static class CodeModelFactory
         Type? type = null,
         ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, genericTypes, type, symbol);
 
-    public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, List<AttributeList>? attributes = null, List<ExternAliasDirective>? externs = null)
-        => new(members, usings ?? new List<UsingDirective>(), attributes ?? new List<AttributeList>(), externs);
+    public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, AttributeListList? attributes = null, List<ExternAliasDirective>? externs = null)
+        => new(members, usings ?? new List<UsingDirective>(), attributes ?? AttributesList(), externs);
 
     public static IBaseTypeDeclaration MetodHolder(Type type) => type switch
     {
@@ -125,7 +125,7 @@ public static class CodeModelFactory
     public static AttributeListList AttributesList(IEnumerable<AttributeList> attributes)
         => AttributeListList.Create(attributes);
     public static AttributeListList AttributesList(IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
-        => AttributesList(List(Attributes(null, attributes)));
+        => AttributesList(attributes is null ? List<AttributeList>() : List(Attributes(null, attributes)));
 
     public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList? arguments = null)
         => Models.Primitives.Attribute.Attribute.Create(name, arguments);
@@ -145,17 +145,17 @@ public static class CodeModelFactory
     public static ImplicitElementAccessExpression ImplicitElementAccess(IType type, IEnumerable<IExpression>? arguments = null)
         => ImplicitElementAccessExpression.Create(type, arguments);
 
-    public static Field Field(IType? type, string name, IExpression? value = null, IEnumerable<AttributeList>? attributes = null, Modifier modifier = Modifier.None)
+    public static Field Field(IType? type, string name, IExpression? value = null, AttributeListList? attributes = null, Modifier modifier = Modifier.None)
         => Models.Primitives.Member.Field.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, attributes, modifier, value);
     public static Field Field(string name, IExpression? value, Modifier modifier = Modifier.None)
         => Field(value?.Get_Type(), name, modifier: modifier, value: value);
     public static Field Field<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
             => Field(Type<T>(), name, modifier: modifier, value: value);
 
-    public static EnumMember EnumField(string name, IExpression? value = null) => EnumMember.Create(name, value: value);
-    public static EnumMember EnumField(string name, int value) => EnumField(name, Literal(value));
+    public static EnumMember EnumField(string name, IExpression? value = null, bool? isImplicitValue = null) => EnumMember.Create(name, value: value, isImplicitValue: isImplicitValue);
+    public static EnumMember EnumField(string name, int value, bool isImplicitValue = true) => EnumField(name, Literal(value), isImplicitValue);
 
-    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None, IEnumerable<AttributeList>? attributes = null)
+    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None, AttributeListList? attributes = null)
         => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value, attributes: attributes);
     public static Property Property(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
         => Property(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
@@ -215,51 +215,51 @@ public static class CodeModelFactory
     };
 
     public static Constructor ConstructorFull(IBaseTypeDeclaration type, IToParameterListConvertible parameters, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IType type, IToParameterListConvertible parameters, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => Models.Primitives.Member.Constructor.Create(type, parameters, body is null && expressionBody is null ? Block() : body, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, IToParameterListConvertible parameters, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, IEnumerable<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(type, parameters, null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, IToParameterListConvertible parameters, IEnumerable<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
         => ConstructorFull(type, parameters, Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(string type, IToParameterListConvertible parameters, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(Class(type), parameters, body, null, Modifier, attributes, initializer);
     public static Constructor Constructor(string type, IToParameterListConvertible parameters, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(Class(type), parameters, null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, Block? body = null, IExpression? expressionBody = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), body, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IBaseTypeDeclaration type, List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
         => ConstructorFull(type, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(string type, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), body, null, Modifier, attributes, initializer);
     public static Constructor Constructor(string type, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(Class(type), AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IToParameterListConvertible parameters, IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, parameters, null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(IToParameterListConvertible parameters, List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, parameters, Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(IToParameterListConvertible parameters, Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, parameters, body, null, Modifier, attributes, initializer);
     public static Constructor Constructor(IExpression expressionBody,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), null, expressionBody, Modifier, attributes, initializer);
     public static Constructor Constructor(List<IStatement> statements, Modifier modifier = Modifier.Public, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), Block(statements), null, modifier, initializer: initializer);
     public static Constructor Constructor(Block? body = null,
-    Modifier Modifier = Modifier.Public, List<AttributeList>? attributes = null, ConstructorInitializer? initializer = null)
+    Modifier Modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
         => ConstructorFull(VoidClass, AbstractCodeModelFactory.NamedValues(), body, null, Modifier, attributes, initializer: initializer);
 
     public static ConstructorInitializer BaseConstructorInitializer(IToArgumentListConvertible? arguments = null)
@@ -478,7 +478,10 @@ public static class CodeModelFactory
     public static EnumDeclaration Enum(string name,
         IEnumerable<IEnumMember>? members = null,
         Namespace? @namespace = null,
-        Modifier? modifier = null) => EnumDeclaration.Create(NamespaceUtils.NamePart(name), members, @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier);
+        Modifier? modifier = null,
+        AttributeListList? attributes = null) => EnumDeclaration.Create(NamespaceUtils.NamePart(name), members,
+            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace,
+            modifier, attributes);
     public static EnumDeclaration Enum(string name, params IEnumMember[] membersArray) => Enum(name, members: membersArray);
     public static EnumDeclaration Enum(string name, params string[] memberNames) => Enum(name, members: memberNames.Select(x => EnumField(x)).ToArray());
 

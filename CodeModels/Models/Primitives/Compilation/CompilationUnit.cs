@@ -9,14 +9,14 @@ namespace CodeModels.Models;
 public record CompilationUnit(
     List<IMember> Members,
     List<UsingDirective> Usings,
-    List<AttributeList> Attributes,
+    AttributeListList Attributes,
     List<ExternAliasDirective>? Externs = null)
     : CodeModel<CompilationUnitSyntax>()
 {
     public override CompilationUnitSyntax Syntax() => CompilationUnit(
         List((Externs ?? Enumerable.Empty<ExternAliasDirective>()).Select(x => x.Syntax())),
         List(Usings.Select(x => x.Syntax())),
-        List(Attributes.Select(x => x.Syntax())),
+        Attributes.Syntax(),
         List(Members.Select(x => x.Syntax())));
 
     public override IEnumerable<ICodeModel> Children()

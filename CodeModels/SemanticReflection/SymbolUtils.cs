@@ -44,6 +44,7 @@ public static class SymbolUtils
         QualifiedNameSyntax qualifiedName => GetDeclaredSymbol(qualifiedName, model) ?? GetSymbol(qualifiedName, model),
         ObjectCreationExpressionSyntax objectCreation => GetDeclaration(objectCreation, model),
         LocalFunctionStatementSyntax localFunctionStatement => GetDeclaredSymbol(localFunctionStatement, model),
+        EnumDeclarationSyntax @enum => GetDeclaredSymbol(@enum, model),
         _ => throw new NotImplementedException()
     };
 

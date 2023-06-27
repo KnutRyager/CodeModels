@@ -17,8 +17,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.AbstractCodeModels.Member;
 
-public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, List<AttributeList>? Attributes = null)
-    : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? new List<AttributeList>(), Modifier, Name),
+public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, AttributeListList? Attributes = null)
+    : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? AttributesList(), Modifier, Name),
     IMember, ITypeModel, IAssignable, INamedValue,
     IToArgumentConvertible, IToArgumentListConvertible
 {
