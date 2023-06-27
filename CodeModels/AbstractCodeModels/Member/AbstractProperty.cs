@@ -20,7 +20,7 @@ namespace CodeModels.AbstractCodeModels.Member;
 public record AbstractProperty(IType Type, string Name, IExpression Value, Modifier Modifier, bool IsRandomlyGeneratedName, IType? InterfaceType = null, AttributeListList? Attributes = null)
     : MemberModel<MemberDeclarationSyntax>(Type, Attributes ?? AttributesList(), Modifier, Name),
     IMember, ITypeModel, IAssignable, INamedValue,
-    IToArgumentConvertible, IToArgumentListConvertible
+    IToPropertyConvertible, IToArgumentConvertible, IToArgumentListConvertible
 {
     public AbstractProperty(IType type, string? name, IExpression? expression = null, Modifier? modifier = Modifier.Public, IBaseTypeDeclaration? owner = null, IType? interfaceType = null)
             : this(type, name ?? Guid.NewGuid().ToString(), expression ?? VoidValue, modifier ?? Modifier.Public, name is null, interfaceType)

@@ -17,7 +17,7 @@ public record Accessor(AccessorType Type,
     IExpression? ExpressionBody,
     List<AttributeList> Attributes,
     Modifier Modifier)
-    : CodeModel<AccessorDeclarationSyntax>()
+    : CodeModel<AccessorDeclarationSyntax>(), IToAccessorConvertible
 {
     public static Accessor Create(AccessorType type,
         Block? body = null,
@@ -95,6 +95,9 @@ public record Accessor(AccessorType Type,
                 CodeModelFactory.IdentifierExp(Type.GetBackingFieldName(name)),
                 CodeModelFactory.IdentifierExp("value")))
     };
+
+    public Accessor ToAccessor() => this;
+    public AccessorList ToAccessorList() => CodeModelFactory.Accessors(new[] { this });
 }
 
 public record GetAccessor(

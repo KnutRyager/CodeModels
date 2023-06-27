@@ -18,16 +18,16 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Member;
 
-public abstract record ClassDeclaration(string Name,
+public abstract record RecordDeclaration(string Name,
     AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     List<IBaseType> BaseTypeList,
     List<IMember> Members,
-    IClassDeclaration? Parent = null,
+    IRecordDeclaration? Parent = null,
     Namespace? Namespace = null,
     Modifier Modifier = Modifier.Public)
-    : TypeDeclaration<ClassDeclarationSyntax>(
+    : TypeDeclaration<RecordDeclarationSyntax>(
         Name: Name,
         GenericParameters: GenericParameters,
         ConstraintClauses: ConstraintClauses,
@@ -39,11 +39,13 @@ public abstract record ClassDeclaration(string Name,
         ReflectedType: null,
         Attributes: Attributes),
     INamedValueCollection<IFieldOrProperty>,
-    IMember, IClassDeclaration
+    IMember, IRecordDeclaration
 {
-    ClassDeclaration? IClassOrRecordDeclaration<ClassDeclaration, ClassDeclarationSyntax>.Parent => throw new NotImplementedException();
+    RecordDeclaration? IClassOrRecordDeclaration<RecordDeclaration, RecordDeclarationSyntax>.Parent => throw new NotImplementedException();
 
-    public static ClassDeclaration Create(string name,
+    IClassDeclaration? IClassOrRecordDeclaration.Parent => throw new NotImplementedException();
+
+    public static RecordDeclaration Create(string name,
     IEnumerable<IType>? genericParameters = null,
     IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
     IEnumerable<IBaseType>? baseTypeList = null,
@@ -52,7 +54,7 @@ public abstract record ClassDeclaration(string Name,
     Modifier? modifier = null,
     IToAttributeListListConvertible? attributes = null)
     {
-        var declaration = new ClassDeclarationImp(name, attributes?.ToAttributeListList() ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new RecordDeclarationImp(name, attributes?.ToAttributeListList() ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
@@ -79,7 +81,7 @@ public abstract record ClassDeclaration(string Name,
     public List<AbstractProperty> AsList(AbstractProperty? typeSpecifier = null) => ToNamedValues().AsList(typeSpecifier);
     public ITypeCollection ToTypeCollection() => ToNamedValues().ToTypeCollection();
 
-    public override ClassDeclarationSyntax Syntax() => ToClass();
+    public override RecordDeclarationSyntax Syntax() => ToRecord();
     MemberDeclarationSyntax IMember.Syntax() => Syntax();
     TypeDeclarationSyntax ITypeDeclaration<TypeDeclarationSyntax>.Syntax() => Syntax();
     TypeDeclarationSyntax IBaseTypeDeclaration<TypeDeclarationSyntax>.Syntax() => Syntax();
@@ -101,7 +103,7 @@ public abstract record ClassDeclaration(string Name,
         return scope;
     }
 
-    private record ClassDeclarationImp(string Name,
+    private record RecordDeclarationImp(string Name,
     AttributeListList Attributes,
     List<IType> GenericParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
@@ -109,7 +111,7 @@ public abstract record ClassDeclaration(string Name,
     List<IMember> Members,
     Namespace? Namespace,
     Modifier Modifier = Modifier.Public)
-    : ClassDeclaration(
+    : RecordDeclaration(
         Name: Name,
         GenericParameters: GenericParameters,
         ConstraintClauses: ConstraintClauses,

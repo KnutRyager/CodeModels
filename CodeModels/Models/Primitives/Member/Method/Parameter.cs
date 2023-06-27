@@ -10,7 +10,8 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member
 {
     public record Parameter(string Name, IType Type, IExpression? Expression, AttributeListList Attributes, Modifier Modifier)
-        : CodeModel<ParameterSyntax>(), IToParameterListConvertible, INamedValue
+        : CodeModel<ParameterSyntax>(),
+        IToPropertyConvertible, IToParameterListConvertible, INamedValue
     {
         public IExpression Value => Expression ?? NullValue;
 

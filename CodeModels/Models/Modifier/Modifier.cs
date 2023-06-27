@@ -40,4 +40,6 @@ public enum Modifier
     Partial = 2097152,
     // File
     File = 4194304,
+    // Constructor
+    Constructor = 8388608,
 }

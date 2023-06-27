@@ -14,14 +14,14 @@ public class ClassInheritanceTests
 {
     [Fact]
     public void EvaluateGetterBlock() => Property(Type<int>(), "get3",
-        new Accessor[] { Accessor(AccessorType.Get, Block(Return(3))) })
+        Accessors(Accessor(AccessorType.Get, Block(Return(3)))))
         .GetGetter()!
         .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
 
     [Fact]
     public void EvaluateGetterExpressionBody() => Property(Type<int>(), "get3",
-        new Accessor[] { Accessor(AccessorType.Get, expressionBody: Literal(3)) })
+        Accessors(Accessor(AccessorType.Get, expressionBody: Literal(3))))
         .GetGetter()!
         .Invoke(Class("classA", Field("A", Literal(5))).CreateInstance())
         .Eval().Should().Be(3);
@@ -40,9 +40,9 @@ public class ClassInheritanceTests
     [Fact]
     public void ClassInstacePropertyModifyFieldValueAutoProperty()
     {
-        var property = Property(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", Accessors(
             Accessor(AccessorType.Get),
-            Accessor(AccessorType.Set) });
+            Accessor(AccessorType.Set)));
         var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
@@ -57,9 +57,9 @@ public class ClassInheritanceTests
     [Fact]
     public void ClassInstacePropertyModifyBackingField()
     {
-        var property = Property(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", Accessors(
             Accessor(AccessorType.Get),
-            Accessor(AccessorType.Set) });
+            Accessor(AccessorType.Set)));
         var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
@@ -79,9 +79,9 @@ public class ClassInheritanceTests
     [Fact]
     public void ClassInstanceStaticPropertyModifyBackingField()
     {
-        var property = Property(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", Accessors(
             Accessor(AccessorType.Get),
-            Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
+            Accessor(AccessorType.Set)), modifier: PropertyAndFieldTypes.PublicStaticField);
         var c = Class("classA",
             new IFieldOrProperty[] { property });
         var instance = c.CreateInstance();
@@ -101,9 +101,9 @@ public class ClassInheritanceTests
     [Fact]
     public void StaticPropertyBackingFieldIsStatic()
     {
-        var property = Property(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", Accessors(
             Accessor(AccessorType.Get),
-            Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicStaticField);
+            Accessor(AccessorType.Set)), modifier: PropertyAndFieldTypes.PublicStaticField);
         var c = Class("classA",
             new IFieldOrProperty[] { property });
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;
@@ -113,9 +113,9 @@ public class ClassInheritanceTests
     [Fact]
     public void InstancePropertyBackingFieldIsNotStatic()
     {
-        var property = Property(Type<string>(), "A", new[] {
+        var property = Property(Type<string>(), "A", Accessors(
             Accessor(AccessorType.Get),
-            Accessor(AccessorType.Set) }, modifier: PropertyAndFieldTypes.PublicField);
+            Accessor(AccessorType.Set)), modifier: PropertyAndFieldTypes.PublicField);
         var c = Class("classA",
             new IFieldOrProperty[] { property });
         var backingField = c.GetFields().FirstOrDefault(x => x.Name == $"<A>k__BackingField")!;

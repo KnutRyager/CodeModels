@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models;
 
-public interface IClassDeclaration
-        : IClassOrRecordDeclaration<ClassDeclaration, ClassDeclarationSyntax>
+public interface IRecordDeclaration
+    : IClassOrRecordDeclaration<RecordDeclaration, RecordDeclarationSyntax>
 {
 }

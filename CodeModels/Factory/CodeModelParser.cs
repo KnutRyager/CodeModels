@@ -915,13 +915,13 @@ public class CodeModelParser
     public IMember Parse(PropertyDeclarationSyntax syntax)
         => Register(syntax, Property(ParseType(syntax.Type), syntax.Name(),
              syntax.ExpressionBody is not null
-                ? List(Accessor(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression), modifier: ParseModifier(syntax.Modifiers)))
+                ? Accessors(Accessor(AccessorType.Get, expressionBody: ParseExpression(syntax.ExpressionBody.Expression), modifier: ParseModifier(syntax.Modifiers)))
                 : Parse(syntax.AccessorList!),
             syntax.Initializer is null ? null : ParseExpression(syntax.Initializer.Value),
             ParseModifier(syntax.Modifiers),
             AttributesList(syntax.AttributeLists.Select(Parse))));
-    public List<Accessor> Parse(AccessorListSyntax syntax)
-        => List(syntax.Accessors.Select(Parse));
+    public AccessorList Parse(AccessorListSyntax syntax)
+        => Accessors(syntax.Accessors.Select(Parse));
     public Accessor Parse(AccessorDeclarationSyntax syntax)
         => Models.Primitives.Member.Accessor.Create(AccessorTypeExtensions.FromSyntax(syntax.Kind()), syntax.Body is null ? null : Parse(syntax.Body),
            syntax.ExpressionBody is null ? null : ParseExpression(syntax.ExpressionBody?.Expression), modifier: ParseModifier(syntax.Modifiers));
@@ -971,8 +971,25 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.")
     };
 
-    public IMember ParseRecordNonStruct(RecordDeclarationSyntax syntax)
-        => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
+    public IMember ParseRecordNonStruct(RecordDeclarationSyntax syntax, NamespaceDeclarationSyntax? @namespace = null)
+        => Register(syntax, Record(syntax.Identifier.ValueText,
+           syntax.TypeParameterList?.Parameters.Select(Parse),
+           syntax.ConstraintClauses.Select(Parse).ToArray(),
+           syntax.BaseList?.Types.Select(Parse).ToArray(),
+           (syntax.ParameterList?.Parameters.Select(ParseRecordParameter).ToArray() ?? Array.Empty<IMember>())
+            .Concat(syntax.GetMembers().Select(Parse).ToArray()),
+    @namespace: @namespace == default ? default : ParseToNamespace(@namespace),
+           modifier: ParseModifier(syntax.Modifiers),
+           attributes: Parse(syntax.AttributeLists)));
+    public IMember ParseRecordParameter(ParameterSyntax syntax)
+    {
+        var parameter = Parse(syntax);
+        return Property(parameter.Type, parameter.Name, Accessors(Accessor(AccessorType.Get), Accessor(AccessorType.Init)),
+            parameter.Value,
+            PropertyAndFieldTypes.RecordProperty,
+            parameter.Attributes);
+    }
+
     public IMember ParseRecordStruct(RecordDeclarationSyntax syntax)
         => throw new NotImplementedException($"Not implemented RecordDeclaration: '{syntax}'.");
     public IMember Parse(StructDeclarationSyntax syntax) => throw new NotImplementedException();

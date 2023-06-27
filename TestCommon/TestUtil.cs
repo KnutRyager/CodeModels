@@ -70,5 +70,13 @@ public static class TestUtil
         generatedCode.Trim().Should().Be(code.Trim());
     }
 
+    public static void AssertParsedAndGeneratedEqual(this string code, string otherCode)
+    {
+        var generatedCode = code.ParseAndRegenerateCode();
+        generatedCode = FixNewlines(generatedCode);
+        code = FixNewlines(code);
+        generatedCode.Trim().Should().Be(otherCode.Trim());
+    }
+
     private static string FixNewlines(string s) => s.Replace("\r\n", Environment.NewLine).Replace("\n", Environment.NewLine);
 }

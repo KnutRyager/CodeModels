@@ -155,9 +155,11 @@ public static class CodeModelFactory
     public static EnumMember EnumField(string name, IExpression? value = null, bool? isImplicitValue = null) => EnumMember.Create(name, value: value, isImplicitValue: isImplicitValue);
     public static EnumMember EnumField(string name, int value, bool isImplicitValue = true) => EnumField(name, Literal(value), isImplicitValue);
 
-    public static Property Property(IType? type, string name, IEnumerable<Accessor>? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None, IToAttributeListListConvertible? attributes = null)
-        => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType, accessors ?? new Accessor[] { Accessor(AccessorType.Get), Accessor(AccessorType.Set) }, modifier: modifier, value: value, attributes: attributes);
-    public static Property Property(string name, IExpression value, IEnumerable<Accessor>? accessors = null, Modifier modifier = Modifier.None)
+    public static Property Property(IType? type, string name, IToAccessorListConvertible? accessors = null, IExpression? value = null, Modifier modifier = Modifier.None, IToAttributeListListConvertible? attributes = null)
+        => Models.Primitives.Member.Property.Create(name, type ?? value?.Get_Type() ?? TypeShorthands.NullType,
+            accessors ?? Accessors(Accessor(AccessorType.Get), Accessor(AccessorType.Set)),
+            modifier: modifier, value: value, attributes: attributes);
+    public static Property Property(string name, IExpression value, IToAccessorListConvertible? accessors = null, Modifier modifier = Modifier.None)
         => Property(value?.Get_Type(), name, accessors, modifier: modifier, value: value);
     public static Property Property<T>(string name, IExpression? value = null, Modifier modifier = Modifier.None)
             => Property(Type<T>(), name, modifier: modifier, value: value);
@@ -167,6 +169,11 @@ public static class CodeModelFactory
     IExpression? expressionBody = null,
     IEnumerable<AttributeList>? attributes = null,
     Modifier modifier = Modifier.None) => Models.Primitives.Member.Accessor.Create(type, body, expressionBody, attributes, modifier);
+
+    public static AccessorList Accessors(IEnumerable<IToAccessorConvertible>? accessors = default)
+       => AccessorList.Create(accessors);
+    public static AccessorList Accessors(params IToAccessorConvertible[] accessors)
+       => AccessorList.Create(accessors);
 
     public static IdentifierExpression IdentifierExp(string name, IType? type = null, ISymbol? symbol = null, ICodeModel? model = null)
         => IdentifierExpression.Create(name, type, symbol, model);
@@ -474,6 +481,18 @@ public static class CodeModelFactory
             @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace,
             modifier, attributes);
     public static InterfaceDeclaration Interface(string name, params IMember[] membersArray) => Interface(name, members: membersArray);
+
+    public static RecordDeclaration Record(string name,
+        IEnumerable<IType>? genericParameters = null,
+        IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
+        IEnumerable<IBaseType>? baseTypeList = null,
+        IEnumerable<IMember>? members = null,
+        Namespace? @namespace = null,
+        Modifier? modifier = null,
+        IToAttributeListListConvertible? attributes = null) => RecordDeclaration.Create(NamespaceUtils.NamePart(name),
+            genericParameters, constraintClauses, baseTypeList, members,
+            @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier, attributes);
+    public static RecordDeclaration Record(string name, params IMember[] membersArray) => Record(name, members: membersArray);
 
     public static EnumDeclaration Enum(string name,
         IEnumerable<IEnumMember>? members = null,

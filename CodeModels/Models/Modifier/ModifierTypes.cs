@@ -62,6 +62,7 @@ public static class PropertyAndFieldTypes
     public const Modifier PublicReadWrite = Modifier.Public;
     //public const Modifier PublicReadPrivateWrite = Modifier.Public;
     public const Modifier PrivateProperty = Modifier.Private | Modifier.Property;
+    public const Modifier RecordProperty = Modifier.Public | Modifier.Constructor | Modifier.Property;
 }
 
 public static class TypeDeclarationTypeExtensions

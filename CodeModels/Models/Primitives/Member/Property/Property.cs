@@ -20,7 +20,7 @@ namespace CodeModels.Models.Primitives.Member;
 public record Property(string Name,
     IType Type,
     AttributeListList Attributes,
-    List<Accessor> Accessors,
+    AccessorList Accessors,
     Modifier Modifier,
     IExpression Value)
     : FieldOrProperty<PropertyDeclarationSyntax>(Name, Type, Attributes, Modifier, Value),
@@ -28,26 +28,26 @@ public record Property(string Name,
 {
     public static Property Create(string name,
     IType type,
-    IEnumerable<Accessor> accessors,
+    IToAccessorListConvertible accessors,
     IToAttributeListListConvertible? attributes = null,
     Modifier modifier = Modifier.Public,
     IExpression? value = null) => new(name,
     type,
     attributes?.ToAttributeListList() ?? CodeModelFactory.AttributesList(),
-    CodeModelFactory.List(accessors),
+    accessors.ToAccessorList(),
     modifier,
     value ?? CodeModelFactory.VoidValue);
 
     public override IEnumerable<ICodeModel> Children()
     {
         yield return Type;
-        foreach (var accessor in Accessors) yield return accessor;
+        foreach (var accessor in Accessors.Children()) yield return accessor;
         foreach (var attribute in Attributes.Children()) yield return attribute;
     }
 
-    public Accessor? GetAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Get);
-    public Accessor? SetAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Set);
-    public Accessor? InitAccessor => Accessors.FirstOrDefault(x => x.Type is AccessorType.Init);
+    public Accessor? GetAccessor => Accessors.Accessors.FirstOrDefault(x => x.Type is AccessorType.Get);
+    public Accessor? SetAccessor => Accessors.Accessors.FirstOrDefault(x => x.Type is AccessorType.Set);
+    public Accessor? InitAccessor => Accessors.Accessors.FirstOrDefault(x => x.Type is AccessorType.Init);
 
     public override IInvocation AccessValue(IExpression? instance = null) => new PropertyExpression(this, instance);
 
@@ -60,14 +60,14 @@ public record Property(string Name,
             identifier: ToIdentifier(),
             accessorList: IsGetOnly() && GetterExpressionBody() is not null
                 ? null
-                : AccessorList(List(Accessors.Select(x => x.Syntax()))),
+                : Accessors.Syntax(),
             expressionBody: IsGetOnly()
                 ? GetterExpressionBody() is IExpression getter
                     ? ArrowExpressionClause(getter.Syntax()) : null : null,
             initializer: Initializer(),
             semicolonToken: IsGetOnly() && GetterExpressionBody() is not null ? Token(SyntaxKind.SemicolonToken) : default);
 
-    public bool IsGetOnly() => Accessors.Count is 1 && GetAccessor is not null;
+    public bool IsGetOnly() => Accessors.Accessors.Count is 1 && GetAccessor is not null;
 
     public IExpression? GetterExpressionBody() => GetAccessor is Accessor getter
         ? getter.ExpressionBody : null;
@@ -78,11 +78,11 @@ public record Property(string Name,
 
     public Method? GetGetter()
         => Owner is ITypeDeclaration b ? b.Methods().FirstOrDefault(x => ((IMemberInfo)x).Name == $"get_{Name}") as Method
-        : Accessors.FirstOrDefault(x => x.Type is AccessorType.Get)?.GetMethod(Name);
+        : Accessors.Accessors.FirstOrDefault(x => x.Type is AccessorType.Get)?.GetMethod(Name);
 
     public Method? GetSetter()
         => Owner is ITypeDeclaration b ? b.Methods().FirstOrDefault(x => ((IMember)x).Name == $"set_{Name}") as Method
-        : Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
+        : Accessors.Accessors.FirstOrDefault(x => x.Type is AccessorType.Set or AccessorType.Init)?.GetMethod(Name);
 
     public Field? GetBackingField()
         => Owner is IClassDeclaration b ? b.GetFields().FirstOrDefault(x => x.Name == AccessorType.Get.GetBackingFieldName(Name)) as Field : null;
