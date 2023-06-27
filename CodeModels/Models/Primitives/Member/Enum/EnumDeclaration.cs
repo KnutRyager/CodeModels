@@ -34,9 +34,13 @@ public abstract record EnumDeclaration(string Name,
     IEnumerable<IEnumMember>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null,
-    AttributeListList? attributes = null)
+    IToAttributeListListConvertible? attributes = null)
     {
-        var declaration = new EnumDeclarationImp(name, List(InitMembersWithDefaultValues(members)), @namespace, attributes ?? AttributesList(), modifier ?? Modifier.Public);
+        var declaration = new EnumDeclarationImp(name,
+            List(InitMembersWithDefaultValues(members)),
+            @namespace,
+            attributes?.ToAttributeListList() ?? AttributesList(),
+            modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
@@ -52,7 +56,7 @@ public abstract record EnumDeclaration(string Name,
 
     public override EnumDeclarationSyntax Syntax() => ToEnum();
 
-   public override IInstantiatedObject CreateInstance()
+    public override IInstantiatedObject CreateInstance()
     {
         var scope = CreateInstanceScope();
         var instance = new InstantiatedEnum(this, scope, GetStaticScope());

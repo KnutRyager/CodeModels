@@ -47,9 +47,15 @@ public abstract record InterfaceDeclaration(string Name,
     IEnumerable<IMember>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null,
-    AttributeListList? attributes = null)
+    IToAttributeListListConvertible? attributes = null)
     {
-        var declaration = new InterfaceDeclarationImp(name, attributes ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new InterfaceDeclarationImp(name,
+            attributes?.ToAttributeListList() ?? AttributesList(), 
+            List(genericParameters), List(constraintClauses),
+            List(baseTypeList),
+            List(members), 
+            @namespace,
+            modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }

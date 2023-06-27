@@ -26,11 +26,11 @@ public record Field(string Name,
 {
     public static Field Create(string name,
     IType type,
-    AttributeListList? attributes = null,
+    IToAttributeListListConvertible? attributes = null,
     Modifier modifier = Modifier.Public,
     IExpression? value = null) => new(name,
     type,
-    attributes ?? AttributesList(),
+    attributes?.ToAttributeListList() ?? AttributesList(),
     modifier,
     value ?? VoidValue);
 

@@ -9,23 +9,23 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace CodeModels.Models.Primitives.Member
 {
-    public record Parameter(string Name, IType Type, IExpression? Expression, AttributeList Attributes, Modifier Modifier)
+    public record Parameter(string Name, IType Type, IExpression? Expression, AttributeListList Attributes, Modifier Modifier)
         : CodeModel<ParameterSyntax>(), IToParameterListConvertible, INamedValue
     {
         public IExpression Value => Expression ?? NullValue;
 
-        public static Parameter Create(string name, IType type, IExpression? value = null, IToAttributeListConvertible? attributes = default)
-            => new(name, type, value, attributes?.ToAttributeList() ?? Attributes(), Modifier.None);
+        public static Parameter Create(string name, IType type, IExpression? value = null, IToAttributeListListConvertible? attributes = default)
+            => new(name, type, value, attributes?.ToAttributeListList() ?? AttributesList(), Modifier.None);
 
         public override IEnumerable<ICodeModel> Children()
         {
+            foreach (var attribute in Attributes.Children()) yield return attribute;
             if (Expression is not null) yield return Expression;
         }
 
         public override ParameterSyntax Syntax()
-            => SyntaxFactory.Parameter(SyntaxFactory.List(new List<AttributeListSyntax>()),
-                // TODO Attributes
-                //=> SyntaxFactory.Parameter(SyntaxFactory.List(new[] { Attributes.Syntax() }),
+            => SyntaxFactory.Parameter(
+                Attributes.Syntax(),
                 Modifier.Syntax(),
                 Type.Syntax(),
                 Identifier(Name),

@@ -19,6 +19,7 @@ namespace CodeModels.Models.Primitives.Member;
 public record MethodFromReflection(MethodInfo Method)
     : Method(
         Method.Name,
+        CodeModelsFromReflection.AttributesList(Method),
         CodeModelsFromReflection.ParamList(Method),
         Method.GetGenericArguments().Select(x => TypeFromReflection.Create(x)).ToList<IType>(),
         new List<TypeParameterConstraintClause>(),

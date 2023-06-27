@@ -21,10 +21,10 @@ public record Constructor(IType ReturnType, ParameterList Parameters, Block? Bod
     : MethodBase<ConstructorDeclarationSyntax, ConstructorInvocationExpression>(ReturnType, "Constructor", Parameters, Attributes ?? AttributesList(), Modifier),
     IConstructor, IInvokable<ConstructorInvocationExpression>
 {
-    public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
-        => new(type, parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes ?? AttributesList(), initializer);
-    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, AttributeListList? attributes = null, ConstructorInitializer? initializer = null)
-        => new(type.Get_Type(), parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes ?? AttributesList(), initializer)
+    public static Constructor Create(IType type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IToAttributeListListConvertible? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type, parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes?.ToAttributeListList() ?? AttributesList(), initializer);
+    public static Constructor Create(IBaseTypeDeclaration type, IToParameterListConvertible? parameters, Block? body = null, IExpression? expressionBody = null, Modifier modifier = Modifier.Public, IToAttributeListListConvertible? attributes = null, ConstructorInitializer? initializer = null)
+        => new(type.Get_Type(), parameters?.ToParameterList() ?? ParamList(), body, expressionBody, modifier, attributes?.ToAttributeListList() ?? AttributesList(), initializer)
         {
             Owner = type
         };

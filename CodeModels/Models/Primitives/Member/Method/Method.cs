@@ -20,15 +20,15 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 namespace CodeModels.Models.Primitives.Member;
 
 public record Method(string Name,
+    AttributeListList AttributesIn,
     ParameterList Parameters,
     List<IType> TypeParameters,
     List<TypeParameterConstraintClause> ConstraintClauses,
     IType ReturnType,
     Block? Body,
     IExpression? ExpressionBody = null,
-    Modifier Modifier = Modifier.Public,
-    AttributeListList? AttributesIn = null)
-    : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, Parameters, AttributesIn ?? AttributesList(), Modifier),
+    Modifier Modifier = Modifier.Public)
+    : MethodBase<MethodDeclarationSyntax, InvocationExpression>(ReturnType, Name, Parameters, AttributesIn, Modifier),
     IMethod, IInvokable<InvocationExpression>
 {
     public static Method Create(string name,
@@ -38,8 +38,10 @@ public record Method(string Name,
         IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
         IStatementOrExpression? body = null,
         Modifier? modifier = null,
-        MethodBodyPreference? bodyPreference = default)
+        MethodBodyPreference? bodyPreference = default,
+        IToAttributeListListConvertible? attributes = default)
         => new(name,
+            attributes?.ToAttributeListList() ?? AttributesList(),
             parameters?.ToParameterList() ?? ParamList(),
             List(typeParameters),
             List(constraintClauses),
@@ -76,6 +78,7 @@ public record Method(string Name,
 
     public override IEnumerable<ICodeModel> Children()
     {
+        foreach (var attribute in AttributesIn.Children()) yield return attribute;
         foreach (var type in TypeParameters) yield return type;
         yield return Parameters;
         foreach (var constraintClause in ConstraintClauses) yield return constraintClause;

@@ -5,6 +5,7 @@ using System.Reflection;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.AbstractCodeModels.Member;
 using CodeModels.Models;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
@@ -95,10 +96,17 @@ public static class CodeModelsFromReflection
         => ParamList(method.GetParameters());
     public static ParameterList ParamList(ConstructorInfo constructor)
         => ParamList(constructor.GetParameters());
-     
+    // TODO: Match properties of Attribute with constructor call
+    public static Models.Primitives.Attribute.Attribute Attr(System.Attribute attribute)
+        => CodeModelFactory.Attribute(attribute.GetType().Name);
+    public static AttributeListList AttributesList(IEnumerable<System.Attribute> attributes)
+        => CodeModelFactory.AttributesList(attributes.Select(Attr));
+    public static AttributeListList AttributesList(MethodInfo method)
+        => AttributesList(method.GetCustomAttributes());
+
     //public static InvocationFromReflection Invocation2<TIn, TOut>(System.Linq.Expressions.Expression<Func<TIn, TOut>> expression, IExpression caller, IEnumerable<IExpression>? arguments = null)
     //    => GetModel(expression, caller, arguments);
-        //=> Invocation(GetModel(expression), caller, arguments);
+    //=> Invocation(GetModel(expression), caller, arguments);
     //public static InvocationFromReflection GetModel(Expression expression) => expression switch
     ////public static InvocationFromReflection GetModel(Expression expression, IExpression caller, IEnumerable<IExpression>? arguments = null) => expression switch
     //{
@@ -107,7 +115,7 @@ public static class CodeModelsFromReflection
     //    _ => throw new NotImplementedException()
     //};
     //=> Invocation(ExpressionReflectionUtil.GetModel(expression), caller, arguments);
-    
+
     //public static ICodeModel GetModel(LambdaExpression expression)
     //    => CodeModelFactory.Lambda(expression.Parameters.Select(x => GetModel(x)), Type(expression.Type), GetModel());
 }
