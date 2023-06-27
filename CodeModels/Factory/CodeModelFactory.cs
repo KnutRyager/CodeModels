@@ -117,15 +117,15 @@ public static class CodeModelFactory
     public static ArgumentList ArgList(IEnumerable<IToArgumentConvertible> arguments)
         => ArgumentList.Create(arguments.Select(x => x.ToArgument()));
 
-    public static AttributeList Attributes(AttributeTargetSpecifier? target = null, IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
+    public static AttributeList Attributes(AttributeTargetSpecifier? target = null, IEnumerable<IToAttributeConvertible>? attributes = null)
         => AttributeList.Create(target, attributes);
-    public static AttributeList Attributes(IEnumerable<Models.Primitives.Attribute.Attribute> attributes)
+    public static AttributeList Attributes(IEnumerable<IToAttributeConvertible> attributes)
         => AttributeList.Create(null, attributes);
 
-    public static AttributeListList AttributesList(IEnumerable<AttributeList> attributes)
+    public static AttributeListList AttributesList(IEnumerable<IToAttributeListConvertible>? attributes = null)
         => AttributeListList.Create(attributes);
-    public static AttributeListList AttributesList(IEnumerable<Models.Primitives.Attribute.Attribute>? attributes = null)
-        => AttributesList(attributes is null ? List<AttributeList>() : List(Attributes(null, attributes)));
+    public static AttributeListList AttributesList<T>(IEnumerable<T>? attributes = null) where T : IToAttributeListConvertible
+        => AttributeListList.Create(attributes);
 
     public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList? arguments = null)
         => Models.Primitives.Attribute.Attribute.Create(name, arguments);

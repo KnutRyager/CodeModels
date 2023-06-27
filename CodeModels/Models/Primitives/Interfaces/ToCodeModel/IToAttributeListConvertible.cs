@@ -2,7 +2,7 @@
 
 namespace CodeModels.Models;
 
-public interface IToAttributeListConvertible
+public interface IToAttributeListConvertible : IToAttributeListListConvertible
 {
     AttributeList ToAttributeList();
 }
