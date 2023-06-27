@@ -74,8 +74,8 @@ public static class TestUtil
     {
         var generatedCode = code.ParseAndRegenerateCode();
         generatedCode = FixNewlines(generatedCode);
-        code = FixNewlines(code);
-        generatedCode.Trim().Should().Be(otherCode.Trim());
+        code = FixNewlines(otherCode);
+        generatedCode.Trim().Should().Be(code.Trim());
     }
 
     private static string FixNewlines(string s) => s.Replace("\r\n", Environment.NewLine).Replace("\n", Environment.NewLine);
