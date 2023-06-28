@@ -98,7 +98,7 @@ public static class CodeModelsFromReflection
         => ParamList(constructor.GetParameters());
     // TODO: Match properties of Attribute with constructor call
     public static Models.Primitives.Attribute.Attribute Attr(System.Attribute attribute)
-        => CodeModelFactory.Attribute(attribute.GetType().Name);
+        => CodeModelFactory.Attribute(TypeFromReflection.Create(attribute.GetType()));
     public static AttributeListList AttributesList(IEnumerable<System.Attribute> attributes)
         => CodeModelFactory.AttributesList(attributes.Select(Attr));
     public static AttributeListList AttributesList(MethodInfo method)

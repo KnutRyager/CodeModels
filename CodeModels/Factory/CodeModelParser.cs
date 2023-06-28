@@ -69,7 +69,7 @@ public class CodeModelParser
         : Parse(typeInfo.Type ?? typeInfo.ConvertedType ?? throw new NotImplementedException());
     public IType Parse(ITypeSymbol symbol) => SymbolUtils.IsNewDefined(symbol)
         ? TryGetModel<IClassDeclaration>(symbol)?.Get_Type() ?? TypeFromSymbol.Create(symbol)
-        : TypeFromSymbol.Create(symbol);
+        : TypeFromSymbol.Create(symbol, SemanticReflection.GetType(symbol));
 
     public IType ParseType(TypeSyntax? syntax, bool required = true, IType? knownType = null)
     {
@@ -119,21 +119,17 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"NameSyntax {syntax} not implemented.")
     };
     public IType Parse(GenericNameSyntax syntax, IType? type = null) => QuickType(syntax.ToString());
-    public IExpression Parse(IdentifierNameSyntax syntax, IType? type = null)
+    public IExpression Parse(IdentifierNameSyntax syntax, IType? type = null) => model.GetSymbolInfo(syntax).Symbol switch
     {
-        var symbol = model is null ? null : model.GetSymbolInfo(syntax).Symbol;
-        return model.GetSymbolInfo(syntax).Symbol switch
-        {
-            IFieldSymbol field => Parse(syntax, field, type),
-            IPropertySymbol property => Parse(syntax, property, type),
-            //IMethodSymbol method => new MethodFromSymbol(method).Invoke(syntax.ToString(), type, method),
-            ITypeSymbol typeSymbol => Parse(typeSymbol),
-            INamespaceSymbol namespaceSymbol => Parse(namespaceSymbol),
-            _ when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, symbol),
-            _ when model.GetTypeInfo(syntax) is Microsoft.CodeAnalysis.TypeInfo typeInfo => Parse(typeInfo),
-            _ => QuickType(syntax.Identifier.ToString())
-        };
-    }
+        IFieldSymbol field => Parse(syntax, field, type),
+        IPropertySymbol property => Parse(syntax, property, type),
+        //IMethodSymbol method => new MethodFromSymbol(method).Invoke(syntax.ToString(), type, method),
+        ITypeSymbol typeSymbol => Parse(typeSymbol),
+        INamespaceSymbol namespaceSymbol => Parse(namespaceSymbol),
+        ISymbol iSymbol when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, iSymbol),
+        _ when model.GetTypeInfo(syntax) is Microsoft.CodeAnalysis.TypeInfo typeInfo => Parse(typeInfo),
+        _ => QuickType(syntax.Identifier.ToString())
+    };
 
     public IExpression Parse(IdentifierNameSyntax syntax, IFieldSymbol field, IType? type = null)
         => SymbolUtils.IsNewDefined(field)
@@ -713,7 +709,7 @@ public class CodeModelParser
     public AttributeTargetSpecifier Parse(AttributeTargetSpecifierSyntax syntax)
         => AttributeTargetSpecifier(syntax.Identifier.ToString());
     public Models.Primitives.Attribute.Attribute Parse(AttributeSyntax syntax)
-        => Attribute(syntax.Name.ToString(), syntax.ArgumentList is null ? null : AttributeArgList(syntax.ArgumentList.Arguments.Select(Parse)));
+        => Attribute(ParseType(syntax.Name), syntax.ArgumentList is null ? null : Parse(syntax.ArgumentList));
     public AttributeArgumentList Parse(AttributeArgumentListSyntax syntax)
         => AttributeArgList(syntax.Arguments.Select(Parse).ToList());
     public AttributeArgument Parse(AttributeArgumentSyntax syntax)

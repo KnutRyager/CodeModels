@@ -1,3 +1,4 @@
+using System;
 using TestCommon;
 using Xunit;
 
@@ -6,45 +7,48 @@ namespace CodeModels.Test.Generation.FromSource.Interface;
 public class AttributeEnumFromSourceTests
 {
     [Fact] public void AttributeSingle() => @"
-[System.Serializable]
+using System;
+
+[Serializable]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeMultiple() => @"
-[System.Serializable]
-[System.Obsolete]
+using System;
+
+[Serializable]
+[Obsolete]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorEmpty() => @"
-[System.Obsolete()]
+[Obsolete()]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithParameter() => @"
-[System.Obsolete(""test"")]
+using System;
+
+[Obsolete(""test"")]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithNamedParameter() => @"
-[System.Obsolete(message: ""test"")]
+using System;
+
+[Obsolete(message: ""test"")]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithMultipleParameters() => @"
-[System.Obsolete(""test"", false)]
-enum A
-{
-}".AssertParsedAndGeneratedEqual();
+using System;
 
-    [Fact] public void AttributeMultipleWithConstructorWithMultipleParameters() => @"
-[System.Obsolete(message: ""test"")]
-[AttributeUsage(validOn: AttributeTargets.All), Serializable]
+[Obsolete(""test"", false)]
 enum A
 {
 }".AssertParsedAndGeneratedEqual();

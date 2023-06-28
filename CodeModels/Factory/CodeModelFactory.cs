@@ -101,10 +101,12 @@ public static class CodeModelFactory
     public static MemberAccessExpression MemberAccess(string caller, string identifier) => MemberAccess(Identifier(caller), Identifier(identifier));
 
 
-    public static Parameter Param(string name, IType type, IExpression? value = default) => Parameter.Create(name, type, value);
+    public static Parameter Param(string name, IType type, IExpression? value = default, IToAttributeListListConvertible? attributes = default) => Parameter.Create(name, type, value, attributes);
     public static Parameter Param(IType type, IExpression? value = default) => Param(StringUtil.Uncapitalize(type.Name), type, value);
     public static Parameter Param<T>(string? name = null, IExpression? value = default) => Param(name ?? StringUtil.Uncapitalize(typeof(T).Name), Type<T>(), value);
     public static ParameterList ParamList(IEnumerable<IToParameterConvertible>? parameters = default)
+        => ParameterList.Create(parameters);
+     public static ParameterList ParamList(params IToParameterConvertible[] parameters)
         => ParameterList.Create(parameters);
     public static ParameterList ParamList(IToParameterConvertible parameter)
         => ParamList(new[] { parameter.ToParameter() });
@@ -127,8 +129,8 @@ public static class CodeModelFactory
     public static AttributeListList AttributesList<T>(IEnumerable<T>? attributes = null) where T : IToAttributeListConvertible
         => AttributeListList.Create(attributes);
 
-    public static Models.Primitives.Attribute.Attribute Attribute(string name, AttributeArgumentList? arguments = null)
-        => Models.Primitives.Attribute.Attribute.Create(name, arguments);
+    public static Models.Primitives.Attribute.Attribute Attribute(IType type, AttributeArgumentList? arguments = null)
+        => Models.Primitives.Attribute.Attribute.Create(type, arguments);
     public static AttributeArgumentList AttributeArgList(IEnumerable<AttributeArgument>? arguments = null)
         => AttributeArgumentList.Create(arguments);
     public static AttributeArgument AttributeArg(IExpression expression, string? name = null)
@@ -187,7 +189,7 @@ public static class CodeModelFactory
         => IdentifierExpression.Create(StringUtil.Uncapitalize(type.Name));
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType> typeParameters, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
         => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference);
     public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IStatementOrExpression body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
         => Method(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference: bodyPreference);

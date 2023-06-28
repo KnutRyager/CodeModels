@@ -6,13 +6,18 @@ using static CodeModels.Factory.CodeModelFactory;
 
 namespace CodeModels.Models.Primitives.Attribute;
 
-public record Attribute(string Name, AttributeArgumentList? Arguments)
+public record Attribute(IType Type, AttributeArgumentList? Arguments)
     : CodeModel<AttributeSyntax>, IToAttributeConvertible
 {
-    public static Attribute Create(string name, AttributeArgumentList? arguments = null)
-        => new(name, arguments);
+    public static Attribute Create(IType type, AttributeArgumentList? arguments = null)
+        => new(type, arguments);
 
-    public override AttributeSyntax Syntax() => SyntaxFactory.Attribute(IdentifierName(Name), Arguments?.Syntax());
+    public override AttributeSyntax Syntax()
+        => SyntaxFactory.Attribute(IdentifierName(
+            Type.Name.EndsWith("Attribute")
+            ? Type.Name[..Type.Name.LastIndexOf("Attribute")]
+            : Type.Name), Arguments?.Syntax());
+
     public override IEnumerable<ICodeModel> Children()
     {
         if (Arguments is not null) yield return Arguments;

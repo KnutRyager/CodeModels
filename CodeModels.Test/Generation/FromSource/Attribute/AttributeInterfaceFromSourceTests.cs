@@ -6,44 +6,58 @@ namespace CodeModels.Test.Generation.FromSource.Interface;
 public interface AttributeInterfaceFromSourceTests
 {
     [Fact] public void AttributeSingle() => @"
-[System.Serializable]
+using System;
+
+[Serializable]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeMultiple() => @"
-[System.Serializable]
-[System.Obsolete]
+using System;
+
+[Serializable]
+[Obsolete]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorEmpty() => @"
-[System.Obsolete()]
+using System;
+
+[Obsolete()]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithParameter() => @"
-[System.Obsolete(""test"")]
+using System;
+
+[Obsolete(""test"")]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithNamedParameter() => @"
-[System.Obsolete(message: ""test"")]
+using System;
+
+[Obsolete(message: ""test"")]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeConstructorWithMultipleParameters() => @"
-[System.Obsolete(""test"", false)]
+using System;
+
+[Obsolete(""test"", false)]
 interface A
 {
 }".AssertParsedAndGeneratedEqual();
 
     [Fact] public void AttributeMultipleWithConstructorWithMultipleParameters() => @"
-[System.Obsolete(message: ""test"")]
+using System;
+
+[Obsolete(message: ""test"")]
 [AttributeUsage(validOn: AttributeTargets.All), Serializable]
 interface A
 {
