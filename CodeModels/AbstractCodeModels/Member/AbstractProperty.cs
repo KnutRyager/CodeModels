@@ -110,4 +110,5 @@ public record AbstractProperty(IType Type, string Name, IExpression Value, Modif
     }
 
     public Property ToProperty() => Property(Type, Name, null, Value, Modifier, Attributes);
+    public Property ToConstructorProperty() => Property(Type, Name, null, Value, PropertyAndFieldTypes.RecordProperty, Attributes);
 }

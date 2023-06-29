@@ -119,17 +119,21 @@ public class CodeModelParser
         _ => throw new NotImplementedException($"NameSyntax {syntax} not implemented.")
     };
     public IType Parse(GenericNameSyntax syntax, IType? type = null) => QuickType(syntax.ToString());
-    public IExpression Parse(IdentifierNameSyntax syntax, IType? type = null) => model.GetSymbolInfo(syntax).Symbol switch
+    public IExpression Parse(IdentifierNameSyntax syntax, IType? type = null)
     {
-        IFieldSymbol field => Parse(syntax, field, type),
-        IPropertySymbol property => Parse(syntax, property, type),
-        //IMethodSymbol method => new MethodFromSymbol(method).Invoke(syntax.ToString(), type, method),
-        ITypeSymbol typeSymbol => Parse(typeSymbol),
-        INamespaceSymbol namespaceSymbol => Parse(namespaceSymbol),
-        ISymbol iSymbol when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, iSymbol),
-        _ when model.GetTypeInfo(syntax) is Microsoft.CodeAnalysis.TypeInfo typeInfo => Parse(typeInfo),
-        _ => QuickType(syntax.Identifier.ToString())
-    };
+        var symbol = model is null ? null : model.GetSymbolInfo(syntax).Symbol;
+        return model.GetSymbolInfo(syntax).Symbol switch
+        {
+            IFieldSymbol field => Parse(syntax, field, type),
+            IPropertySymbol property => Parse(syntax, property, type),
+            //IMethodSymbol method => new MethodFromSymbol(method).Invoke(syntax.ToString(), type, method),
+            ITypeSymbol typeSymbol => Parse(typeSymbol),
+            INamespaceSymbol namespaceSymbol => Parse(namespaceSymbol),
+            _ when syntax.IsKind(SyntaxKind.IdentifierName) => new IdentifierExpression(syntax.ToString(), type, symbol),
+            _ when model.GetTypeInfo(syntax) is Microsoft.CodeAnalysis.TypeInfo typeInfo => Parse(typeInfo),
+            _ => QuickType(syntax.Identifier.ToString())
+        };
+    }
 
     public IExpression Parse(IdentifierNameSyntax syntax, IFieldSymbol field, IType? type = null)
         => SymbolUtils.IsNewDefined(field)
@@ -711,7 +715,7 @@ public class CodeModelParser
     public Models.Primitives.Attribute.Attribute Parse(AttributeSyntax syntax)
         => Attribute(ParseType(syntax.Name), syntax.ArgumentList is null ? null : Parse(syntax.ArgumentList));
     public AttributeArgumentList Parse(AttributeArgumentListSyntax syntax)
-        => AttributeArgList(syntax.Arguments.Select(Parse).ToList());
+        => AttributeArgs(syntax.Arguments.Select(Parse).ToList());
     public AttributeArgument Parse(AttributeArgumentSyntax syntax)
         => AttributeArg(ParseExpression(syntax.Expression), syntax.NameColon?.Name.ToString());
     public NameEquals Parse(NameEqualsSyntax syntax) => CodeModelFactory.NameEquals(syntax.Name.ToString());
@@ -742,6 +746,7 @@ public class CodeModelParser
                          : ParseExpression(syntax.ExpressionBody.Expression)
                      : Parse(syntax.Body),
                  ParseModifier(syntax.Modifiers),
+                 Parse(syntax.AttributeLists),
                  MethodBodyPreference.Automatic));
 
     public List<TypeParameterConstraintClause> Parse(IEnumerable<TypeParameterConstraintClauseSyntax> syntax) => syntax.Select(Parse).ToList();
@@ -888,6 +893,7 @@ public class CodeModelParser
                          : ParseExpression(syntax.ExpressionBody.Expression)
                      : Parse(syntax.Body),
                  ParseModifier(syntax.Modifiers),
+                 Parse(syntax.AttributeLists),
                  MethodBodyPreference.Automatic));
     public IMember Parse(OperatorDeclarationSyntax syntax) => throw new NotImplementedException();
     public IMember Parse(BaseNamespaceDeclarationSyntax syntax) => syntax switch

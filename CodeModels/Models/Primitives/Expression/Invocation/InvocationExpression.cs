@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
-using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
 using CodeModels.Utils;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using static CodeModels.Factory.CodeModelFactory;
 using static CodeModels.Generation.SyntaxFactoryCustom;
@@ -18,8 +18,11 @@ public record InvocationExpression(Method Method, IExpression? Caller, List<IExp
     : AnyArgExpression<InvocationExpressionSyntax>(new IExpression[] { Caller ?? NullValue }.Concat(Arguments).ToList(), Method.ReturnType, OperationType.Invocation),
     IInvocation
 {
-    public override InvocationExpressionSyntax Syntax()
-        => InvocationExpressionCustom((Caller ?? NullValue).Syntax(), Arguments.Select(x => x.Syntax()));
+    public static InvocationExpression Create(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null)
+        => new(method, caller, List(arguments), List(scopes));
+
+    public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(
+        SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, Caller?.Syntax() ?? Method.Owner!.TypeSyntax(), SyntaxFactory.IdentifierName(Method.Name)), Arguments.Select(x => x.Syntax()));
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)
         => Literal(EvaluatePlain(context));

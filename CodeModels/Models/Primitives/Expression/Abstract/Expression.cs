@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Access;
 using CodeModels.Models.Primitives.Expression.Invocation;
 using CodeModels.Models.Primitives.Expression.Reference;
@@ -35,6 +36,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
     public virtual Argument ToArgument() => CodeModelFactory.Arg(this);
     public virtual ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(this);
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
 
     public virtual object? LiteralValue() => null;
     public bool IsLiteralExpression => LiteralSyntax() is not null;
@@ -66,6 +69,8 @@ public abstract record Expression<T>(IType Type, ISymbol? Symbol = null, string?
         => GetInvocation(typeof(U), name, arguments);
     public InvocationFromReflection GetInvocation<U>(string name, params IExpression[] arguments)
         => GetInvocation(typeof(U), name, arguments);
+    public InvocationExpression GetInvocation(Method method, params IExpression[] arguments)
+        => CodeModelFactory.Invocation(method, this, arguments);
 
     public InvocationFromReflection GetInvocation(Type type, string name, IEnumerable<IExpression>? arguments = null)
         => CodeModelsFromReflection.Invocation(type, name, this, arguments);

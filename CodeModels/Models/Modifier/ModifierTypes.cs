@@ -65,6 +65,11 @@ public static class PropertyAndFieldTypes
     public const Modifier RecordProperty = Modifier.Public | Modifier.Constructor | Modifier.Property;
 }
 
+public static class MethodTypes
+{
+    public const Modifier PublicStatic = Modifier.Public | Modifier.Static;
+}
+
 public static class TypeDeclarationTypeExtensions
 {
     public static Modifier AccessModifier(this Modifier modifier) => modifier switch

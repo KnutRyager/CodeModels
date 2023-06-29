@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
@@ -30,6 +32,8 @@ public record ExpressionStatement(IExpression Expression)
     public override TypeSyntax TypeSyntax() => Get_Type().Syntax();
     public override Argument ToArgument() => Expression.ToArgument();
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null)
     {
         throw new System.NotImplementedException();

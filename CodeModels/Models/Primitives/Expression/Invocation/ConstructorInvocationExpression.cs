@@ -18,6 +18,9 @@ public record ConstructorInvocationExpression(Constructor Constructor, List<IExp
     : AnyArgExpression<InvocationExpressionSyntax>(Arguments.ToList(), Constructor.Type, OperationType.Invocation),
     IInvocation
 {
+    public static ConstructorInvocationExpression Create(Constructor constructor, IEnumerable<IExpression>? arguments = null)
+        => new(constructor, List(arguments));
+
     public override InvocationExpressionSyntax Syntax() => InvocationExpressionCustom(Constructor.Name, Arguments.Select(x => x.Syntax()));
 
     public override IExpression Evaluate(ICodeModelExecutionContext context)

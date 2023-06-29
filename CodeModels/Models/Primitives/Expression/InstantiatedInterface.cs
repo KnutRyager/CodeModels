@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CodeModels.Execution;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
@@ -94,6 +96,8 @@ public record InstantiatedInterface(IInterfaceDeclaration Type,
         throw new NotImplementedException();
     }
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(Type.ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax()
     {

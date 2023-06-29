@@ -45,6 +45,7 @@ namespace CodeModels.Models.Primitives.Member
         public Parameter ToParameter() => this;
         public ParameterList ToParameterList() => ParamList(this);
         public Property ToProperty() => Property(Name, ToExpression());
+        public Property ToConstructorProperty() => Property(Type, Name, null, ToExpression(), PropertyAndFieldTypes.RecordProperty, Attributes);
 
         public TupleElementSyntax ToTupleElement()
         {

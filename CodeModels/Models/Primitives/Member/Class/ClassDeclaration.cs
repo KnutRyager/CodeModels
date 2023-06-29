@@ -72,6 +72,7 @@ public abstract record ClassDeclaration(string Name,
     public void Evaluate(ICodeModelExecutionContext context) => context.AddMember(Namespace?.Name, this);
 
     public IType BaseType() => CodeModelFactory.QuickType(Name);
+    public override IType ToType() => CodeModelFactory.QuickType(Name);
 
     public NamedValueCollection ToNamedValues() => throw new NotImplementedException();
 

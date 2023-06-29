@@ -156,7 +156,7 @@ public abstract record AbstractBaseTypeDeclaration<T, TSyntax>(string Name, Name
     {
         throw new NotImplementedException();
     }
-    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
+    public ParameterList ToParameterList() => ParamList(this);
 
     public ParameterSyntax ToParameterSyntax()
     {

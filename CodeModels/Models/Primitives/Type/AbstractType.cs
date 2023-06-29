@@ -15,6 +15,7 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static CodeModels.Factory.CodeModelFactory;
 using Microsoft.CodeAnalysis.CSharp;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 
 namespace CodeModels.Models;
 
@@ -70,6 +71,8 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
 
     public Argument ToArgument() => throw new NotImplementedException();
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
+    public AttributeArgument ToAttributeArgument() => AttributeArg(ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;
@@ -140,5 +143,5 @@ public abstract record AbstractType(string TypeName, EqualityList<IType> Generic
     {
         throw new NotImplementedException();
     }
-    public ParameterList ToParameterList() => CodeModelFactory.ParamList(this);
+    public ParameterList ToParameterList() => ParamList(this);
 }

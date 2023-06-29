@@ -3,7 +3,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace CodeModels.Models.Primitives.Expression.Abstract;
 
-public interface IExpression : IStatementOrExpression, IIdentifiable, IExpressionOrPattern, IToArgumentConvertible
+public interface IExpression : IStatementOrExpression, IIdentifiable,
+    IExpressionOrPattern, IToArgumentConvertible, IToAttributeArgumentConvertible
 {
     bool IsLiteralExpression { get; }
     LiteralExpressionSyntax? LiteralSyntax();

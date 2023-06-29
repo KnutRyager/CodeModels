@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
 using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Utils;
 using Microsoft.CodeAnalysis.CSharp;
@@ -54,6 +55,7 @@ public abstract record EnumDeclaration(string Name,
 
     public List<IEnumMember> GetEnumMembers() => Members.Select(x => (x as IEnumMember)!).Where(x => x is not null).ToList();
 
+    public override IType ToType() => CodeModelFactory.QuickType(Name);
     public override EnumDeclarationSyntax Syntax() => ToEnum();
 
     public override IInstantiatedObject CreateInstance()

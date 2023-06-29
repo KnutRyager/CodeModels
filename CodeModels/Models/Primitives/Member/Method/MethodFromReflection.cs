@@ -6,6 +6,7 @@ using System.Reflection;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
 using CodeModels.Models.Interfaces;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Reflection;
@@ -225,6 +226,8 @@ public record TypeFromSymbol2(ITypeSymbol Symbol) : MemberFromSymbol<ITypeSymbol
     public Type? GetReflectedType() => Lookup.GetReflectedType();
     public override Argument ToArgument() => Lookup.ToArgument();
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => Lookup.ToEnumValue(value);
     public IType ToMultiType() => Lookup.ToMultiType();
     public TypeParameterSyntax ToTypeParameter() => Lookup.ToTypeParameter();

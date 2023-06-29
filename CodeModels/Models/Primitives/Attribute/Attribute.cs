@@ -9,8 +9,8 @@ namespace CodeModels.Models.Primitives.Attribute;
 public record Attribute(IType Type, AttributeArgumentList? Arguments)
     : CodeModel<AttributeSyntax>, IToAttributeConvertible
 {
-    public static Attribute Create(IType type, AttributeArgumentList? arguments = null)
-        => new(type, arguments);
+    public static Attribute Create(IType type, IToAttributeArgumentListConvertible? arguments = null)
+        => new(type, arguments?.ToAttributeArgumentList());
 
     public override AttributeSyntax Syntax()
         => SyntaxFactory.Attribute(IdentifierName(

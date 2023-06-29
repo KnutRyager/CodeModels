@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using CodeModels.Execution.Context;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using Microsoft.CodeAnalysis;
@@ -40,6 +41,8 @@ namespace CodeModels.Models.Primitives.Member
 
         public Argument ToArgument() => this;
         public ArgumentList ToArgumentList() => ArgList(new[] { this });
+        public AttributeArgument ToAttributeArgument() => AttributeArg(Expression);
+        public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
 
         public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => Expression.ToEnumValue();
         public IdentifierExpression ToIdentifierExpression() => Expression.ToIdentifierExpression();

@@ -51,7 +51,7 @@ public record Method(string Name,
             modifier ?? Modifier.Public);
 
     public MethodDeclarationSyntax ToMethodSyntax(Modifier modifiers = Modifier.None, Modifier removeModifier = Modifier.None) => MethodDeclarationCustom(
-        attributeLists: new List<AttributeListSyntax>(),
+        attributeLists: AttributesIn.Syntax(),
         modifiers: Modifier.SetModifiers(modifiers).SetFlags(removeModifier, false).Syntax(),
         returnType: ReturnType.Syntax() ?? TypeShorthands.VoidType.Syntax()!,
         explicitInterfaceSpecifier: default,

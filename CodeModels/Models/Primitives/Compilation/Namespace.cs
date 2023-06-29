@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CodeModels.Execution.Context;
 using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Member;
 using Common.DataStructures;
@@ -60,6 +61,8 @@ public record Namespace(
     public Argument ToArgument() => throw new NotImplementedException();
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
     public IExpression Evaluate(ICodeModelExecutionContext context) => this;
     public object? EvaluatePlain(ICodeModelExecutionContext context) => throw new NotImplementedException();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();

@@ -1,7 +1,10 @@
+using System.Net;
+using System.Runtime.InteropServices;
 using Microsoft.EntityFrameworkCore;
 using TestCommon;
 using static CodeModels.Factory.AbstractCodeModelFactory;
 using static CodeModels.Factory.CodeModelFactory;
+using Microsoft.AspNetCore.Mvc;
 
 namespace ApiGenerator.Test;
 
@@ -47,7 +50,7 @@ public class RestDbContext : DbContext
     [Fact]
     public void Service()
     {
-        var model = new ModelModel("A", NamedValues(NamedValue<int>("P1")));
+        var model = ApiModelFactory.Model("A", NamedValues(NamedValue<int>("P1")));
         ApiModelFactory.Service(model, ApiModelFactory.DbContext("Rest", new[] { model })).CodeModelEqual("""
 public class AService
 {
@@ -62,12 +65,35 @@ public class AService
 }
 """);
     }
+
+    [Fact]
+    public void Dto()
+    {
+        var model = ApiModelFactory.Model("A", NamedValues(NamedValue<int>("P1")));
+        ApiModelFactory.Dto(model).CodeModelEqual("""
+public record ADto(int P1);
+""");
+    }
+
+    [Fact]
+    public void Controller()
+    {
+        var model = ApiModelFactory.Model("A", NamedValues(NamedValue<int>("P1")));
+        var dto = ApiModelFactory.Dto(model);
+        var service = ApiModelFactory.Service(model, ApiModelFactory.DbContext("Rest", new[] { model }));
+        ApiModelFactory.Controller(model, service).CodeModelEqual("""
+public static class AController
+{
+    [ProducesResponseType(typeof(ADto), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Exception), (int)HttpStatusCode.BadRequest)]
+    public static ActionResult<ADto> Get([FromServices] AService api, [FromServices] AMapper mapper, int id) => mapper.Map(api.Get(id));
+}
+""");
+    }
 }
 
-public class A
-{
-    public int Id { get; set; }
-}
+public record A(int Id);
+public record ADto(int Id);
 
 public class RestDbContext : DbContext
 {
@@ -110,4 +136,16 @@ public class AService
     }
 
     public A Get(int id) => DbContext.A.First(x => x.Id == id);
+}
+
+public class AMapper
+{
+    public ADto Map(A a) => new(a.Id);
+}
+
+public static class AController
+{
+    [ProducesResponseType(typeof(ADto), (int)HttpStatusCode.OK)]
+    [ProducesResponseType(typeof(Exception), (int)HttpStatusCode.BadRequest)]
+    public static ActionResult<ADto> Get([FromServices] AService api, [FromServices] AMapper mapper, int id) => mapper.Map(api.Get(id));
 }

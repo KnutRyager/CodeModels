@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using CodeModels.Execution.Context;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
@@ -32,6 +34,8 @@ public abstract record StatementExpression(IStatement Statement, ISymbol? Symbol
     public Argument ToArgument() => throw new NotImplementedException();
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
     public ArgumentSyntax ToArgumentSyntax() => throw new NotImplementedException();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(this);
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null) => throw new NotImplementedException();
     CSharpSyntaxNode ICodeModel.Syntax() => Statement.Syntax();
 

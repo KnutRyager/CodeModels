@@ -100,6 +100,7 @@ public record NamedValueCollection(List<AbstractProperty> Properties, string? Na
         => this with { Name = @namespace.Name };
 
     public List<Property> ToFieldOrProperties() => Properties.Select(x => x.ToProperty()).ToList();
+    public List<Property> ToConstructorProperties() => Properties.Select(x => x.ToConstructorProperty()).ToList();
 
     public IType ToType()
     {

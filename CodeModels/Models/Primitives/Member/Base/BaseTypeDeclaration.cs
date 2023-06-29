@@ -238,7 +238,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     public RecordDeclarationSyntax ToRecord(string? name = null, Modifier? modifiers = null) => RecordDeclarationCustom(
             attributeLists: Attributes.Syntax(),
-            modifiers: modifiers?.Syntax() ?? TopLevelModifier.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).ClearFlags(Modifier.Record).Syntax(),
             identifier: name is not null ? Identifier(name) : ToIdentifier(),
             typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
             parameterList: GetPrimaryConstructorProperties().Count is 0 ? null : ParameterList(SeparatedList(GetPrimaryConstructorProperties().Select(x => x.ToParameterSyntax()))),
@@ -248,7 +248,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     public ClassDeclarationSyntax ToClass(string? name = null, Modifier? modifiers = null, Modifier memberModifiers = Modifier.Public) => ClassDeclarationCustom(
             attributeLists: Attributes.Syntax(),
-            modifiers: modifiers?.Syntax() ?? TopLevelModifier.Syntax(),
+            modifiers: (modifiers ?? TopLevelModifier).ClearFlags(Modifier.Class).Syntax(),
             identifier: name is not null ? Identifier(name) : ToIdentifier(),
             typeParameterList: GenericParameters.Count is 0 ? null : TypeParameterList(SeparatedList(GenericParameters.Select(x => x.ToTypeParameter()))),
             baseList: BaseTypeList.Any() ? BaseList(SeparatedList(BaseTypeList.Select(x => x.Syntax()))) : null,
@@ -280,6 +280,7 @@ public abstract record BaseTypeDeclaration<T>(string Name,
 
     //public virtual IMember this[string name] => Members.FirstOrDefault(x => x.Name == name) ?? Methods().FirstOrDefault(x => ((IMember)x).Name == name) ?? throw new ArgumentException($"No member '{name}' found in {Name}.");
     public IMethod GetMethod(string name) => Methods().First(x => ((IMember)x).Name == name);
+    public IType GetMemberType(string name) => GetMember(name).Get_Type();
 
     public bool IsStatic => TopLevelModifier.HasFlag(Modifier.Static);
 
@@ -314,32 +315,12 @@ public abstract record BaseTypeDeclaration<T>(string Name,
     public MemberDeclarationSyntax SyntaxWithModifiers(Modifier modifier = Modifier.None, Modifier removeModifier = Modifier.None)
         => (this with { TopLevelModifier = Modifier.SetModifiers(modifier).SetFlags(removeModifier, false) }).Syntax();
 
-    public ICodeModel Render(Namespace @namespace)
-    {
-        throw new NotImplementedException();
-    }
-
-    public IType ToType()
-    {
-        throw new NotImplementedException();
-    }
-
+    public ICodeModel Render(Namespace @namespace) => throw new NotImplementedException();
+    public abstract IType ToType();
     public IExpression ToExpression() => ToIdentifierExpression();
-
-    public Parameter ToParameter()
-    {
-        throw new NotImplementedException();
-    }
-
-    public ParameterSyntax ToParameterSyntax()
-    {
-        throw new NotImplementedException();
-    }
-
-    public TupleElementSyntax ToTupleElement()
-    {
-        throw new NotImplementedException();
-    }
+    public Parameter ToParameter() => throw new NotImplementedException();
+    public ParameterSyntax ToParameterSyntax() => ToParameter().Syntax();
+    public TupleElementSyntax ToTupleElement() => throw new NotImplementedException();
 
     public abstract IInstantiatedObject CreateInstance();
 

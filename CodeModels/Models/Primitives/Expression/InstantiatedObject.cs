@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using CodeModels.Execution;
 using CodeModels.Execution.Context;
 using CodeModels.Execution.Scope;
+using CodeModels.Factory;
+using CodeModels.Models.Primitives.Attribute;
 using CodeModels.Models.Primitives.Expression.Abstract;
 using CodeModels.Models.Primitives.Expression.Reference;
 using CodeModels.Models.Primitives.Member;
@@ -96,6 +98,8 @@ public record InstantiatedObject(IClassOrRecordDeclaration Type,
     public ArgumentList ToArgumentList() => ToArgument().ToArgumentList();
 
     public ArgumentSyntax ToArgumentSyntax() => ToArgument().Syntax();
+    public AttributeArgument ToAttributeArgument() => CodeModelFactory.AttributeArg(Type.ToExpression());
+    public AttributeArgumentList ToAttributeArgumentList() => ToAttributeArgument().ToAttributeArgumentList();
 
     public EnumMemberDeclarationSyntax ToEnumValue(int? value = null)
     {

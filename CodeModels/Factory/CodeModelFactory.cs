@@ -59,6 +59,12 @@ public static class CodeModelFactory
         IEnumerable<IType> genericTypes,
         Type? type = null,
         ITypeSymbol? symbol = null) => Models.QuickType.Create(identifier, genericTypes, type, symbol);
+    public static QuickType GenericType(IType type,
+        IEnumerable<IType> genericTypes) => Models.QuickType.Create(type.Name, genericTypes);
+    public static QuickType GenericType(IType type,
+        params IType[] genericTypes) => Models.QuickType.Create(type.Name, genericTypes);
+    public static QuickType GenericType<T>(IEnumerable<IType> genericTypes) => GenericType(Type<T>(), genericTypes);
+    public static QuickType GenericType<T>(params IType[] genericTypes) => GenericType(Type<T>(), genericTypes);
 
     public static CompilationUnit CompilationUnit(List<IMember> members, List<UsingDirective>? usings = null, IToAttributeListListConvertible? attributes = null, List<ExternAliasDirective>? externs = null)
         => Models.CompilationUnit.Create(members, usings ?? new List<UsingDirective>(), attributes, externs);
@@ -79,6 +85,8 @@ public static class CodeModelFactory
     public static List<IMethod> Methods(Type type) => CodeModelsFromReflection.Methods(type);
 
     public static IExpression Literal(object? value) => value is IInstantiatedObject o ? o : value is LiteralExpression l ? l : LiteralExpression.Create(value);
+    public static IExpression Expression(System.Linq.Expressions.Expression<Func<object, object?>> expression)
+        => CodeModelsFromExpression.GetExpression(expression);
     public static UnaryExpression Default(IType? type) => UnaryExpression(type!, OperationType.Default, type);
     public static IExpression Value(object? value) => value switch
     {
@@ -92,8 +100,9 @@ public static class CodeModelFactory
 
     public static List<IExpression> Literals(IEnumerable<object> values) => values.Select(Literal).ToList();
     public static InvocationExpression Invocation(Method method, IExpression? caller, IEnumerable<IExpression>? arguments = null, IEnumerable<ICodeModelExecutionScope>? scopes = null)
-        => new(method, caller, List(arguments), List(scopes));
-    public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null) => new(constructor, List(arguments));
+        => InvocationExpression.Create(method, caller, arguments, scopes);
+    public static ConstructorInvocationExpression ConstructorInvocation(Constructor constructor, IEnumerable<IExpression>? arguments = null)
+        => ConstructorInvocationExpression.Create(constructor, arguments);
     //public static OperationCall OperationCall(Method method, IExpression caller, IEnumerable<IExpression>? arguments = null) => new(method, caller, List(arguments));
     public static MemberAccessExpression MemberAccess(IExpression caller, IdentifierExpression identifier) => new(caller, identifier);
     public static MemberAccessExpression MemberAccess(Field field, IExpression caller) => MemberAccess(caller, Identifier(field.Name, model: field));
@@ -106,8 +115,8 @@ public static class CodeModelFactory
     public static Parameter Param<T>(string? name = null, IExpression? value = default) => Param(name ?? StringUtil.Uncapitalize(typeof(T).Name), Type<T>(), value);
     public static ParameterList ParamList(IEnumerable<IToParameterConvertible>? parameters = default)
         => ParameterList.Create(parameters);
-     public static ParameterList ParamList(params IToParameterConvertible[] parameters)
-        => ParameterList.Create(parameters);
+    public static ParameterList ParamList(params IToParameterConvertible[] parameters)
+       => ParameterList.Create(parameters);
     public static ParameterList ParamList(IToParameterConvertible parameter)
         => ParamList(new[] { parameter.ToParameter() });
 
@@ -123,15 +132,25 @@ public static class CodeModelFactory
         => AttributeList.Create(target, attributes);
     public static AttributeList Attributes(IEnumerable<IToAttributeConvertible> attributes)
         => AttributeList.Create(null, attributes);
+    public static AttributeList Attributes(params IToAttributeConvertible[] attributes)
+        => AttributeList.Create(null, attributes);
 
     public static AttributeListList AttributesList(IEnumerable<IToAttributeListConvertible>? attributes = null)
         => AttributeListList.Create(attributes);
     public static AttributeListList AttributesList<T>(IEnumerable<T>? attributes = null) where T : IToAttributeListConvertible
         => AttributeListList.Create(attributes);
+    public static AttributeListList AttributesList<T>(params T[] attributes) where T : IToAttributeListConvertible
+        => AttributeListList.Create(attributes);
 
-    public static Models.Primitives.Attribute.Attribute Attribute(IType type, AttributeArgumentList? arguments = null)
+    public static Models.Primitives.Attribute.Attribute Attribute(IType type, IToAttributeArgumentListConvertible? arguments = null)
         => Models.Primitives.Attribute.Attribute.Create(type, arguments);
-    public static AttributeArgumentList AttributeArgList(IEnumerable<AttributeArgument>? arguments = null)
+    public static Models.Primitives.Attribute.Attribute Attribute<T>(IToAttributeArgumentListConvertible? arguments = null)
+        => Attribute(Type<T>(), arguments);
+    public static Models.Primitives.Attribute.Attribute Attribute<T>(params IToAttributeArgumentConvertible[] arguments)
+        => Attribute(Type<T>(), AttributeArgs(arguments));
+    public static AttributeArgumentList AttributeArgs(IEnumerable<IToAttributeArgumentConvertible>? arguments = null)
+        => AttributeArgumentList.Create(arguments);
+    public static AttributeArgumentList AttributeArgs(params IToAttributeArgumentConvertible[] arguments)
         => AttributeArgumentList.Create(arguments);
     public static AttributeArgument AttributeArg(IExpression expression, string? name = null)
         => AttributeArgument.Create(expression, name);
@@ -189,17 +208,17 @@ public static class CodeModelFactory
         => IdentifierExpression.Create(StringUtil.Uncapitalize(type.Name));
     public static List<IStatement> Statements(params IStatement[] statements) => statements.ToList();
 
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType> typeParameters, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
-        => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference);
-    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IStatementOrExpression body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
-        => Method(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference: bodyPreference);
-    public static Method Method(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
-        => Method(name, ParamList(), returnType, null, body: body, modifier: modifier, bodyPreference: bodyPreference);
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? typeParameters, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, IToAttributeListListConvertible? attributes = default, MethodBodyPreference? bodyPreference = default)
+        => Models.Primitives.Member.Method.Create(name, parameters, returnType, typeParameters, constraintClauses, body, modifier, bodyPreference, attributes);
+    public static Method Method(string name, IToParameterListConvertible parameters, IType returnType, IStatementOrExpression body, IEnumerable<IType>? typeParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, Modifier? modifier = null, IToAttributeListListConvertible? attributes = default, MethodBodyPreference? bodyPreference = default)
+        => Method(name, parameters, returnType, typeParameters ?? Array.Empty<IType>(), constraintClauses, body, modifier, attributes, bodyPreference: bodyPreference);
+    public static Method Method(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = null, IToAttributeListListConvertible? attributes = default, MethodBodyPreference? bodyPreference = default)
+        => Method(name, ParamList(), returnType, Array.Empty<IType>(), body: body, modifier: modifier, attributes: attributes, bodyPreference: bodyPreference);
 
-    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, MethodBodyPreference? bodyPreference = default)
+    public static LocalFunctionStatement LocalFunction(string name, IToParameterListConvertible parameters, IType returnType, IEnumerable<IType>? genericParameters = null, IEnumerable<TypeParameterConstraintClause>? constraintClauses = null, IStatementOrExpression? body = null, Modifier? modifier = null, IToAttributeListListConvertible? attributes = default, MethodBodyPreference? bodyPreference = default)
         => LocalFunctionStatement.Create(name, parameters, returnType, genericParameters, constraintClauses, body, modifier, bodyPreference);
-    public static LocalFunctionStatement LocalFunction(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = default, MethodBodyPreference? bodyPreference = default)
-        => LocalFunction(name, ParamList(), returnType, body: body, modifier: modifier, bodyPreference: bodyPreference);
+    public static LocalFunctionStatement LocalFunction(string name, IType returnType, IStatementOrExpression body, Modifier? modifier = default, IToAttributeListListConvertible? attributes = default, MethodBodyPreference? bodyPreference = default)
+        => LocalFunction(name, ParamList(), returnType, body: body, modifier: modifier, attributes: attributes, bodyPreference: bodyPreference);
 
     public static TypeParameterConstraintClause ConstraintClause(string name, IEnumerable<ITypeParameterConstraint>? constraints = null)
         => TypeParameterConstraintClause.Create(name, constraints);
@@ -407,6 +426,10 @@ public static class CodeModelFactory
 
     public static UnaryExpression Not(IExpression input, IType? type = null)
        => UnaryExpression(input, OperationType.Not, type);
+    public static UnaryExpression Cast(IExpression input, IType type)
+       => UnaryExpression(input, OperationType.Cast, type);
+    public static UnaryExpression Cast<T>(IExpression input)
+       => Cast(input, Type<T>());
 
     public static BinaryExpression BinaryExpression(IExpression lhs, OperationType operation, IExpression rhs, IType? type = null)
         => operation.IsBinaryOperator() ? new(lhs, rhs, type ?? TypeShorthands.NullType, operation) : throw new ArgumentException($"Not a binary operator: '{operation}'");
@@ -551,7 +574,9 @@ public static class CodeModelFactory
 
     public static AwaitExpression Await(IExpression expression) => AwaitExpression.Create(expression);
     public static TypeOfExpression TypeOf(IType type) => TypeOfExpression.Create(type);
+    public static TypeOfExpression TypeOf<T>() => TypeOf(Type<T>());
     public static SizeOfExpression SizeOf(IType type) => SizeOfExpression.Create(type);
+    public static SizeOfExpression SizeOf<T>() => SizeOf(Type<T>());
 
     public static AnonymousMethodExpression AnonymousMethod(Modifier modifier, bool isAsync,
     bool isDelegate, IToParameterListConvertible parameters,
