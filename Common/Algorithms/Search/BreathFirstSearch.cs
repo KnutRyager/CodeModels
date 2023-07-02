@@ -93,15 +93,14 @@ public static class BreathFirstSearch
         return default;
     }
 
-    public static List<(TNode Node, TEdge? Edge)>? FindPathWithEdges<TNode, TEdge>(TNode root, Predicate<TNode> matchCriteria, Func<TNode, IEnumerable<TEdge>> pathSelector, Func<TEdge, TNode> pathStep)
-        where TNode : IEquatable<TNode>
+    public static List<(TNode Node, TEdge Edge)>? FindPathWithEdges<TNode, TEdge>(TNode root, Predicate<TNode> matchCriteria, Func<TNode, IEnumerable<TEdge>> pathSelector, Func<TEdge, TNode> pathStep)
     {
         if (root is null)
             return default;
 
         var seen = new HashSet<TNode>();
-        var queue = new Queue<List<(TNode Node, TEdge? Edge)>>();
-        var path = new List<(TNode Node, TEdge? Edge)>() { (Node: root, Edge: default) };
+        var queue = new Queue<List<(TNode Node, TEdge Edge)>>();
+        var path = new List<(TNode Node, TEdge Edge)>() { (Node: root, Edge: default!) };
         queue.Enqueue(path);
 
         while (queue.Count > 0)
@@ -116,11 +115,11 @@ public static class BreathFirstSearch
             foreach (var child in pathSelector(node))
             {
                 var step = pathStep(child);
-                var newPath = new List<(TNode Node, TEdge? Edge)>(path)
+                var newPath = new List<(TNode Node, TEdge? Edge)>(path!)
                 {
                     (Node: step, Edge: child)
                 };
-                queue.Enqueue(newPath);
+                queue.Enqueue(newPath!);
             }
         }
 
