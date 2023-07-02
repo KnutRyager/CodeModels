@@ -12,8 +12,11 @@ public static class ReflectionPropertySearch
     public static IMemberAccess? GetMemberAccess(Type start, Type end, Predicate<Type>? typeRestriction = null)
         => FindPath(start, end, typeRestriction) is List<IMemberAccess> access ? MemberAccessFactory.Create(access) : null;
 
-    public static IMemberAccess? GetMemberAccessLimitNamespace(Type start, Type end)
-        => GetMemberAccess(start, end, TypeRestrictions.LimitNamespace(start, end));
+    public static IMemberAccess? GetMemberAccessSameNamespace(Type start, Type end)
+        => GetMemberAccess(start, end, TypeRestrictions.SameNamespace(start, end));
+
+    public static IMemberAccess? GetMemberAccessNonSystemNamespace(Type start, Type end)
+        => GetMemberAccess(start, end, TypeRestrictions.NonSystemNamespace);
 
     public static List<IMemberAccess>? FindPath(Type start, Type end, Predicate<Type>? typeRestriction = null)
         => start == end ? new List<IMemberAccess>()
@@ -25,12 +28,16 @@ public static class ReflectionPropertySearch
             .Select(y => MemberAccessFactory.Create(y)).ToArray(), x => x.Type())
             ?.Skip(1).Select(x => x.Edge).ToList();
 
-    public static List<IMemberAccess>? FindPathLimitNamespace(Type start, Type end)
-        => FindPath(start, end, TypeRestrictions.LimitNamespace(start, end));
+    public static List<IMemberAccess>? FindPathSameNamespace(Type start, Type end)
+        => FindPath(start, end, TypeRestrictions.SameNamespace(start, end));
+
+    public static List<IMemberAccess>? FindPathNonSystemNamespace(Type start, Type end)
+        => FindPath(start, end, TypeRestrictions.NonSystemNamespace);
 
     public class TypeRestrictions
     {
-        public static Predicate<Type> LimitNamespace(Type start, Type end)
+        public static Predicate<Type> SameNamespace(Type start, Type end)
             => x => x.Namespace == start.Namespace || x.Namespace == end.Namespace;
+        public static readonly Predicate<Type> NonSystemNamespace = x => !x.Namespace.StartsWith("System.");
     }
 }
