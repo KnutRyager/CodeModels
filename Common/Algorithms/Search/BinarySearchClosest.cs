@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Common.Util;
 
-namespace Common.Algorithms;
+namespace Common.Algorithms.Search;
 
 /// <summary>
 /// Find the closest items by binary search
@@ -116,5 +116,4 @@ public static class BinarySearchClosest
         var diffPrevious = Math.Abs(mid == 0 ? 99999999 : compare(items[mid - 1], item));
         return mid == 0 || diff <= diffPrevious ? mid : mid - 1;
     }
-
 }

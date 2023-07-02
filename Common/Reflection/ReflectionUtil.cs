@@ -527,6 +527,15 @@ public static class ReflectionUtil
     public static bool IsStatic(PropertyInfo property) => property.GetAccessors(true)[0].IsStatic;
     public static bool IsExtension(MethodInfo method) => method.IsDefined(typeof(ExtensionAttribute), true);
 
+    public static Type GetType(MemberInfo member) => member switch
+    {
+        Type type => type,
+        FieldInfo field => field.FieldType,
+        PropertyInfo property => property.PropertyType,
+        MethodInfo method => method.ReturnType,
+        _ => throw new NotImplementedException()
+    };
+
     // https://stackoverflow.com/questions/22109246/get-result-of-taskt-without-knowing-typeof-t
     public static object ConvertTaskResult(Task task)
     {

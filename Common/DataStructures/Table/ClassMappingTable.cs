@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Common.Algorithms;
+using Common.Algorithms.Search;
 using Common.Extensions;
 
 namespace Common.DataStructures;

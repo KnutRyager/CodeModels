@@ -1,7 +1,8 @@
 using Common.Algorithms;
+using Common.Algorithms.Search;
 using Xunit;
 
-namespace Common.Tests.Algorithms;
+namespace Common.Test.algorithms.Search;
 
 public class BinarySearchClosestTests
 {
