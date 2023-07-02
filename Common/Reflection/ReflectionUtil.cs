@@ -527,6 +527,19 @@ public static class ReflectionUtil
     public static bool IsStatic(PropertyInfo property) => property.GetAccessors(true)[0].IsStatic;
     public static bool IsExtension(MethodInfo method) => method.IsDefined(typeof(ExtensionAttribute), true);
 
+    public static bool IsRunTimeType(Type type) => type != typeof(Type);
+    public static bool IsRunTimeMethod(MethodInfo method) => method.GetType() != typeof(MethodInfo);
+    public static bool IsRunTimeField(FieldInfo field) => field.GetType() != typeof(FieldInfo);
+    public static bool IsRunTimeProperty(PropertyInfo property) => property.GetType() != typeof(PropertyInfo);
+    public static bool IsRunTimeMember(MemberInfo member) => member switch
+    {
+        Type type => IsRunTimeType(type),
+        FieldInfo field => IsRunTimeField(field),
+        PropertyInfo property => IsRunTimeProperty(property),
+        MethodInfo method => IsRunTimeMethod(method),
+        _ => throw new NotImplementedException()
+    };
+
     public static Type GetType(MemberInfo member) => member switch
     {
         Type type => type,
