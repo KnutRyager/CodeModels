@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Common.DataStructures;
 
 namespace Common.Algorithms.Search;
@@ -86,6 +85,40 @@ public static class BreathFirstSearch
                 var newPath = new List<T>(path)
                 {
                     child
+                };
+                queue.Enqueue(newPath);
+            }
+        }
+
+        return default;
+    }
+
+    public static List<(TNode Node, TEdge? Edge)>? FindPathWithEdges<TNode, TEdge>(TNode root, Predicate<TNode> matchCriteria, Func<TNode, IEnumerable<TEdge>> pathSelector, Func<TEdge, TNode> pathStep)
+        where TNode : IEquatable<TNode>
+    {
+        if (root is null)
+            return default;
+
+        var seen = new HashSet<TNode>();
+        var queue = new Queue<List<(TNode Node, TEdge? Edge)>>();
+        var path = new List<(TNode Node, TEdge? Edge)>() { (Node: root, Edge: default) };
+        queue.Enqueue(path);
+
+        while (queue.Count > 0)
+        {
+            path = queue.Dequeue();
+            var (node, _) = path[^1];
+            if (seen.Contains(node)) continue;
+            seen.Add(node);
+            if (matchCriteria(node))
+                return path;
+
+            foreach (var child in pathSelector(node))
+            {
+                var step = pathStep(child);
+                var newPath = new List<(TNode Node, TEdge? Edge)>(path)
+                {
+                    (Node: step, Edge: child)
                 };
                 queue.Enqueue(newPath);
             }

@@ -53,6 +53,27 @@ public class BreathFirstSearchTests
         .Should().BeEquivalentTo(new List<int>() { 1, 4, 6 });
 
     [Fact]
+    public void FindPathWithEdges_CustomCriteria_Root() => BreathFirstSearch.FindPathWithEdges(
+        NodeFactory.Create(1, NodeFactory.Create(2)), x => x.Value == 1, x => x.Children, x => x).Select(x => x.Node.Value)
+        .Should().BeEquivalentTo(new List<int>() { 1 });
+
+    [Fact]
+    public void FindPathWithEdges_CustomCriteria_Depth1() => BreathFirstSearch.FindPathWithEdges(
+        NodeFactory.Create(1, NodeFactory.Create(2)), x => x.Value == 2, x => x.Children, x => x).Select(x => x.Node.Value)
+        .Should().BeEquivalentTo(new List<int>() { 1, 2 });
+
+    [Fact]
+    public void FindPathWithEdges_CustomCriteria_Depth2() => BreathFirstSearch.FindPathWithEdges(
+        NodeFactory.Create(1,
+            NodeFactory.Create(2,
+                NodeFactory.Create(3)),
+            NodeFactory.Create(4,
+                NodeFactory.Create(5),
+                NodeFactory.Create(6),
+                NodeFactory.Create(7))), x => x.Value == 6, x => x.Children, x => x).Select(x => x.Node.Value)
+        .Should().BeEquivalentTo(new List<int>() { 1, 4, 6 });
+
+    [Fact]
     public void Search_NullWhenNoSolution() => BreathFirstSearch.Search(
         NodeFactory.Create(1, NodeFactory.Create(2)), 3)
         .Should().BeNull();
@@ -81,5 +102,4 @@ public class BreathFirstSearchTests
     public void FindPath_CustomCriteria_CyclicalTerminates() => BreathFirstSearch.FindPath(
         NodeFactory.Create(1), x => x.Value == 2, x => new[] { x })
         .Should().BeNull(null);
-
 }
