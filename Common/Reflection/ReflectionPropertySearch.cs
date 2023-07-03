@@ -37,7 +37,8 @@ public static class ReflectionPropertySearch
     public class TypeRestrictions
     {
         public static Predicate<Type> SameNamespace(Type start, Type end)
-            => x => x.Namespace == start.Namespace || x.Namespace == end.Namespace;
+            => x => x.Namespace.StartsWith(start.Namespace) || x.Namespace.StartsWith(end.Namespace);
+
         public static readonly Predicate<Type> NonSystemNamespace = x => !x.Namespace.StartsWith("System.");
     }
 }
