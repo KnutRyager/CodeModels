@@ -44,7 +44,7 @@ public abstract record InterfaceDeclaration(string Name,
     IEnumerable<IType>? genericParameters = null,
     IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
     IEnumerable<IBaseType>? baseTypeList = null,
-    IEnumerable<IMember>? members = null,
+    IEnumerable<IMember?>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null,
     IToAttributeListListConvertible? attributes = null)
@@ -53,7 +53,7 @@ public abstract record InterfaceDeclaration(string Name,
             attributes?.ToAttributeListList() ?? AttributesList(), 
             List(genericParameters), List(constraintClauses),
             List(baseTypeList),
-            List(members), 
+            ListOfNoNull(members), 
             @namespace,
             modifier ?? Modifier.Public);
         declaration.InitOwner();

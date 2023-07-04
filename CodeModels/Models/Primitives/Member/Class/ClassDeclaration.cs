@@ -47,12 +47,12 @@ public abstract record ClassDeclaration(string Name,
     IEnumerable<IType>? genericParameters = null,
     IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
     IEnumerable<IBaseType>? baseTypeList = null,
-    IEnumerable<IMember>? members = null,
+    IEnumerable<IMember?>? members = null,
     Namespace? @namespace = null,
     Modifier? modifier = null,
     IToAttributeListListConvertible? attributes = null)
     {
-        var declaration = new ClassDeclarationImp(name, attributes?.ToAttributeListList() ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), List(members), @namespace, modifier ?? Modifier.Public);
+        var declaration = new ClassDeclarationImp(name, attributes?.ToAttributeListList() ?? AttributesList(), List(genericParameters), List(constraintClauses), List(baseTypeList), ListOfNoNull(members), @namespace, modifier ?? Modifier.Public);
         declaration.InitOwner();
         return declaration;
     }
