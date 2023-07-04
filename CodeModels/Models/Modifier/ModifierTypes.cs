@@ -68,6 +68,11 @@ public static class PropertyAndFieldTypes
 public static class MethodTypes
 {
     public const Modifier PublicStatic = Modifier.Public | Modifier.Static;
+    public const Modifier PublicInstance = Modifier.Public;
+    public const Modifier protectedStatic = Modifier.Protected | Modifier.Static;
+    public const Modifier protectedInstance = Modifier.Protected;
+    public const Modifier privateStatic = Modifier.Private | Modifier.Static;
+    public const Modifier privateInstance = Modifier.Private;
 }
 
 public static class TypeDeclarationTypeExtensions

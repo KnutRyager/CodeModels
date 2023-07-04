@@ -3,6 +3,7 @@
 using System.Linq;
 using System.Net;
 using System.Security.Cryptography.X509Certificates;
+using ApiGenerator.Settings;
 using CodeModels.AbstractCodeModels.Collection;
 using CodeModels.Factory;
 using CodeModels.Models;
@@ -44,17 +45,24 @@ public static class ApiModelFactory
         }),
         baseTypeList: SimpleBases<DbContext>());
 
-    public static ClassDeclaration Service(ModelModel Model, ClassDeclaration dbContext) => Class($"{Model.Name}Service",
-        new IMember[] {
+    public static ClassDeclaration Service(ModelModel Model, ClassDeclaration dbContext, RestApiSettings? apiSettings = null)
+    {
+        apiSettings ??= RestApiSettings.Default;
+        var settings = apiSettings.GetSettings<ServiceSettings>() ?? ServiceSettings.Default;
+        return Class($"{Model.Name}{settings.NamePrefix}",
+        new IMember?[] {
             Property(dbContext.Get_Type(), dbContext.Name, Accessors(Accessor(AccessorType.Get), Accessor(AccessorType.Init)), modifier: Modifier.Private),
             Constructor(
                 Param(Type(dbContext)), Block(Assignment(Identifier(dbContext.Get_Type().Name), Identifier(dbContext.Get_Type())))),
-            Method("Get", Param<int>("id"), Type(Model.Name),
+           settings is { IncludeGet: BoolSetting.True or BoolSetting.Auto }
+           ? Method("Get", Param<int>("id"), Type(Model.Name),
                 Identifier(dbContext.Name).Access(Identifier(Model.Name)).GetInvocation(x => Enumerable.First(T<IEnumerable<object>>(), T<Func<object, bool>>()),
                     new []{
                         Lambda(Identifier("x"), Type<int>(), Equal(MemberAccess("x", "Id"), Identifier("id")))
                     }))
+            : null
         });
+    }
 
     public static RecordDeclaration Dto(ModelModel model) => Record($"{model.Name}Dto",
         members: model.Properties.ToConstructorProperties());
@@ -62,24 +70,37 @@ public static class ApiModelFactory
     public static ClassDeclaration Mapper(ModelModel model, RecordDeclaration dto) => Class($"{model.Name}Mapper",
         members: new IMember[] { Method("Map", dto.ToType(), Identifier("x")) });
 
-    public static ClassDeclaration Controller(ModelModel model, ClassDeclaration service) => Class($"{model.Name}Controller",
-        members: new[] {
-            RestMethod("Get", model.ToType(), service, Mapper(model, Dto(model)))
-        },
+    public static ClassDeclaration Controller(ModelModel model, ClassDeclaration service, RestApiSettings? apiSettings = null)
+    {
+        apiSettings ??= RestApiSettings.Default;
+        var controllerSettings = apiSettings.GetSettings<ControllerSettings>() ?? ControllerSettings.Default;
+        return Class($"{model.Name}{controllerSettings.NamePrefix}",
+            members: new[] {
+                RestMethod("Get", model.ToType(), service, Mapper(model, Dto(model)), apiSettings)
+            },
         modifier: TypeDeclarationTypes.PublicStaticClass);
+    }
 
-    public static Method RestMethod(string name, IType type, ClassDeclaration service, ClassDeclaration mapper) => Method(name,
+    public static Method RestMethod(string name, IType type, ClassDeclaration service, ClassDeclaration mapper, RestApiSettings? apiSettings = null)
+    {
+        apiSettings ??= RestApiSettings.Default;
+        var controllerSettings = apiSettings.GetSettings<ControllerSettings>() ?? ControllerSettings.Default;
+        var settings = apiSettings.GetSettings<RestEndpointSettings>() ?? RestEndpointSettings.Default;
+        var isStatic = settings.IsStatic.ReadBool(controllerSettings.InstanceType is InstanceType.Static);
+        return Method(name,
         ParamList(
             Param("api", service.ToType(), attributes: Attribute<FromServicesAttribute>()),
             Param("mapper", mapper.ToType(), attributes: Attribute<FromServicesAttribute>()),
             Param("id", Type<int>())
             ), GenericType<ActionResult>(mapper.GetMemberType("Map")),
         body: Identifier("mapper").GetInvocation((mapper.GetMethod("Map") as Method)!,
-            Identifier("api").GetInvocation((service.GetMethod("Get") as Method)!, Identifier<int>("id"))),
+            Identifier("api").GetInvocation((service.GetMethod(name) as Method)!, Identifier<int>("id"))),
         attributes: AttributesList(
             Attribute<ProducesResponseTypeAttribute>(TypeOf<ADto>(), Cast<int>(Expression(x => HttpStatusCode.OK))),
-            Attribute<ProducesResponseTypeAttribute>(TypeOf<Exception>(), Cast<int>(Expression(x => HttpStatusCode.BadRequest)))),
-        modifier: MethodTypes.PublicStatic);
+            settings is { IncludeErrorAnnotation: BoolSetting.True or BoolSetting.Auto }
+                ? Attribute<ProducesResponseTypeAttribute>(TypeOf<Exception>(), Cast<int>(Expression(x => HttpStatusCode.BadRequest))) : null),
+        modifier: isStatic ? MethodTypes.PublicStatic : MethodTypes.PublicInstance);
+    }
 }
 
 public static class AController
