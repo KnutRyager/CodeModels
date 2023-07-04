@@ -34,7 +34,9 @@ public static class CodeModelFactory
     public static readonly IClassDeclaration VoidClass = Class("_VoidClass");
 
     public static List<T> List<T>(IEnumerable<T>? objects) => objects?.ToList() ?? new List<T>();
-    public static List<T> List<T>(params T[] objects) => objects?.ToList() ?? new List<T>();
+    public static List<T> List<T>(params T[] objectsArray) => List(objects: objectsArray);
+    public static List<T> ListOfNoNull<T>(IEnumerable<T?>? objects) => objects?.Where(x => x is not null).Select(x => x!).ToList() ?? new List<T>();
+    public static List<T> ListOfNoNull<T>(params T?[] objectsArray) => ListOfNoNull(objects: objectsArray);
 
     public static Namespace Namespace(string name) => new(name);
     public static Namespace Namespace(Type type) => CodeModelsFromReflection.Namespace(type);
@@ -139,7 +141,7 @@ public static class CodeModelFactory
         => AttributeListList.Create(attributes);
     public static AttributeListList AttributesList<T>(IEnumerable<T>? attributes = null) where T : IToAttributeListConvertible
         => AttributeListList.Create(attributes);
-    public static AttributeListList AttributesList<T>(params T[] attributes) where T : IToAttributeListConvertible
+    public static AttributeListList AttributesList<T>(params T?[] attributes) where T : IToAttributeListConvertible
         => AttributeListList.Create(attributes);
 
     public static Models.Primitives.Attribute.Attribute Attribute(IType type, IToAttributeArgumentListConvertible? arguments = null)
@@ -486,19 +488,19 @@ public static class CodeModelFactory
         IEnumerable<IType>? genericParameters = null,
         IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
         IEnumerable<IBaseType>? baseTypeList = null,
-        IEnumerable<IMember>? members = null,
+        IEnumerable<IMember?>? members = null,
         Namespace? @namespace = null,
         Modifier? modifier = null,
         IToAttributeListListConvertible? attributes = null) => ClassDeclaration.Create(NamespaceUtils.NamePart(name),
             genericParameters, constraintClauses, baseTypeList, members,
             @namespace is null && NamespaceUtils.IsMemberAccess(name) ? Namespace(NamespaceUtils.PathPart(name)) : @namespace, modifier, attributes);
-    public static ClassDeclaration Class(string name, params IMember[] membersArray) => Class(name, members: membersArray);
+    public static ClassDeclaration Class(string name, params IMember?[] membersArray) => Class(name, members: membersArray);
 
     public static InterfaceDeclaration Interface(string name,
         IEnumerable<IType>? genericParameters = null,
         IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
         IEnumerable<IBaseType>? baseTypeList = null,
-        IEnumerable<IMember>? members = null,
+        IEnumerable<IMember?>? members = null,
         Namespace? @namespace = null,
         Modifier? modifier = null,
         IToAttributeListListConvertible? attributes = null) => InterfaceDeclaration.Create(NamespaceUtils.NamePart(name),
@@ -511,7 +513,7 @@ public static class CodeModelFactory
         IEnumerable<IType>? genericParameters = null,
         IEnumerable<TypeParameterConstraintClause>? constraintClauses = null,
         IEnumerable<IBaseType>? baseTypeList = null,
-        IEnumerable<IMember>? members = null,
+        IEnumerable<IMember?>? members = null,
         Namespace? @namespace = null,
         Modifier? modifier = null,
         IToAttributeListListConvertible? attributes = null) => RecordDeclaration.Create(NamespaceUtils.NamePart(name),
@@ -627,4 +629,6 @@ public static class CodeModelFactory
         => CasePatternSwitchLabel.Create(pattern, whenClause);
 
     public static T T<T>() => default!;
+
+    public static T? Cond<T>(bool condition, T expression) => condition ? expression : default;
 }
